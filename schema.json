@@ -1,0 +1,32 @@
+{
+  "_comment": "https://thoughtbot.com/blog/get-consistent-data-from-your-llm-with-json-schema",
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "title": "small applications for small businesses.",
+  "oneOf": [
+    {
+      "markdownDescription": "https://dure.one/",
+      "enum": [
+        "dureone"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "dureone": {
+          "markdownDescription": "https://dure.one/",
+          "type": "object",
+          "properties": {
+            "jangbi": {
+              "title": "security enhanced debian/armbian/dietpi configurations.",
+              "markdownDescription": "https://dure.one/jangbi",
+              "default": null,
+              "format": "path"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
