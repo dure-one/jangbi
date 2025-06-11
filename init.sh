@@ -142,7 +142,7 @@ processes=("net-dnsmasq" "net-hostapd" "net-sshd" "os-sysctl") # net-wstunnel # 
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
-
+ 
 # allow forwarding when gateway
 # echo "1" > /proc/sys/net/ipv4/ip_forward
 
