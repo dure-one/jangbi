@@ -1,0 +1,85 @@
+# shellcheck shell=bash
+cite about-plugin
+about-plugin 'sysctl install configurations.'
+
+function os-sysctl {
+	about 'sysctl install configurations'
+	group 'os'
+    param '1: command'
+    param '2: params'
+    example '$ os-sysctl check/install/uninstall/run'
+
+    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+        _load_config
+        _root_only
+        _distname_check
+    fi
+
+	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+		__os-sysctl_install "$2"
+	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+		__os-sysctl_uninstall "$2"
+	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+		__os-sysctl_check "$2"
+	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+		__os-sysctl_run "$2"
+	else
+		__os-sysctl_help
+	fi
+}
+
+function __os-sysctl_help {
+	echo -e "Usage: os-sysctl [COMMAND] [profile]\n"
+	echo -e "Helper to sysctl install configurations.\n"
+	echo -e "Commands:\n"
+	echo "   help      Show this help message"
+	echo "   install   Install os firmware"
+	echo "   uninstall Uninstall installed firmware"
+	echo "   check     Check vars available"
+	echo "   run       Run tasks"
+}
+
+function __os-sysctl_install {
+    log_debug "Trying to install sysctl_install."
+    # backup original sysctl on first run
+    [[ ! -f "/etc/sysctl.orig" ]] && sysctl -a > /etc/sysctl.orig
+    chmod 400 /etc/sysctl.orig
+}
+
+function __os-sysctl_uninstall { # UPDATE_FIRMWARE=0
+    log_debug "Trying to uninstall sysctl_install."
+    sysctl -e -p /etc/sysctl.orig &>/dev/null
+}
+
+function __os-sysctl_check { # return 0 can install, return 1 can't install, return 2 installed
+    log_debug "Starting os-sysctl Check"
+    local return_code=0
+    # check variable exists
+    [[ -z ${HARDENING_SYSCTL} ]] && echo "ERROR: HARDENING_SYSCTL variable is not set." && return 1
+    # check pkg installed
+    [[ $(which wstunnel|wc -l) -lt 1 ]] && echo "ERROR: wstunnel is not installed." && return 0
+    # check dnsmasq started
+    [[ $(pidof wstunnel|wc -l) -gt 1 ]] && echo "INFO: wstunnel is started." && return_code=2
+
+    return 0
+}
+
+function __os-sysctl_run {
+    # core dump limit
+    if [[ $(cat /etc/security/limits.conf|grep hard\ core\ 0|wc -l) -lt 1 ]]; then
+        echo "* hard core 0" >> /etc/security/limits.conf
+        echo "* soft core 0" >> /etc/security/limits.conf
+    fi
+
+    if [[ $(sysctl kernel.printk|wc -l) -gt 0 ]]; then
+        # sysctl hardening
+        sysctl -e -p ./configs/98-mikehoen-sysctl.conf &>/dev/null
+        sysctl -e -p ./configs/98-imthenachoman-sysctl.conf &>/dev/null
+        sysctl -e -p ./configs/98-2dure-sysctl.conf &>/dev/null
+        sysctl -e -p ./configs/99-disable-coredump.conf &>/dev/null
+        sysctl -e -p ./configs/99-disable-maxusernamespaces.conf &>/dev/null
+    fi
+	return 0
+}
+
+complete -F __os-sysctl_run os-sysctl

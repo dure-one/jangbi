@@ -1,0 +1,9 @@
+# network Connections
+-a always,exit -F arch=b64 -S connect -F exe=/bin/bash -F success=1 -F key=remote_shell
+-a always,exit -F arch=b64 -S connect -F exe=/usr/bin/bash -F success=1 -F key=remote_shell
+-a always,exit -F arch=b64 -S connect -F a2=0x10 -F success=1 -F key=network_connect_4
+-a always,exit -F arch=b64 -S connect -F a2=0x1C -F success=1 -F key=network_connect_6
+-a always,exit -F arch=b32 -S socket -F a0=0x2 -F key=network_socket_created
+-a always,exit -F arch=b64 -S socket -F a0=0x2 -F key=network_socket_created
+-a always,exit -F arch=b32 -S socket -F a0=0xA -F key=network_socket_created
+-a always,exit -F arch=b64 -S socket -F a0=0xA -F key=network_socket_created

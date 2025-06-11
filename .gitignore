@@ -1,0 +1,53 @@
+# workspace
+tmp
+imgs
+pkgs
+.firmware_last
+enabled/*
+.firmware*
+.idea
+.config
+jangbi_aide.log
+jangbi.log
+
+# pyvenv
+venv
+bin
+lib
+lib64
+share
+site
+htmlcov
+tmp
+
+# packaging
+*.egg-info
+build
+dist
+*.egg
+.eggs
+pyvenv.cfg
+
+# python
+*.py[codz]
+*$py.class
+
+# tools
+.tox
+.*_cache
+.DS_Store
+
+# IDE
+.idea
+.vscode
+
+/docs/_draft.rst
+/pip-wheel-metadata
+/src/virtualenv/version.py
+/src/virtualenv/out
+.python-version
+
+*wheel-store*
+
+Dockerfile*
+.dockerignore

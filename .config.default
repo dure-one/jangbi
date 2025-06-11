@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# ** do not edit/delete this file **
+FORCE_INSTALL=0
+
+LOGFILE="jangbi.log"
+RUN_ERRORS_FATAL=1
+LOG_LEVEL_STDOUT="INFO"
+LOG_LEVEL_LOG="DEBUG"
+
+# device config
+DIST_DEVICE="orangepi5-plus"
+DIST_NAME="armbian_bookworm_aarch64"
+DIST_OS_IMG="imgs/Armbian_25.2.1_Orangepi5-plus_bookworm_vendor_6.1.99_minimal.img.xz"
+DIST_PKG_IMG="imgs/debian-12.9.0-arm64-DVD-1.iso"
+
+#  os config
+OS_TIMEZONE="Asia/Seoul"
+# if os system existing swap size is bigger than 1Gb, not replace existing one
+DURE_SWAPSIZE="1G"
+DNS_UPSTREAM="1.1.1.1"
+OS_PKG_UPSTREAM="https://deb.debian.org"
+RUN_CRON=1
+CRON_TIMESYNC=1
+
+# host specific configurations
+DURE_DEPLOY_PATH="/opt/jangbi"
+DURE_USERID=test
+DURE_SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXueL1iMLhGA8N5Fv1va1sUFfcC+U+6pl8uxI8kQr/m/Du9sMZD/bU1hmcy10sQmMx12vdyImJC8BEwwf/1HxZ/o/qD5N6ggiGji+t8sHE9rZX6OBYQnNUJdRmCpBNXaUyFMZdyJi8iKtuVuALLzRospczw93qed7a2nk1Fe8sLHwrOhmIqwebpQQg0sd1V8et/OvTlUoXlA26F2/+dfgsXqbp48jECJOxog1WlRkgViYB1oGRvpV5MWDXbKd9Ny2L+cRbD1H83XsawOvMz9RqT06zhQ2DwF+raCHWRJBDXWqyGL7rc7kBalMNIESc9b/5HdENG4kTUpF/3AUpNaUHHDk8TABcK9PxnOUsV17gT9+uMN8/8HLxzDfpfRzzX/HXv2crF41WNO1Dra9EOgn2q5CvalscwJK/5lKeKeyY06LNZwOn2HdlJDemTOut+6jPe4fr8Pej2107vzTWYmAEa2kQT1PBEetLqGhVJ9Us= root@com"
+DURE_HOSTNAME="orangepi5-plus"
+
+# network settings
+# DISABLE_SYSTEMD 0 - enable systemd / 1 - disable completely(no syslog) / 2 - disable systemd except journald
+# case of disable systemd or except journald DISABLE_SYSTEMD=1 -> ifupdown
+DISABLE_SYSTEMD=1
+REMOVE_RAREPKGS=1
+DURE_IFUPDOWN=
+
+# case of enable systemd, DISABLE_SYSTEMD=0 -> netplan
+#DISABLE_SYSTEMD=0
+#REMOVE_RAREPKGS=1
+#DURE_NETPLAN=
+
+DURE_WANINF="enP3p49s0"
+## dhcp or 192.168.5.2(first ip of subnet become gateway)
+DURE_WAN="dhcp"
+DURE_WANGW=
+DURE_LANINF=
+DURE_LAN="192.168.79.1/24"
+# DURELAN1 - DURELAN9
+DURE_LAN1INF=
+DURE_LAN1="192.168.89.1/24"
+DURE_WLANINF=
+DURE_WLAN="192.168.100.1/24"
+DURE_WLAN_APMODE=1
+DURE_WLAN_SSID="durejangbi"
+DURE_WLAN_PASS="durejangbi"
+
+# role: gateway / client / wstunnel
+DURE_ROLE="gateway"
+
+# os security
+HARDENING_SYSCTL=1
+KERNEL_PARAMS=1
+DISABLE_IPV6=1
+ADDTO_RCLOCAL=1
+# only tar.gz link allowed
+UPDATE_FIRMWARE="https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz"
+REMOVE_RAREPKGS=1
+DISABLE_BIN=1
+OSLOCAL_SETTING=1
+OFFLINE_REPOSITORY=1
+RUN_AUDITD=1
+RUN_AIDE=1
+RUN_ANYDNSDQY=1
+
+# network apps
+RUN_KNOCKD=1
+RUN_KNOCKD_STATIC_SSH="12345,54321,24680,13579"
+# > step crypto otp generate --issuer dure.jangbi --account router_hostname --period=300 --length=10 --alg=SHA512 --qr dure.png > dure.totp
+RUN_KNOCKD_WITH_STEPTOTP=1
+KNOCKD_TOTPKEY="CIF3R2GPV6TLK4PJ3JZFLBMOCBYXSBP3"
+RUN_SSHD=1
+SSHD_PORT="22"
+SSHD_ADDR="192.168.79.1"
+
+# iptables
+RUN_IPTABLES=1
+NFTABLES_OVERRIDE=""
+# arp rules
+IPTABLES_WHITELISTED_MACADDRESSES=""
+IPTABLES_GWMACONLY=1
+# net rules
+IPTABLES_CONNLIMIT_PER_IP="50"
+IPTABLES_DROP_ICMP=1
+IPTABLES_DROP_INVALID_STATE=1
+IPTABLES_DROP_NON_SYN=1
+IPTABLES_DROP_SPOOFING=1
+IPTABLES_LIMIT_MSS=1
+IPTABLES_GUARD_OVERLOAD=1
+IPTABLES_INVALID_TCPFLAG=1
+IPTABLES_GUARD_PORT_SCANNER=1
+IPTABLES_BLACK_NAMELIST="https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
+# host rules
+# masquerade inside to outside ex) LAN<WAN|WLAN<WAN
+IPTABLES_MASQ="LAN<WAN|LAN1<WAN"
+IPTABLES_PORTFORWARD="8090:192.168.0.1:8090|8010:192.168.0.1:8010"
+IPTABLES_DMZ="192.168.0.1"
+IPTABLES_SUPERDMZ=1
+
+# gateway apps
+RUN_HOSTAPD=1
+RUN_DNSMASQ=1
+DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+
+#
+#RUN_ANYDNSDQY=1
+#RUN_FALCON=1
+#RUN_WSTUNNEL=1
+#RUN_SOCKS5PROXY=1
