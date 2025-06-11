@@ -5,7 +5,7 @@ site_url: "https://dure.one/jangbi"
 repo_url: "https://github.com/dure-one/jangbi"
 repo_name: "dure-one/jangbi"
 site_dir: "site"
-watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md, plugins, build.sh, functions.sh, init.sh]
+watch: [mkdocs.yml, README.md, CONTRIBUTING.md, CHANGELOG.md]
 copyright: Copyright &copy; 2025 Dure.one
 edit_uri: edit/main/docs/
 
@@ -190,6 +190,8 @@ nav:
   - contributing.md
   - license.md
   - credits.md
+  
+  - Dure.one: https://dure.one/"
 
   # # User Guide
   # - User Guide:

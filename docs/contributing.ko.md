@@ -1,5 +1,5 @@
 ---
-title: Contributing
+title: 기여하기
 ---
 
 # 기여하기

@@ -18,9 +18,9 @@ poor firewalla alternatives with iptables and dnsmasq on top of armbian/dietpi/d
 * os hardening : firmware updates, disable kernel modules, sysctl hardening, disable binaries
 * sys firewall : iptables
 * intrusion detection : aide, auditd
-* logs : syslog, redism, crond, sysdig
+* logs : syslog, redis, crond, sysdig
 * dhcp, dns : dnsmasq
-* dns-over-https : any_dns_dqy
+* dns-over-quic : anydnsdqy
 * one time programmable : step-cli
 * wifi-ap : hostapd
 * ssh : knockd, openssh-server
@@ -83,10 +83,11 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 - wol settings
 - host search by mac address network tools
 - qos speed limit by ip, mac, hostname
-- new dns client https://github.com/severinalexb/any-dns/ + https://github.com/dandyvica/dqy = anydnsdqy
+- (done)new dns client : anydnsdqy
 -
 ### Later
 - Stress Tests(iperf)
+- automatic wan interface selecting
 - smurf when icmp on
 - arp snooping no way https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables
 - ddns settings - https://github.com/ddclient/ddclient

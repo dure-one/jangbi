@@ -1,5 +1,6 @@
 - WORK IN PROGRES
 * this project has not been tested.
+* running this script might break your system.
 
 # JANGBI(Device)
 this project is part of dure ecosystem.<br/>
@@ -17,9 +18,9 @@ poor firewalla alternatives with iptables and dnsmasq on top of armbian/dietpi/d
 * os hardening : firmware updates, disable kernel modules, sysctl hardening, disable binaries
 * sys firewall : iptables
 * intrusion detection : aide, auditd
-* logs : syslog, redism, crond, sysdig
+* logs : syslog, redis, crond, sysdig
 * dhcp, dns : dnsmasq
-* dns-over-https : any_dns_dqy
+* dns-over-quic : anydnsdqy
 * one time programmable : step-cli
 * wifi-ap : hostapd
 * ssh : knockd, openssh-server
@@ -64,40 +65,41 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 ## Todo
 
 ### Before Next Release
-- Stress Tests(iperf)
 - (done)Sets numerous hardening kernel arguments (Inspired by Madaidan's Hardening Guide) details
-- SSHd configuration with knockd
+- (done)SSHd configuration with knockd
 - (done)Wifi AP mode tests
-- Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
-- keep process running & working
-- iptables : all occurence by modes cases
-- network connections status flag
-- windows setup builder on .github workflow.
-- Reduce the sudo timeout to 1 minute
-- change mac address(random) on wan interface
 - (done)dhcp client replace for systemd-networkd
-- system monitor with redis time series database
 - (done)license listing
-- dmz or twin ip(super dmz)
-- internet restriction
-- network monitoring
-- tcp syn flood
-- smurf
-- ip source routing
-- ip spoofing
-- arp snooping
-- block incoming icmp
-- block outgoing icmp
-- ddns settings
+- (done)time settings with script based ntp client
+- (done)dmz or twin ip(super dmz)
+- keep process running & working : wstunnel hostapd dnsmasq anydnsdqy darkstat
+- iptables : all occurence by modes cases
+- (done)Reduce the sudo timeout to 1 minute
+- change mac address(random) on wan interface - macchanger
+- (done)network monitoring(darkstat)
+- tcp syn flood https://superuser.com/a/1852992
+- (done)ip spoofing
+- (done)block incoming,outgoing icmp IPTABLES_DROP_ICMP
 - wol settings
 - host search by mac address network tools
 - qos speed limit by ip, mac, hostname
-- link status connection monitoring tui
-- (done)time settings
-
+- (done)new dns client : anydnsdqy
+-
 ### Later
+- Stress Tests(iperf)
+- automatic wan interface selecting
+- smurf when icmp on
+- arp snooping no way https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables
+- ddns settings - https://github.com/ddclient/ddclient
+- network connections status flag https://github.com/Lissy93/AdGuardian-Term/tree/main
+- ip source static routing
+- internet restriction
+- system monitor with redis time series database => suzip
+- Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
+- link status connection monitoring tui
 - Installing usbguard and providing ujust commands to automatically configure it
 - Automatic Functional Tests
+- windows setup builder on .github workflow. => buha
 - buha application(jangbi client) for android vpn, windows simplewall mgmt
 - suzip application for windows/linux ip by app sender, android ip by app sender
 - totp to knockd integration(later yubikey/tokenkey integration)
@@ -109,10 +111,9 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 - syslog, auditd, aide, auth, dpkg, daemon, syslog, kern, cron, user, boot, dnsmasq, redis logs
 - config backup/ restore
 - remote log/debug log submit
-- new dns client https://github.com/severinalexb/any-dns/ + https://github.com/dandyvica/dqy
-- lkrg & kernel patches
+- lkrg & kernel patches or kernel-installer.sh integration
 - dns blacklist https://urlhaus.abuse.ch/api/#hostfile
 - malware hash check online api https://hash.cymru.com/ https://www.team-cymru.com/mhr
-
-# Credits
-- [pstrap](https://github.com/shishouyuan/pstrap.git)
+- option to disable gui logind and replace it to tty autologin and startx automatically and vlock
+- hiding sensitive information on confiuration logs.
+- pstrap https://github.com/shishouyuan/pstrap.git
