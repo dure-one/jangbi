@@ -75,7 +75,7 @@ function __os-crond_check { # running_status 0 installed, running_status 5 can i
 	[[ $(dpkg -l|grep cron|wc -l) -lt 1 ]] && \
         log_info "cron is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
-	[[ $(systemctl status cron 2>1|grep Active|grep running|wc -l) -gt 0 ]] && \
+	[[ $(systemctl status cron 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
         log_info "cron is started." && [[ $running_status -lt 0 ]] && running_status=0
 
 	return 0

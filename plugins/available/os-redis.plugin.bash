@@ -62,7 +62,7 @@ function __os-redis_uninstall { # UPDATE_FIRMWARE=0
 
 function __os-redis_check { # check config, installation
     log_debug "Starting os-redis Check"
-	systemctl status redis-server 2>1
+	systemctl status redis-server 2>/dev/null
 }
 
 function __os-redis_run {
