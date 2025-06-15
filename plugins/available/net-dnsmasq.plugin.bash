@@ -4,8 +4,8 @@ about-plugin 'dnsmasq install configurations.'
 #VAR RUN_IPTABLES
 
 function net-dnsmasq {
-	about 'dnsmasq install configurations'
-	group 'net'
+    about 'dnsmasq install configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-dnsmasq check/install/uninstall/run'
@@ -16,27 +16,27 @@ function net-dnsmasq {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-dnsmasq_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-dnsmasq_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-dnsmasq_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-dnsmasq_run "$2"
-	else
-		__net-dnsmasq_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-dnsmasq_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-dnsmasq_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-dnsmasq_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-dnsmasq_run "$2"
+    else
+        __net-dnsmasq_help
+    fi
 }
 
 function __net-dnsmasq_help {
-	echo -e "Usage: net-dnsmasq [COMMAND] [profile]\n"
-	echo -e "Helper to dnsmasq install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os firmware"
-	echo "   uninstall Uninstall installed firmware"
-	echo "   check     Check vars available"
+    echo -e "Usage: net-dnsmasq [COMMAND] [profile]\n"
+    echo -e "Helper to dnsmasq install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os firmware"
+    echo "   uninstall Uninstall installed firmware"
+    echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
@@ -267,7 +267,7 @@ function __net-dnsmasq_run {
     _time_sync ${DNS_UPSTREAM}
     chmod 444 /etc/resolv.conf
 
-	return 0
+    return 0
 }
 
 complete -F __net-dnsmasq_run net-dnsmasq

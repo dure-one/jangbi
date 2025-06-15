@@ -4,93 +4,92 @@ about-plugin 'auditd install configurations.'
 # VARS :
 
 function os-auditd {
-	about 'auditd install configurations'
-	group 'os'
+    about 'auditd install configurations'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-auditd check/install/uninstall/run'
 
-	if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-auditd_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-auditd_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-auditd_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-auditd_run "$2"
-	else
-		__os-auditd_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-auditd_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-auditd_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-auditd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-auditd_run "$2"
+    else
+        __os-auditd_help
+    fi
 }
 
 function __os-auditd_help {
-	echo -e "Usage: os-auditd [COMMAND] [profile]\n"
-	echo -e "Helper to auditd install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os auditd"
-	echo "   uninstall Uninstall installed auditd"
-	echo "   check     Check vars available"
-	echo "   run       Run tasks"
+    echo -e "Usage: os-auditd [COMMAND] [profile]\n"
+    echo -e "Helper to auditd install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os auditd"
+    echo "   uninstall Uninstall installed auditd"
+    echo "   check     Check vars available"
+    echo "   run       Run tasks"
 }
 
 function __os-auditd_install {
-	log_debug "Trying to install os-auditd."
-	export DEBIAN_FRONTEND=noninteractive
-	[[ $(dpkg -l|grep libauparse0|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libauparse0*.deb
-	apt install -qy ./pkgs/auditd*.deb
+    log_debug "Trying to install os-auditd."
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(dpkg -l|grep libauparse0|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libauparse0*.deb
+    apt install -qy ./pkgs/auditd*.deb
 
-	# auditd hardening dynamic
-	cp -rf ./configs/audit.rules  /etc/audit/audit.rules
-	# auditctl -R /etc/audit/audit.rules
-	# add rules by force
-	string_with_newlines=$(cat /etc/audit/audit.rules|grep -v "#"|grep -v -e '^[[:space:]]*$')
-	while IFS= read -r line; do
-		echo "auditctl ${line}"|sh -i &>/dev/null
-	done <<< "$string_with_newlines"
-	# check unserted lines
-	echo "# generated on $(date +%s)" > /etc/audit/audit.rules.rejected
-	while IFS= read -r line; do
-		found=$(auditctl -l|grep "\\$line"|wc -l)
-		[[ ${found} == 0 ]] && echo "${line}" >> /etc/audit/audit.rules.rejected
-	done <<< "$string_with_newlines"
-	# backup accepted lines
-	echo "# generated on $(date +%s)" > /etc/audit/audit.rules
-	auditctl -l >> /etc/audit/audit.rules
-	systemctl enable auditd
-	mkdir -p /var/log/audit
+    # auditd hardening dynamic
+    cp -rf ./configs/audit.rules  /etc/audit/audit.rules
+    # auditctl -R /etc/audit/audit.rules
+    # add rules by force
+    string_with_newlines=$(cat /etc/audit/audit.rules|grep -v "#"|grep -v -e '^[[:space:]]*$')
+    while IFS= read -r line; do
+        echo "auditctl ${line}"|sh -i &>/dev/null
+    done <<< "$string_with_newlines"
+    # check unserted lines
+    echo "# generated on $(date +%s)" > /etc/audit/audit.rules.rejected
+    while IFS= read -r line; do
+        found=$(auditctl -l|grep "\\$line"|wc -l)
+        [[ ${found} == 0 ]] && echo "${line}" >> /etc/audit/audit.rules.rejected
+    done <<< "$string_with_newlines"
+    # backup accepted lines
+    echo "# generated on $(date +%s)" > /etc/audit/audit.rules
+    auditctl -l >> /etc/audit/audit.rules
+    systemctl enable auditd
+    mkdir -p /var/log/audit
 }
 
 function __os-auditd_uninstall {
-	log_debug "Trying to uninstall os-auditd."
-	systemctl stop auditd
-	systemctl disable auditd
+    log_debug "Trying to uninstall os-auditd."
+    systemctl stop auditd
+    systemctl disable auditd
 }
 
 function __os-auditd_check {  # running_status 0 installed, running_status 5 can install, running_status 10 can't install
-	running_status=0
+    running_status=0
     log_debug "Starting os-auditd Check"
 
-	[[ ${#RUN_AUDITD[@]} -lt 1 ]] && \
+    [[ ${#RUN_AUDITD[@]} -lt 1 ]] && \
         log_info "RUN_AUDITD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ $(dpkg -l|grep auditd|wc -l) -lt 1 ]] && \
         log_info "auditd is not installed." && [[ $running_status -lt 10 ]] && running_status=10
-
-	[[ $(systemctl status auditd 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
+    [[ $(systemctl status auditd 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
         log_info "auditd has started." && [[ $running_status -lt 0 ]] && running_status=0
 
-	return 0
+    return 0
 }
 
 function __os-auditd_run {
     systemctl start auditd
-	return 0
+    return 0
 }
 
 complete -F __os-auditd_run os-auditd

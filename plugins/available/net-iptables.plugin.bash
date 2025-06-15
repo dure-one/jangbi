@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-cite about-plugin
+cite about-plugin a
 about-plugin 'iptables install configurations.'
 # C : OSLOCAL_SETTING, DURE_SWAPSIZE, DURE_DEPLOY_PATH
 
@@ -66,8 +66,8 @@ about-plugin 'iptables install configurations.'
 #   --------------         +-----------+                      +---------------------+              +-------------+
 
 function net-iptables {
-	about 'iptables install configurations'
-	group 'net'
+    about 'iptables install configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-iptables check/install/uninstall/run/build'
@@ -78,33 +78,33 @@ function net-iptables {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-iptables_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-iptables_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-iptables_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-iptables_run "$2"
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-iptables_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-iptables_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-iptables_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-iptables_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
-		__net-iptables_build "$2"
+        __net-iptables_build "$2"
 #    elif [[ $# -eq 1 ]] && [[ "$1" = "backup" ]]; then
 #		__net-iptables_backup "$2"
 #    elif [[ $# -eq 1 ]] && [[ "$1" = "restore" ]]; then
 #		__net-iptables_apply "$2"
-	else
-		__net-iptables_help
-	fi
-}
+    else
+        __net-iptables_help
+    fi
+}  
 
 function __net-iptables_help {
-	echo -e "Usage: net-iptables [COMMAND] [profile]\n"
-	echo -e "Helper to iptables install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help                       Show this help message"
-	echo "   install 1 nft_rules        Install os iptables ex) install $ipv6enabled $nft_rules"
-	echo "   uninstall                  Uninstall installed iptables"
-	echo "   check                      Check vars available"
+    echo -e "Usage: net-iptables [COMMAND] [profile]\n"
+    echo -e "Helper to iptables install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help                       Show this help message"
+    echo "   install 1 nft_rules        Install os iptables ex) install $ipv6enabled $nft_rules"
+    echo "   uninstall                  Uninstall installed iptables"
+    echo "   check                      Check vars available"
     echo "   run                        do task at bootup"
     echo "   build                      rebuild iptables by configs"
 #    echo "   backup                     backup current iptables to /etc/nftables"
@@ -165,7 +165,7 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
     [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep iptables|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|grep -c "iptables") -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     [[ $(systemctl status nftables 2>/dev/null|grep Active|grep running) -gt 0 ]] && \
@@ -179,7 +179,7 @@ function __net-iptables_run {
     #__net-iptables_apply
     __net-iptables_build
     systemctl start nftables
-	return 0
+    return 0
 }
 
 #function __net-iptables_backup {
@@ -224,8 +224,8 @@ function __net-iptables_build {
     # ARP RULES
     #
     # WAN_INF WHITELISTED_MACADDRESSES
-    GW_ADDR=$(route -n|grep ${DURE_WANINF}|awk '{ print $2 }'|grep -v 0.0.0.0)
-    [[ $(arp -na|grep incomplete|wc -l) -gt 0 ]] && arp -d ${GW_ADDR}
+    GW_ADDR=$(route -n|grep "${DURE_WANINF}"|awk '{ print $2 }'|grep -v 0.0.0.0)
+    [[ $(arp -na|grep -c "incomplete") -gt 0 ]] && arp -d "${GW_ADDR}"
     GW_MAC=$(arp -na|awk '{ print $4 }')
     
     [[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${DURE_WANINF}" "${GW_MAC}" # targetinf macaddrs
@@ -261,8 +261,8 @@ function __net-iptables_build {
     #
     # GET VARs
     local waninf=${DURE_WANINF}
-    local laninf=${DURE_laninf}
-    local wlaninf=${DURE_wlaninf}
+    local laninf=${DURE_LANINF}
+    local wlaninf=${DURE_WLANINF}
 
     # PORT FORWARDING WAN->LAN
     # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090|8010:192.168.0.1:8010"
@@ -274,13 +274,13 @@ function __net-iptables_build {
                 local wanport=${forwardinfo[0]}
                 local lanip=${forwardinfo[1]}
                 local lanport=${forwardinfo[2]}
-                __net-iptables_nat_ext_both_portforward "${}" "${wanport}" "${lanip}" "${lanport}"# waninf wanport lanip lanport
+                __net-iptables_nat_ext_both_portforward "${DURE_WANINF}" "${wanport}" "${lanip}" "${lanport}"# waninf wanport lanip lanport
             fi
         }
     fi
     # DMZ SETTINGS WAN->HOST
     # IPTABLES_DMZ="192.168.0.1" IPTABLES_SUPERDMZ=1
-    [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz # waninf laninf dmzip sdmz
+    [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz "${DURE_WANINF}" "${DURE_LANINF}" "${DMZIP}" # waninf laninf dmzip sdmz
 
     # MASQUERADE WAN->NET
     # IPTABLES_MASQ="LAN<WAN|LAN1<WAN"
@@ -348,7 +348,7 @@ function __net-iptables_build {
     # IPTABLES_SNAT="LAN<WAN|LAN1<WAN"
     # [[ ${IPTABLES_SNAT} -gt 0 ]] && __net-iptables_filternat_all_both_snat # laninf lannet waninf wanip
 
-	return 0
+    return 0
 }
 
 # MODES : Gateway, Wstunnel, Client
@@ -365,9 +365,9 @@ function __net-iptables_mangle_all_both_macwhitelist {
     if [[ ${#macaddrs[@]} -gt 0 ]]; then
         IFS=$'|' read -d "" -ra MACADDR <<< "${macaddrs}" # split
         for((j=0;j<${#MACADDR[@]};j++)){
-            arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT
+            arptables -A INPUT -i "${targetinf}" --source-mac "${MACADDR[j]}" -j ACCEPT
         }
-        [[ $(arptables -S|grep "INPUT DROP"|wc -l) -lt 1 ]] && arptables -P INPUT DROP
+        [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
     fi
 }
 
@@ -377,10 +377,9 @@ function __net-iptables_mangle_ext_both_gwmaconly {
     local funcname="mangle_ext_both_gwonly"
     local targetinf=$(route |grep default|awk '{print $8}') # net-tools
     local gwip=$(route |grep default|awk '{print $2}') # net-tools
-    local gwmac=$(arp -a|grep ${gwip}|grep ${targetinf}|awk '{print $4}') # net-tools
-    local macaddrs="$2"
-    arptables -A INPUT -i ${targetinf} --source-mac ${gwmac} -j ACCEPT
-    [[ $(arptables -S|grep "INPUT DROP"|wc -l) -lt 1 ]] && arptables -P INPUT DROP
+    local gwmac=$(arp -a|grep "${gwip}"|grep "${targetinf}"|awk '{print $4}') # net-tools
+    arptables -A INPUT -i "${targetinf}" --source-mac "${gwmac}" -j ACCEPT
+    [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 
 # Mangle Prerouting : Ip Connection Limit per IP
@@ -431,12 +430,12 @@ function __net-iptables_mangle_all_both_dropspoofing {
     IFS=$'|' read -d "" -ra routing_block_list <<< "${BLOCKING_LIST}" # split
     for((j=0;j<${#routing_block_list[@]};j++)){
         for((k=0;k<${#routing_allow_list[@]};k++)){
-            ALMINIP=$(_ip2conv $(ipcalc-ng ${routing_allow_list[k]}|grep HostMin:|cut -f2))
-            ALMAXIP=$(_ip2conv $(ipcalc-ng ${routing_allow_list[k]}|grep HostMax:|cut -f2))
-            BLMINIP=$(_ip2conv $(ipcalc-ng ${routing_block_list[j]}|grep HostMin:|cut -f2))
-            BLMAXIP=$(_ip2conv $(ipcalc-ng ${routing_block_list[j]}|grep HostMax:|cut -f2))
+            ALMINIP=$(_ip2conv "$(ipcalc-ng "${routing_allow_list[k]}"|grep HostMin:|cut -f2)")
+            ALMAXIP=$(_ip2conv "$(ipcalc-ng "${routing_allow_list[k]}"|grep HostMax:|cut -f2)")
+            BLMINIP=$(_ip2conv "$(ipcalc-ng "${routing_block_list[j]}"|grep HostMin:|cut -f2)")
+            BLMAXIP=$(_ip2conv "$(ipcalc-ng "${routing_block_list[j]}"|grep HostMax:|cut -f2)")
             if [[ ${ALMINIP} -gt ${BLMINIP} && ${ALMAXIP} -lt ${BLMAXIP} ]]; then
-                IPTABLE="PREROUTING -s "${routing_allow_list[k]}" -m comment --comment ${funcname}_allow_${j}${k} -j ACCEPT"
+                IPTABLE="PREROUTING -s ${routing_allow_list[k]} -m comment --comment ${funcname}_allow_${j}${k} -j ACCEPT"
                 iptables -t mangle -S | grep "${funcname}_allow_${j}${k}" || iptables -t mangle -A ${IPTABLE}
             fi
         }
@@ -499,7 +498,7 @@ function __net-iptables_nat_ext_both_dmzsdmz {
     local dmzip="$3"
     local sdmz="${4:0}"
 
-    local addorinsert="-A"
+    local ruleaddoverinsert="-A"
     [[ ${sdmz} -eq "1" ]] && ruleaddoverinsert="-I"
     # dmz input rule1
     IPTABLE="INPUT -p ALL -i ${laninf} -d ${dmzip} -j ACCEPT -m comment -comment ${funcname}_dmzinput"
@@ -597,15 +596,15 @@ function __net-iptables_filter_all_both_ipblacklist {
     local funcname="filter_all_both_ipblacklist"
     local blockurls="$1" #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
     IFS=$'|' read -d "" -ra blist_url <<< "${blockurls}" # split
-    local urlcount=$(echo ${blockurls} | grep -o "|" | wc -l)
+    local urlcount=$(echo "${blockurls}" | grep -o "|" | wc -l)
     for((j=0;j<=${urlcount};j++)){
         local blist_name=$(echo "${blist_url[j]}"|sed 's/[^0-9A-Za-z]*//g')
         blist_name=${blist_name:0:30}
-        ipset -q flush ${blist_name}
-        ipset -q create ${blist_name} hash:net
-        for ip in $(curl --compressed ${blist_url[j]} 2>/dev/null | grep -v "#" | grep -v -E "\s[1-2]$" | cut -f 1); do ipset add ${blist_name} "$ip"; done
-        iptables -D INPUT -m set --match-set ${blist_name} src -j DROP 2>/dev/null
-        iptables -I INPUT -m set --match-set ${blist_name} src -j DROP
+        ipset -q flush "${blist_name}"
+        ipset -q create "${blist_name}" hash:net
+        for ip in $(curl --compressed "${blist_url[j]}" 2>/dev/null | grep -v "#" | grep -v -E "\s[1-2]$" | cut -f 1); do ipset add "${blist_name}" "$ip"; done
+        iptables -D INPUT -m set --match-set "${blist_name}" src -j DROP 2>/dev/null
+        iptables -I INPUT -m set --match-set "${blist_name}" src -j DROP
     }
 }
 

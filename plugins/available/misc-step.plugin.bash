@@ -4,8 +4,8 @@ about-plugin 'step-cli install configurations.'
 # todo
 
 function misc-step {
-	about 'step-cli install configurations'
-	group 'misc'
+    about 'step-cli install configurations'
+    group 'misc'
     param '1: command'
     param '2: params'
     example '$ misc-step check/install/uninstall/run'
@@ -16,27 +16,27 @@ function misc-step {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__misc-step_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__misc-step_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__misc-step_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__misc-step_run "$2"
-	else
-		__misc-step_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __misc-step_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __misc-step_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __misc-step_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __misc-step_run "$2"
+    else
+        __misc-step_help
+    fi
 }
 
 function __misc-step_help {
-	echo -e "Usage: misc-step [COMMAND] [profile]\n"
-	echo -e "Helper to step-cli install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install step-cli"
-	echo "   uninstall Uninstall installed step-cli"
-	echo "   check     Check vars available"
+    echo -e "Usage: misc-step [COMMAND] [profile]\n"
+    echo -e "Helper to step-cli install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install step-cli"
+    echo "   uninstall Uninstall installed step-cli"
+    echo "   check     Check vars available"
     echo "   run       run"
 }
 
@@ -61,7 +61,7 @@ function __misc-step_check { # running_status 0 installed, running_status 5 can 
 }
 
 function __misc-step_run {
-	return 0
+    return 0
 }
 
 complete -F __misc-step_run misc-step

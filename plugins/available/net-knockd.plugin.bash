@@ -3,8 +3,8 @@ cite about-plugin
 about-plugin 'knockd install configurations.'
 
 function net-knockd {
-	about 'knockd install configurations'
-	group 'net'
+    about 'knockd install configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-knockd check/install/uninstall/run'
@@ -15,27 +15,27 @@ function net-knockd {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-knockd_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-knockd_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-knockd_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-knockd_run "$2"
-	else
-		__net-knockd_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-knockd_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-knockd_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-knockd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-knockd_run "$2"
+    else
+        __net-knockd_help
+    fi
 }
 
 function __net-knockd_help {
-	echo -e "Usage: net-knockd [COMMAND] [profile]\n"
-	echo -e "Helper to knockd install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install knockd"
-	echo "   uninstall Uninstall installed knockd"
-	echo "   check     Check vars available"
+    echo -e "Usage: net-knockd [COMMAND] [profile]\n"
+    echo -e "Helper to knockd install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install knockd"
+    echo "   uninstall Uninstall installed knockd"
+    echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
@@ -79,7 +79,7 @@ function __net-knockd_check { ## running_status 0 installed, running_status 5 ca
 
 function __net-knockd_run {
     systemctl start knockd
-	return 0
+    return 0
 }
 
 complete -F __net-knockd_run net-knockd

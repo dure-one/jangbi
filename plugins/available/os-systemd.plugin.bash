@@ -4,8 +4,8 @@ about-plugin 'setup systemd.'
 # VARS REMOVE_RAREPKGS
 
 function os-systemd {
-	about 'helper function for local os repository'
-	group 'os'
+    about 'helper function for local os repository'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-systemd check/install/uninstall/run'
@@ -16,27 +16,27 @@ function os-systemd {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-systemd_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-systemd_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-systemd_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-systemd_run "$2"
-	else
-		__os-systemd_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-systemd_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-systemd_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-systemd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-systemd_run "$2"
+    else
+        __os-systemd_help
+    fi
 }
 
 function __os-systemd_help {
-	echo -e "Usage: os-systemd [COMMAND] [profile]\n"
-	echo -e "Helper to local packgage repository.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install remove systemd pkgs"
-	echo "   uninstall Uninstall remove systemd pkgs"
-	echo "   check     Check installable"
+    echo -e "Usage: os-systemd [COMMAND] [profile]\n"
+    echo -e "Helper to local packgage repository.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install remove systemd pkgs"
+    echo "   uninstall Uninstall remove systemd pkgs"
+    echo "   check     Check installable"
     echo "   run       Run tasks"
 }
 
@@ -128,7 +128,7 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
     [[ ${#UPDATE_FIRMWARE[@]} -lt 1 ]] && \
         log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-	# check disable systemd installed
+    # check disable systemd installed
     [[ $(dpkg -l|grep systemd-networkd|wc -l) -lt 1 ]] && \
         log_info "systemd-networkd is not exists." && \
         [[ $(dpkg -l|grep systemd-resolved|wc -l) -lt 1 ]] && \
@@ -148,7 +148,7 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
 
 function __os-systemd_run {
 
-	return 0
+    return 0
 }
 
 complete -F __os-systemd_run os-systemd

@@ -4,8 +4,8 @@ about-plugin 'setup for offline os repository.'
 # VARS DURE_DEPLOY_PATH DIST_PKG_IMG OS_PKG_UPSTREAM
 
 function os-repository {
-	about 'helper function for offline os repository'
-	group 'os'
+    about 'helper function for offline os repository'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-repository check/install/uninstall/run'
@@ -16,27 +16,27 @@ function os-repository {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-repository_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-repository_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-repository_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-repository_run "$2"
-	else
-		__os-repository_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-repository_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-repository_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-repository_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-repository_run "$2"
+    else
+        __os-repository_help
+    fi
 }
 
 function __os-repository_help {
-	echo -e "Usage: os-repository [COMMAND] [profile]\n"
-	echo -e "Helper to offline packgage repository.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os repository"
-	echo "   uninstall Uninstall installed repository"
-	echo "   check     Check installable"
+    echo -e "Usage: os-repository [COMMAND] [profile]\n"
+    echo -e "Helper to offline packgage repository.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os repository"
+    echo "   uninstall Uninstall installed repository"
+    echo "   check     Check installable"
     echo "   run       Run tasks"
 }
 
@@ -88,7 +88,7 @@ function __os-repository_run {
     [[ $(mount |grep "${DURE_DEPLOY_PATH}/imgs/debian/"|wc -l) -lt 1 ]] && \
         mount -o loop ${DURE_DEPLOY_PATH}/${DIST_PKG_IMG} ${DURE_DEPLOY_PATH}/imgs/debian
     apt update -qy && apt install --fix-broken -qy
-	return 0
+    return 0
 }
 
 complete -F __os-repository_run os-repository

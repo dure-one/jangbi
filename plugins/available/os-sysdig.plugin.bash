@@ -4,65 +4,65 @@ about-plugin 'sysdig install configurations.'
 # VARS :
 
 function os-sysdig {
-	about 'sysdig install configurations'
-	group 'os'
+    about 'sysdig install configurations'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-sysdig check/install/uninstall/run'
 
-	if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-sysdig_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-sysdig_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-sysdig_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-sysdig_run "$2"
-	else
-		__os-sysdig_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-sysdig_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-sysdig_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-sysdig_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-sysdig_run "$2"
+    else
+        __os-sysdig_help
+    fi
 }
 
 function __os-sysdig_help {
-	echo -e "Usage: os-sysdig [COMMAND] [profile]\n"
-	echo -e "Helper to sysdig install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os sysdig"
-	echo "   uninstall Uninstall installed sysdig"
-	echo "   check     Check vars available"
-	echo "   run       Run tasks"
+    echo -e "Usage: os-sysdig [COMMAND] [profile]\n"
+    echo -e "Helper to sysdig install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os sysdig"
+    echo "   uninstall Uninstall installed sysdig"
+    echo "   check     Check vars available"
+    echo "   run       Run tasks"
 }
 
 function __os-sysdig_install {
-	export DEBIAN_FRONTEND=noninteractive
-	log_debug "Trying to install os-sysdig."
-	apt install -qy ./pkgs/sysdig*.deb
+    export DEBIAN_FRONTEND=noninteractive
+    log_debug "Trying to install os-sysdig."
+    apt install -qy ./pkgs/sysdig*.deb
 
-	sysdig_FRONTEND=noninteractive sysdig_DRIVER_CHOICE=ebpf sysdigCTL_ENABLED=no apt install ./pkgs/sysdig-0.41.1-x86_64.deb
-	# sysdig hardening dynamic
-	systemctl enable sysdig
-	auditctl -l
-	# do on everyboot
-	systemctl start sysdig
-	auditctl -R /etc/audit/audit.rules
+    sysdig_FRONTEND=noninteractive sysdig_DRIVER_CHOICE=ebpf sysdigCTL_ENABLED=no apt install ./pkgs/sysdig-0.41.1-x86_64.deb
+    # sysdig hardening dynamic
+    systemctl enable sysdig
+    auditctl -l
+    # do on everyboot
+    systemctl start sysdig
+    auditctl -R /etc/audit/audit.rules
 }
 
 function __os-sysdig_uninstall {
-	log_debug "Trying to uninstall os-sysdig."
-	apt purge -qy sysdig
+    log_debug "Trying to uninstall os-sysdig."
+    apt purge -qy sysdig
 #	systemctl stop sysdig
 #	systemctl disable sysdig
 }
 
 function __os-sysdig_check {  # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-	running_status=0
+    running_status=0
     log_debug "Starting os-sysdig Check"
     [[ ${#RUN_SYSDIG[@]} -lt 1 ]] && \
         log_info "RUN_SYSDIG variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
@@ -75,7 +75,7 @@ function __os-sysdig_check {  # running_status 0 installed, running_status 5 can
 
 function __os-sysdig_run {
     :
-	return 0
+    return 0
 }
 
 complete -F __os-sysdig_run os-sysdig

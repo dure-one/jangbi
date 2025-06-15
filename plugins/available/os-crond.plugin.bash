@@ -4,8 +4,8 @@ about-plugin 'crond install configurations.'
 # C : DURE_TIMESYNC DURE_DEPLOY_PATH DNS_UPSTREAM
 
 function os-crond {
-	about 'crond install configurations'
-	group 'os'
+    about 'crond install configurations'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-crond check/install/uninstall/run'
@@ -16,27 +16,27 @@ function os-crond {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-crond_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-crond_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-crond_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-crond_run "$2"
-	else
-		__os-crond_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-crond_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-crond_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-crond_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-crond_run "$2"
+    else
+        __os-crond_help
+    fi
 }
 
 function __os-crond_help {
-	echo -e "Usage: os-crond [COMMAND] [profile]\n"
-	echo -e "Helper to crond install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install crond"
-	echo "   uninstall Uninstall installed crond"
-	echo "   check     Check vars available"
+    echo -e "Usage: os-crond [COMMAND] [profile]\n"
+    echo -e "Helper to crond install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install crond"
+    echo "   uninstall Uninstall installed crond"
+    echo "   check     Check vars available"
     echo "   run       Run crond jobs"
 }
 
@@ -67,23 +67,23 @@ function __os-crond_uninstall { # UPDATE_FIRMWARE=0
 }
 
 function __os-crond_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
-	running_status=0
+    running_status=0
     log_debug "Starting os-crond Check"
     [[ ${#RUN_CRON[@]} -lt 1 ]] && \
         log_info "RUN_CRON variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-	[[ $(dpkg -l|grep cron|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|grep cron|wc -l) -lt 1 ]] && \
         log_info "cron is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
-	[[ $(systemctl status cron 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
+    [[ $(systemctl status cron 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
         log_info "cron is started." && [[ $running_status -lt 0 ]] && running_status=0
 
-	return 0
+    return 0
 }
 
 function __os-crond_run {
     systemctl start cron
-	return 0
+    return 0
 }
 
 complete -F __os-crond_run os-crond

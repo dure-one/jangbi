@@ -3,8 +3,8 @@ cite about-plugin
 about-plugin 'netplan install configurations.'
 
 function net-netplan {
-	about 'netplan install configurations'
-	group 'net'
+  about 'netplan install configurations'
+  group 'net'
     param '1: command'
     param '2: params'
     example '$ net-netplan check/install/uninstall/run'
@@ -15,27 +15,27 @@ function net-netplan {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-netplan_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-netplan_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-netplan_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-netplan_run "$2"
-	else
-		__net-netplan_help
-	fi
+  if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    __net-netplan_install "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+    __net-netplan_uninstall "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+    __net-netplan_check "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+    __net-netplan_run "$2"
+  else
+    __net-netplan_help
+  fi
 }
 
 function __net-netplan_help {
-	echo -e "Usage: net-netplan [COMMAND] [profile]\n"
-	echo -e "Helper to netplan install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help                       Show this help message"
-	echo "   install 1 nft_rules        Install os netplan ex) install $ipv6enabled $nft_rules"
-	echo "   uninstall                  Uninstall installed netplan"
-	echo "   check                      Check vars available"
+  echo -e "Usage: net-netplan [COMMAND] [profile]\n"
+  echo -e "Helper to netplan install configurations.\n"
+  echo -e "Commands:\n"
+  echo "   help                       Show this help message"
+  echo "   install 1 nft_rules        Install os netplan ex) install $ipv6enabled $nft_rules"
+  echo "   uninstall                  Uninstall installed netplan"
+  echo "   check                      Check vars available"
   echo "   run                        do task at bootup"
 }
 
@@ -83,11 +83,11 @@ EOT
             [[ ! ${wlaninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${waninf} ]] && wlaninf=${dure_infs[j]} && continue
             fi
         }
-        sed -i "s|DURE_waninf=.*|DURE_waninf=${waninf}|g" ${DURE_GENCFG_PATH}
+        sed -i "s|DURE_WANINF=.*|DURE_WANINF=${waninf}|g" ${DURE_GENCFG_PATH}
         [[ -z ${DURE_WAN} ]] && sed -i "s|DURE_WAN=.*|DURE_WAN=\"dhcp\"|g" ${DURE_GENCFG_PATH}
-        sed -i "s|DURE_laninf=.*|DURE_laninf=${laninf}|g" ${DURE_GENCFG_PATH}
+        sed -i "s|DURE_LANINF=.*|DURE_LANINF=${laninf}|g" ${DURE_GENCFG_PATH}
         [[ -z ${DURE_LAN} ]] && sed -i "s|DURE_LAN=.*|DURE_LAN=\"192.168.1.1/24\"|g" ${DURE_GENCFG_PATH}
-        sed -i "s|DURE_wlaninf=.*|DURE_wlaninf=${wlaninf}|g" ${DURE_GENCFG_PATH}
+        sed -i "s|DURE_WLANINF=.*|DURE_WLANINF=${wlaninf}|g" ${DURE_GENCFG_PATH}
         [[ -z ${DURE_WLAN} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"192.168.100.1/24\"|g" ${DURE_GENCFG_PATH}
         [[ -z ${DURE_WLAN_SSID} ]] && sed -i "s|DURE_WLAN_SSID=.*|DURE_WLAN_SSID=\"durejangbi\"|g" ${DURE_GENCFG_PATH}
         [[ -z ${DURE_WLAN_PASS} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"durejangbi\"|g" ${DURE_GENCFG_PATH}
@@ -380,7 +380,7 @@ function __net-netplan_check { # running_status 0 installed, running_status 5 ca
 function __net-netplan_run {
     # Cannot call openvswitch: ovsdb-server.service is not running. msg is not relevant.
     netplan apply
-	return 0
+  return 0
 }
 
 complete -F __net-netplan_run net-netplan

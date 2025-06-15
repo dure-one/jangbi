@@ -3,8 +3,8 @@ cite about-plugin
 about-plugin 'darkstat install configurations.'
 
 function net-darkstat {
-	about 'darkstat install configurations'
-	group 'net'
+    about 'darkstat install configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-darkstat check/install/uninstall/run'
@@ -15,27 +15,27 @@ function net-darkstat {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-darkstat_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-darkstat_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-darkstat_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-darkstat_run "$2"
-	else
-		__net-darkstat_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-darkstat_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-darkstat_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-darkstat_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-darkstat_run "$2"
+    else
+        __net-darkstat_help
+    fi
 }
 
 function __net-darkstat_help {
-	echo -e "Usage: net-darkstat [COMMAND] [profile]\n"
-	echo -e "Helper to darkstat install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install darkstat"
-	echo "   uninstall Uninstall installed  darkstat"
-	echo "   check     Check vars available"
+    echo -e "Usage: net-darkstat [COMMAND] [profile]\n"
+    echo -e "Helper to darkstat install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install darkstat"
+    echo "   uninstall Uninstall installed  darkstat"
+    echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
@@ -72,7 +72,7 @@ function __net-darkstat_check { ## running_status 0 installed, running_status 5 
 function __net-darkstat_run {
     #systemctl start darkstat
     source /etc/darkstat/init.cfg && darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
-	return 0
+    return 0
 }
 
 complete -F __net-darkstat_run net-darkstat

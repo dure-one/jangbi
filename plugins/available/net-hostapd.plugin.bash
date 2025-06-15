@@ -3,8 +3,8 @@ cite about-plugin
 about-plugin 'hostapd install configurations.'
 
 function net-hostapd {
-	about 'hostapd install configurations'
-	group 'net'
+    about 'hostapd install configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-hostapd check/install/uninstall/run'
@@ -15,28 +15,28 @@ function net-hostapd {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-hostapd_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-hostapd_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-hostapd_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-hostapd_run "$2"
-	else
-		__net-hostapd_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-hostapd_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-hostapd_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-hostapd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-hostapd_run "$2"
+    else
+        __net-hostapd_help
+    fi
 }
 
 function __net-hostapd_help {
-	echo -e "Usage: net-hostapd [COMMAND] [profile]\n"
-	echo -e "Helper to hostapd install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os firmware"
-	echo "   uninstall Uninstall installed firmware"
-	echo "   check     Check vars available"
-	echo "   run       Run tasks"
+    echo -e "Usage: net-hostapd [COMMAND] [profile]\n"
+    echo -e "Helper to hostapd install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os firmware"
+    echo "   uninstall Uninstall installed firmware"
+    echo "   check     Check vars available"
+    echo "   run       Run tasks"
 }
 
 function __net-hostapd_install {
@@ -66,11 +66,11 @@ EOT
 
 function __net-hostapd_uninstall { # UPDATE_FIRMWARE=0
     echo $(pidof hostapd) | xargs kill -9 2>/dev/null
-	apt purge -qy hostapd
+    apt purge -qy hostapd
 }
 
 function __net-hostapd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-	local return_code=0
+    local return_code=0
     # check variable exists
     [[ -z ${RUN_HOSTAPD} ]] && log_info "RUN_HOSTAPD variable is not set." && return 1
     # check pkg installed
@@ -85,7 +85,7 @@ function __net-hostapd_run {
     echo $(pidof hostapd) | xargs kill -9 2>/dev/null
     hostapd /etc/hostapd/hostapd.conf &>>/var/log/hostapd.log &
 
-	return 0
+    return 0
 }
 
 complete -F __net-hostapd_run net-hostapd

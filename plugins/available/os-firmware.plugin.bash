@@ -4,8 +4,8 @@ about-plugin 'custom os firmware install in kernel.'
 # VARS : UPDATE_FIRMWARE
 
 function os-firmware {
-	about 'helper function for os firmware update'
-	group 'os'
+    about 'helper function for os firmware update'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-firmware check/install/uninstall/run'
@@ -16,32 +16,32 @@ function os-firmware {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-firmware_install "$2"
-	elif [[ $# -gt 0 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-firmware_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-firmware_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-firmware_run "$2"
-	else
-		__os-firmware_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-firmware_install "$2"
+    elif [[ $# -gt 0 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-firmware_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-firmware_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-firmware_run "$2"
+    else
+        __os-firmware_help
+    fi
 }
 
 function __os-firmware_help {
-	echo -e "Usage: os-firmware [COMMAND] [profile]\n"
-	echo -e "Helper to os firmware installation.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os firmware"
-	echo "   uninstall Uninstall installed firmware(--force)"
-	echo "   check     Check vars available"
-	echo "   run       Run os-firmware task"
+    echo -e "Usage: os-firmware [COMMAND] [profile]\n"
+    echo -e "Helper to os firmware installation.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os firmware"
+    echo "   uninstall Uninstall installed firmware(--force)"
+    echo "   check     Check vars available"
+    echo "   run       Run os-firmware task"
 }
 
 function __os-firmware_install {
-	local update_firmware_file="./pkgs/$(basename ${UPDATE_FIRMWARE})"
+    local update_firmware_file="./pkgs/$(basename ${UPDATE_FIRMWARE})"
     local update_proceed=0
     log_debug "Trying to install os-firmware."
     if [[ -f ${update_firmware_file} ]]; then
@@ -93,12 +93,12 @@ function __os-firmware_check { # running_status 0 installed, running_status 5 ca
     [[ -z ${exists_size} ]] && exists_size=0
     [[ $(( $(du -s /lib/firmware| cut -f1) - ${exists_size} )) -gt 0 ]] &&
         log_info "system firmware is updated on ${UPDATE_FIRMWARE}." && running_status=0
-	return 0
+    return 0
 }
 
 function __os-firmware_run {
     # nothign to do
-	return 0
+    return 0
 }
 
 complete -F __os-firmware_run os-firmware

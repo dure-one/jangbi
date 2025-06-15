@@ -4,8 +4,8 @@ about-plugin 'sshd install configurations.'
 # C : OSLOCAL_SETTING, DURE_SWAPSIZE, DURE_DEPLOY_PATH
 
 function net-sshd {
-	about 'sshd install configurations'
-	group 'net'
+    about 'sshd install configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-sshd check/install/uninstall/run'
@@ -16,27 +16,27 @@ function net-sshd {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-sshd_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-sshd_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-sshd_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-sshd_run "$2"
-	else
-		__net-sshd_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-sshd_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-sshd_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-sshd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-sshd_run "$2"
+    else
+        __net-sshd_help
+    fi
 }
 
 function __net-sshd_help {
-	echo -e "Usage: net-sshd [COMMAND] [profile]\n"
-	echo -e "Helper to sshd install configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os firmware"
-	echo "   uninstall Uninstall installed firmware"
-	echo "   check     Check vars available"
+    echo -e "Usage: net-sshd [COMMAND] [profile]\n"
+    echo -e "Helper to sshd install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os firmware"
+    echo "   uninstall Uninstall installed firmware"
+    echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
@@ -62,7 +62,7 @@ function __net-sshd_uninstall { # UPDATE_FIRMWARE=0
 }
 
 function __net-sshd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-	local return_code=0
+    local return_code=0
     log_debug "Starting net-sshd Check"
     # check variable exists
     [[ -z ${RUN_SSHD} ]] && log_info "RUN_SSHD variable is not set." && return 1
@@ -76,7 +76,7 @@ function __net-sshd_check { # running_status 0 installed, running_status 5 can i
 
 function __net-sshd_run {
     systemctl start ssh
-	return 0
+    return 0
 }
 
 complete -F __net-sshd_run net-sshd

@@ -4,8 +4,8 @@ about-plugin 'custom os configurations'
 # C : TIMEZONE DURE_SWAPSIZE DURE_DEPLOY_PATH
 
 function os-conf {
-	about 'helper function for os configuration'
-	group 'os'
+    about 'helper function for os configuration'
+    group 'os'
     param '1: command'
     param '2: params'
     example '$ os-conf check/install/uninstall/run'
@@ -16,27 +16,27 @@ function os-conf {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__os-conf_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__os-conf_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__os-conf_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__os-conf_run "$2"
-	else
-		__os-conf_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __os-conf_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __os-conf_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-conf_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-conf_run "$2"
+    else
+        __os-conf_help
+    fi
 }
 
 function __os-conf_help {
-	echo -e "Usage: os-conf [COMMAND] [profile]\n"
-	echo -e "Helper to os configuration installation.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os configuration"
-	echo "   uninstall Uninstall installed os configuration"
-	echo "   check     Check vars available"
+    echo -e "Usage: os-conf [COMMAND] [profile]\n"
+    echo -e "Helper to os configuration installation.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os configuration"
+    echo "   uninstall Uninstall installed os configuration"
+    echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
@@ -80,7 +80,7 @@ function __os-conf_install {
 
 function __os-conf_uninstall { # UPDATE_FIRMWARE=0
     log_debug "Trying to uninstall os-conf."
-	# remove swapfile
+    # remove swapfile
     swapoff -a
     rm -rf ${DURE_DEPLOY_PATH}/swapfile
 
@@ -110,7 +110,7 @@ function __os-conf_check { # running_status 0 installed, running_status 5 can in
 
 function __os-conf_run {
     # systemctl restart systemd-modules-load.service
-	return 0
+    return 0
 }
 
 complete -F __os-conf_run os-conf

@@ -3,8 +3,8 @@ cite about-plugin
 about-plugin 'network configurations.'
 
 function net-ifupdown {
-	about 'network configurations'
-	group 'net'
+    about 'network configurations'
+    group 'net'
     param '1: command'
     param '2: params'
     example '$ net-ifupdown check/install/uninstall/run'
@@ -15,27 +15,27 @@ function net-ifupdown {
         _distname_check
     fi
 
-	if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-		__net-ifupdown_install "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-		__net-ifupdown_uninstall "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-		__net-ifupdown_check "$2"
-	elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-		__net-ifupdown_run "$2"
-	else
-		__net-ifupdown_help
-	fi
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-ifupdown_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-ifupdown_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-ifupdown_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-ifupdown_run "$2"
+    else
+        __net-ifupdown_help
+    fi
 }
 
 function __net-ifupdown_help {
-	echo -e "Usage: net-ifupdown [COMMAND] [profile]\n"
-	echo -e "Helper to network configurations.\n"
-	echo -e "Commands:\n"
-	echo "   help      Show this help message"
-	echo "   install   Install os ifupdown"
-	echo "   uninstall Uninstall installed ifupdown"
-	echo "   check     Check vars available"
+    echo -e "Usage: net-ifupdown [COMMAND] [profile]\n"
+    echo -e "Helper to network configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os ifupdown"
+    echo "   uninstall Uninstall installed ifupdown"
+    echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
@@ -426,7 +426,7 @@ function __net-ifupdown_check { # running_status 0 installed, running_status 5 c
     [[ $(dpkg -l|grep ifupdown|wc -l) -lt 1 ]] && \
         log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
-    [[ $(systemctl status networking 2>1|grep Active|wc -l) -gt 0 ]] && \
+    [[ $(systemctl status networking 2>/dev/null|grep Active|wc -l) -gt 0 ]] && \
         log_info "networking(ifupdown) is started." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
@@ -445,7 +445,7 @@ function __net-ifupdown_run {
         fi
     }
     systemctl start networking
-	return 0
+    return 0
 }
 
 complete -F __net-ifupdown_run net-ifupdown
