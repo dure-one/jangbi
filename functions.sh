@@ -2736,8 +2736,8 @@ _distname_check() {
   sysosinfo=$(lsb_release -i|awk '{print tolower($3)}')_$(lsb_release -cs)_$(arch)
 
   if [[ ${DIST_NAME,,} != ${sysosinfo,,} ]]; then
-    log_fatal "DIST_NAME=$(DIST_NAME) on  config is different system value(${sysosinfo})"
-    return 1
+    log_fatal "DIST_NAME=${DIST_NAME} on  config is different system value(${sysosinfo})"
+    exit 1
   else
   log_debug "Running system(${sysosinfo}) match DIST_NAME config(${DIST_NAME})."
   fi
