@@ -171,15 +171,15 @@ function __net-dnsmasq_uninstall { # UPDATE_FIRMWARE=0
     chmod 444 /etc/resolv.conf
 }
 
-function __net-dnsmasq_check { # return 0 can install, return 1 can't install, return 2 installed
+function __net-dnsmasq_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     local return_code=0
     log_debug "Starting net-dnsmasq Check"
     # check variable exists
-    [[ -z ${RUN_DNSMASQ} ]] && echo "ERROR: RUN_DNSMASQ variable is not set." && return 1
+    [[ -z ${RUN_DNSMASQ} ]] && log_info "RUN_DNSMASQ variable is not set." && return 1
     # check pkg installed
-    [[ $(dpkg -l|grep dnsmasq|wc -l) -lt 1 ]] && echo "ERROR: dnsmasq is not installed." && return 0
+    [[ $(dpkg -l|grep dnsmasq|wc -l) -lt 1 ]] && log_info "dnsmasq is not installed." && return 0
     # check dnsmasq started
-    [[ $(pidof dnsmasq|wc -l) -gt 1 ]] && echo "INFO: dnsmasq is started." && return_code=2
+    [[ $(pidof dnsmasq|wc -l) -gt 1 ]] && log_info "dnsmasq is started." && return_code=2
 
     return 0
 }

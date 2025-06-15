@@ -58,15 +58,15 @@ function __net-sshd_uninstall { # UPDATE_FIRMWARE=0
     systemctl disable ssh
 }
 
-function __net-sshd_check { # return 0 can install, return 1 can't install, return 2 installed
+function __net-sshd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
 	local return_code=0
     log_debug "Starting net-sshd Check"
     # check variable exists
-    [[ -z ${RUN_SSHD} ]] && echo "ERROR: RUN_SSHD variable is not set." && return 1
+    [[ -z ${RUN_SSHD} ]] && log_info "RUN_SSHD variable is not set." && return 1
     # check pkg installed
-    [[ $(dpkg -l|grep openssh-server|wc -l) -lt 1 ]] && echo "ERROR: sshd is not installed." && return 0
+    [[ $(dpkg -l|grep openssh-server|wc -l) -lt 1 ]] && log_info "sshd is not installed." && return 0
     # check dnsmasq started
-    [[ $(pidof openssh-server|wc -l) -gt 1 ]] && echo "INFO: sshd is started." && return_code=2
+    [[ $(pidof openssh-server|wc -l) -gt 1 ]] && log_info "sshd is started." && return_code=2
 
     return 0
 }

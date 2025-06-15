@@ -57,8 +57,8 @@ function __net-darkstat_uninstall { # UPDATE_FIRMWARE=0
 function __net-darkstat_check { ## running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting net-darkstat Check"
-    [[ ${#RUN_darkstat[@]} -lt 1 ]] && \
-        log_info "RUN_darkstat variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${#RUN_DARKSTAT[@]} -lt 1 ]] && \
+        log_info "RUN_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
     [[ $(dpkg -l|grep darkstat|wc -l) -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5

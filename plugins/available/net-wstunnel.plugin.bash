@@ -54,15 +54,15 @@ function __net-wstunnel_uninstall {
     rm -rf /sbin/wstunnel
 }
 
-function __net-wstunnel_check { # return 0 can install, return 1 can't install, return 2 installed
+function __net-wstunnel_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
 	local return_code=0
     log_debug "Starting net-wstunnel Check"
     # check variable exists
-    [[ -z ${RUN_WSTUNNEL} ]] && echo "ERROR: RUN_WSTUNNEL variable is not set." && return 1
+    [[ -z ${RUN_WSTUNNEL} ]] && log_info "RUN_WSTUNNEL variable is not set." && return 1
     # check pkg installed
-    [[ $(which wstunnel|wc -l) -lt 1 ]] && echo "ERROR: wstunnel is not installed." && return 0
+    [[ $(which wstunnel|wc -l) -lt 1 ]] && log_info "wstunnel is not installed." && return 0
     # check dnsmasq started
-    [[ $(ps aux|grep wstunnel) -gt 1 ]] && echo "INFO: wstunnel is started." && return_code=2
+    [[ $(ps aux|grep wstunnel) -gt 1 ]] && log_info "wstunnel is started." && return_code=2
 
     return 0
 }

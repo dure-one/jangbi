@@ -53,15 +53,15 @@ function __net-anydnsdqy_uninstall {
     rm -rf /usr/sbin/anydnsdqy
 }
 
-function __net-anydnsdqy_check { # return 0 can install, return 1 can't install, return 2 installed
+function __net-anydnsdqy_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
 	local return_code=0
     log_debug "Starting net-anydnsdqy Check"
     # check variable exists
-    [[ -z ${RUN_ANYDNSDQY} ]] && echo "ERROR: RUN_ANYDNSDQY variable is not set." && return 1
+    [[ -z ${RUN_ANYDNSDQY} ]] && log_info "RUN_ANYDNSDQY variable is not set." && return 1
     # check pkg installed
-    [[ $(which anydnsdqy|wc -l) -lt 1 ]] && echo "ERROR: anydnsdqy is not installed." && return 0
+    [[ $(which anydnsdqy|wc -l) -lt 1 ]] && log_info "anydnsdqy is not installed." && return 0
     # check dnsmasq started
-    [[ $(pidof anydnsdqy) -gt 1 ]] && echo "INFO: anydnsdqy is started." && return 2
+    [[ $(pidof anydnsdqy) -gt 1 ]] && log_info "anydnsdqy is started." && return 2
 
     return 0
 }

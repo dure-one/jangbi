@@ -135,7 +135,7 @@ function __net-iptables_install {
         echo "${nftables_override}" > /tmp/nftables.tmp.conf
         if ! nft -c -f /tmp/nftables.tmp.conf; then # on error
             echo "ERROR: \$NFTABLES_OVERRIDE has error."
-            exit 1
+            return 1
         else # on success
             nft -f /tmp/nftables.tmp.conf
         fi

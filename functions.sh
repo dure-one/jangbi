@@ -1074,7 +1074,7 @@ run_ok () {
         log_fatal "Something went wrong. Exiting."
         log_fatal "The last few log entries were:"
         tail -17 "${RUN_LOG}" | head -15
-        exit 1
+        return 1
       fi
       return ${res}
     fi
@@ -1088,7 +1088,7 @@ run_ok () {
       env printf "${REDBG} ER ${NORMAL}\\n"
       if [ "$RUN_ERRORS_FATAL" ]; then
         log_fatal "Something went wrong with the previous command. Exiting."
-        exit 1
+        return 1
       fi
       return ${res}
     fi
@@ -2695,7 +2695,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   local conf=.config
   DURE_VARS=""
   [[ -z "$1" ]] && conf=/opt/jangbi/.config
-  [[ ! -f "${conf}" ]] && log_fatal "config file ${conf} not exist." && exit 1
+  [[ ! -f "${conf}" ]] && log_fatal "config file ${conf} not exist." && return 1
   stack=()
   push() { stack+=("$@"); }
   # track config to top
@@ -2721,14 +2721,14 @@ _load_config() { # Load config including parent config ex) _load_config .config
 _checkbin() {
   if ! which "${1}" 2>&1 1>/dev/null;then
     log_fatal "You must install '${1}'."
-    exit 1
+    return 1
   fi
 }
 
 _root_only() {
   if [[ $EUID -ne 0 ]]; then
     log_fatal "This script must be run as root"
-    exit 1
+    return 1
   fi
 }
 
@@ -2737,7 +2737,7 @@ _distname_check() {
 
   if [[ ${DIST_NAME,,} != ${sysosinfo,,} ]]; then
     log_fatal "DIST_NAME=$(DIST_NAME) on  config is different system value(${sysosinfo})"
-    exit 1
+    return 1
   else
   log_debug "Running system(${sysosinfo}) match DIST_NAME config(${DIST_NAME})."
   fi

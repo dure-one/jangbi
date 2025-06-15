@@ -69,14 +69,14 @@ function __net-hostapd_uninstall { # UPDATE_FIRMWARE=0
 	apt purge -qy hostapd
 }
 
-function __net-hostapd_check { # return 0 can install, return 1 can't install, return 2 installed
+function __net-hostapd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
 	local return_code=0
     # check variable exists
-    [[ -z ${RUN_HOSTAPD} ]] && echo "ERROR: RUN_HOSTAPD variable is not set." && return 1
+    [[ -z ${RUN_HOSTAPD} ]] && log_info "RUN_HOSTAPD variable is not set." && return 1
     # check pkg installed
-    [[ $(dpkg -l|grep hostapd|wc -l) -lt 1 ]] && echo "ERROR: hostapd is not installed." && return 0
+    [[ $(dpkg -l|grep hostapd|wc -l) -lt 1 ]] && log_info "hostapd is not installed." && return 0
     # check dnsmasq started
-    [[ $(ps aux|grep hostapd|wc -l) -gt 1 ]] && echo "INFO: hostapd is started." && return_code=2
+    [[ $(ps aux|grep hostapd|wc -l) -gt 1 ]] && log_info "hostapd is started." && return_code=2
 
     return 0
 }

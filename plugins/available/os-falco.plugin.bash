@@ -61,11 +61,11 @@ function __os-falco_uninstall {
 #	systemctl disable falco
 }
 
-function __os-falco_check {  # return 0 can install, return 1 can't install, return 2 installed
+function __os-falco_check {  # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
 	running_status=0
     log_debug "Starting os-falco Check"
-    [[ ${#RUN_falco[@]} -lt 1 ]] && \
-        log_info "RUN_falco variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${#RUN_FALCO[@]} -lt 1 ]] && \
+        log_info "RUN_FALCO variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
     [[ $(dpkg -l|grep falco|wc -l) -lt 1 ]] && \
         log_info "falco is not installed." && [[ $running_status -lt 5 ]] && running_status=5

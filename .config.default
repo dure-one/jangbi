@@ -111,7 +111,8 @@ IPTABLES_SUPERDMZ=1
 RUN_HOSTAPD=1
 RUN_DNSMASQ=1
 DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
-
+RUN_DARKSTAT=1
+RUN_REDIS=1
 #
 #RUN_ANYDNSDQY=1
 #RUN_FALCON=1

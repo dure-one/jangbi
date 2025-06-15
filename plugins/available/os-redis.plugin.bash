@@ -66,7 +66,16 @@ function __os-redis_check { # check config, installation
 }
 
 function __os-redis_run {
-    systemctl start redis-server
+    # systemctl start redis-server
+    running_status=0
+    log_debug "Starting os-redis Check"
+
+    [[ ${RUN_REDIS} -lt 1 ]] && \
+        log_info "RUN_REDIS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+
+    [[ $(dpkg -l|grep redis-server|wc -l) -lt 1 ]] && \
+        log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+
 	return 0
 }
 

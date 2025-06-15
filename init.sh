@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # init.sh - bootstraping scripts for dure system
+export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+cd $(dirname $0)
 source functions.sh
 echo -e "${ORANGE}" # https://www.avonture.be/blog/bash-ascii-art/
 echo '   |\  \|\   __  \|\   ___  \|\   ____\|\   __  \|\  \                                    ';
@@ -34,16 +36,13 @@ RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
 LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
 LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
 
-export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-cd $(dirname $0)
-
 if [[ -z ${DURE_DEPLOY_PATH} ]]; then
     _load_config
     _root_only
     _distname_check
 else
     log_fatal "DURE_DEPLOY_PATH configure is not set. please make .config file."
-    exit 1
+    return 1
 fi
 
 log_debug "Printing Loaded Configs..."
@@ -60,9 +59,13 @@ for((j=0;j<${#DURE_VARS[@]};j++)){
 }
 log_debug "=========================="
 
+# set plugins enabled with loaded config
+
+
 if [[ ${ADDTO_RCLOCAL} -gt 0 && $(cat /etc/rc.local|grep ${DURE_DEPLOY_PATH}/init.sh|wc -l) -lt 1 ]]; then
     log_debug "Installing jangbi init script to rc.local(ADDTO_RCLOCAL)."
-    sed -z "s|\(.*\)exit 0|\1${DURE_DEPLOY_PATH}/init.sh\n\nexit 0|" /etc/rc.local >/tmp/rc.local.tmp
+    add_cmd="\( ${DURE_DEPLOY_PATH}/init.sh \) \&"
+    sed -z "s|\(.*\)exit 0|${add_cmd}|" /etc/rc.local >/tmp/rc.local.tmp
     rm -rf /etc/rc.local
     mv /tmp/rc.local.tmp /etc/rc.local
     chmod +x /etc/rc.local
@@ -89,7 +92,7 @@ process_each_step() {
         ;; # nothing to do
         10)
             log_fatal "Something went wrong. Exiting."
-            exit 1
+            return 1
         ;;
         20)
             log_info "${command}(${step}) Skiped..."
@@ -102,6 +105,7 @@ processes=("os-firmware" "os-kparams" "os-repository" "os-systemd" "os-disablebi
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
+processes=()
 
 # disable ipv6 from sysctl
 
@@ -116,12 +120,12 @@ else # enable ipv6
 fi
 
 if [[ ${DISABLE_SYSTEMD} -gt 0 ]]; then # case 1,2 disable completely, only journald
-    processes="net-ifupdown"
+    processes=("net-ifupdown")
 else # case 0 full systemd
-    processes="net-netplan"
+    processes=("net-netplan")
 fi
 
-processes+=("net-iptables" "net-knockd") # misc-step os-falco os-sysdig # todo
+processes+=("net-iptables" "net-knockd" "net-dnsmasq") # misc-step os-falco os-sysdig # todo
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
@@ -138,7 +142,7 @@ else
     INTERNET_AVAIL=1
 fi
 
-processes=("net-dnsmasq" "net-hostapd" "net-sshd" "os-sysctl") # net-wstunnel # todo
+processes=("net-hostapd" "net-sshd" "net-darkstat" "os-sysctl") # net-wstunnel # todo
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
