@@ -67,7 +67,7 @@ function __net-sshd_check { # running_status 0 installed, running_status 5 can i
     # check variable exists
     [[ -z ${RUN_SSHD} ]] && log_info "RUN_SSHD variable is not set." && return 1
     # check pkg installed
-    [[ $(dpkg -l|grep openssh-server|wc -l) -lt 1 ]] && log_info "sshd is not installed." && return 0
+    [[ $(dpkg -l|awk '{print $2}'|grep openssh-server|wc -l) -lt 1 ]] && log_info "sshd is not installed." && return 0
     # check dnsmasq started
     [[ $(pidof openssh-server|wc -l) -gt 1 ]] && log_info "sshd is started." && return_code=2
 

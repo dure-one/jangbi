@@ -67,7 +67,7 @@ function __os-sysdig_check {  # running_status 0 installed, running_status 5 can
     [[ ${#RUN_SYSDIG[@]} -lt 1 ]] && \
         log_info "RUN_SYSDIG variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep sysdig|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep sysdig|wc -l) -lt 1 ]] && \
         log_info "sysdig is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     return 0

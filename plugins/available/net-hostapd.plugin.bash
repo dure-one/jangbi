@@ -74,7 +74,7 @@ function __net-hostapd_check { # running_status 0 installed, running_status 5 ca
     # check variable exists
     [[ -z ${RUN_HOSTAPD} ]] && log_info "RUN_HOSTAPD variable is not set." && return 1
     # check pkg installed
-    [[ $(dpkg -l|grep hostapd|wc -l) -lt 1 ]] && log_info "hostapd is not installed." && return 0
+    [[ $(dpkg -l|awk '{print $2}'|grep hostapd|wc -l) -lt 1 ]] && log_info "hostapd is not installed." && return 0
     # check dnsmasq started
     [[ $(ps aux|grep hostapd|wc -l) -gt 1 ]] && log_info "hostapd is started." && return_code=2
 

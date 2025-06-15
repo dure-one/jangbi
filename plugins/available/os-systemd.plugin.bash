@@ -129,14 +129,14 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
         log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
     # check disable systemd installed
-    [[ $(dpkg -l|grep systemd-networkd|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep systemd-networkd|wc -l) -lt 1 ]] && \
         log_info "systemd-networkd is not exists." && \
-        [[ $(dpkg -l|grep systemd-resolved|wc -l) -lt 1 ]] && \
+        [[ $(dpkg -l|awk '{print $2}'|grep systemd-resolved|wc -l) -lt 1 ]] && \
         log_info "systemd-resolved is not exists." && [[ $running_status -lt 0 ]] && running_status=0
 
     # # check rare packages
     # if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
-    #     [[ $(dpkg -l|grep modemmanager|wc -l) -gt 0 ]] \
+    #     [[ $(dpkg -l|awk '{print $2}'|grep modemmanager|wc -l) -gt 0 ]] \
     #         && echo "INFO: rare packages not remoted" && return_code=0
     # fi
 

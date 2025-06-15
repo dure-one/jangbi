@@ -165,7 +165,7 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
     [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep -c "iptables") -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     [[ $(systemctl status nftables 2>/dev/null|grep Active|grep running) -gt 0 ]] && \
@@ -224,45 +224,55 @@ function __net-iptables_build {
     # ARP RULES
     #
     # WAN_INF WHITELISTED_MACADDRESSES
-    GW_ADDR=$(route -n|grep "${DURE_WANINF}"|awk '{ print $2 }'|grep -v 0.0.0.0)
-    [[ $(arp -na|grep -c "incomplete") -gt 0 ]] && arp -d "${GW_ADDR}"
-    GW_MAC=$(arp -na|awk '{ print $4 }')
+    # GW_ADDR=$(route -n|grep "${DURE_WANINF}"|awk '{ print $2 }'|grep -v 0.0.0.0)
+    # [[ $(arp -na|grep -c "incomplete") -gt 0 ]] && arp -d "${GW_ADDR}"
+    # GW_MAC=($(arp -na|awk '{ print $4 }'))
+    # GW_MAC=$(nmap -sn "${GW_ADDR}"|grep MAC|awk '{print $3}')
     
-    [[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${DURE_WANINF}" "${GW_MAC}" # targetinf macaddrs
+    #[[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${DURE_WANINF}" "${GW_MAC}" # targetinf macaddrs
     # IPTABLES_GWMACONLY
+    log_debug "iptables_mangle_ext_both_gwmaconly"
     [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
 
     #
     # NET RULES
     #
     # IPTABLES_CONNLIMIT_PER_IP
+    log_debug "iptables_mangle_all_both_conlimitperip"
     [[ ${IPTABLES_CONNLIMIT_PER_IP} -gt 0 ]] && __net-iptables_mangle_all_both_conlimitperip "${IPTABLES_CONNLIMIT_PER_IP}" # conlimitperip:null
     # IPTABLES_DROP_ICMP
+    log_debug "iptables_mangle_all_both_dropicmp"
     [[ ${IPTABLES_DROP_ICMP} -gt 0 ]] && __net-iptables_mangle_all_both_dropicmp
     # IPTABLES_DROP_INVALID_STATE
+    log_debug "iptables_mangle_all_both_dropinvalidstate"
     [[ ${IPTABLES_DROP_INVALID_STATE} -gt 0 ]]  && __net-iptables_mangle_all_both_dropinvalidstate
     # IPTABLES_DROP_NON_SYN
+    log_debug "iptables_mangle_all_both_dropnonsyn"
     [[ ${IPTABLES_DROP_NON_SYN} -gt 0 ]] && __net-iptables_mangle_all_both_dropnonsyn
     # IPTABLES_DROP_SPOOFING=1
-    [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing  "${DURE_WANINF}"# tarinf:null
+    log_debug "iptables_mangle_all_both_dropspoofing"
+    [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing "${DURE_WANINF}"  # tarinf:null
     # IPTABLES_LIMIT_MSS
+    log_debug "iptables_mangle_all_both_limitmss"
     [[ ${IPTABLES_LIMIT_MSS} -gt 0 ]] && __net-iptables_mangle_all_both_limitmss
     # IPTABLES_GUARD_OVERLOAD
+    log_debug "iptables_raw_all_both_limitudppps"
     [[ ${IPTABLES_GUARD_OVERLOAD} -gt 0 ]] && __net-iptables_raw_all_both_limitudppps
     # IPTABLES_INVALID_TCPFLAG
+    log_debug "iptables_raw_all_both_dropinvtcpflag"
     [[ ${IPTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-iptables_raw_all_both_dropinvtcpflag
     # IPTABLES_GUARD_PORT_SCANNER
+    log_debug "iptables_raw_all_both_portscanner"
     [[ ${IPTABLES_GUARD_PORT_SCANNER} -gt 0 ]] && __net-iptables_raw_all_both_portscanner
     # IPTABLES_BLACK_NAMELIST
+    log_debug "iptables_filter_all_both_ipblacklist"
     [[ ${#IPTABLES_BLACK_NAMELIST[@]} -gt 0 ]] && __net-iptables_filter_all_both_ipblacklist "${IPTABLES_BLACK_NAMELIST}" # blockurls
 
     #
     # HOST RULES
     #
     # GET VARs
-    local waninf=${DURE_WANINF}
-    local laninf=${DURE_LANINF}
-    local wlaninf=${DURE_WLANINF}
+    local waninf=${DURE_WANINF} laninf=${DURE_LANINF} wlaninf=${DURE_WLANINF}
 
     # PORT FORWARDING WAN->LAN
     # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090|8010:192.168.0.1:8010"
@@ -274,12 +284,14 @@ function __net-iptables_build {
                 local wanport=${forwardinfo[0]}
                 local lanip=${forwardinfo[1]}
                 local lanport=${forwardinfo[2]}
-                __net-iptables_nat_ext_both_portforward "${DURE_WANINF}" "${wanport}" "${lanip}" "${lanport}"# waninf wanport lanip lanport
+                log_debug "iptables_nat_ext_both_portforward"
+                __net-iptables_nat_ext_both_portforward "${DURE_WANINF}" "${wanport}" "${lanip}" "${lanport}"  # waninf wanport lanip lanport
             fi
         }
     fi
     # DMZ SETTINGS WAN->HOST
     # IPTABLES_DMZ="192.168.0.1" IPTABLES_SUPERDMZ=1
+    log_debug "iptables_nat_ext_both_dmzsdmz"
     [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz "${DURE_WANINF}" "${DURE_LANINF}" "${DMZIP}" # waninf laninf dmzip sdmz
 
     # MASQUERADE WAN->NET
@@ -340,6 +352,7 @@ function __net-iptables_build {
             fi
 
             if [[ ! -z ${frominf} && ! -z ${toinf} ]]; then
+                log_debug "iptables_filternat_all_both_masquerade"
                 __net-iptables_filternat_all_both_masquerade  "${frominf}" "${fromnet}" "${toinf}" # laninf lannet waninf
             fi
         }
@@ -366,6 +379,7 @@ function __net-iptables_mangle_all_both_macwhitelist {
         IFS=$'|' read -d "" -ra MACADDR <<< "${macaddrs}" # split
         for((j=0;j<${#MACADDR[@]};j++)){
             arptables -A INPUT -i "${targetinf}" --source-mac "${MACADDR[j]}" -j ACCEPT
+            log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT"
         }
         [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
     fi
@@ -377,8 +391,9 @@ function __net-iptables_mangle_ext_both_gwmaconly {
     local funcname="mangle_ext_both_gwonly"
     local targetinf=$(route |grep default|awk '{print $8}') # net-tools
     local gwip=$(route |grep default|awk '{print $2}') # net-tools
-    local gwmac=$(arp -a|grep "${gwip}"|grep "${targetinf}"|awk '{print $4}') # net-tools
+    local gwmac=$(nmap -sn "${gwip}"|grep MAC|awk '{print $3}')
     arptables -A INPUT -i "${targetinf}" --source-mac "${gwmac}" -j ACCEPT
+    log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${gwmac} -j ACCEPT"
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 

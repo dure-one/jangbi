@@ -44,8 +44,8 @@ function __net-netplan_install {
     local disable_ipv6="$2"
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-netplan."
-    [[ $(dpkg -l|grep libnetplan0|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libnetplan0*.deb
-    [[ $(dpkg -l|grep python3-netifaces|wc -l) -lt 1 ]] && apt install -qy ./pkgs/python3-netifaces*.deb
+    [[ $(dpkg -l|awk '{print $2}'|grep libnetplan0|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libnetplan0*.deb
+    [[ $(dpkg -l|awk '{print $2}'|grep python3-netifaces|wc -l) -lt 1 ]] && apt install -qy ./pkgs/python3-netifaces*.deb
     apt install -yq ./pkgs/netplan.io*.deb
     mkdir -p /etc/netplan
     __net-netplan_build
@@ -83,14 +83,14 @@ EOT
             [[ ! ${wlaninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${waninf} ]] && wlaninf=${dure_infs[j]} && continue
             fi
         }
-        sed -i "s|DURE_WANINF=.*|DURE_WANINF=${waninf}|g" ${DURE_GENCFG_PATH}
-        [[ -z ${DURE_WAN} ]] && sed -i "s|DURE_WAN=.*|DURE_WAN=\"dhcp\"|g" ${DURE_GENCFG_PATH}
-        sed -i "s|DURE_LANINF=.*|DURE_LANINF=${laninf}|g" ${DURE_GENCFG_PATH}
-        [[ -z ${DURE_LAN} ]] && sed -i "s|DURE_LAN=.*|DURE_LAN=\"192.168.1.1/24\"|g" ${DURE_GENCFG_PATH}
-        sed -i "s|DURE_WLANINF=.*|DURE_WLANINF=${wlaninf}|g" ${DURE_GENCFG_PATH}
-        [[ -z ${DURE_WLAN} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"192.168.100.1/24\"|g" ${DURE_GENCFG_PATH}
-        [[ -z ${DURE_WLAN_SSID} ]] && sed -i "s|DURE_WLAN_SSID=.*|DURE_WLAN_SSID=\"durejangbi\"|g" ${DURE_GENCFG_PATH}
-        [[ -z ${DURE_WLAN_PASS} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"durejangbi\"|g" ${DURE_GENCFG_PATH}
+        sed -i "s|DURE_WANINF=.*|DURE_WANINF=${waninf}|g" "${DURE_DEPLOY_PATH}/.config"
+        [[ -z ${DURE_WAN} ]] && sed -i "s|DURE_WAN=.*|DURE_WAN=\"dhcp\"|g" "${DURE_DEPLOY_PATH}/.config"
+        sed -i "s|DURE_LANINF=.*|DURE_LANINF=${laninf}|g" "${DURE_DEPLOY_PATH}/.config"
+        [[ -z ${DURE_LAN} ]] && sed -i "s|DURE_LAN=.*|DURE_LAN=\"192.168.1.1/24\"|g" "${DURE_DEPLOY_PATH}/.config"
+        sed -i "s|DURE_WLANINF=.*|DURE_WLANINF=${wlaninf}|g" "${DURE_DEPLOY_PATH}/.config"
+        [[ -z ${DURE_WLAN} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"192.168.100.1/24\"|g" "${DURE_DEPLOY_PATH}/.config"
+        [[ -z ${DURE_WLAN_SSID} ]] && sed -i "s|DURE_WLAN_SSID=.*|DURE_WLAN_SSID=\"durejangbi\"|g" "${DURE_DEPLOY_PATH}/.config"
+        [[ -z ${DURE_WLAN_PASS} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"durejangbi\"|g" "${DURE_DEPLOY_PATH}/.config"
       fi
 
       for((j=0;j<${#dure_infs[@]};j++)){
@@ -371,7 +371,7 @@ function __net-netplan_check { # running_status 0 installed, running_status 5 ca
     [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep netplan|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep netplan|wc -l) -lt 1 ]] && \
         log_info "netplan is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     return 0

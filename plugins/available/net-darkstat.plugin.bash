@@ -60,7 +60,7 @@ function __net-darkstat_check { ## running_status 0 installed, running_status 5 
     [[ ${#RUN_DARKSTAT[@]} -lt 1 ]] && \
         log_info "RUN_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep darkstat|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep darkstat|wc -l) -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     [[ $(echo $(pidof dnsmasq)|wc -l) -lt 1 ]] && \

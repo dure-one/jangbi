@@ -67,7 +67,7 @@ function __os-falco_check {  # running_status 0 installed, running_status 5 can 
     [[ ${#RUN_FALCO[@]} -lt 1 ]] && \
         log_info "RUN_FALCO variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep falco|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep falco|wc -l) -lt 1 ]] && \
         log_info "falco is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     return 0

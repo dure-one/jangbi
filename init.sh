@@ -37,6 +37,9 @@ else
     return 1
 fi
 
+[[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
+    log_info "ipcacl-ng command does not exist. please install it." && exit 1
+
 log_debug "Printing Loaded Configs..."
 DURE_VARS=($(printf "%s\n" "${DURE_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^DURE_VARS")
@@ -54,9 +57,9 @@ log_debug "=========================="
 # set plugins enabled with loaded config : TODO
 jangbi-it enable plugin all &>/dev/null
 
-if [[ ${ADDTO_RCLOCAL} -gt 0 && $(cat /etc/rc.local|grep ${DURE_DEPLOY_PATH}/init.sh|wc -l) -lt 1 ]]; then
+if [[ ${ADDTO_RCLOCAL} -gt 0 && $(cat /etc/rc.local|grep -c "DURE_INIT_SCRIPT") -lt 1 ]]; then
     log_debug "Installing jangbi init script to rc.local(ADDTO_RCLOCAL)."
-    add_cmd="\( ${DURE_DEPLOY_PATH}/init.sh \) \&"
+    add_cmd="\( ${DURE_DEPLOY_PATH}/init.sh \) \& # DURE_INIT_SCRIPT"
     sed -z "s|\(.*\)exit 0|${add_cmd}|" /etc/rc.local >/tmp/rc.local.tmp
     rm -rf /etc/rc.local
     mv /tmp/rc.local.tmp /etc/rc.local
@@ -100,7 +103,6 @@ done
 processes=()
 
 # disable ipv6 from sysctl
-
 if [[ ${DISABLE_IPV6} -gt 0 ]]; then # disable ipv6
     log_debug "Disable IPv6"
     sysctl -w net.ipv6.conf.all.disable_ipv6=1 &>/dev/null

@@ -68,7 +68,7 @@ function __net-knockd_check { ## running_status 0 installed, running_status 5 ca
     [[ ${#RUN_KNOCKD[@]} -lt 1 ]] && \
         log_info "RUN_KNOCKD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
-    [[ $(dpkg -l|grep knockd|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep knockd|wc -l) -lt 1 ]] && \
         log_info "knockd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
     [[ $(systemctl status knockd 2>/dev/null|grep Active|wc -l) -gt 0 ]] && \
