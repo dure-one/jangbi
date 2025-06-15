@@ -224,7 +224,11 @@ function __net-iptables_build {
     # ARP RULES
     #
     # WAN_INF WHITELISTED_MACADDRESSES
-    [[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist # targetinf macaddrs
+    GW_ADDR=$(route -n|grep ${DURE_WANINF}|awk '{ print $2 }'|grep -v 0.0.0.0)
+    [[ $(arp -na|grep incomplete|wc -l) -gt 0 ]] && arp -d ${GW_ADDR}
+    GW_MAC=$(arp -na|awk '{ print $4 }')
+    
+    [[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${DURE_WANINF}" "${GW_MAC}" # targetinf macaddrs
     # IPTABLES_GWMACONLY
     [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
 
@@ -361,7 +365,6 @@ function __net-iptables_mangle_all_both_macwhitelist {
     if [[ ${#macaddrs[@]} -gt 0 ]]; then
         IFS=$'|' read -d "" -ra MACADDR <<< "${macaddrs}" # split
         for((j=0;j<${#MACADDR[@]};j++)){
-            arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT
             arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT
         }
         [[ $(arptables -S|grep "INPUT DROP"|wc -l) -lt 1 ]] && arptables -P INPUT DROP

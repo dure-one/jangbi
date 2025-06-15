@@ -44,12 +44,15 @@ function __net-sshd_install {
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-sshd."
     apt install -qy openssh-server
+    mkdir -p /run/sshd
     # config settings
-    SSH_CONFIG=""
-    [[ ${SSHD_PORT} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nPort ${SSHD_PORT}" && sed -i "s|Port=.*||g" /etc/ssh/sshd_config
-    [[ ${#SSHD_ADDR} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${SSHD_ADDR}" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
-    [[ ${DISABLE_IPV6} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nAddressFamily inet" && sed -i "s|AddressFamily=.*||g" /etc/ssh/sshd_config
-    echo -e "\n\n${SSH_CONFIG}\n\n" >> /etc/ssh/sshd_config
+    SSH_CONFIG="# DURE_SSHD_CONFIG"
+    if [[ $(cat /etc/ssh/sshd_config|grep DURE_SSHD_CONFIG|wc -l) -lt 1 ]]; then
+        [[ ${SSHD_PORT} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nPort ${SSHD_PORT} # DURE_SSHD_PORT" && sed -i "s|Port=.*||g" /etc/ssh/sshd_config
+        # [[ ${#SSHD_ADDR} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${SSHD_ADDR} # DURE_SSHD_ADDR" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
+        [[ ${DISABLE_IPV6} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nAddressFamily inet # DURE_DISABLE_IPV6" && sed -i "s|AddressFamily=.*||g" /etc/ssh/sshd_config
+        echo -e "\n\n${SSH_CONFIG}\n\n" >> /etc/ssh/sshd_config
+    fi
 }
 
 function __net-sshd_uninstall { # UPDATE_FIRMWARE=0
