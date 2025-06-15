@@ -6,7 +6,7 @@
 BASH_IT_LOG_PREFIX="core: reloader: "
 _bash_it_reloader_type=""
 
-if [[ "${1:-}" != "skip" ]] && [[ -d "${BASH_IT?}/enabled" ]]; then
+if [[ "${1:-}" != "skip" ]] && [[ -d "${JANGBI_IT?}/enabled" ]]; then
 	case $1 in
 		plugin)
 			_bash_it_reloader_type=$1

@@ -59,8 +59,8 @@ for((j=0;j<${#DURE_VARS[@]};j++)){
 }
 log_debug "=========================="
 
-# set plugins enabled with loaded config
-
+# set plugins enabled with loaded config : TODO
+jangbi-it enable plugin all &>/dev/null
 
 if [[ ${ADDTO_RCLOCAL} -gt 0 && $(cat /etc/rc.local|grep ${DURE_DEPLOY_PATH}/init.sh|wc -l) -lt 1 ]]; then
     log_debug "Installing jangbi init script to rc.local(ADDTO_RCLOCAL)."
