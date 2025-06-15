@@ -87,7 +87,7 @@ function __os-repository_run {
     mkdir -p ${DURE_DEPLOY_PATH}/imgs/debian
     [[ $(mount |grep "${DURE_DEPLOY_PATH}/imgs/debian/"|wc -l) -lt 1 ]] && \
         mount -o loop ${DURE_DEPLOY_PATH}/${DIST_PKG_IMG} ${DURE_DEPLOY_PATH}/imgs/debian
-    apt install --fix-broken
+    apt update && apt install --fix-broken
 	return 0
 }
 
