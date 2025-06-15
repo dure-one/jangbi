@@ -10,4 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <small>[Compare with latest](https://github.com/dure-one/jangbi/compare/cf31888b598023227446512a34039c2c9ac6e620...HEAD)</small>
 
+### Added
+
+- Add changelog automatically ([ed67363](https://github.com/dure-one/jangbi/commit/ed6736395a6a699e77a66331ebefe4f7b4ccfd2a) by nikescar).
+
 <!-- insertion marker -->
