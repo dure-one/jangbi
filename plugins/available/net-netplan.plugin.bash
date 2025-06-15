@@ -36,7 +36,7 @@ function __net-netplan_help {
 	echo "   install 1 nft_rules        Install os netplan ex) install $ipv6enabled $nft_rules"
 	echo "   uninstall                  Uninstall installed netplan"
 	echo "   check                      Check vars available"
-    echo "   run                        do task at bootup"
+  echo "   run                        do task at bootup"
 }
 
 function __net-netplan_install {

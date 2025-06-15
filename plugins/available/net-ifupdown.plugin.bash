@@ -60,44 +60,42 @@ function __net-ifupdown_generate {
 auto lo
 iface lo inet loopback
 EOT
-        WANINF=${DURE_WANINF}
-        LANINF=${DURE_LANINF}
-        WLANINF=${DURE_WLANINF}
+        local waninf=${DURE_WANINF} laninf=${DURE_LANINF} wlaninf=${DURE_WLANINF}
         # generate netplan based netinf
-        if [[ -z ${WANINF} && -z ${LANINF} && -z ${WLANINF} ]]; then
-            DURE_INFS=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
-            IFS=$'\n' read -rd '' -a DURE_INFS <<< "${DURE_INFS//:}"
+        if [[ -z ${waninf} && -z ${laninf} && -z ${wlaninf} ]]; then
+            local dure_infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
+            IFS=$'\n' read -rd '' -a dure_infs <<< "${dure_infs//:}"
             # match interface name
-            for((j=0;j<${#DURE_INFS[@]};j++)){
-                if [[ ${DURE_INFS[j]:0:1} != 'w' && ! ${WANINF} ]]; then
-                    [[ ! ${WANINF} && ${DURE_INFS[j]} != ${LANINF} && ${DURE_INFS[j]} != ${WLANINF} ]] && WANINF=${DURE_INFS[j]} && continue
+            for((j=0;j<${#dure_infs[@]};j++)){
+                if [[ ${dure_infs[j]:0:1} != 'w' && ! ${waninf} ]]; then
+                    [[ ! ${waninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${wlaninf} ]] && waninf=${dure_infs[j]} && continue
                 fi
-                if [[ ${DURE_INFS[j]:0:1} != 'w' && ! ${LANINF} ]]; then
-                    [[ ! ${LANINF} && ${DURE_INFS[j]} != ${WANINF} && ${DURE_INFS[j]} != ${WLANINF} ]] && LANINF=${DURE_INFS[j]} && continue
+                if [[ ${dure_infs[j]:0:1} != 'w' && ! ${laninf} ]]; then
+                    [[ ! ${laninf} && ${dure_infs[j]} != ${waninf} && ${dure_infs[j]} != ${wlaninf} ]] && laninf=${dure_infs[j]} && continue
                 fi
-                if [[ ${DURE_INFS[j]:0:1} = 'w' && ! ${WLANINF} ]]; then
-                    [[ ! ${WLANINF} && ${DURE_INFS[j]} != ${LANINF} && ${DURE_INFS[j]} != ${WANINF} ]] && WLANINF=${DURE_INFS[j]} && continue
+                if [[ ${dure_infs[j]:0:1} = 'w' && ! ${wlaninf} ]]; then
+                    [[ ! ${wlaninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${waninf} ]] && wlaninf=${dure_infs[j]} && continue
                 fi
             }
-            sed -i "s|DURE_WANINF=.*|DURE_WANINF=${WANINF}|g" ${DURE_GENCFG_PATH}
+            sed -i "s|DURE_WANINF=.*|DURE_WANINF=${waninf}|g" ${DURE_GENCFG_PATH}
             [[ -z ${DURE_WAN} ]] && sed -i "s|DURE_WAN=.*|DURE_WAN=\"dhcp\"|g" ${DURE_GENCFG_PATH}
-            sed -i "s|DURE_LANINF=.*|DURE_LANINF=${LANINF}|g" ${DURE_GENCFG_PATH}
+            sed -i "s|DURE_LANINF=.*|DURE_LANINF=${laninf}|g" ${DURE_GENCFG_PATH}
             [[ -z ${DURE_LAN} ]] && sed -i "s|DURE_LAN=.*|DURE_LAN=\"192.168.1.1/24\"|g" ${DURE_GENCFG_PATH}
-            sed -i "s|DURE_WLANINF=.*|DURE_WLANINF=${WLANINF}|g" ${DURE_GENCFG_PATH}
+            sed -i "s|DURE_WLANINF=.*|DURE_WLANINF=${wlaninf}|g" ${DURE_GENCFG_PATH}
             [[ -z ${DURE_WLAN} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"192.168.100.1/24\"|g" ${DURE_GENCFG_PATH}
             [[ -z ${DURE_WLAN_SSID} ]] && sed -i "s|DURE_WLAN_SSID=.*|DURE_WLAN_SSID=\"durejangbi\"|g" ${DURE_GENCFG_PATH}
             [[ -z ${DURE_WLAN_PASS} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"durejangbi\"|g" ${DURE_GENCFG_PATH}
         fi
 
-        for((j=0;j<${#DURE_INFS[@]};j++)){
-            if [[ ${DURE_INFS[j]} = ${WANINF} ]]; then # match DURE_WANINF
+        for((j=0;j<${#dure_infs[@]};j++)){
+            if [[ ${dure_infs[j]} = ${waninf} ]]; then # match DURE_WANINF
                 # DURE_WANINF="enp4s0"
                 # DURE_WAN="192.168.56.2/24" # or DHCP
                 # DURE_WANGW="192.168.56.1" # or blank
                 if [[ ${DURE_WAN,,} = "dhcp" || ${DURE_WAN} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${WANINF}
-iface ${WANINF} inet dhcp
+auto ${waninf}
+iface ${waninf} inet dhcp
 EOT
                 else
                     # WANNET=$(ipcalc-ng ${DURE_WAN}|grep Network:|cut -f2)
@@ -111,21 +109,21 @@ EOT
                     # WANMINIP=$(ipcalc-ng ${DURE_WAN}|grep HostMin:|cut -f2)
                     # WANMAXIP=$(ipcalc-ng ${DURE_WAN}|grep HostMax:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${WANINF}
-iface ${WANINF} inet static
+auto ${waninf}
+iface ${waninf} inet static
 address ${DURE_WAN}
 gateway ${WANGW}
 EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${LANINF} ]]; then # match DURE_LANINF
+            if [[ ${dure_infs[j]} = ${laninf} ]]; then # match DURE_LANINF
                 # DURE_LANINF="enp4s0"
                 # DURE_LAN="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN,,} = "dhcp" || ${DURE_LAN} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${LANINF}
-iface ${LANINF} inet dhcp
+auto ${laninf}
+iface ${laninf} inet dhcp
 EOT
                 else
                     # LANNET=$(ipcalc-ng ${DURE_LAN}|grep Network:|cut -f2)
@@ -133,15 +131,15 @@ EOT
                     if [[ ! ${DURE_LANGW} ]]; then
                         LANGW=$(ipcalc-ng ${DURE_LAN}|grep HostMin:|cut -f2)
                         tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${LANINF}
-iface ${LANINF} inet static
+auto ${laninf}
+iface ${laninf} inet static
     address ${DURE_LAN}
 EOT
                     else
                         LANGW=${DURE_LANGW}
                         tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${LANINF}
-iface ${LANINF} inet static
+auto ${laninf}
+iface ${laninf} inet static
 address ${DURE_LAN}
 gateway ${LANGW}
 EOT
@@ -152,7 +150,7 @@ EOT
             #
             # searching & match DURE_LAN0INF ~ DURE_LAN9INF
             #
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN0INF} ]]; then # match DURE_LAN0INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN0INF} ]]; then # match DURE_LAN0INF
                 # DURE_LAN0INF="enp4s0"
                 # DURE_LAN0="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN0,,} = "dhcp" || ${DURE_LAN0} = "" ]]; then
@@ -172,7 +170,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN1INF} ]]; then # match DURE_LAN1INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN1INF} ]]; then # match DURE_LAN1INF
                 # DURE_LAN1INF="enp4s0"
                 # DURE_LAN1="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN1,,} = "dhcp" || ${DURE_LAN1} = "" ]]; then
@@ -192,7 +190,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN2INF} ]]; then # match DURE_LAN2INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN2INF} ]]; then # match DURE_LAN2INF
                 # DURE_LAN2INF="enp4s0"
                 # DURE_LAN2="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN2,,} = "dhcp" || ${DURE_LAN2} = "" ]]; then
@@ -212,7 +210,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN3INF} ]]; then # match DURE_LAN3INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN3INF} ]]; then # match DURE_LAN3INF
                 # DURE_LAN3INF="enp4s0"
                 # DURE_LAN3="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN3,,} = "dhcp" || ${DURE_LAN3} = "" ]]; then
@@ -232,7 +230,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN4INF} ]]; then # match DURE_LAN4INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN4INF} ]]; then # match DURE_LAN4INF
                 # DURE_LAN4INF="enp4s0"
                 # DURE_LAN4="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN4,,} = "dhcp" || ${DURE_LAN4} = "" ]]; then
@@ -252,7 +250,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN5INF} ]]; then # match DURE_LAN5INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN5INF} ]]; then # match DURE_LAN5INF
                 # DURE_LAN5INF="enp4s0"
                 # DURE_LAN5="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN5,,} = "dhcp" || ${DURE_LAN5} = "" ]]; then
@@ -272,7 +270,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN6INF} ]]; then # match DURE_LAN6INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN6INF} ]]; then # match DURE_LAN6INF
                 # DURE_LAN6INF="enp4s0"
                 # DURE_LAN6="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN6,,} = "dhcp" || ${DURE_LAN6} = "" ]]; then
@@ -292,7 +290,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN7INF} ]]; then # match DURE_LAN7INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN7INF} ]]; then # match DURE_LAN7INF
                 # DURE_LAN7INF="enp4s0"
                 # DURE_LAN7="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN7,,} = "dhcp" || ${DURE_LAN7} = "" ]]; then
@@ -312,7 +310,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN8INF} ]]; then # match DURE_LAN8INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN8INF} ]]; then # match DURE_LAN8INF
                 # DURE_LAN8INF="enp4s0"
                 # DURE_LAN8="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN8,,} = "dhcp" || ${DURE_LAN8} = "" ]]; then
@@ -332,7 +330,7 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]} = ${DURE_LAN9INF} ]]; then # match DURE_LAN9INF
+            if [[ ${dure_infs[j]} = ${DURE_LAN9INF} ]]; then # match DURE_LAN9INF
                 # DURE_LAN9INF="enp4s0"
                 # DURE_LAN9="192.168.57.2/24" # or DHCP
                 if [[ ${DURE_LAN9,,} = "dhcp" || ${DURE_LAN9} = "" ]]; then
@@ -356,10 +354,10 @@ EOT
             #
             # rest non-prematched non-wireless adapters
             #
-            if [[ ${DURE_INFS[j]:0:1} != 'w' ]]; then # match REST
+            if [[ ${dure_infs[j]:0:1} != 'w' ]]; then # match REST
                 tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_INFS[j]}
-iface ${DURE_INFS[j]} inet dhcp
+auto ${dure_infs[j]}
+iface ${dure_infs[j]} inet dhcp
 EOT
                 continue
             fi
@@ -367,28 +365,28 @@ EOT
             #
             # wireless adapters
             #
-            if [[ ${DURE_INFS[j]} = ${WLANINF} ]]; then # match DURE_WLANINF
+            if [[ ${dure_infs[j]} = ${wlaninf} ]]; then # match DURE_WLANINF
                 # DURE_WLANINF="enp4s0"
                 # DURE_WLAN="192.168.58.2/24" # or DHCP
                 if [[ ${DURE_WLAN,,} = "dhcp" || ${DURE_WLAN} = "" ]]; then # client, dhcp mode
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${WLANINF}
-iface ${WLANINF} inet dhcp
+auto ${wlaninf}
+iface ${wlaninf} inet dhcp
 EOT
                 else # gateway, wstunnel, ap mode, static gateway ip
                     # WLANNET=$(ipcalc-ng ${DURE_WLAN}|grep Network:|cut -f2)
                     # WLANIP=$(ipcalc-ng ${DURE_WLAN}|grep Address:|cut -f2)
                     if [[ ! ${DURE_WLANGW} ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${WLANINF}
-iface ${WLANINF} inet static
+auto ${wlaninf}
+iface ${wlaninf} inet static
     address ${DURE_WLAN}
 EOT
                     else
                     WLANGW=${DURE_WLANGW}
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${WLANINF}
-iface ${WLANINF} inet static
+auto ${wlaninf}
+iface ${wlaninf} inet static
 address ${DURE_WLAN}
 gateway ${WLANGW}
 EOT
@@ -399,10 +397,10 @@ EOT
                 fi
                 continue
             fi
-            if [[ ${DURE_INFS[j]:0:1} = 'w' ]]; then  # match REST
+            if [[ ${dure_infs[j]:0:1} = 'w' ]]; then  # match REST
                 tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_INFS[j]}
-iface ${DURE_INFS[j]} inet dhcp
+auto ${dure_infs[j]}
+iface ${dure_infs[j]} inet dhcp
 EOT
                 continue
             fi
@@ -428,7 +426,7 @@ function __net-ifupdown_check { # running_status 0 installed, running_status 5 c
     [[ $(dpkg -l|grep ifupdown|wc -l) -lt 1 ]] && \
         log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
-    [[ $(systemctl status networking|grep Active|wc -l) -gt 0 ]] && \
+    [[ $(systemctl status networking 2>1|grep Active|wc -l) -gt 0 ]] && \
         log_info "networking(ifupdown) is started." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
@@ -437,13 +435,13 @@ function __net-ifupdown_check { # running_status 0 installed, running_status 5 c
 function __net-ifupdown_run {
     # remove dhcp from interfaces not connected for preventing systemd networking from hanging
     local infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
-    IFS=$'\n' read -rd '' -a DURE_INFS <<< "${infs//:}"
-    for((j=0;j<${#DURE_INFS[@]};j++)){
-        operstate=$(cat /sys/class/net/${DURE_INFS[j]}/operstate)
+    IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
+    for((j=0;j<${#dure_infs[@]};j++)){
+        operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
         if [[ ${operstate} == "up" ]]; then
-            sed -i "s|iface ${DURE_INFS[j]} inet manual.*|iface ${DURE_INFS[j]} inet dhcp|g" /etc/network/interfaces
+            sed -i "s|iface ${dure_infs[j]} inet manual.*|iface ${dure_infs[j]} inet dhcp|g" /etc/network/interfaces
         elif [[ ${operstate} == "down" ]]; then
-            sed -i "s|iface ${DURE_INFS[j]} inet dhcp.*|iface ${DURE_INFS[j]} inet manual|g" /etc/network/interfaces
+            sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
         fi
     }
     systemctl start networking

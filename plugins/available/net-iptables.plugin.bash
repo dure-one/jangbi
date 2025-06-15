@@ -168,7 +168,7 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
     [[ $(dpkg -l|grep iptables|wc -l) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
-    [[ $(systemctl status nftables|grep Active|grep running) -gt 0 ]] && \
+    [[ $(systemctl status nftables 2>1|grep Active|grep running) -gt 0 ]] && \
         log_info "nftables is started." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0

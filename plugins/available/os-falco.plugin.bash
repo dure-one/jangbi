@@ -70,9 +70,6 @@ function __os-falco_check {  # running_status 0 installed, running_status 5 can 
     [[ $(dpkg -l|grep falco|wc -l) -lt 1 ]] && \
         log_info "falco is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
-#    [[ $(systemctl status knockd|grep Active|wc -l) -gt 0 ]] && \
-#        log_info "knockd is not running." && [[ $running_status -lt 0 ]] && running_status=0
-
     return 0
 }
 
