@@ -49,7 +49,7 @@ function __os-aide_install {
     mkdir -p /var/log/aide
     cp -rf ./configs/aide.conf /etc/aide/aide.conf # normal configurations
     cp -rf ./configs/aide.minimal.conf /etc/aide/aide.minimal.conf # minimal configurations
-    aide --init --config=/etc/aide/aide.conf &>jangbi_aide.log &
+    # aide --init --config=/etc/aide/aide.conf &>jangbi_aide.log &
     log_debug "aide db is generating on background."
 }
 
@@ -72,12 +72,9 @@ function __os-aide_check { # running_status 0 installed, running_status 5 can in
 function __os-aide_run {
     ## aide minimal check for first run
     if [[ ! -f /var/lib/aide/aide.minimal.db.new.gz ]]; then
-      aide --init --config=/etc/aide/aide.minimal.conf 2>/dev/null
-    else
-      aide --check --config=/etc/aide/aide.conf 2>/dev/null &
+      ( aide --init --config=/etc/aide/aide.minimal.conf 2>/dev/null && \
+        cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz ) &
     fi
-    cp /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz
-
 	return 0
 }
 

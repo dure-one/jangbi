@@ -47,7 +47,7 @@ function __net-sshd_install {
     # config settings
     SSH_CONFIG=""
     [[ ${SSHD_PORT} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nPort ${SSHD_PORT}" && sed -i "s|Port=.*||g" /etc/ssh/sshd_config
-    [[ ${SSHD_ADDR} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${SSHD_ADDR}" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
+    [[ ${#SSHD_ADDR} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${SSHD_ADDR}" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
     [[ ${DISABLE_IPV6} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nAddressFamily inet" && sed -i "s|AddressFamily=.*||g" /etc/ssh/sshd_config
     echo -e "\n\n${SSH_CONFIG}\n\n" >> /etc/ssh/sshd_config
 }

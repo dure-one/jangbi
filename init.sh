@@ -92,7 +92,7 @@ process_each_step() {
         ;; # nothing to do
         10)
             log_fatal "Something went wrong. Exiting."
-            return 1
+            exit 1
         ;;
         20)
             log_info "${command}(${step}) Skiped..."
