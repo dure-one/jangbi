@@ -12,11 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([0d7da3f](https://github.com/dure-one/jangbi/commit/0d7da3f0ad0e4085fe63af346274e8789c8e66c6) by nikescar).
+- Add changelog automatically ([2a26798](https://github.com/dure-one/jangbi/commit/2a2679838b5b13afc34baa859ed27c9e3732af44) by nikescar).
 
 ### Fixed
 
-- fix: fix typo ([05b807f](https://github.com/dure-one/jangbi/commit/05b807f221c1b0e70e10a787dabc5ff83cc419a6) by Woojae, Park).
+- fix: fix typo ([203b9d0](https://github.com/dure-one/jangbi/commit/203b9d09027190ba1e1a5a2c28e576f43b83669c) by Woojae, Park).
 - fix: fix type, fix error ([6281324](https://github.com/dure-one/jangbi/commit/628132414ce55063f1969337f0a0aa5f6a6fd172) by Woojae, Park).
 
 <!-- insertion marker -->
