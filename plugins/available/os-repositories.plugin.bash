@@ -85,10 +85,9 @@ function __os-repository_check { # running_status 0 installed, running_status 5 
 
 function __os-repository_run {
     mkdir -p ${DURE_DEPLOY_PATH}/imgs/debian
-    umount -l ${DURE_DEPLOY_PATH}/imgs/debian 2>/dev/null
     [[ $(mount |grep "${DURE_DEPLOY_PATH}/imgs/debian/"|wc -l) -lt 1 ]] && \
         mount -o loop ${DURE_DEPLOY_PATH}/imgs/${DIST_PKG_IMG} ${DURE_DEPLOY_PATH}/imgs/debian
-        apt install --fix-broken
+    apt install --fix-broken
 	return 0
 }
 
