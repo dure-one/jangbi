@@ -72,7 +72,7 @@ function __os-systemd_disable_completely {
         systemd-networkd systemd-networkd.socket
     systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    apt install -yq ./pkgs/ifupdown*.deb isc-dhcp-client
+    apt install -yq isc-dhcp-client
     systemctl enable networking.service
 }
 
@@ -92,7 +92,7 @@ function __os-systemd_only_journald {
         systemd-networkd systemd-networkd.socket
     systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    apt install -yq ./pkgs/ifupdown*.deb isc-dhcp-client
+    apt install -yq isc-dhcp-client
     systemctl enable networking.service
 }
 
@@ -118,7 +118,7 @@ function __os-systemd_uninstall { # UPDATE_FIRMWARE=0
         systemd-networkd systemd-networkd.socket
     systemctl unmask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl unmask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    apt remove -yq ifupdown isc-dhcp-client
+    apt remove -yq isc-dhcp-client
     apt install -yq systemd-timesyncd systemd-resolved rsyslog
 }
 
@@ -129,9 +129,9 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
         log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
 
     # check disable systemd installed
-    [[ $(dpkg -l|awk '{print $2}'|grep systemd-networkd|wc -l) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-networkd") -lt 1 ]] && \
         log_info "systemd-networkd is not exists." && \
-        [[ $(dpkg -l|awk '{print $2}'|grep systemd-resolved|wc -l) -lt 1 ]] && \
+        [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-resolved") -lt 1 ]] && \
         log_info "systemd-resolved is not exists." && [[ $running_status -lt 0 ]] && running_status=0
 
     # # check rare packages
@@ -141,9 +141,10 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
     # fi
 
     # show masked services
-    log_info $(systemctl list-unit-files --state=masked)
+    # log_info $(systemctl list-unit-files --state=masked)
 
-    return 0
+    systemctl restart networking
+    systemctl status networking && return 0 || return 1
 }
 
 function __os-systemd_run {

@@ -62,7 +62,7 @@ function __os-sysctl_check { # running_status 0 installed, running_status 5 can 
 
 function __os-sysctl_run {
     # core dump limit
-    if [[ $(cat /etc/security/limits.conf|grep hard\ core\ 0|wc -l) -lt 1 ]]; then
+    if [[ $(grep -c "hard\ core\ 0" < "/etc/security/limits.conf") -lt 1 ]]; then
         echo "* hard core 0" >> /etc/security/limits.conf
         echo "* soft core 0" >> /etc/security/limits.conf
     fi
@@ -75,6 +75,9 @@ function __os-sysctl_run {
         sysctl -e -p ./configs/99-disable-coredump.conf &>/dev/null
         sysctl -e -p ./configs/99-disable-maxusernamespaces.conf &>/dev/null
     fi
+
+    [[ $(sysctl kernel.panic|awk '{print $3}') == '10' ]]
+
     return 0
 }
 

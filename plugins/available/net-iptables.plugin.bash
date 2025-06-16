@@ -131,7 +131,7 @@ function __net-iptables_install {
     systemctl start nftables
     systemctl stop nftables
 
-    if [[ ! -z ${nftables_override} ]]; then # NFTABLES_OVERRIDE ON
+    if [[ -n ${nftables_override} ]]; then # NFTABLES_OVERRIDE ON
         echo "${nftables_override}" > /tmp/nftables.tmp.conf
         if ! nft -c -f /tmp/nftables.tmp.conf; then # on error
             echo "ERROR: \$NFTABLES_OVERRIDE has error."
@@ -158,16 +158,16 @@ function __net-iptables_uninstall { # UPDATE_FIRMWARE=0
 function __net-iptables_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-iptables Check"
-
+    # check cmd exists
     [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
         log_info "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
-
+    # check global variable
     [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
+    # check package iptables
     [[ $(dpkg -l|awk '{print $2}'|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-
+    # check if running
     [[ $(systemctl status nftables 2>/dev/null|grep Active|grep running) -gt 0 ]] && \
         log_info "nftables is started." && [[ $running_status -lt 0 ]] && running_status=0
 
@@ -175,11 +175,14 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
 }
 
 function __net-iptables_run {
+    systemctl restart nftables
+
+    # backup and restore is failed too often
     #[[ ! -d /etc/nftables ]] && __net-iptables_build && __net-iptables_backup
     #__net-iptables_apply
+
     __net-iptables_build
-    systemctl start nftables
-    return 0
+    systemctl status nftables && return 0 || return 1
 }
 
 #function __net-iptables_backup {
@@ -296,7 +299,7 @@ function __net-iptables_build {
 
     # MASQUERADE WAN->NET
     # IPTABLES_MASQ="LAN<WAN|LAN1<WAN"
-    if [[ ! -z ${IPTABLES_MASQ} ]]; then # RUN_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
+    if [[ -n ${IPTABLES_MASQ} ]]; then # RUN_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
         IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
             local frominf="" toinf="" fromnet="" tonet=""
@@ -351,7 +354,7 @@ function __net-iptables_build {
                 fromnet=$(ipcalc-ng ${DURE_LAN9}|grep Network:|cut -f2)
             fi
 
-            if [[ ! -z ${frominf} && ! -z ${toinf} ]]; then
+            if [[ -n ${frominf} && -n ${toinf} ]]; then
                 log_debug "iptables_filternat_all_both_masquerade"
                 __net-iptables_filternat_all_both_masquerade  "${frominf}" "${fromnet}" "${toinf}" # laninf lannet waninf
             fi
@@ -442,21 +445,23 @@ function __net-iptables_mangle_all_both_dropspoofing {
     local BLOCKING_LIST="224.0.0.0/3|169.254.0.0/16|172.16.0.0/12|192.0.2.0/24|192.168.0.0/16|10.0.0.0/8|0.0.0.0/8|240.0.0.0/5|127.0.0.0/8"
 
     IFS=$'\n' read -d "" -ra routing_allow_list <<< "$(routel|grep /|grep -v 127.0.0.0/8|cut -d" " -f1)" # split
+    routing_allow_list+=("127.0.0.1/29") # add localhost range 127.0.0.1-14 for anydnsdqy and dnsmasq
     IFS=$'|' read -d "" -ra routing_block_list <<< "${BLOCKING_LIST}" # split
     for((j=0;j<${#routing_block_list[@]};j++)){
         for((k=0;k<${#routing_allow_list[@]};k++)){
+            log_debug "${routing_allow_list[k]} ${routing_block_list[j]}"
             ALMINIP=$(_ip2conv "$(ipcalc-ng "${routing_allow_list[k]}"|grep HostMin:|cut -f2)")
             ALMAXIP=$(_ip2conv "$(ipcalc-ng "${routing_allow_list[k]}"|grep HostMax:|cut -f2)")
             BLMINIP=$(_ip2conv "$(ipcalc-ng "${routing_block_list[j]}"|grep HostMin:|cut -f2)")
             BLMAXIP=$(_ip2conv "$(ipcalc-ng "${routing_block_list[j]}"|grep HostMax:|cut -f2)")
             if [[ ${ALMINIP} -gt ${BLMINIP} && ${ALMAXIP} -lt ${BLMAXIP} ]]; then
                 IPTABLE="PREROUTING -s ${routing_allow_list[k]} -m comment --comment ${funcname}_allow_${j}${k} -j ACCEPT"
-                iptables -t mangle -S | grep "${funcname}_allow_${j}${k}" || iptables -t mangle -A ${IPTABLE}
+                iptables -t mangle -S | grep "${funcname}_allow_${j}${k}" || iptables -t mangle -A "${IPTABLE}"
             fi
         }
-        [[ ${#tarinf[@]} -gt 0 ]] && IPTABLE="PREROUTING -s "${routing_block_list[j]}" -i "${tarinf}" -m comment --comment ${funcname}_block_${j} -j DROP"
-        [[ ${#tarinf[@]} -eq 0 ]] && IPTABLE="PREROUTING -s "${routing_block_list[j]}" -m comment --comment ${funcname}_block_${j} -j DROP"
-        iptables -t mangle -S | grep "${funcname}B${j}" || iptables -t mangle -A ${IPTABLE}
+        [[ ${#tarinf[@]} -gt 0 ]] && IPTABLE="PREROUTING -s ${routing_block_list[j]} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP"
+        [[ ${#tarinf[@]} -eq 0 ]] && IPTABLE="PREROUTING -s ${routing_block_list[j]} -m comment --comment ${funcname}_block_${j} -j DROP"
+        iptables -t mangle -S | grep "${funcname}B${j}" || iptables -t mangle -A "${IPTABLE}"
     }
 }
 

@@ -1,0 +1,21 @@
+# anydnsdqy
+
+
+quic://dns.adguard-dns.com
+quic://family.adguard-dns.com
+quic://unfiltered.adguard-dns.com
+quic://dns.alidns.com
+quic://dns.caliph.dev
+quic://dns.futuredns.me
+quic://doh.tiar.app
+quic://dns.de.futuredns.eu.org
+quic://zero.dns0.eu
+quic://dns.surfsharkdns.com
+quic://dns.comss.one
+quic://router.comss.one
+quic://dns.jupitrdns.com
+quic://ibksturm.synology.me
+quic://rx.techomespace.com
+quic://dnsguard.pub
+
+https://adguard-dns.io/kb/general/dns-providers/

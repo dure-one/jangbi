@@ -49,7 +49,7 @@ function __net-ifupdown_install {
 }
 
 function __net-ifupdown_generate {
-    if [[ ! -z ${DURE_IFUPDOWN} ]];then # custom interfaces exists
+    if [[ -n ${DURE_IFUPDOWN} ]];then # custom interfaces exists
         log_debug "Generating /etc/network/interfaces from DURE_IFUPDOWN config."
         echo "${DURE_IFUPDOWN}" > /etc/network/interfaces
         chmod 600 /etc/network/interfaces 2>&1 1>/dev/null
@@ -91,6 +91,9 @@ EOT
         dure_infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
         IFS=$'\n' read -rd '' -a dure_infs <<< "${dure_infs//:}"
         for((j=0;j<${#dure_infs[@]};j++)){
+            operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
+            [[ ${operstate} == "down" ]] && continue # iface ${dure_infs[j]} inet manual
+
             if [[ ${dure_infs[j]} = "${waninf}" ]]; then # match DURE_WANINF
                 # DURE_WANINF="enp4s0"
                 # DURE_WAN="192.168.56.2/24" # or DHCP
@@ -420,15 +423,18 @@ function __net-ifupdown_uninstall { # UPDATE_FIRMWARE=0
 
 function __net-ifupdown_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
-    log_debug "Starting net-ifupdown Check"
+    log_debug "Starting net-ifupdown Check $running_status"
 
     # DISABLE_SYSTEMD=1 > netplan, DISABLE_SYSTEMD=0 > ifupdown
+    log_debug "check DISABLE_SYSTEMD"
     [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
+    # check package ifupdown
+    log_debug "check ifupdown is installed"
     [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && \
         log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-
+    # check if running
+    log_debug "check networking is running"
     [[ $(systemctl status networking 2>/dev/null|grep -c "Active") -gt 0 ]] && \
         log_info "networking(ifupdown) is started." && [[ $running_status -lt 0 ]] && running_status=0
 
@@ -437,18 +443,18 @@ function __net-ifupdown_check { # running_status 0 installed, running_status 5 c
 
 function __net-ifupdown_run {
     # remove dhcp from interfaces not connected for preventing systemd networking from hanging
-    local infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
-    IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
-    for((j=0;j<${#dure_infs[@]};j++)){
-        operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
-        if [[ ${operstate} == "up" ]]; then
-            sed -i "s|iface ${dure_infs[j]} inet manual.*|iface ${dure_infs[j]} inet dhcp|g" /etc/network/interfaces
-        elif [[ ${operstate} == "down" ]]; then
-            sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
-        fi
-    }
+    # local infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
+    # IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
+    # for((j=0;j<${#dure_infs[@]};j++)){
+    #     operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
+    #     if [[ ${operstate} == "up" ]]; then
+    #         sed -i "s|iface ${dure_infs[j]} inet manual.*|iface ${dure_infs[j]} inet dhcp|g" /etc/network/interfaces
+    #     elif [[ ${operstate} == "down" ]]; then
+    #         sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
+    #     fi
+    # }
     systemctl restart networking
-    return 0
+    systemctl status networking && return 0 || return 1
 }
 
 complete -F __net-ifupdown_run net-ifupdown

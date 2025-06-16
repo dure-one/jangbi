@@ -2699,7 +2699,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   stack=()
   push() { stack+=("$@"); }
   # track config to top
-  while [[ ! -z ${conf} ]] ;
+  while [[ -n ${conf} ]] ;
   do
     push ${conf//\"/}
     if [[ $(cat ${conf//\"/}|grep PARENT_CONFIG|wc -l) -gt 0 ]]; then

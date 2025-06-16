@@ -80,10 +80,13 @@ process_each_step() {
     case ${running_status} in # running_status 0 installed, running_status 5 can install, running_status 10 can't install
         5)
             run_ok "${command} install" "${command}(${step}) Installing..."
+            log_debug "$!"
             run_ok "${command} run" "${command}(${step}) Running..."
+            log_debug "$!"
         ;;
         0)
             run_ok "${command} run" "${command}(${step}) Running..."
+            log_debug "$!"
         ;; # nothing to do
         10)
             log_fatal "Something went wrong. Exiting."
@@ -91,6 +94,7 @@ process_each_step() {
         ;;
         20)
             log_info "${command}(${step}) Skiped..."
+            log_debug "$!"
         ;;
     esac
 }
@@ -119,7 +123,7 @@ else # case 0 full systemd
     processes=("net-netplan")
 fi
 
-processes+=("net-iptables" "net-knockd" "net-dnsmasq") # misc-step os-falco os-sysdig # todo
+processes+=("net-iptables" "net-knockd" "net-anydnsdqy" "net-dnsmasq" "net-hostapd" "net-sshd" "net-darkstat" "os-sysctl") # misc-step os-falco os-sysdig # todo
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
@@ -132,15 +136,10 @@ if [[ -z $(curl google.com 2>/dev/null|grep 301\ Moved) ]]; then
 else
     # set date and add to crontab
     log_debug "Trying to sync time with DNS Server ${DNS_UPSTREAM}"
-    _time_sync ${DNS_UPSTREAM}
+    _time_sync "${DNS_UPSTREAM}"
     INTERNET_AVAIL=1
 fi
 
-processes=("net-hostapd" "net-sshd" "net-darkstat" "os-sysctl") # net-wstunnel # todo
-for (( n=0; n<${#processes[@]}; n++ )); do
-    process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
-done
- 
 # allow forwarding when gateway
 # echo "1" > /proc/sys/net/ipv4/ip_forward
 

@@ -61,22 +61,25 @@ function __os-redis_uninstall { # UPDATE_FIRMWARE=0
 }
 
 function __os-redis_check { # check config, installation
-    log_debug "Starting os-redis Check"
-    systemctl status redis-server 2>/dev/null
-}
-
-function __os-redis_run {
-    # systemctl start redis-server
     running_status=0
     log_debug "Starting os-redis Check"
 
-    [[ ${RUN_REDIS} -lt 1 ]] && \
+    # check global variable
+    [[ -z ${RUN_REDIS} ]] && \
         log_info "RUN_REDIS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
-    [[ $(dpkg -l|awk '{print $2}'|grep redis-server|wc -l) -lt 1 ]] && \
+    # check package installed
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "redis-server") -lt 1 ]] && \
         log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof redis-server) -lt 1 ]] && \
+        log_info "redis-server is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
+}
+
+function __os-redis_run {
+    log_debug "Starting os-redis Check"
+    systemctl status redis-server 2>/dev/null
 }
 
 complete -F __os-redis_run os-redis

@@ -50,29 +50,32 @@ function __net-darkstat_install {
 
 function __net-darkstat_uninstall { # UPDATE_FIRMWARE=0
     log_debug "Trying to uninstall net-darkstat."
-    echo $(pidof darkstat) | xargs kill -9 2>/dev/null
+    pidof darkstat | xargs kill -9 2>/dev/null
     apt purge -qy darkstat
 }
 
 function __net-darkstat_check { ## running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting net-darkstat Check"
+
+    # check global variable
     [[ ${#RUN_DARKSTAT[@]} -lt 1 ]] && \
         log_info "RUN_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
-    [[ $(dpkg -l|awk '{print $2}'|grep darkstat|wc -l) -lt 1 ]] && \
+    # check package installed
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-
-    [[ $(echo $(pidof dnsmasq)|wc -l) -lt 1 ]] && \
+    # check if running
+    [[ $(pidof darkstat) -lt 1 ]] && \
         log_info "darkstat is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }
 
 function __net-darkstat_run {
-    #systemctl start darkstat
+    pidof darkstat|xargs kill &>/dev/null
+    # shellcheck disable=SC1091
     source /etc/darkstat/init.cfg && darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
-    return 0
+    pidof darkstat && return 0 || return 1
 }
 
 complete -F __net-darkstat_run net-darkstat

@@ -61,10 +61,16 @@ function __os-aide_uninstall { # UPDATE_FIRMWARE=0
 function __os-aide_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting os-aide Check"
-    [[ ${#RUN_AIDE[@]} -lt 1 ]] && \
+
+    # check global variable
+    [[ -z ${RUN_AIDE} ]] && \
         log_info "RUN_AIDE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ $(dpkg -l|awk '{print $2}'|grep aide|wc -l) -lt 5 ]] && \
+    # check package aide
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "aide") -lt 1 ]] && \
         log_info "aide is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof aide) -lt 1 ]] && \
+        log_info "aide is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }

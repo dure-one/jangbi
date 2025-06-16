@@ -69,13 +69,14 @@ function __os-crond_uninstall { # UPDATE_FIRMWARE=0
 function __os-crond_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting os-crond Check"
-    [[ ${#RUN_CRON[@]} -lt 1 ]] && \
+    # check global variable
+    [[ ${RUN_CRON} -lt 1 ]] && \
         log_info "RUN_CRON variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
-    [[ $(dpkg -l|awk '{print $2}'|grep cron|wc -l) -lt 1 ]] && \
+    # check package installed
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "cron") -lt 1 ]] && \
         log_info "cron is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-
-    [[ $(systemctl status cron 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
+    # check if running
+    [[ $(systemctl status cron 2>/dev/null|grep Active|grep -c "running") -gt 0 ]] && \
         log_info "cron is started." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
@@ -83,7 +84,7 @@ function __os-crond_check { # running_status 0 installed, running_status 5 can i
 
 function __os-crond_run {
     systemctl start cron
-    return 0
+    pidof cron && return 0 || return 1
 }
 
 complete -F __os-crond_run os-crond

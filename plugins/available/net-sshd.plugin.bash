@@ -47,7 +47,7 @@ function __net-sshd_install {
     mkdir -p /run/sshd
     # config settings
     SSH_CONFIG="# DURE_SSHD_CONFIG"
-    if [[ $(cat /etc/ssh/sshd_config|grep DURE_SSHD_CONFIG|wc -l) -lt 1 ]]; then
+    if [[ $(grep -c "DURE_SSHD_CONFIG" < "/etc/ssh/sshd_config") -lt 1 ]]; then
         [[ ${SSHD_PORT} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nPort ${SSHD_PORT} # DURE_SSHD_PORT" && sed -i "s|Port=.*||g" /etc/ssh/sshd_config
         # [[ ${#SSHD_ADDR} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${SSHD_ADDR} # DURE_SSHD_ADDR" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
         [[ ${DISABLE_IPV6} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nAddressFamily inet # DURE_DISABLE_IPV6" && sed -i "s|AddressFamily=.*||g" /etc/ssh/sshd_config
@@ -62,21 +62,25 @@ function __net-sshd_uninstall { # UPDATE_FIRMWARE=0
 }
 
 function __net-sshd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-    local return_code=0
+    running_status=0
     log_debug "Starting net-sshd Check"
-    # check variable exists
-    [[ -z ${RUN_SSHD} ]] && log_info "RUN_SSHD variable is not set." && return 1
-    # check pkg installed
-    [[ $(dpkg -l|awk '{print $2}'|grep openssh-server|wc -l) -lt 1 ]] && log_info "sshd is not installed." && return 0
-    # check dnsmasq started
-    [[ $(pidof openssh-server|wc -l) -gt 1 ]] && log_info "sshd is started." && return_code=2
+
+    # check global variable
+    [[ -z ${RUN_SSHD} ]] && \
+        log_info "RUN_SSHD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # check package dnsmasq
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "openssh-server") -lt 1 ]] && \
+        log_info "openssh-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof sshd) -lt 1 ]] && \
+        log_info "sshd is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }
 
 function __net-sshd_run {
     systemctl start ssh
-    return 0
+    pidof sshd && return 0 || return 1
 }
 
 complete -F __net-sshd_run net-sshd

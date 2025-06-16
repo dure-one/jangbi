@@ -41,11 +41,10 @@ function __os-firmware_help {
 }
 
 function __os-firmware_install {
-    local update_firmware_file="./pkgs/$(basename ${UPDATE_FIRMWARE})"
-    local update_proceed=0
+    local update_firmware_file
+    update_firmware_file="./pkgs/$(basename "${UPDATE_FIRMWARE}")"
     log_debug "Trying to install os-firmware."
     if [[ -f ${update_firmware_file} ]]; then
-        # sha256sum -c ".firmware_original.sha256" && update_proceed=1
         if [[ ! -f ".firmware_original.tar.gz" ]]; then
             log_debug "Starting to backup firware from system"
             # backup original firmware from system
@@ -59,17 +58,18 @@ function __os-firmware_install {
         fi
         # unzip new firmware
         # unzip -d "/lib/firmware" "${update_firmware_file}" && f=("/lib/firmware"/*) && cp -rf "/lib/firmware"/*/* "/lib/firmware" && rm -rf "${f[@]}"
-        tar xfv ${update_firmware_file} -C /lib/firmware --strip-components=1
+        tar xfv "${update_firmware_file}" -C /lib/firmware --strip-components=1
         log_debug "new firmware file unzip to /lib/firmware."
         systemctl restart systemd-modules-load.service # reload kernel modules
         log_debug "new firmware has loaded."
+        # save installed firmware file size
+        find "${update_firmware_file}" -printf "%s\n" > /lib/firmware/.last_firmware_updated.size
     fi
 }
 
 function __os-firmware_uninstall { # UPDATE_FIRMWARE=0
     log_debug "Trying to uninstall os-firmware."
-    local param="$1"
-    sha256sum -c ".firmware_original.sha256" && update_proceed=1
+    sha256sum -c ".firmware_original.sha256"
     # [[ $(du -s /lib/firmware| cut -f1) -ne $(cat .firmware_updated.size|cut -f1) ]] && echo "/lib/firmware folder has changed since last firmware installed. please retry with --force argument." && update_proceed=0
     tar -zxf .firmware_original.tar.gz -C /lib/firmware --strip-components=2
     echo "original firmware file has extracted to /lib/firmware."
@@ -80,19 +80,26 @@ function __os-firmware_uninstall { # UPDATE_FIRMWARE=0
 function __os-firmware_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting os-firmware Check"
+
+    # check global variable
     [[ ${#UPDATE_FIRMWARE[@]} -lt 1 ]] && \
-    log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    # check old firmware backup not exists
-    [[ ! -f .firmware_original.tar.gz ]] && \
-    log_info "original firmware backup file(.firmware_original.tar.gz) does not exist" && [[ $running_status -lt 5 ]] && running_status=5
+        log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+
     # check new firmware file exists
-    [[ ! -f ./pkgs/$(basename ${UPDATE_FIRMWARE}) ]] && \
-    log_info "${UPDATE_FIRMWARE} file not exists in pkg directory." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ! -f ./pkgs/$(basename "${UPDATE_FIRMWARE}") ]] && \
+        log_info "${UPDATE_FIRMWARE} file not exists in pkg directory." && [[ $running_status -lt 10 ]] && running_status=10
+
+    # check old firmware backup exists
+    [[ ! -f .firmware_original.tar.gz ]] && \
+        log_info "original firmware backup file(.firmware_original.tar.gz) does not exist" && [[ $running_status -lt 5 ]] && running_status=5
+    
     # compare /lib/firmware with UPDATE_FIRMWARE size
-    local exists_size=$(cat .firmware_updated.size 2>/dev/null|cut -f1)
-    [[ -z ${exists_size} ]] && exists_size=0
-    [[ $(( $(du -s /lib/firmware| cut -f1) - ${exists_size} )) -gt 0 ]] &&
-        log_info "system firmware is updated on ${UPDATE_FIRMWARE}." && running_status=0
+    local exists_size new_size
+    exists_size=$( ( cut -f1 < /lib/firmware/.last_firmware_updated.size ) 2>/dev/null || echo 0)
+    new_size=$(find "./pkgs/$(basename "${UPDATE_FIRMWARE}")" -printf "%s\n" || echo 0)
+    [[ $(( "${new_size}" - "${exists_size}" )) != 0 ]] &&
+        log_info "new firmware size is different with pre-installed firmware." && running_status=5
+
     return 0
 }
 

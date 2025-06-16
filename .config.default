@@ -14,6 +14,7 @@ DIST_OS_IMG="imgs/Armbian_25.2.1_Orangepi5-plus_bookworm_vendor_6.1.99_minimal.i
 DIST_PKG_IMG="imgs/debian-12.9.0-arm64-DVD-1.iso"
 
 #  os config
+RUN_OS_CONF=1
 OS_TIMEZONE="Asia/Seoul"
 # if os system existing swap size is bigger than 1Gb, not replace existing one
 DURE_SWAPSIZE="1G"
@@ -71,7 +72,6 @@ OSLOCAL_SETTING=1
 OFFLINE_REPOSITORY=1
 RUN_AUDITD=1
 RUN_AIDE=1
-RUN_ANYDNSDQY=1
 
 # network apps
 RUN_KNOCKD=1
@@ -109,6 +109,7 @@ IPTABLES_SUPERDMZ=1
 
 # gateway apps
 RUN_HOSTAPD=1
+RUN_ANYDNSDQY=1
 RUN_DNSMASQ=1
 DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 RUN_DARKSTAT=1

@@ -77,12 +77,15 @@ function __os-auditd_check {  # running_status 0 installed, running_status 5 can
     running_status=0
     log_debug "Starting os-auditd Check"
 
-    [[ ${#RUN_AUDITD[@]} -lt 1 ]] && \
+    # check global variable
+    [[ -z ${RUN_AUDITD} ]] && \
         log_info "RUN_AUDITD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ $(dpkg -l|awk '{print $2}'|grep auditd|wc -l) -lt 1 ]] && \
-        log_info "auditd is not installed." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ $(systemctl status auditd 2>/dev/null|grep Active|grep running|wc -l) -gt 0 ]] && \
-        log_info "auditd has started." && [[ $running_status -lt 0 ]] && running_status=0
+    # check package dnsmasq
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "auditd") -lt 1 ]] && \
+        log_info "auditd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof auditd) -lt 1 ]] && \
+        log_info "auditd is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }

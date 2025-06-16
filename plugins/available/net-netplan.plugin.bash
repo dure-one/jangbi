@@ -55,7 +55,7 @@ function __net-netplan_build { # UPDATE_FIRMWARE=0
     # backup exsisting netplan configs
     for f in /etc/netplan/*.yaml; do chmod 600 "$f" && mv "$f" $(echo $f|sed 's/.yaml/.yaml.old/g'); done
 
-    if [[ ! -z ${DURE_NETPLAN} ]];then # custom netplan exists
+    if [[ -n ${DURE_NETPLAN} ]];then # custom netplan exists
       echo "${DURE_NETPLAN}" > /etc/netplan/dure_network.yaml
       chmod 600 /etc/netplan/dure_network.yaml 2>&1 1>/dev/null
     else # custom netplan not exists
@@ -74,13 +74,13 @@ EOT
         # match interface name
         for((j=0;j<${#dure_infs[@]};j++)){
             if [[ ${dure_infs[j]:0:1} != 'w' && ! ${waninf} ]]; then
-            [[ ! ${waninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${wlaninf} ]] && waninf=${dure_infs[j]} && continue
+            [[ ! ${waninf} && ${dure_infs[j]} != "${laninf}" && ${dure_infs[j]} != "${wlaninf}" ]] && waninf=${dure_infs[j]} && continue
             fi
             if [[ ${dure_infs[j]:0:1} != 'w' && ! ${laninf} ]]; then
-            [[ ! ${laninf} && ${dure_infs[j]} != ${waninf} && ${dure_infs[j]} != ${wlaninf} ]] && laninf=${dure_infs[j]} && continue
+            [[ ! ${laninf} && ${dure_infs[j]} != "${waninf}" && ${dure_infs[j]} != "${wlaninf}" ]] && laninf=${dure_infs[j]} && continue
             fi
             if [[ ${dure_infs[j]:0:1} = 'w' && ! ${wlaninf} ]]; then
-            [[ ! ${wlaninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${waninf} ]] && wlaninf=${dure_infs[j]} && continue
+            [[ ! ${wlaninf} && ${dure_infs[j]} != "${laninf}" && ${dure_infs[j]} != "${waninf}" ]] && wlaninf=${dure_infs[j]} && continue
             fi
         }
         sed -i "s|DURE_WANINF=.*|DURE_WANINF=${waninf}|g" "${DURE_DEPLOY_PATH}/.config"
@@ -94,7 +94,7 @@ EOT
       fi
 
       for((j=0;j<${#dure_infs[@]};j++)){
-        if [[ ${dure_infs[j]} = ${waninf} ]]; then # match DURE_WANINF
+        if [[ ${dure_infs[j]} = "${waninf}" ]]; then # match DURE_WANINF
           if [[ ${DURE_WAN,,} = "dhcp" || ${DURE_WAN} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${waninf}:
@@ -102,7 +102,7 @@ EOT
 EOT
           else
             if [[ ! ${DURE_WANGW} ]]; then
-              WANGW=$(ipcalc-ng ${DURE_WAN}|grep HostMin:|cut -f2)
+              WANGW=$(ipcalc-ng "${DURE_WAN}"|grep HostMin:|cut -f2)
             else
               WANGW=${DURE_WANGW}
             fi
@@ -117,7 +117,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${laninf} ]]; then # match DURE_LANINF
+        if [[ ${dure_infs[j]} = "${laninf}" ]]; then # match DURE_LANINF
           if [[ ${DURE_LAN,,} = "dhcp" || ${DURE_LAN} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${laninf}:
@@ -125,7 +125,7 @@ EOT
 EOT
           else
             if [[ ! ${DURE_LANGW} ]]; then
-              LANGW=$(ipcalc-ng ${DURE_LAN}|grep HostMin:|cut -f2)
+              LANGW=$(ipcalc-ng "${DURE_LAN}"|grep HostMin:|cut -f2)
               tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${laninf}:
       dhcp4: false
@@ -148,7 +148,7 @@ EOT
         #
         # searching & match DURE_LAN0INF ~ DURE_LAN9INF
         #
-        if [[ ${dure_infs[j]} = ${DURE_LAN0INF} ]]; then # match DURE_LAN0INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN0INF}" ]]; then # match DURE_LAN0INF
           if [[ ${DURE_LAN0,,} = "dhcp" || ${DURE_LAN0} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN0INF}:
@@ -163,7 +163,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN1INF} ]]; then # match DURE_LAN1INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN1INF}" ]]; then # match DURE_LAN1INF
           if [[ ${DURE_LAN1,,} = "dhcp" || ${DURE_LAN1} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN1INF}:
@@ -178,7 +178,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN2INF} ]]; then # match DURE_LAN2INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN2INF}" ]]; then # match DURE_LAN2INF
           if [[ ${DURE_LAN2,,} = "dhcp" || ${DURE_LAN2} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN2INF}:
@@ -193,7 +193,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN3INF} ]]; then # match DURE_LAN3INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN3INF}" ]]; then # match DURE_LAN3INF
           if [[ ${DURE_LAN3,,} = "dhcp" || ${DURE_LAN3} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN3INF}:
@@ -208,7 +208,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN4INF} ]]; then # match DURE_LAN4INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN4INF}" ]]; then # match DURE_LAN4INF
           if [[ ${DURE_LAN4,,} = "dhcp" || ${DURE_LAN4} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN4INF}:
@@ -223,7 +223,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN5INF} ]]; then # match DURE_LAN5INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN5INF}" ]]; then # match DURE_LAN5INF
           if [[ ${DURE_LAN5,,} = "dhcp" || ${DURE_LAN5} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN5INF}:
@@ -238,7 +238,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN6INF} ]]; then # match DURE_LAN6INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN6INF}" ]]; then # match DURE_LAN6INF
           if [[ ${DURE_LAN6,,} = "dhcp" || ${DURE_LAN6} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN6INF}:
@@ -253,7 +253,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN7INF} ]]; then # match DURE_LAN7INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN7INF}" ]]; then # match DURE_LAN7INF
           if [[ ${DURE_LAN7,,} = "dhcp" || ${DURE_LAN7} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN7INF}:
@@ -268,7 +268,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN8INF} ]]; then # match DURE_LAN8INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN8INF}" ]]; then # match DURE_LAN8INF
           if [[ ${DURE_LAN8,,} = "dhcp" || ${DURE_LAN8} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN8INF}:
@@ -283,7 +283,7 @@ EOT
           fi
           continue
         fi
-        if [[ ${dure_infs[j]} = ${DURE_LAN9INF} ]]; then # match DURE_LAN9INF
+        if [[ ${dure_infs[j]} = "${DURE_LAN9INF}" ]]; then # match DURE_LAN9INF
           if [[ ${DURE_LAN9,,} = "dhcp" || ${DURE_LAN9} = "" ]]; then
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
     ${DURE_LAN9INF}:
@@ -306,7 +306,7 @@ EOT
 EOT
           continue
         fi
-        if [[ ${dure_infs[j]} = ${wlaninf} ]]; then # match DURE_WLANINF
+        if [[ ${dure_infs[j]} = "${wlaninf}" ]]; then # match DURE_WLANINF
           if [[ ${DURE_WLAN,,} = "dhcp" || ${DURE_WLAN} = "" ]]; then # client, dhcp mode
             tee -a /etc/netplan/dure_network.yaml > /dev/null <<EOT
   wifis:
@@ -368,11 +368,15 @@ function __net-netplan_check { # running_status 0 installed, running_status 5 ca
     running_status=0
     log_debug "Starting net-netplan Check"
 
+    # check global variable, netplan depends on systemd config
     [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
-    [[ $(dpkg -l|awk '{print $2}'|grep netplan|wc -l) -lt 1 ]] && \
+    # check package netplan
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "netplan") -lt 1 ]] && \
         log_info "netplan is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if ~~running~~ configured
+    [[ -f /etc/netplan/dure_network.yaml ]] && \
+        log_info "netplan is configured." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }
@@ -380,6 +384,7 @@ function __net-netplan_check { # running_status 0 installed, running_status 5 ca
 function __net-netplan_run {
     # Cannot call openvswitch: ovsdb-server.service is not running. msg is not relevant.
     netplan apply
+    systemctl status systemd-networkd && return 0 || return 1
   return 0
 }
 

@@ -50,28 +50,33 @@ function __net-wstunnel_install {
 
 function __net-wstunnel_uninstall {
     log_debug "Trying to uninstall net-wstunnel."
-    echo $(pidof wstunnel) | xargs kill -9 2>/dev/null
+    pidof wstunnel | xargs kill -9 2>/dev/null
     rm -rf /sbin/wstunnel
 }
 
 function __net-wstunnel_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-    local return_code=0
+    running_status=0
     log_debug "Starting net-wstunnel Check"
-    # check variable exists
-    [[ -z ${RUN_WSTUNNEL} ]] && log_info "RUN_WSTUNNEL variable is not set." && return 1
-    # check pkg installed
-    [[ $(which wstunnel|wc -l) -lt 1 ]] && log_info "wstunnel is not installed." && return 0
-    # check dnsmasq started
-    [[ $(ps aux|grep wstunnel) -gt 1 ]] && log_info "wstunnel is started." && return_code=2
+
+    # check global variable
+    [[ -z ${RUN_WSTUNNEL} ]] && \
+        log_info "RUN_WSTUNNEL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # check wstunnel bin exists
+    [[ $(which wstunnel|wc -l) -lt 1 ]] && \
+        log_info "wstunnel is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof wstunnel) -lt 1 ]] && \
+        log_info "wstunnel is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }
 
 function __net-wstunnel_run { # run socks proxy $NET
-    local ip_addr=$(ipcalc-ng $1 2>/dev/null|grep Address:)
-    if [[ ${#ip_adrr[@]} -gt 0 ]]; then
+    local ip_addr
+    ip_addr=$(ipcalc-ng "$1" 2>/dev/null|grep Address:)
+    if [[ -n ${ip_addr} ]]; then
         # ws proxy only
-        wstunnel server wss://${ip_addr}:38080 &
+        wstunnel server "wss://${ip_addr}:38080" &
         # socks proxy on top
         # wstunnel client -L socks5://${ip_addr}:38888 --connection-min-idle 5 wss://${ip_addr}:38080  &
     fi

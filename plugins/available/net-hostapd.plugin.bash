@@ -42,10 +42,10 @@ function __net-hostapd_help {
 function __net-hostapd_install {
     export DEBIAN_FRONTEND=noninteractive
     WLANINF=${DURE_WLANINF}
-    WLANIP="${DURE_WLAN}"
-    WLANIP=$(ipcalc-ng ${DURE_WLAN}|grep Address:|cut -f2)
-    WLANMINIP=$(ipcalc-ng ${DURE_WLAN}|grep HostMin:|cut -f2)
-    WLANMAXIP=$(ipcalc-ng ${DURE_WLAN}|grep HostMax:|cut -f2)
+    # WLANIP="${DURE_WLAN}"
+    # WLANIP=$(ipcalc-ng "${DURE_WLAN}"|grep Address:|cut -f2)
+    # WLANMINIP=$(ipcalc-ng "${DURE_WLAN}"|grep HostMin:|cut -f2)
+    # WLANMAXIP=$(ipcalc-ng "${DURE_WLAN}"|grep HostMax:|cut -f2)
 
     apt install -yq hostapd
     mkdir -p /etc/hostapd
@@ -65,27 +65,31 @@ EOT
 }
 
 function __net-hostapd_uninstall { # UPDATE_FIRMWARE=0
-    echo $(pidof hostapd) | xargs kill -9 2>/dev/null
+    pidof hostapd | xargs kill -9 2>/dev/null
     apt purge -qy hostapd
 }
 
 function __net-hostapd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-    local return_code=0
-    # check variable exists
-    [[ -z ${RUN_HOSTAPD} ]] && log_info "RUN_HOSTAPD variable is not set." && return 1
-    # check pkg installed
-    [[ $(dpkg -l|awk '{print $2}'|grep hostapd|wc -l) -lt 1 ]] && log_info "hostapd is not installed." && return 0
-    # check dnsmasq started
-    [[ $(ps aux|grep hostapd|wc -l) -gt 1 ]] && log_info "hostapd is started." && return_code=2
+    running_status=0
+    log_debug "Starting net-hostapd Check"
+
+    # check global variable
+    [[ -z ${RUN_HOSTAPD} ]] && \
+        log_info "RUN_HOSTAPD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # check package installed
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && \
+        log_info "hostapd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof hostapd) -lt 1 ]] && \
+        log_info "hostapd is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }
 
 function __net-hostapd_run {
-    echo $(pidof hostapd) | xargs kill -9 2>/dev/null
+    pidof hostapd | xargs kill -9 2>/dev/null
     hostapd /etc/hostapd/hostapd.conf &>>/var/log/hostapd.log &
-
-    return 0
+    pidof hostapd && return 0 || return 1
 }
 
 complete -F __net-hostapd_run net-hostapd
