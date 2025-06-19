@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([be87160](https://github.com/dure-one/jangbi/commit/be8716094ffb1942436906fc13a6d99945cd8139) by nikescar).
+- Add changelog automatically ([a8edf2e](https://github.com/dure-one/jangbi/commit/a8edf2e6f86c6670c2c02e8a817d18ad6055db48) by nikescar).
 
 ### Fixed
 
+- fix: dnsmasq port error ([62b584d](https://github.com/dure-one/jangbi/commit/62b584dda49cb3286ca2ec4922b2d6e312689c63) by Woojae, Park).
 - fix: fix few bugs ([bf68707](https://github.com/dure-one/jangbi/commit/bf68707b8edecacdc642dc3917df9d3764425bdf) by Woojae, Park).
 - fix: fix bugs ([66d29c7](https://github.com/dure-one/jangbi/commit/66d29c7d88630f1f5d34cfe9ecbef89b78002494) by Woojae, Park).
 - fix: fix indentation mismatch ([432a5d0](https://github.com/dure-one/jangbi/commit/432a5d0aa25790983ee3fc8b948cc475a8873286) by Woojae, Park).
