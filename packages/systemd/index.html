@@ -518,17 +518,17 @@
 <thead>
 <tr>
 <th>name</th>
-<th>disable completely</th>
-<th>only journald</th>
-<th>full systemd</th>
+<th>disable completely(DISABLE_SYSTEMD=1)</th>
+<th>only journald(DISABLE_SYSTEMD=2)</th>
+<th>full systemd(DISABLE_SYSTEMD=0)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>networkd</td>
-<td>X(isc-dhclient)</td>
-<td>X(isc-dhclient)</td>
-<td>O</td>
+<td>X(networking)</td>
+<td>X(networking)</td>
+<td>O(systemd-networkd)</td>
 </tr>
 <tr>
 <td>resolved</td>
@@ -545,7 +545,7 @@
 <tr>
 <td>journald</td>
 <td>X(separate log, no syslog)</td>
-<td>O(min journald+rsyslog)</td>
+<td>O(journald+rsyslog)</td>
 <td>O(journald+rsyslog)</td>
 </tr>
 <tr>
@@ -556,6 +556,7 @@
 </tr>
 </tbody>
 </table>
+<h2 id="_1"><a class="headerlink" href="#_1" title="Permanent link">¤</a></h2>
 
 
 
