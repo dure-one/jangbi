@@ -50,12 +50,19 @@ function __os-kparams_uninstall { # UPDATE_FIRMWARE=0
     rm ${kernel_params_cmdline}
 }
 
+function __os-kparams_disable { # UPDATE_FIRMWARE=0
+    umount /root/cmdline
+    return 0
+}
+
 function __os-kparams_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting os-kparams Check"
 
-    [[ ${#KERNEL_PARAMS[@]} -lt 1 ]] && \
+    [[ -z ${KERNEL_PARAMS} ]] && \
         log_info "KERNEL_PARAMS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${#KERNEL_PARAMS[@]} -lt 1 ]] && \
+        log_info "KERNEL_PARAMS is not enabled." && __os-kparams_disable && [[ $running_status -lt 20 ]] && running_status=20
 
     [[ $(mount|grep -c "/proc/cmdline") -gt 0 ]] && \
         log_info "kernel custom cmdline has already mounted." && [[ $running_status -lt 0 ]] && running_status=0

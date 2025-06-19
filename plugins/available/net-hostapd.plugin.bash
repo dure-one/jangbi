@@ -69,6 +69,11 @@ function __net-hostapd_uninstall { # UPDATE_FIRMWARE=0
     apt purge -qy hostapd
 }
 
+function __net-hostapd_disabled { # UPDATE_FIRMWARE=0
+    pidof hostapd | xargs kill -9 2>/dev/null
+    return 0
+}
+
 function __net-hostapd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-hostapd Check"
@@ -76,6 +81,8 @@ function __net-hostapd_check { # running_status 0 installed, running_status 5 ca
     # check global variable
     [[ -z ${RUN_HOSTAPD} ]] && \
         log_info "RUN_HOSTAPD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_HOSTAPD} != 1 ]] && \
+        log_info "RUN_HOSTAPD is not enabled." && __net-hostapd_disabled && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && \
         log_info "hostapd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

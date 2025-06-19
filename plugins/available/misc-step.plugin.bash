@@ -53,9 +53,11 @@ function __misc-step_uninstall { # UPDATE_FIRMWARE=0
 function __misc-step_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting misc-step Check"
-    [[ ${#RUN_KNOCKD_WITH_STEPTOTP[@]} -lt 1 ]] && \
+    [[ -z ${RUN_KNOCKD_WITH_STEPTOTP} ]] && \
         log_info "RUN_KNOCKD_WITH_STEPTOTP variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ $(dpkg -l|awk '{print $2}'|grep step-cli|wc -l) -lt 1 ]] && \
+    [[ ${RUN_KNOCKD_WITH_STEPTOTP} != 1 ]] && \
+        log_info "RUN_KNOCKD_WITH_STEPTOTP is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ $(dpkg -l|awk '{print $2}'|grep -c step-cli) -lt 1 ]] && \
         log_info "step-cli is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     return 0
 }

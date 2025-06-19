@@ -2716,6 +2716,14 @@ _load_config() { # Load config including parent config ex) _load_config .config
     DURE_CFILES="${DURE_CFILES} ${conf}"
   }
   DURE_VARS="${DURE_VARS} DURE_CFILES"
+
+  # setup slog
+  LOGFILE=${LOGFILE:="jangbi.log"}
+  LOG_PATH="$LOGFILE"
+  RUN_LOG="$LOGFILE"
+  RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
+  LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
+  LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
 }
 
 _checkbin() {

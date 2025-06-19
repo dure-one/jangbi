@@ -48,7 +48,7 @@ function __os-firmware_install {
         if [[ ! -f ".firmware_original.tar.gz" ]]; then
             log_debug "Starting to backup firware from system"
             # backup original firmware from system
-            tar czf .firmware_original.tar.gz -C /lib/firmware #--strip-components=1
+            tar czf .firmware_original.tar.gz /lib/firmware #--strip-components=1
             log_debug "original /lib/firmware backed up to .firmware_original.tar.gz."
             # save original firmware checksum
             sha256sum .firmware_original.tar.gz > ".firmware_original.sha256"
@@ -82,9 +82,10 @@ function __os-firmware_check { # running_status 0 installed, running_status 5 ca
     log_debug "Starting os-firmware Check"
 
     # check global variable
-    [[ ${#UPDATE_FIRMWARE[@]} -lt 1 ]] && \
+    [[ -z ${UPDATE_FIRMWARE} ]] && \
         log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
+    [[ ${#UPDATE_FIRMWARE[@]} -lt 1 ]] && \
+        log_info "UPDATE_FIRMWARE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check new firmware file exists
     [[ ! -f ./pkgs/$(basename "${UPDATE_FIRMWARE}") ]] && \
         log_info "${UPDATE_FIRMWARE} file not exists in pkg directory." && [[ $running_status -lt 10 ]] && running_status=10

@@ -48,6 +48,11 @@ function __net-darkstat_install {
     sed -i "s|INTERFACE=.*|INTERFACE=${DURE_WANINF}|g" /etc/darkstat/init.cfg
 }
 
+function __net-darkstat_disable { # UPDATE_FIRMWARE=0
+    pidof darkstat | xargs kill -9 2>/dev/null
+    return 0
+}
+
 function __net-darkstat_uninstall { # UPDATE_FIRMWARE=0
     log_debug "Trying to uninstall net-darkstat."
     pidof darkstat | xargs kill -9 2>/dev/null
@@ -59,8 +64,10 @@ function __net-darkstat_check { ## running_status 0 installed, running_status 5 
     log_debug "Starting net-darkstat Check"
 
     # check global variable
-    [[ ${#RUN_DARKSTAT[@]} -lt 1 ]] && \
+    [[ -z ${RUN_DARKSTAT} ]] && \
         log_info "RUN_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_DARKSTAT} != 1 ]] && \
+        log_info "RUN_DARKSTAT is not enabled." && __net-darkstat_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -72,6 +79,11 @@ function __net-darkstat_check { ## running_status 0 installed, running_status 5 
 }
 
 function __net-darkstat_run {
+    log_debug "Running darkstat_run..."
+    log_debug "Printing darkstat configuration:"
+    log_debug "$(grep -v "#" < "/etc/darkstat/init.cfg"|grep -v -e '^[[:space:]]*$')"
+    log_debug "==========================================================="
+
     pidof darkstat|xargs kill &>/dev/null
     # shellcheck disable=SC1091
     source /etc/darkstat/init.cfg && darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS

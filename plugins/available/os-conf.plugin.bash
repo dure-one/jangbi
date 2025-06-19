@@ -66,8 +66,8 @@ function __os-conf_install {
         if [[ ! -f ${DURE_DEPLOY_PATH}/swapfile ]]; then # https://askubuntu.com/a/1162472
             log_debug "Trying to do os-conf, set swap size to ${DURE_SWAPSIZE}."
             truncate -s "${DURE_SWAPSIZE}" "${DURE_DEPLOY_PATH}/swapfile"
-            fallocate -x -l "${DURE_SWAPSIZE}" "${DURE_DEPLOY_PATH}/swapfile" 1>/dev/null 2>&1
-            dd if=/dev/zero "of=${DURE_DEPLOY_PATH}/swapfile" bs=1G seek=12 count=0
+            # fallocate -x -l "${DURE_SWAPSIZE}" "${DURE_DEPLOY_PATH}/swapfile" 1>/dev/null 2>&1
+            dd if=/dev/zero "of=${DURE_DEPLOY_PATH}/swapfile" bs=1M count=4096 status=progress
             chown root:root "${DURE_DEPLOY_PATH}/swapfile"
             chmod 0600 "${DURE_DEPLOY_PATH}/swapfile"
             mkswap "${DURE_DEPLOY_PATH}/swapfile"
@@ -89,24 +89,32 @@ function __os-conf_uninstall { # UPDATE_FIRMWARE=0
     sudo rm -f /etc/sudoers.d/timeout
 }
 
+function __os-conf_disable { # UPDATE_FIRMWARE=0
+    # remove swapfile
+    swapoff -a
+    return 0
+}
+
 function __os-conf_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
-    running_status=5
+    running_status=0
     log_debug "Starting os-conf Check"
 
     # check global variable
     [[ -z ${RUN_OS_CONF} ]] && \
         log_info "RUN_OS_CONF variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_CONF} != 1 ]] && \
+        log_info "RUN_OS_CONF is not enabled." && __os-conf_disable && [[ $running_status -lt 20 ]] && running_status=20
     [[ -z ${OS_TIMEZONE} ]] && \
         log_info "OS_TIMEZONE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${#DURE_SWAPSIZE[@]} -lt 1 ]] && \
-        log_info "DURE_SWAPSIZE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${#DURE_USERID[@]} -lt 1 ]] && \
-        log_info "DURE_USERID variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${#DURE_SSHPUBKEY[@]} -lt 1 ]] && \
-        log_info "DURE_SSHPUBKEY variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # [[ ${#DURE_SWAPSIZE[@]} -lt 1 ]] && \
+    #     log_info "DURE_SWAPSIZE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # [[ ${#DURE_USERID[@]} -lt 1 ]] && \
+    #     log_info "DURE_USERID variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # [[ ${#DURE_SSHPUBKEY[@]} -lt 1 ]] && \
+    #     log_info "DURE_SSHPUBKEY variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     
     # check user installed
-    [[ $(grep -c "${DURE_USERID}\:x:" < "/etc/passwd") -lt 1 && -n ${DURE_USERID} ]] && \
+    [[ $(grep -c "${DURE_USERID}\:x:" < "/etc/passwd") -lt 1 ]] && \
         log_info "User ${DURE_USERID} does not exist." && [[ $running_status -lt 5 ]] && running_status=5
     # check timezone installed
     [[ $(ls -l /etc/localtime) != *"${OS_TIMEZONE}"* ]] && \
@@ -122,7 +130,7 @@ function __os-conf_check { # running_status 0 installed, running_status 5 can in
     #     log_info "Swapfile is not loaded." && [[ $running_status -lt 10 ]] && running_status=10
     # check if swap size is enough
     [[ $(free|grep Swap|awk '{print $2}') -lt 900000 ]] && \
-         log_info "Swap size is less than 1GB." && [[ $running_status -lt 5 ]] && running_status=5
+         log_info "Mounted swap size is less than 1GB." && [[ $running_status -lt 5 ]] && running_status=5
     # swap is loaded
     #[[ $(free|grep Swap|awk '{print $2}') != '0' ]] && \
     #    log_info "INFO: swap is enabled." && \

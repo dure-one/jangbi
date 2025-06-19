@@ -174,8 +174,10 @@ function __os-disablebins_uninstall { # UPDATE_FIRMWARE=0
 function __os-disablebins_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting os-disablebins Check"
-    [[ ${#DISABLE_BIN[@]} -lt 1 ]] && \
+    [[ -z ${DISABLE_BIN} ]] && \
         log_info "DISABLE_BIN variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${DISABLE_BIN} != 1 ]] && \
+        log_info "DISABLE_BIN is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
 
     # check avahi-daemon exists
     [[ $(which avahi-daemon|wc -l) -eq 0 ]] && \

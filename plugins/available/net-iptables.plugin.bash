@@ -155,6 +155,12 @@ function __net-iptables_uninstall { # UPDATE_FIRMWARE=0
     systemctl disable nftables
 }
 
+function __net-iptables_disable { # UPDATE_FIRMWARE=0
+    systemctl stop nftables
+    systemctl disable nftables
+    return 0
+}
+
 function __net-iptables_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-iptables Check"
@@ -162,10 +168,12 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
     [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
         log_info "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
     # check global variable
-    [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
-        log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ -z ${RUN_IPTABLES} ]] && \
+        log_info "RUN_IPTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_IPTABLES} != 1 ]] && \
+        log_info "RUN_IPTABLES is not enabled." && __net-iptables_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package iptables
-    [[ $(dpkg -l|awk '{print $2}'|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
+    [[ $(dpkg -l|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(systemctl status nftables 2>/dev/null|grep Active|grep running) -gt 0 ]] && \
@@ -374,7 +382,7 @@ function __net-iptables_build {
 # Arptables : MAC Whitelisting
 # WHITELISTED_MACADDRESSES?=aa:bb:cc:dd:ee|ab:cd:be:c0:a1
 function __net-iptables_mangle_all_both_macwhitelist {
-    local funcname="mangle_all_both_macwhitelist"
+    local funcname="mab_macwhitelist"
     local targetinf="$1"
     local macaddrs="$2"
 
@@ -391,7 +399,7 @@ function __net-iptables_mangle_all_both_macwhitelist {
 # Arptables : Allow only from Gateway on wan
 # IPTABLES_GWMACONLYIPTABLES_GWMACONLY=1
 function __net-iptables_mangle_ext_both_gwmaconly {
-    local funcname="mangle_ext_both_gwonly"
+    local funcname="mab_gwonly"
     local targetinf=$(route |grep default|awk '{print $8}') # net-tools
     local gwip=$(route |grep default|awk '{print $2}') # net-tools
     local gwmac=$(nmap -sn "${gwip}"|grep MAC|awk '{print $3}')
@@ -403,7 +411,7 @@ function __net-iptables_mangle_ext_both_gwmaconly {
 # Mangle Prerouting : Ip Connection Limit per IP
 # IPTABLES_CONNLIMIT_PER_IP=50
 function __net-iptables_mangle_all_both_conlimitperip {
-    local funcname="mangle_all_both_conlimitperip"
+    local funcname="mab_conlimitperip"
     local conlimitperip="$1"
     [[ -z $conlimitperip ]] && conlimitperip=50
     IPTABLE="PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP"
@@ -413,7 +421,7 @@ function __net-iptables_mangle_all_both_conlimitperip {
 # Mangle Prerouting : Drop ICMP
 # IPTABLES_DROP_ICMP=1
 function __net-iptables_mangle_all_both_dropicmp {
-    local funcname="mangle_all_both_dropicmp"
+    local funcname="mab_dropicmp"
 
     IPTABLE="PREROUTING -p icmp -m comment --comment ${funcname} -j DROP"
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -A ${IPTABLE}
@@ -422,7 +430,7 @@ function __net-iptables_mangle_all_both_dropicmp {
 # Mangle Prerouting : Drop Invalid State
 # IPTABLES_DROP_INVALID_STATE=1
 function __net-iptables_mangle_all_both_dropinvalidstate {
-    local funcname="mangle_all_both_dropinvalidstate"
+    local funcname="mab_dropinvalidstate"
 
     IPTABLE="PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP"
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
@@ -431,7 +439,7 @@ function __net-iptables_mangle_all_both_dropinvalidstate {
 # Mangle Prerouting : Drop new non-SYN TCP Packets
 # IPTABLES_DROP_NON_SYN=1
 function __net-iptables_mangle_all_both_dropnonsyn {
-    local funcname="mangle_all_both_dropnonsyn"
+    local funcname="mab_dropnonsyn"
 
     IPTABLE="PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP"
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
@@ -440,7 +448,7 @@ function __net-iptables_mangle_all_both_dropnonsyn {
 # Mangle Prerouting : Drop Spoofing Packets
 # IPTABLES_DROP_SPOOFING=1 TARINF?=eth0
 function __net-iptables_mangle_all_both_dropspoofing {
-    local funcname="mangle_all_both_dropspoofing"
+    local funcname="mab_dropspoofing"
     local tarinf="${1}"
     local BLOCKING_LIST="224.0.0.0/3|169.254.0.0/16|172.16.0.0/12|192.0.2.0/24|192.168.0.0/16|10.0.0.0/8|0.0.0.0/8|240.0.0.0/5|127.0.0.0/8"
 
@@ -448,27 +456,29 @@ function __net-iptables_mangle_all_both_dropspoofing {
     routing_allow_list+=("127.0.0.1/29") # add localhost range 127.0.0.1-14 for anydnsdqy and dnsmasq
     IFS=$'|' read -d "" -ra routing_block_list <<< "${BLOCKING_LIST}" # split
     for((j=0;j<${#routing_block_list[@]};j++)){
+        __bp_trim_whitespace iptables_block_ip "${routing_block_list[j]}"
         for((k=0;k<${#routing_allow_list[@]};k++)){
-            log_debug "${routing_allow_list[k]} ${routing_block_list[j]}"
-            ALMINIP=$(_ip2conv "$(ipcalc-ng "${routing_allow_list[k]}"|grep HostMin:|cut -f2)")
-            ALMAXIP=$(_ip2conv "$(ipcalc-ng "${routing_allow_list[k]}"|grep HostMax:|cut -f2)")
-            BLMINIP=$(_ip2conv "$(ipcalc-ng "${routing_block_list[j]}"|grep HostMin:|cut -f2)")
-            BLMAXIP=$(_ip2conv "$(ipcalc-ng "${routing_block_list[j]}"|grep HostMax:|cut -f2)")
+            __bp_trim_whitespace iptables_allow_ip "${routing_allow_list[k]}"
+            log_debug "${iptables_allow_ip} ${iptables_block_ip}"
+            ALMINIP=$(_ip2conv "$(ipcalc-ng "${iptables_allow_ip}"|grep HostMin:|cut -f2)")
+            ALMAXIP=$(_ip2conv "$(ipcalc-ng "${iptables_allow_ip}"|grep HostMax:|cut -f2)")
+            BLMINIP=$(_ip2conv "$(ipcalc-ng "${iptables_block_ip}"|grep HostMin:|cut -f2)")
+            BLMAXIP=$(_ip2conv "$(ipcalc-ng "${iptables_block_ip}"|grep HostMax:|cut -f2)")
             if [[ ${ALMINIP} -gt ${BLMINIP} && ${ALMAXIP} -lt ${BLMAXIP} ]]; then
-                IPTABLE="PREROUTING -s ${routing_allow_list[k]} -m comment --comment ${funcname}_allow_${j}${k} -j ACCEPT"
-                iptables -t mangle -S | grep "${funcname}_allow_${j}${k}" || iptables -t mangle -A "${IPTABLE}"
+                IPTABLE="PREROUTING -s ${iptables_allow_ip} -m comment --comment ${funcname}_allow_${j}${k} -j ACCEPT"
+                iptables -t mangle -S | grep "${funcname}_allow_${j}${k}" || iptables -t mangle -A ${IPTABLE}
             fi
         }
-        [[ ${#tarinf[@]} -gt 0 ]] && IPTABLE="PREROUTING -s ${routing_block_list[j]} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP"
-        [[ ${#tarinf[@]} -eq 0 ]] && IPTABLE="PREROUTING -s ${routing_block_list[j]} -m comment --comment ${funcname}_block_${j} -j DROP"
-        iptables -t mangle -S | grep "${funcname}B${j}" || iptables -t mangle -A "${IPTABLE}"
+        [[ ${#tarinf[@]} -gt 0 ]] && IPTABLE="PREROUTING -s ${iptables_block_ip} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP"
+        [[ ${#tarinf[@]} -eq 0 ]] && IPTABLE="PREROUTING -s ${iptables_block_ip} -m comment --comment ${funcname}_block_${j} -j DROP"
+        iptables -t mangle -S | grep "${funcname}B${j}" || iptables -t mangle -A ${IPTABLE}
     }
 }
 
 # Mangle Prerouting : Limit MSS
 # IPTABLES_LIMIT_MSS=1
 function __net-iptables_mangle_all_both_limitmss {
-    local funcname="mangle_all_both_limitmss"
+    local funcname="mab_limitmss"
     local mss="536:65535" # port range
 
     IPTABLE="PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss "${mss}" -m comment --comment ${funcname} -j DROP"
@@ -478,7 +488,7 @@ function __net-iptables_mangle_all_both_limitmss {
 # Filter/NAT Forward/Postrouting Masqurade
 # IPTABLES_MASQ?="WLAN<WAN|LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) #laninf lannet waninf
 function __net-iptables_filternat_all_both_masquerade {
-    local funcname="filternat_all_both_masquerade"
+    local funcname="fab_masquerade"
     local frominf="$1"
     local fromnet="$2"
     local toinf="$3"
@@ -495,7 +505,7 @@ function __net-iptables_filternat_all_both_masquerade {
 ## Filter/NAT Forward/Postrouting SNAT
 ## IPTABLES_SNAT?="WLAN<WAN|LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) # laninf lannet waninf wanip
 #function __net-iptables_filternat_all_both_snat {
-#    local funcname="filternat_all_both_masquerade"
+#    local funcname="fnab_masquerade"
 #    local frominf="$1" # internal network
 #    local fromnet="$2" # internal network
 #    local toinf="$4" # external network
@@ -512,7 +522,7 @@ function __net-iptables_filternat_all_both_masquerade {
 # DMZ - after portforward, SDMZ - prior to portforward
 # IPTABLES_DMZ="DMZ" or SDMZ waninf laninf dmzip sdmz
 function __net-iptables_nat_ext_both_dmzsdmz {
-    local funcname="nat_ext_both_portforward"
+    local funcname="neb_portforward"
     local waninf="$1"
     local laninf="$2"
     local dmzip="$3"
@@ -539,7 +549,7 @@ function __net-iptables_nat_ext_both_dmzsdmz {
 # NAT Prerouting/Postrouting Port forward
 # IPTABLES_PORTFORWARD="" waninf wanport lanip lanport
 function __net-iptables_nat_ext_both_portforward {
-    local funcname="nat_ext_both_portforward"
+    local funcname="neb_portforward"
     local waninf="$1"
     local wanport="$2"
     local lanip="$3"
@@ -558,7 +568,7 @@ function __net-iptables_nat_ext_both_portforward {
 # Raw Prerouting : Guard Overload Limit UDP PPS
 # IPTABLES_GUARD_OVERLOAD=1
 function __net-iptables_raw_all_both_limitudppps {
-    local funcname="raw_all_both_limitudppps"
+    local funcname="rab_limitudppps"
     # Safeguard against CPU overload during amplificated DDoS attacks by limiting DNS/NTP packets per second rate (PPS).
     # Limited UDP source ports (against amplification
     local lusp="19,53,123,111,123,137,389,1900,3702,5353"
@@ -570,7 +580,7 @@ function __net-iptables_raw_all_both_limitudppps {
 # Raw Prerouting : Drop Invalid Tcp Flag
 # IPTABLES_INVALID_TCPFLAG=1
 function __net-iptables_raw_all_both_dropinvtcpflag {
-    local funcname="raw_all_both_dropinvtcpflag"
+    local funcname="rab_dropinvtcpflag"
     # Invalid TCP Flag packet action
     # Default: DROP
     local ITFPA="DROP"
@@ -613,7 +623,7 @@ function __net-iptables_raw_all_both_portscanner {
 # Filter Input : Drop IPs from blacklist
 # IPTABLES_BLACK_NAMELIST="url|url" blockurls
 function __net-iptables_filter_all_both_ipblacklist {
-    local funcname="filter_all_both_ipblacklist"
+    local funcname="fab_ipblacklist"
     local blockurls="$1" #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
     IFS=$'|' read -d "" -ra blist_url <<< "${blockurls}" # split
     local urlcount=$(echo "${blockurls}" | grep -o "|" | wc -l)

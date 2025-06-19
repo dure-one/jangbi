@@ -65,6 +65,8 @@ function __os-aide_check { # running_status 0 installed, running_status 5 can in
     # check global variable
     [[ -z ${RUN_AIDE} ]] && \
         log_info "RUN_AIDE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_AIDE} != 1 ]] && \
+        log_info "RUN_AIDE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check package aide
     [[ $(dpkg -l|awk '{print $2}'|grep -c "aide") -lt 1 ]] && \
         log_info "aide is not installed." && [[ $running_status -lt 5 ]] && running_status=5

@@ -62,13 +62,21 @@ function __net-knockd_uninstall { # UPDATE_FIRMWARE=0
     systemctl disable knockd
 }
 
+function __net-knockd_disable { # UPDATE_FIRMWARE=0
+    systemctl stop knockd
+    systemctl disable knockd
+    return 0
+}
+
 function __net-knockd_check { ## running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting net-knockd Check"
     
     # check global variable
-    [[ ${#RUN_KNOCKD[@]} -lt 1 ]] && \
+    [[ -z ${RUN_KNOCKD} ]] && \
         log_info "RUN_KNOCKD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_KNOCKD} != 1 ]] && \
+        log_info "RUN_KNOCKD is not enabled." && __net-knockd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package knockd
     [[ $(dpkg -l|awk '{print $2}'|grep -c "knockd") -lt 1 ]] && \
         log_info "knockd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

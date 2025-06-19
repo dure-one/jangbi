@@ -57,14 +57,18 @@ log_debug "=========================="
 # set plugins enabled with loaded config : TODO
 jangbi-it enable plugin all &>/dev/null
 
-if [[ ${ADDTO_RCLOCAL} -gt 0 && $(cat /etc/rc.local|grep -c "DURE_INIT_SCRIPT") -lt 1 ]]; then
-    log_debug "Installing jangbi init script to rc.local(ADDTO_RCLOCAL)."
-    add_cmd="\( ${DURE_DEPLOY_PATH}/init.sh \) \& # DURE_INIT_SCRIPT"
-    sed -z "s|\(.*\)exit 0|${add_cmd}|" /etc/rc.local >/tmp/rc.local.tmp
-    rm -rf /etc/rc.local
-    mv /tmp/rc.local.tmp /etc/rc.local
-    chmod +x /etc/rc.local
-    chmod +x ./init.sh
+if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then
+    if [[ $(grep -c "DURE_INIT_SCRIPT" < "/etc/rc.local") -lt 1 ]]; then
+        log_debug "Installing jangbi init script to rc.local(ADDTO_RCLOCAL)."
+        add_cmd="bash ${DURE_DEPLOY_PATH}/init.sh # DURE_INIT_SCRIPT"
+        cp /etc/rc.local /etc/rc.local."$(date +%Y%m%d%H%M%S)".bak
+        sed -i "s|^\(.*\)exit 0|${add_cmd}\nexit 0|" /etc/rc.local
+        chmod +x /etc/rc.local
+        chmod +x ./init.sh
+    fi
+else
+    log_debug "Removing jangbi init script from rc.local(ADDTO_RCLOCAL)"
+    sed -i "s|^\(.*\)# DURE_INIT_SCRIPT||" /etc/rc.local
 fi
 
 # block forwarding
@@ -77,6 +81,7 @@ process_each_step() {
     local running_status=0
     run_ok "${command} check" "${command}(${step}) Checking..."
     [[ ${FORCE_INSTALL} == 1 ]] && log_info "FORCE_INSTALL enabled, Override to install." && running_status=5
+    log_debug "${step} Check Result : ${running_status}"
     case ${running_status} in # running_status 0 installed, running_status 5 can install, running_status 10 can't install
         5)
             run_ok "${command} install" "${command}(${step}) Installing..."
@@ -100,7 +105,7 @@ process_each_step() {
 }
 
 log_debug "Starting tasks."
-processes=("os-firmware" "os-kparams" "os-repository" "os-systemd" "os-disablebins" "os-conf" "os-auditd" "os-crond" "os-aide")
+processes=("os-sysctl" "os-firmware" "os-kparams" "os-repository" "os-systemd" "os-disablebins" "os-conf" "os-auditd" "os-crond" "os-aide")
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
@@ -123,7 +128,7 @@ else # case 0 full systemd
     processes=("net-netplan")
 fi
 
-processes+=("net-iptables" "net-knockd" "net-anydnsdqy" "net-dnsmasq" "net-hostapd" "net-sshd" "net-darkstat" "os-sysctl") # misc-step os-falco os-sysdig # todo
+processes+=("net-iptables" "net-knockd" "net-anydnsdqy" "net-dnsmasq" "net-hostapd" "net-sshd" "net-darkstat") # misc-step os-falco os-sysdig # todo
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done

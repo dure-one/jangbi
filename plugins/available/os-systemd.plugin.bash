@@ -40,7 +40,7 @@ function __os-systemd_help {
     echo "   run       Run tasks"
 }
 
-function __os-systemd_install {
+function __os-systemd_install { # 0 - full systemd, 1 - disable completely, 2 - only journald
     case "${DISABLE_SYSTEMD}" in
         0)
             __os-systemd_full_systemd
@@ -102,6 +102,7 @@ function __os-systemd_full_systemd {
         apt purge -yq figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
+    __os-systemd_uninstall
 }
 
 function __os-systemd_uninstall { # UPDATE_FIRMWARE=0
@@ -123,16 +124,8 @@ function __os-systemd_uninstall { # UPDATE_FIRMWARE=0
 }
 
 function __os-systemd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
-    running_status=5
+    running_status=0
     log_debug "Starting os-systemd Check"
-    [[ ${#UPDATE_FIRMWARE[@]} -lt 1 ]] && \
-        log_info "UPDATE_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-
-    # check disable systemd installed
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-networkd") -lt 1 ]] && \
-        log_info "systemd-networkd is not exists." && \
-        [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-resolved") -lt 1 ]] && \
-        log_info "systemd-resolved is not exists." && [[ $running_status -lt 0 ]] && running_status=0
 
     # # check rare packages
     # if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
@@ -143,8 +136,51 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
     # show masked services
     # log_info $(systemctl list-unit-files --state=masked)
 
-    systemctl restart networking
-    systemctl status networking && return 0 || return 1
+    # check package file exists
+    :
+    # check global variable
+    [[ -z ${DISABLE_SYSTEMD} ]] && \
+        log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${DISABLE_SYSTEMD} != 1 && ${DISABLE_SYSTEMD} != 2 ]] && \
+        log_info "DISABLE_SYSTEMD is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+    # check package installed
+    # check disabled systemd components installed
+    case "${DISABLE_SYSTEMD}" in # 0 - full systemd, 1 - disable completely, 2 - only journald
+        1)
+            [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && \
+                log_info "isc-dhcp-client is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+            # check if running
+            # [[ $(pidof systemd-udevd) -gt 0 ]] && \
+            #     log_info "systemd-udevd is running." && [[ $running_status -lt 0 ]] && running_status=0
+
+            systemctl restart systemd-udevd
+            systemctl status systemd-udevd && return 0 || return 1
+        ;;
+        2)
+            [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && \
+                log_info "isc-dhcp-client is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+            [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-journald") -lt 1 ]] && \
+                log_info "systemd-journald is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+            # check if running
+            # [[ $(pidof systemd-udevd) -gt 0 ]] && \
+            #     log_info "systemd-udevd is running." && [[ $running_status -lt 0 ]] && running_status=0
+            
+            systemctl restart systemd-udevd
+            systemctl status systemd-udevd && return 0 || return 1
+        ;;
+        0)
+            [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-networkd") -lt 1 ]] && \
+                log_info "systemd-networkd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+            [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-journald") -lt 1 ]] && \
+                log_info "systemd-journald is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+            # check if running
+            # [[ $(pidof systemd-udevd) -gt 0 ]] && \
+            #     log_info "systemd-udevd is running." && [[ $running_status -lt 0 ]] && running_status=0
+            
+            systemctl restart systemd-udevd
+            systemctl status systemd-udevd && return 0 || return 1
+        ;;
+    esac
 }
 
 function __os-systemd_run {

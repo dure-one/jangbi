@@ -24,6 +24,10 @@ function os-repository {
         __os-repository_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-repository_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "enableall" ]]; then
+        __os-repository_enable_additional "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disableall" ]]; then
+        __os-repository-disable_additional "$2"
     else
         __os-repository_help
     fi
@@ -36,27 +40,53 @@ function __os-repository_help {
     echo "   help      Show this help message"
     echo "   install   Install os repository"
     echo "   uninstall Uninstall installed repository"
+    echo "   enableall    Enable all additional repository"
+    echo "   disableall   Disable all additional repository"
+    echo "   enableoff    Enable offline repository"
+    echo "   disableoff   Disable offline repository"
     echo "   check     Check installable"
     echo "   run       Run tasks"
 }
 
 function __os-repository_install {
     log_debug "Trying to install os-repository."
+    
+    __os-repository_enable_offline
+    apt update -qy
+}
+
+function __os-repository_enable_additional {
+    for f in /etc/apt/sources.list.d/*.list.disabled; do mv "$f" "$(echo $f|sed 's/.list.disabled/.list/g')"; done
+}
+
+function __os-repository-disable_additional {
+    for f in /etc/apt/sources.list.d/*.list; do mv "$f" "$(echo $f|sed 's/.list$/.list.disabled/g')"; done
+}
+
+function __os-repository_enable_offline {
     mkdir -p "${DURE_DEPLOY_PATH}/imgs/debian"
+
     # mount pkg iso img
     [[ $(mount|grep -c "${DURE_DEPLOY_PATH}/imgs/debian") -lt 1 ]] && \
         mount -o loop "${DURE_DEPLOY_PATH}/imgs/${DIST_PKG_IMG}" "${DURE_DEPLOY_PATH}/imgs/debian"
+
     # add offline repository
     if [[ $(grep -c "file:" < "/etc/apt/sources.list") -lt 1 ]]; then
         [[ -d "/etc/apt/source.list.d" ]] && mv /etc/apt/source.list.d /etc/apt/source.list.d_old
         [[ ! -f "/etc/apt/sources.list.orig" ]] && mv /etc/apt/sources.list /etc/apt/sources.list.orig
         mv "/etc/apt/sources.list" "/etc/apt/sources.list.$(date +"%Y%m%d")" 1>/dev/null 2>&1
         tee /etc/apt/sources.list > /dev/null <<EOT
-deb [trusted=yes] file:${DURE_DEPLOY_PATH}/imgs/debian/ bookworm main contrib non-free non-free-firmware
-deb ${OS_PKG_UPSTREAM}/debian-security bookworm-security main contrib non-free non-free-firmware
+deb [trusted=yes] file:${DURE_DEPLOY_PATH}/imgs/debian/ bookworm main contrib non-free non-free-firmware # DEBIAN SECURITY
 EOT
-        apt update -qy
     fi
+}
+
+function __os-repository-disable_offline {
+    # remove offline repository
+    sed -i "s|^.*# DEBIAN SECURITY||g" "/etc/apt/sources.list"
+
+    # unmonting
+    umount /opt/jangbi/imgs/debian
 }
 
 function __os-repository_uninstall { # UPDATE_FIRMWARE=0
@@ -71,8 +101,10 @@ function __os-repository_check { # running_status 0 installed, running_status 5 
     log_debug "Starting os-repository Check"
 
     # check global variable
-    [[ ${#OFFLINE_REPOSITORY[@]} -lt 1 ]] && \
+    [[ -z ${OFFLINE_REPOSITORY} ]] && \
         log_info "OFFLINE_REPOSITORY variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${OFFLINE_REPOSITORY} != 1 ]] && \
+        log_info "OFFLINE_REPOSITORY is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     [[ ! -f "${DIST_PKG_IMG}" ]] && \
         log_info "Pkg image can not be found on ${DIST_PKG_IMG}" && [[ $running_status -lt 10 ]] && running_status=10
 
@@ -86,9 +118,15 @@ function __os-repository_check { # running_status 0 installed, running_status 5 
 }
 
 function __os-repository_run {
+    log_debug "Disabling All Additional Repositories..."
+    __os-repository-disable_additional
+
+    log_debug "Mounting debian image to ${DURE_DEPLOY_PATH}/imgs/debian/..."
     mkdir -p "${DURE_DEPLOY_PATH}/imgs/debian"
     [[ $(mount |grep -c "${DURE_DEPLOY_PATH}/imgs/debian/") -lt 1 ]] && \
         mount -o loop "${DURE_DEPLOY_PATH}/${DIST_PKG_IMG}" "${DURE_DEPLOY_PATH}/imgs/debian"
+    
+    log_debug "Apt Packages Fixing..."
     apt update -qy && apt install --fix-broken -qy
     return 0
 }

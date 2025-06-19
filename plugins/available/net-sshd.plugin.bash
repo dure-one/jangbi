@@ -47,9 +47,20 @@ function __net-sshd_install {
     mkdir -p /run/sshd
     # config settings
     SSH_CONFIG="# DURE_SSHD_CONFIG"
+    local infip
+
+    cp ./configs/sshd_config /etc/ssh/sshd_config
     if [[ $(grep -c "DURE_SSHD_CONFIG" < "/etc/ssh/sshd_config") -lt 1 ]]; then
         [[ ${SSHD_PORT} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nPort ${SSHD_PORT} # DURE_SSHD_PORT" && sed -i "s|Port=.*||g" /etc/ssh/sshd_config
-        # [[ ${#SSHD_ADDR} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${SSHD_ADDR} # DURE_SSHD_ADDR" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
+        if [[ ${#SSHD_INFS[@]} -gt 0 ]]; then
+            IFS=$'|' read -d "" -ra ssh_infs <<< "${SSHD_INFS}" # split
+            for((j=0;j<${#ssh_infs[@]};j++)){
+                __bp_trim_whitespace tinf "${ssh_infs[j]}"
+                echo "Setting ListenAddress for ${tinf}"
+                infip=$(ipcalc-ng "$(_get_rip "${tinf}")"|grep Address:|cut -f2)
+                SSH_CONFIG="${SSH_CONFIG}\nListenAddress ${infip} # DURE_SSHD_INFS" && sed -i "s|ListenAddress=.*||g" /etc/ssh/sshd_config
+            }
+        fi
         [[ ${DISABLE_IPV6} -gt 0 ]] && SSH_CONFIG="${SSH_CONFIG}\nAddressFamily inet # DURE_DISABLE_IPV6" && sed -i "s|AddressFamily=.*||g" /etc/ssh/sshd_config
         echo -e "\n\n${SSH_CONFIG}\n\n" >> /etc/ssh/sshd_config
     fi
@@ -61,6 +72,12 @@ function __net-sshd_uninstall { # UPDATE_FIRMWARE=0
     systemctl disable ssh
 }
 
+function __net-sshd_disable { # UPDATE_FIRMWARE=0
+    systemctl stop ssh
+    systemctl disable ssh
+    return 0
+}
+
 function __net-sshd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-sshd Check"
@@ -68,6 +85,8 @@ function __net-sshd_check { # running_status 0 installed, running_status 5 can i
     # check global variable
     [[ -z ${RUN_SSHD} ]] && \
         log_info "RUN_SSHD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_SSHD} != 1 ]] && \
+        log_info "RUN_SSHD is not enabled." && __net-sshd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "openssh-server") -lt 1 ]] && \
         log_info "openssh-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5

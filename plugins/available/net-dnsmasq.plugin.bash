@@ -181,6 +181,11 @@ function __net-dnsmasq_uninstall { # UPDATE_FIRMWARE=0
     chmod 444 /etc/resolv.conf
 }
 
+function __net-dnsmasq_disable { # UPDATE_FIRMWARE=0
+    pidof dnsmasq | xargs kill -9 2>/dev/null
+    return 0
+}
+
 function __net-dnsmasq_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-dnsmasq Check"
@@ -188,6 +193,8 @@ function __net-dnsmasq_check { # running_status 0 installed, running_status 5 ca
     # check global variable
     [[ -z ${RUN_DNSMASQ} ]] && \
         log_info "RUN_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_DNSMASQ} != 1 ]] && \
+        log_info "RUN_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq") -lt 1 ]] && \
         log_info "dnsmasq is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -200,36 +207,36 @@ function __net-dnsmasq_check { # running_status 0 installed, running_status 5 ca
 
 function __net-dnsmasq_run {
     # add iptables rules
+    # __bp_trim_whitespace DURE_WANINF "${DURE_WANINF}"
+    # __bp_trim_whitespace DURE_LANINF "${DURE_LANINF}"
+    # __bp_trim_whitespace DURE_WLANINF "${DURE_WLANINF}"
+
     # DNSMASQ_DENY_DHCP_WAN
-    if [[ ${RUN_IPTABLES} -gt 0 && -n ${DURE_WANINF} ]]; then # RUN_IPTABLES=1
-        log_debug "dnsmasq deny dhcp for WAN"
-        IPTABLE="INPUT -i ${DURE_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DNSMASQ_DENY_DHCP1_${DURE_WANINF} -j DROP"
-        # log_debug "${IPTABLE}"
-        iptables -S | grep "DNSMASQ_DENY_DHCP1_${DURE_WANINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${DURE_WANINF} -p udp --dport 68 --sport 67 -m comment --comment DNSMASQ_DENY_DHCP2_${DURE_WANINF} -j DROP"
-        # log_debug "${IPTABLE}"
-        iptables -S | grep "DNSMASQ_DENY_DHCP2_${DURE_WANINF}" || iptables -I "${IPTABLE}"
+    if [[ -n ${DURE_WANINF} && $(cat /sys/class/net/${DURE_WANINF}/operstate) == "up" ]]; then # RUN_IPTABLES=1
+        log_debug "dnsmasq deny dhcp service for WAN"
+        iptables -S | grep "DMQ_DW1_${DURE_WANINF}" || \
+            iptables -t filter -I INPUT -i ${DURE_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${DURE_WANINF} -j DROP
     fi
 
     # DNSMASQ_DHCPB DNSMASQ_DNSR
-    if [[ -n ${DURE_LANINF} ]]; then
+    if [[ -n ${DURE_LANINF} && $(cat /sys/class/net/${DURE_LANINF}/operstate) == "up" ]]; then
         log_debug "dnsmasq accept dhcp for LAN"
-        IPTABLE="INPUT -i ${DURE_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DNSMASQ_DHCPA_${DURE_LANINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DHCPA_${DURE_LANINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${DURE_LANINF} -p udp --dport 68 --sport 67 -m comment --comment DNSMASQ_DHCPB_${DURE_LANINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DHCPB_${DURE_LANINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${DURE_LANINF} -p udp --dport 53 -m comment --comment DNSMASQ_DNSR_${DURE_LANINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DNSR_${DURE_LANINF}" || iptables -A "${IPTABLE}"
+        iptables -S | grep "DMQ_DLA_${DURE_LANINF}" || \
+            iptables -t filter -I INPUT -i ${DURE_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DLA_${DURE_LANINF} -j ACCEPT
+        iptables -S | grep "DMQ_DLB_${DURE_LANINF}" || \
+            iptables -t filter -I INPUT -i ${DURE_LANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DLB_${DURE_LANINF} -j ACCEPT
+        iptables -S | grep "DMQ_DLR_${DURE_LANINF}" || \
+            iptables -t filter -I INPUT -i ${DURE_LANINF} -p udp --dport 53 -m comment --comment DMQ_DLR_${DURE_LANINF} -j ACCEPT
     fi
     
-    if [[ -n ${DURE_WLANINF} ]]; then
+    if [[ -n ${DURE_WLANINF} && $(cat /sys/class/net/${DURE_LANINF}/operstate) == "up" ]]; then
         log_debug "dnsmasq accept dhcp for WLAN"
-        IPTABLE="INPUT -i ${DURE_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DNSMASQ_DHCPA_${DURE_WLANINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DHCPA_${DURE_WLANINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${DURE_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DNSMASQ_DHCPB_${DURE_WLANINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DHCPB_${DURE_WLANINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${DURE_WLANINF} -p udp --dport 53 -m comment --comment DNSMASQ_DNSR_${DURE_WLANINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DNSR_${DURE_WLANINF}" || iptables -A "${IPTABLE}"
+        iptables -S | grep "DMQ_DWLA_${DURE_WLANINF}" || \
+            iptables -t filter -I INPUT -i ${DURE_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DWLA_${DURE_WLANINF} -j ACCEPT
+        iptables -S | grep "DMQ_DWLB_${DURE_WLANINF}" || \
+            iptables -t filter -I INPUT -i ${DURE_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DWLB_${DURE_WLANINF} -j ACCEPT
+        iptables -S | grep "DMQ_DWLR_${DURE_WLANINF}" || \
+            iptables -t filter -A INPUT -i ${DURE_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${DURE_WLANINF} -j ACCEPT
     fi
 
     # Additional Listening for Masqueraded Interface
@@ -262,13 +269,12 @@ function __net-dnsmasq_run {
         else
             continue
         fi
-        IPTABLE="INPUT -i ${TARINF} -p udp --dport 67 --sport 68 -m comment --comment DNSMASQ_DHCPA_${TARINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DHCPA_${TARINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DNSMASQ_DHCPB_${TARINF} -j ACCEPT"
-        iptables -S | grep "DNSMASQ_DHCPB_${TARINF}" || iptables -I "${IPTABLE}"
-        IPTABLE="INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DNSMASQ_DNSR_${TARINF} -j ACCEPT"
-        echo "${IPTABLE}"
-        iptables -S | grep "DNSMASQ_DNSR_${TARINF}" || iptables -A "${IPTABLE}"
+        iptables -S | grep "DMQ_DA_${TARINF}" || \
+            iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DA_${TARINF} -j ACCEPT
+        iptables -S | grep "DMQ_DB_${TARINF}" || \
+            iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DB_${TARINF} -j ACCEPT
+        iptables -S | grep "DMQ_DR_${TARINF}" || \
+            iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
         }
     fi
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
@@ -284,7 +290,7 @@ function __net-dnsmasq_run {
 
     # RUN_DNSMASQ=1 DURE_ROLE=client 127.0.0.2:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
     # RUN_DNSMASQ=1 DURE_ROLE=gateway 192.168.0.1:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
-    if [[ ${RUN_DNSMASQ} -gt 0 ]]; then
+    if [[ ${RUN_ANYDNSDQY} -gt 0 ]]; then
         echo "nameserver 127.0.0.2"|tee /etc/resolv.conf
     else
         echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf

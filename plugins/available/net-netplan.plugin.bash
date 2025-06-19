@@ -364,13 +364,21 @@ function __net-netplan_uninstall { # UPDATE_FIRMWARE=0
     apt purge -qy netplan.io
 }
 
+function __net-netplan_disable { # UPDATE_FIRMWARE=0
+    return 0
+}
+
 function __net-netplan_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-netplan Check"
 
-    # check global variable, netplan depends on systemd config
-    [[ ${DISABLE_SYSTEMD} -lt 1 ]] && \
+    # DISABLE_SYSTEMD 0 - full systemd, 1 - disable completely, 2 - only journald
+    [[ -z ${DISABLE_SYSTEMD} ]] && \
         log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${DISABLE_SYSTEMD} == 1 ]] && \
+        log_info "DISABLE_SYSTEMD set to disable completely(DISABLE_SYSTEMD=1)." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ ${DISABLE_SYSTEMD} == 2 ]] && \
+        log_info "DISABLE_SYSTEMD set to only journald(DISABLE_SYSTEMD=2)." && [[ $running_status -lt 20 ]] && running_status=20
     # check package netplan
     [[ $(dpkg -l|awk '{print $2}'|grep -c "netplan") -lt 1 ]] && \
         log_info "netplan is not installed." && [[ $running_status -lt 5 ]] && running_status=5
