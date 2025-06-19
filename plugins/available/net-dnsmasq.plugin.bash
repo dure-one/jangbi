@@ -77,7 +77,7 @@ function __net-dnsmasq_generate_config {
             [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${DURE_WLANINF}\n"
         else
             netinf="lo"
-            netip="127.0.0.2"
+            netip="127.0.0.1"
             netminip="127.0.0.1"
             netmaxip="127.0.0.1"
         fi
@@ -132,7 +132,7 @@ function __net-dnsmasq_generate_config {
         fi
     else # local->wan # client mode, wstunnel mode
         netinf="lo"
-        netip="127.0.0.2"
+        netip="127.0.0.1"
         netminip="127.0.0.1"
         netmaxip="127.0.0.1"
     fi
@@ -183,6 +183,7 @@ function __net-dnsmasq_uninstall { # UPDATE_FIRMWARE=0
 
 function __net-dnsmasq_disable { # UPDATE_FIRMWARE=0
     pidof dnsmasq | xargs kill -9 2>/dev/null
+    echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
     return 0
 }
 
@@ -285,6 +286,9 @@ function __net-dnsmasq_run {
             wget -O- "${urls[j]}" | awk '$1 == "0.0.0.0" { print "address=/"$2"/0.0.0.0/"}' >> /etc/dnsmasq.d/malware$j.conf
         }
     fi
+    
+    __net-dnsmasq_generate_config
+
     pidof dnsmasq | xargs kill -9 2>/dev/null
     dnsmasq -d --conf-file=/etc/dnsmasq.d/dnsmasq.conf &>/var/log/dnsmasq.log &
 
@@ -293,7 +297,7 @@ function __net-dnsmasq_run {
     if [[ ${RUN_ANYDNSDQY} -gt 0 ]]; then
         echo "nameserver 127.0.0.2"|tee /etc/resolv.conf
     else
-        echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
+        echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
     fi
     chmod 444 /etc/resolv.conf
     _time_sync "${DNS_UPSTREAM}"
