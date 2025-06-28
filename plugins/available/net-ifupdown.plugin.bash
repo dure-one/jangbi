@@ -5,6 +5,7 @@ about-plugin 'network configurations.'
 function net-ifupdown {
     about 'network configurations'
     group 'net'
+    deps  'os-systemd'
     param '1: command'
     param '2: params'
     example '$ net-ifupdown check/install/uninstall/run'
@@ -416,12 +417,12 @@ EOT
 
 }
 
-function __net-ifupdown_uninstall { # UPDATE_FIRMWARE=0
+function __net-ifupdown_uninstall { # RUN_OS_FIRMWARE=0
     systemctl stop networking
     systemctl disable networking
 }
 
-function __net-ifupdown_disable { # UPDATE_FIRMWARE=0
+function __net-ifupdown_disable { # RUN_OS_FIRMWARE=0
     systemctl stop networking
     systemctl disable networking
     return 0
@@ -431,12 +432,12 @@ function __net-ifupdown_check { # running_status 0 installed, running_status 5 c
     running_status=0
     log_debug "Starting net-ifupdown Check $running_status"
 
-    # DISABLE_SYSTEMD 0 - full systemd, 1 - disable completely, 2 - only journald
-    log_debug "check DISABLE_SYSTEMD" 
-    [[ -z ${DISABLE_SYSTEMD} ]] && \
-        log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${DISABLE_SYSTEMD} == 0 ]] && \
-        log_info "DISABLE_SYSTEMD set to full systemd(DISABLE_SYSTEMD=0)." && __net-ifupdown_disable && [[ $running_status -lt 20 ]] && running_status=20
+    # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
+    log_debug "check RUN_OS_SYSTEMD" 
+    [[ -z ${RUN_OS_SYSTEMD} ]] && \
+        log_info "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_SYSTEMD} == 1 ]] && \
+        log_info "RUN_OS_SYSTEMD set to full systemd(RUN_OS_SYSTEMD=1)." && __net-ifupdown_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package ifupdown
     log_debug "check ifupdown is installed"
     [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && \

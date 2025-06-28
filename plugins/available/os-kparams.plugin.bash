@@ -4,7 +4,8 @@ about-plugin 'custom kernel params in cmdline.'
 
 function os-kparams {
     about 'helper function for os firmware update'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-kparams check/install/uninstall/run'
@@ -43,14 +44,14 @@ function __os-kparams_install {
     log_debug "Trying to install os-kparams."
 }
 
-function __os-kparams_uninstall { # UPDATE_FIRMWARE=0
+function __os-kparams_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall os-kparams."
-    local kernel_params_cmdline="/etc/kernel_cmdline"
+    local kparams_cmdline="/etc/kernel_cmdline"
     umount /root/cmdline
-    rm ${kernel_params_cmdline}
+    rm ${kparams_cmdline}
 }
 
-function __os-kparams_disable { # UPDATE_FIRMWARE=0
+function __os-kparams_disable { # RUN_OS_FIRMWARE=0
     umount /root/cmdline
     return 0
 }
@@ -59,10 +60,10 @@ function __os-kparams_check { # running_status 0 installed, running_status 5 can
     running_status=0
     log_debug "Starting os-kparams Check"
 
-    [[ -z ${KERNEL_PARAMS} ]] && \
-        log_info "KERNEL_PARAMS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${#KERNEL_PARAMS[@]} -lt 1 ]] && \
-        log_info "KERNEL_PARAMS is not enabled." && __os-kparams_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_KPARAMS} ]] && \
+        log_info "RUN_OS_KPARAMS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${#RUN_OS_KPARAMS[@]} -lt 1 ]] && \
+        log_info "RUN_OS_KPARAMS is not enabled." && __os-kparams_disable && [[ $running_status -lt 20 ]] && running_status=20
 
     [[ $(mount|grep -c "/proc/cmdline") -gt 0 ]] && \
         log_info "kernel custom cmdline has already mounted." && [[ $running_status -lt 0 ]] && running_status=0
@@ -71,14 +72,14 @@ function __os-kparams_check { # running_status 0 installed, running_status 5 can
 }
 
 function __os-kparams_run {
-    local kernel_params_cmdline="/etc/kernel_cmdline"
+    local kparams_cmdline="/etc/kernel_cmdline"
     umount /proc/cmdline &>/dev/null
-    cat /proc/cmdline > ${kernel_params_cmdline}
-    chmod 600 ${kernel_params_cmdline}
+    cat /proc/cmdline > ${kparams_cmdline}
+    chmod 600 ${kparams_cmdline}
     local kcmdline
-    kcmdline="$(cat ${kernel_params_cmdline}) slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 pti=on randomize_kstack_offset=on vsyscall=none debugfs=off oops=panic module.sig_enforce=1 lockdown=confidentiality mce=0 quiet loglevel=0 random.trust_cpu=off intel_iommu=on amd_iommu=on efi=disable_early_pci_dma"
-    echo "${kcmdline}" > ${kernel_params_cmdline}
-    mount -n --bind -o ro ${kernel_params_cmdline} /proc/cmdline
+    kcmdline="$(cat ${kparams_cmdline}) slab_nomerge init_on_alloc=1 init_on_free=1 page_alloc.shuffle=1 pti=on randomize_kstack_offset=on vsyscall=none debugfs=off oops=panic module.sig_enforce=1 lockdown=confidentiality mce=0 quiet loglevel=0 random.trust_cpu=off intel_iommu=on amd_iommu=on efi=disable_early_pci_dma"
+    echo "${kcmdline}" > ${kparams_cmdline}
+    mount -n --bind -o ro ${kparams_cmdline} /proc/cmdline
     
     return 0
 }

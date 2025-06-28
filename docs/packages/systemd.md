@@ -1,6 +1,6 @@
 # systemd
 
-|name|disable completely(DISABLE_SYSTEMD=1)|only journald(DISABLE_SYSTEMD=2)|full systemd(DISABLE_SYSTEMD=0)|
+|name|disable completely(RUN_OS_SYSTEMD=0)|only journald(RUN_OS_SYSTEMD=2)|full systemd(RUN_OS_SYSTEMD=1)|
 |------|---|---|---|
 |networkd|X(networking)|X(networking)|O(systemd-networkd)|
 |resolved|X(anydnsdqy)|X(anydnsdqy)|O|

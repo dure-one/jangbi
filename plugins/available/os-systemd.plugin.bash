@@ -5,7 +5,8 @@ about-plugin 'setup systemd.'
 
 function os-systemd {
     about 'helper function for local os repository'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-systemd check/install/uninstall/run'
@@ -41,11 +42,11 @@ function __os-systemd_help {
 }
 
 function __os-systemd_install { # 0 - full systemd, 1 - disable completely, 2 - only journald
-    case "${DISABLE_SYSTEMD}" in
-        0)
+    case "${RUN_OS_SYSTEMD}" in
+        1)
             __os-systemd_full_systemd
         ;;
-        1)
+        0)
             __os-systemd_disable_completely
         ;;
         2)
@@ -55,7 +56,7 @@ function __os-systemd_install { # 0 - full systemd, 1 - disable completely, 2 - 
 }
 
 function __os-systemd_disable_completely {
-    log_debug "Starting os-systemd disable completely(DISABLE_SYSTEMD=${DISABLE_SYSTEMD})"
+    log_debug "Starting os-systemd disable completely(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
     if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utils figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
@@ -77,7 +78,7 @@ function __os-systemd_disable_completely {
 }
 
 function __os-systemd_only_journald {
-    log_debug "Starting os-systemd only journald(DISABLE_SYSTEMD=${DISABLE_SYSTEMD})"
+    log_debug "Starting os-systemd only journald(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
     if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utils figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
@@ -97,7 +98,7 @@ function __os-systemd_only_journald {
 }
 
 function __os-systemd_full_systemd {
-    log_debug "Starting os-systemd full systemd(DISABLE_SYSTEMD=${DISABLE_SYSTEMD})"
+    log_debug "Starting os-systemd full systemd(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
     if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
         apt purge -yq figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
@@ -105,7 +106,7 @@ function __os-systemd_full_systemd {
     __os-systemd_uninstall
 }
 
-function __os-systemd_uninstall { # UPDATE_FIRMWARE=0
+function __os-systemd_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Starting os-systemd Uninstall"
     # recover system
     systemctl disable networking.service
@@ -139,13 +140,13 @@ function __os-systemd_check { # running_status 0 installed, running_status 5 can
     # check package file exists
     :
     # check global variable
-    [[ -z ${DISABLE_SYSTEMD} ]] && \
-        log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${DISABLE_SYSTEMD} != 1 && ${DISABLE_SYSTEMD} != 2 ]] && \
-        log_info "DISABLE_SYSTEMD is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_SYSTEMD} ]] && \
+        log_info "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    # [[ ${RUN_OS_SYSTEMD} != 0 && ${RUN_OS_SYSTEMD} != 2 ]] && \
+    #     log_info "RUN_OS_SYSTEMD is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     # check disabled systemd components installed
-    case "${DISABLE_SYSTEMD}" in # 0 - full systemd, 1 - disable completely, 2 - only journald
+    case "${RUN_OS_SYSTEMD}" in # 1 - full systemd, 0 - disable completely, 2 - only journald
         1)
             [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && \
                 log_info "isc-dhcp-client is not installed." && [[ $running_status -lt 5 ]] && running_status=5

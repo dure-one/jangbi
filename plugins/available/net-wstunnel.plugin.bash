@@ -4,7 +4,8 @@ about-plugin 'wstunnel install configurations.'
 
 function net-wstunnel {
     about 'wstunnel install configurations'
-    group 'net'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ net-wstunnel check/install/uninstall/run'
@@ -64,10 +65,10 @@ function __net-wstunnel_check { # running_status 0 installed, running_status 5 c
     log_debug "Starting net-wstunnel Check"
 
     # check global variable
-    [[ -z ${RUN_WSTUNNEL} ]] && \
-        log_info "RUN_WSTUNNEL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_WSTUNNEL} != 1 ]] && \
-        log_info "RUN_WSTUNNEL variable is not enabled." && __net-wstunnel_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_NET_WSTUNNEL} ]] && \
+        log_info "RUN_NET_WSTUNNEL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_WSTUNNEL} != 1 ]] && \
+        log_info "RUN_NET_WSTUNNEL variable is not enabled." && __net-wstunnel_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check wstunnel bin exists
     [[ $(which wstunnel|wc -l) -lt 1 ]] && \
         log_info "wstunnel is not installed." && [[ $running_status -lt 5 ]] && running_status=5

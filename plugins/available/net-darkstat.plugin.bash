@@ -4,7 +4,8 @@ about-plugin 'darkstat install configurations.'
 
 function net-darkstat {
     about 'darkstat install configurations'
-    group 'net'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ net-darkstat check/install/uninstall/run'
@@ -43,17 +44,18 @@ function __net-darkstat_install {
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-darkstat."
     apt install -qy ./pkgs/darkstat*
+    mkdir -p /etc/darkstat
     cp ./configs/darkstat.init.cfg.default /etc/darkstat/init.cfg
     sed -i "s|START_DARKSTAT=.*|START_DARKSTAT=yes|g" /etc/darkstat/init.cfg
     sed -i "s|INTERFACE=.*|INTERFACE=${DURE_WANINF}|g" /etc/darkstat/init.cfg
 }
 
-function __net-darkstat_disable { # UPDATE_FIRMWARE=0
+function __net-darkstat_disable { # RUN_OS_FIRMWARE=0
     pidof darkstat | xargs kill -9 2>/dev/null
     return 0
 }
 
-function __net-darkstat_uninstall { # UPDATE_FIRMWARE=0
+function __net-darkstat_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall net-darkstat."
     pidof darkstat | xargs kill -9 2>/dev/null
     apt purge -qy darkstat
@@ -64,10 +66,10 @@ function __net-darkstat_check { ## running_status 0 installed, running_status 5 
     log_debug "Starting net-darkstat Check"
 
     # check global variable
-    [[ -z ${RUN_DARKSTAT} ]] && \
-        log_info "RUN_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_DARKSTAT} != 1 ]] && \
-        log_info "RUN_DARKSTAT is not enabled." && __net-darkstat_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_NET_DARKSTAT} ]] && \
+        log_info "RUN_NET_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_DARKSTAT} != 1 ]] && \
+        log_info "RUN_NET_DARKSTAT is not enabled." && __net-darkstat_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -86,7 +88,9 @@ function __net-darkstat_run {
 
     pidof darkstat|xargs kill &>/dev/null
     # shellcheck disable=SC1091
-    source /etc/darkstat/init.cfg && darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
+    source /etc/darkstat/init.cfg && \
+        darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
+        darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
     pidof darkstat && return 0 || return 1
 }
 

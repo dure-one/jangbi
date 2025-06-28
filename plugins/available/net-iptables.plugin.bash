@@ -1,7 +1,6 @@
 # shellcheck shell=bash
 cite about-plugin a
 about-plugin 'iptables install configurations.'
-# C : OSLOCAL_SETTING, DURE_SWAPSIZE, DURE_DEPLOY_PATH
 
 # filter(INPUT FORWARD OUTPUT .ICMPFLOOD .SSHBRUTE)
 # nat(PREROUTING INPUT OUTPUT POSTROUTING)
@@ -67,7 +66,8 @@ about-plugin 'iptables install configurations.'
 
 function net-iptables {
     about 'iptables install configurations'
-    group 'net'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ net-iptables check/install/uninstall/run/build'
@@ -117,7 +117,7 @@ function __net-iptables_install {
     local disable_ipv6="$2"
 
     export DEBIAN_FRONTEND=noninteractive
-    apt install -yq nftables iptables xtables-addons-common
+    apt install -yq nftables iptables #xtables-addons-common
     apt install -yq ./pkgs/arptables*.deb
     systemctl enable nftables
     mkdir -p /etc/iptables
@@ -149,13 +149,13 @@ function __net-iptables_install {
     fi
 }
 
-function __net-iptables_uninstall { # UPDATE_FIRMWARE=0
+function __net-iptables_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall net-iptables."
     systemctl stop nftables
     systemctl disable nftables
 }
 
-function __net-iptables_disable { # UPDATE_FIRMWARE=0
+function __net-iptables_disable { # RUN_OS_FIRMWARE=0
     systemctl stop nftables
     systemctl disable nftables
     return 0
@@ -168,10 +168,10 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
     [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
         log_info "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
     # check global variable
-    [[ -z ${RUN_IPTABLES} ]] && \
-        log_info "RUN_IPTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_IPTABLES} != 1 ]] && \
-        log_info "RUN_IPTABLES is not enabled." && __net-iptables_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_NET_IPTABLES} ]] && \
+        log_info "RUN_NET_IPTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_IPTABLES} != 1 ]] && \
+        log_info "RUN_NET_IPTABLES is not enabled." && __net-iptables_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package iptables
     [[ $(dpkg -l|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -307,7 +307,7 @@ function __net-iptables_build {
 
     # MASQUERADE WAN->NET
     # IPTABLES_MASQ="LAN<WAN|LAN1<WAN"
-    if [[ -n ${IPTABLES_MASQ} ]]; then # RUN_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
+    if [[ -n ${IPTABLES_MASQ} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
         IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
             local frominf="" toinf="" fromnet="" tonet=""
@@ -471,7 +471,7 @@ function __net-iptables_mangle_all_both_dropspoofing {
         }
         [[ ${#tarinf[@]} -gt 0 ]] && IPTABLE="PREROUTING -s ${iptables_block_ip} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP"
         [[ ${#tarinf[@]} -eq 0 ]] && IPTABLE="PREROUTING -s ${iptables_block_ip} -m comment --comment ${funcname}_block_${j} -j DROP"
-        iptables -t mangle -S | grep "${funcname}B${j}" || iptables -t mangle -A ${IPTABLE}
+        iptables -t mangle -S | grep "${funcname}_block_${j}" || iptables -t mangle -A ${IPTABLE}
     }
 }
 

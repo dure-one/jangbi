@@ -4,7 +4,8 @@ about-plugin 'sysctl install configurations.'
 
 function os-sysctl {
     about 'sysctl install configurations'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-sysctl check/install/uninstall/run'
@@ -46,7 +47,7 @@ function __os-sysctl_install {
     chmod 400 /etc/sysctl.orig
 }
 
-function __os-sysctl_uninstall { # UPDATE_FIRMWARE=0
+function __os-sysctl_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall sysctl_install."
     sysctl -e -p /etc/sysctl.orig &>/dev/null
 }
@@ -54,10 +55,10 @@ function __os-sysctl_uninstall { # UPDATE_FIRMWARE=0
 function __os-sysctl_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-sysctl Check"
-    [[ -z ${HARDENING_SYSCTL} ]] && \
-        log_info "HARDENING_SYSCTL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${HARDENING_SYSCTL} != 1 ]] && \
-        log_info "HARDENING_SYSCTL is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_SYSCTL} ]] && \
+        log_info "RUN_OS_SYSCTL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_SYSCTL} != 1 ]] && \
+        log_info "RUN_OS_SYSCTL is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
 
     return 0
 }

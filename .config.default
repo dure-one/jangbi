@@ -30,14 +30,14 @@ DURE_SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXu
 DURE_HOSTNAME="orangepi5-plus"
 
 # network settings
-# DISABLE_SYSTEMD 0 - enable systemd / 1 - disable completely(no syslog) / 2 - disable systemd except journald
-# case of disable systemd or except journald DISABLE_SYSTEMD=1 -> ifupdown
-DISABLE_SYSTEMD=1
+# RUN_OS_SYSTEMD 1 - enable systemd / 0 - disable completely(no syslog) / 2 - disable systemd except journald
+# case of disable systemd or except journald RUN_OS_SYSTEMD=0 -> ifupdown
+RUN_OS_SYSTEMD=0
 REMOVE_RAREPKGS=1
 DURE_IFUPDOWN=
 
-# case of enable systemd, DISABLE_SYSTEMD=0 -> netplan
-#DISABLE_SYSTEMD=0
+# case of enable systemd, RUN_OS_SYSTEMD=1 -> netplan
+#RUN_OS_SYSTEMD=1
 #REMOVE_RAREPKGS=1
 #DURE_NETPLAN=
 
@@ -60,31 +60,31 @@ DURE_WLAN_PASS="durejangbi"
 DURE_ROLE="gateway"
 
 # os security
-HARDENING_SYSCTL=1
-KERNEL_PARAMS=1
+RUN_OS_SYSCTL=1
+RUN_OS_KPARAMS=1
 DISABLE_IPV6=1
 ADDTO_RCLOCAL=1
 # only tar.gz link allowed
-UPDATE_FIRMWARE="https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz"
+RUN_OS_FIRMWARE="https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz"
 REMOVE_RAREPKGS=1
-DISABLE_BIN=1
+RUN_OS_DISABLEBINS=1
 OSLOCAL_SETTING=1
-OFFLINE_REPOSITORY=1
-RUN_AUDITD=1
-RUN_AIDE=1
+RUN_OS_REPOS=1
+RUN_OS_AUDITD=1
+RUN_OS_AIDE=1
 
 # network apps
-RUN_KNOCKD=1
-RUN_KNOCKD_STATIC_SSH="12345,54321,24680,13579"
+RUN_NET_KNOCKD=1
+RUN_NET_KNOCKD_STATIC_SSH="12345,54321,24680,13579"
 # > step crypto otp generate --issuer dure.jangbi --account router_hostname --period=300 --length=10 --alg=SHA512 --qr dure.png > dure.totp
-RUN_KNOCKD_WITH_STEPTOTP=1
+RUN_NET_KNOCKD_WITH_STEPTOTP=1
 KNOCKD_TOTPKEY="CIF3R2GPV6TLK4PJ3JZFLBMOCBYXSBP3"
-RUN_SSHD=1
+RUN_NET_SSHD=1
 SSHD_PORT="22"
 SSHD_INFS="enP3p49s0|enP3p49s1"
 
 # iptables
-RUN_IPTABLES=1
+RUN_NET_IPTABLES=1
 NFTABLES_OVERRIDE=""
 # arp rules
 IPTABLES_WHITELISTED_MACADDRESSES=""
@@ -108,14 +108,17 @@ IPTABLES_DMZ="192.168.0.1"
 IPTABLES_SUPERDMZ=1
 
 # gateway apps
-RUN_HOSTAPD=1
-RUN_ANYDNSDQY=1
-RUN_DNSMASQ=1
+RUN_NET_HOSTAPD=1
+# RUN_NET_ANYDNSDQY=1
+RUN_NET_DNSMASQ=1
 DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
-RUN_DARKSTAT=1
-RUN_REDIS=1
+RUN_NET_DARKSTAT=1
+RUN_OS_REDIS=1
+
+RUN_NET_MINMON=0
+
 #
-#RUN_ANYDNSDQY=1
+#RUN_NET_ANYDNSDQY=1
 #RUN_FALCON=1
-#RUN_WSTUNNEL=1
+#RUN_NET_WSTUNNEL=1
 #RUN_SOCKS5PROXY=1
