@@ -1,11 +1,11 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'auditd install configurations.'
-# VARS :
 
 function os-auditd {
     about 'auditd install configurations'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-auditd check/install/uninstall/run'
@@ -84,10 +84,10 @@ function __os-auditd_check {  # running_status 0 installed, running_status 5 can
     log_debug "Starting os-auditd Check"
 
     # check global variable
-    [[ -z ${RUN_AUDITD} ]] && \
-        log_info "RUN_AUDITD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_AUDITD} != 1 ]] && \
-        log_info "RUN_AUDITD is not enabled." && __os-auditd_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_AUDITD} ]] && \
+        log_info "RUN_OS_AUDITD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_AUDITD} != 1 ]] && \
+        log_info "RUN_OS_AUDITD is not enabled." && __os-auditd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "auditd") -lt 1 ]] && \
         log_info "auditd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

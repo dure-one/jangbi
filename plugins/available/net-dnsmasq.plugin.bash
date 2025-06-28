@@ -1,11 +1,11 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'dnsmasq install configurations.'
-#VAR RUN_IPTABLES
 
 function net-dnsmasq {
     about 'dnsmasq install configurations'
-    group 'net'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ net-dnsmasq check/install/uninstall/run'
@@ -40,7 +40,7 @@ function __net-dnsmasq_help {
     echo "   run       Run tasks"
 }
 
-function __net-dnsmasq_install { # RUN_DNSMASQ
+function __net-dnsmasq_install { # RUN_NET_DNSMASQ
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-dnsmasq.."
     apt install -yq dnsmasq-base
@@ -82,7 +82,7 @@ function __net-dnsmasq_generate_config {
             netmaxip="127.0.0.1"
         fi
         # Additional Listening for Masqueraded Interface
-        if [[ ${RUN_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
+        if [[ ${RUN_NET_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
             local additional_listenaddr additional_netinf additional_dhcprange
             IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
             for((j=0;j<${#MASQROUTES[@]};j++)){
@@ -136,7 +136,7 @@ function __net-dnsmasq_generate_config {
         netminip="127.0.0.1"
         netmaxip="127.0.0.1"
     fi
-    if [[ ${RUN_ANYDNSDQY} -gt 0 ]]; then
+    if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
         upstreamdns="127.0.0.1"
     else
         upstreamdns="${DNS_UPSTREAM}"
@@ -173,7 +173,7 @@ log-dhcp
 EOT
 }
 
-function __net-dnsmasq_uninstall { # UPDATE_FIRMWARE=0
+function __net-dnsmasq_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall net-dnsmasq.."
     pidof dnsmasq | xargs kill -9 2>/dev/null
     echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
@@ -181,7 +181,7 @@ function __net-dnsmasq_uninstall { # UPDATE_FIRMWARE=0
     chmod 444 /etc/resolv.conf
 }
 
-function __net-dnsmasq_disable { # UPDATE_FIRMWARE=0
+function __net-dnsmasq_disable { # RUN_OS_FIRMWARE=0
     pidof dnsmasq | xargs kill -9 2>/dev/null
     echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
     return 0
@@ -192,10 +192,10 @@ function __net-dnsmasq_check { # running_status 0 installed, running_status 5 ca
     log_debug "Starting net-dnsmasq Check"
 
     # check global variable
-    [[ -z ${RUN_DNSMASQ} ]] && \
-        log_info "RUN_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_DNSMASQ} != 1 ]] && \
-        log_info "RUN_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_NET_DNSMASQ} ]] && \
+        log_info "RUN_NET_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_DNSMASQ} != 1 ]] && \
+        log_info "RUN_NET_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq") -lt 1 ]] && \
         log_info "dnsmasq is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -213,7 +213,7 @@ function __net-dnsmasq_run {
     # __bp_trim_whitespace DURE_WLANINF "${DURE_WLANINF}"
 
     # DNSMASQ_DENY_DHCP_WAN
-    if [[ -n ${DURE_WANINF} && $(cat /sys/class/net/${DURE_WANINF}/operstate) == "up" ]]; then # RUN_IPTABLES=1
+    if [[ -n ${DURE_WANINF} && $(cat /sys/class/net/${DURE_WANINF}/operstate) == "up" ]]; then # RUN_NET_IPTABLES=1
         log_debug "dnsmasq deny dhcp service for WAN"
         iptables -S | grep "DMQ_DW1_${DURE_WANINF}" || \
             iptables -t filter -I INPUT -i ${DURE_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${DURE_WANINF} -j DROP
@@ -241,7 +241,7 @@ function __net-dnsmasq_run {
     fi
 
     # Additional Listening for Masqueraded Interface
-    if [[ ${RUN_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
+    if [[ ${RUN_NET_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
         log_debug "dnsmasq accept dhcp for MASQ"
         IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
@@ -292,9 +292,9 @@ function __net-dnsmasq_run {
     pidof dnsmasq | xargs kill -9 2>/dev/null
     dnsmasq -d --conf-file=/etc/dnsmasq.d/dnsmasq.conf &>/var/log/dnsmasq.log &
 
-    # RUN_DNSMASQ=1 DURE_ROLE=client 127.0.0.2:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
-    # RUN_DNSMASQ=1 DURE_ROLE=gateway 192.168.0.1:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
-    if [[ ${RUN_ANYDNSDQY} -gt 0 ]]; then
+    # RUN_NET_DNSMASQ=1 DURE_ROLE=client 127.0.0.2:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
+    # RUN_NET_DNSMASQ=1 DURE_ROLE=gateway 192.168.0.1:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
+    if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
         echo "nameserver 127.0.0.2"|tee /etc/resolv.conf
     else
         echo "nameserver 127.0.0.1"|tee /etc/resolv.conf

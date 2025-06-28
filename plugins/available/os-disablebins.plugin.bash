@@ -1,11 +1,11 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'disable binaries.'
-# C : DISABLE_BIN
 
 function os-disablebins {
     about 'helper function for disable binaries'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-disablebins check/install/uninstall/run'
@@ -44,15 +44,15 @@ function __os-disablebins_blankrep() { # binary file replacement
     local TBIN="${1}"
     local TDIR=$(dirname $(which "${TBIN}"))
     # echo "${TDIR}/${TBIN}"
-    if [[ ${DISABLE_BIN} -gt 0 ]]; then # DISABLE_BIN=1
+    if [[ ${RUN_OS_DISABLEBINS} -gt 0 ]]; then # RUN_OS_DISABLEBINS=1
         [[ ! -f ${TDIR}/${TBIN}___ ]] && pushd "${TDIR}" && mv "${TBIN}" "${TBIN}___" && cp /usr/bin/true "${TBIN}" && popd
-    else # DISABLE_BIN=0
+    else # RUN_OS_DISABLEBINS=0
         [[ -f ${TDIR}/${TBIN}___ ]] && pushd "${TDIR}" && rm -rf "${TBIN}" && mv "${TBIN}___" "${TBIN}" && popd
     fi
 }
 
 function __os-disablebins_install {
-    [[ ${DISABLE_BIN} -gt 0 ]] && log_debug "Trying to install os-disablebins."
+    [[ ${RUN_OS_DISABLEBINS} -gt 0 ]] && log_debug "Trying to install os-disablebins."
     # kernel module blacklist
     cp -rf ./configs/blacklist.conf /etc/modprobe.d/blacklist.conf
     # https://github.com/MikeHorn-git/Kernel-Hardening/blob/main/conf/blacklist.conf
@@ -165,7 +165,7 @@ function __os-disablebins_install {
     __os-disablebins_blankrep /usr/libexec/tracker-miner-rss-3 &>/dev/null # disable file indexing
 }
 
-function __os-disablebins_uninstall { # UPDATE_FIRMWARE=0
+function __os-disablebins_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall os-disablebins."
     __os-disablebins_install
     rm -rf /etc/modprobe.d/blacklist.conf
@@ -174,10 +174,10 @@ function __os-disablebins_uninstall { # UPDATE_FIRMWARE=0
 function __os-disablebins_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
     running_status=0
     log_debug "Starting os-disablebins Check"
-    [[ -z ${DISABLE_BIN} ]] && \
-        log_info "DISABLE_BIN variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${DISABLE_BIN} != 1 ]] && \
-        log_info "DISABLE_BIN is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_DISABLEBINS} ]] && \
+        log_info "RUN_OS_DISABLEBINS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_DISABLEBINS} != 1 ]] && \
+        log_info "RUN_OS_DISABLEBINS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
 
     # check avahi-daemon exists
     [[ $(which avahi-daemon|wc -l) -eq 0 ]] && \

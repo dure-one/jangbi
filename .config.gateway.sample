@@ -17,7 +17,7 @@ DURE_SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXu
 DURE_HOSTNAME="orangepi5-plus"
 
 # network settings
-DISABLE_SYSTEMD=1
+RUN_OS_SYSTEMD=0
 DURE_IFUPDOWN=
 DURE_WANINF=
 ## dhcp or 192.168.5.2(first ip of subnet become gateway)
@@ -38,17 +38,17 @@ DURE_WLAN_PASS="durejangbi"
 DURE_ROLE="gateway"
 
 # network apps
-RUN_KNOCKD=1
-RUN_KNOCKD_STATIC_SSH="12345,54321,24680,13579"
+RUN_NET_KNOCKD=1
+RUN_NET_KNOCKD_STATIC_SSH="12345,54321,24680,13579"
 # > step crypto otp generate --issuer dure.jangbi --account router_hostname --period=300 --length=10 --alg=SHA512 --qr dure.png > dure.totp
-RUN_KNOCKD_WITH_STEPTOTP=1
+RUN_NET_KNOCKD_WITH_STEPTOTP=1
 KNOCKD_TOTPKEY="CIF3R2GPV6TLK4PJ3JZFLBMOCBYXSBP3"
-RUN_SSHD=1
+RUN_NET_SSHD=1
 SSHD_PORT="22"
 SSHD_ADDR="192.168.79.1"
 
 # iptables
-RUN_IPTABLES=1
+RUN_NET_IPTABLES=1
 NFTABLES_OVERRIDE=""
 # net rules
 IPTABLES_BLACK_NAMELIST="https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
@@ -60,9 +60,9 @@ IPTABLES_DMZ=""
 IPTABLES_SUPERDMZ=0
 
 # gateway apps
-RUN_HOSTAPD=1
-RUN_DNSMASQ=1
+RUN_NET_HOSTAPD=1
+RUN_NET_DNSMASQ=1
 DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
-RUN_WSTUNNEL=1
+RUN_NET_WSTUNNEL=1
 RUN_SOCKS5PROXY=1
 

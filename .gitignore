@@ -10,6 +10,7 @@ enabled/*
 jangbi_aide.log
 jangbi.log
 swapfile
+plugins/testing
 
 # pyvenv
 venv

@@ -5,15 +5,16 @@ about-plugin 'netplan install configurations.'
 function net-netplan {
   about 'netplan install configurations'
   group 'net'
-    param '1: command'
-    param '2: params'
-    example '$ net-netplan check/install/uninstall/run'
+  deps  'os-systemd'
+  param '1: command'
+  param '2: params'
+  example '$ net-netplan check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
-        _load_config
-        _root_only
-        _distname_check
-    fi
+  if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+      _load_config
+      _root_only
+      _distname_check
+  fi
 
   if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
     __net-netplan_install "$2"
@@ -51,7 +52,7 @@ function __net-netplan_install {
     __net-netplan_build
 }
 
-function __net-netplan_build { # UPDATE_FIRMWARE=0
+function __net-netplan_build { # RUN_OS_FIRMWARE=0
     # backup exsisting netplan configs
     for f in /etc/netplan/*.yaml; do chmod 600 "$f" && mv "$f" $(echo $f|sed 's/.yaml/.yaml.old/g'); done
 
@@ -359,12 +360,12 @@ EOT
     fi
 }
 
-function __net-netplan_uninstall { # UPDATE_FIRMWARE=0
+function __net-netplan_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall net-netplan."
     apt purge -qy netplan.io
 }
 
-function __net-netplan_disable { # UPDATE_FIRMWARE=0
+function __net-netplan_disable { # RUN_OS_FIRMWARE=0
     return 0
 }
 
@@ -372,13 +373,13 @@ function __net-netplan_check { # running_status 0 installed, running_status 5 ca
     running_status=0
     log_debug "Starting net-netplan Check"
 
-    # DISABLE_SYSTEMD 0 - full systemd, 1 - disable completely, 2 - only journald
-    [[ -z ${DISABLE_SYSTEMD} ]] && \
-        log_info "DISABLE_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${DISABLE_SYSTEMD} == 1 ]] && \
-        log_info "DISABLE_SYSTEMD set to disable completely(DISABLE_SYSTEMD=1)." && [[ $running_status -lt 20 ]] && running_status=20
-    [[ ${DISABLE_SYSTEMD} == 2 ]] && \
-        log_info "DISABLE_SYSTEMD set to only journald(DISABLE_SYSTEMD=2)." && [[ $running_status -lt 20 ]] && running_status=20
+    # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
+    [[ -z ${RUN_OS_SYSTEMD} ]] && \
+        log_info "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_SYSTEMD} == 0 ]] && \
+        log_info "RUN_OS_SYSTEMD set to disable completely(RUN_OS_SYSTEMD=0)." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ ${RUN_OS_SYSTEMD} == 2 ]] && \
+        log_info "RUN_OS_SYSTEMD set to only journald(RUN_OS_SYSTEMD=2)." && [[ $running_status -lt 20 ]] && running_status=20
     # check package netplan
     [[ $(dpkg -l|awk '{print $2}'|grep -c "netplan") -lt 1 ]] && \
         log_info "netplan is not installed." && [[ $running_status -lt 5 ]] && running_status=5

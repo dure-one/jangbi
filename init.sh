@@ -10,14 +10,7 @@ echo ' __ \ \  \ \   __  \ \  \\ \  \ \  \  __\ \   __  \ \  \                  
 echo '|\  \\_\  \ \  \ \  \ \  \\ \  \ \  \|\  \ \  \|\  \ \  \                                 ';
 echo '\ \________\ \__\ \__\ \__\\ \__\ \_______\ \_______\ \__\                                ';
 echo ' \|________|\|__|\|__|\|__| \|__|\|_______|\|_______|\|__|                                ';
-echo ' ________  ________  ________   ________ ___  ________  ___  ___  _______   ________      ';
-echo '|\   ____\|\   __  \|\   ___  \|\  _____\\  \|\   ____\|\  \|\  \|\  ___ \ |\   __  \     ';
-echo '\ \  \___|\ \  \|\  \ \  \\ \  \ \  \__/\ \  \ \  \___|\ \  \\\  \ \   __/|\ \  \|\  \    ';
-echo ' \ \  \    \ \  \\\  \ \  \\ \  \ \   __\\ \  \ \  \  __\ \  \\\  \ \  \_|/_\ \   _  _\   ';
-echo '  \ \  \____\ \  \\\  \ \  \\ \  \ \  \_| \ \  \ \  \|\  \ \  \\\  \ \  \_|\ \ \  \\  \|  ';
-echo '   \ \_______\ \_______\ \__\\ \__\ \__\   \ \__\ \_______\ \_______\ \_______\ \__\\ _\  ';
-echo '    \|_______|\|_______|\|__| \|__|\|__|    \|__|\|_______|\|_______|\|_______|\|__|\|__| ';
-echo '                                                                  https://dure.one/jangbi  ';
+echo '                                   https://dure.one/jangbi  ';
 echo -e '                                                       ' "${NORMAL}"
 
 # setup slog
@@ -41,6 +34,8 @@ fi
     log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
 log_debug "Printing Loaded Configs..."
+_disable-thing "plugins" "plugin" "all" # disable all plugins for apply configs
+prenet=() postnet=()
 DURE_VARS=($(printf "%s\n" "${DURE_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^DURE_VARS")
 IFS=$'\n' read -d "" -ra lvars <<< "${loaded_vars}" # split
@@ -48,14 +43,17 @@ for((j=0;j<${#DURE_VARS[@]};j++)){
     for((k=0;k<${#lvars[@]};k++)){
         if [[ ${lvars[k]} == *"${DURE_VARS[j]}"* ]]; then
             log_debug "${lvars[k]}"
+            if [[ (${DURE_VARS[j]} == "RUN_NET"* || ${DURE_VARS[j]} == "RUN_OS"*) && ${lvars[k]} == *"=1" ]]; then
+                load_plugin=${DURE_VARS[j]##RUN_}
+                load_plugin=${load_plugin,,}
+                load_plugin=${load_plugin//_/-}
+                _enable-thing "plugins" "plugin" "${load_plugin}" "250" # enable which is set 1 on config
+            fi
             break
         fi
     }
 }
 log_debug "=========================="
-
-# set plugins enabled with loaded config : TODO
-jangbi-it enable plugin all &>/dev/null
 
 if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then
     if [[ $(grep -c "DURE_INIT_SCRIPT" < "/etc/rc.local") -lt 1 ]]; then
@@ -105,7 +103,7 @@ process_each_step() {
 }
 
 log_debug "Starting tasks."
-processes=("os-sysctl" "os-firmware" "os-kparams" "os-repository" "os-systemd" "os-disablebins" "os-conf" "os-auditd" "os-crond" "os-aide")
+processes=("os-sysctl" "os-kparams" "os-repos" "os-systemd" "os-disablebins" "os-conf" "os-auditd" "os-crond" "os-aide")
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
@@ -122,13 +120,13 @@ else # enable ipv6
     sysctl -w net.ipv6.conf.default.disable_ipv6=0 &>/dev/null
 fi
 
-if [[ ${DISABLE_SYSTEMD} -gt 0 ]]; then # case 1,2 disable completely, only journald
+if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     processes=("net-ifupdown")
 else # case 0 full systemd
     processes=("net-netplan")
 fi
 
-processes+=("net-iptables" "net-knockd" "net-anydnsdqy" "net-dnsmasq" "net-hostapd" "net-sshd" "net-darkstat") # misc-step os-falco os-sysdig # todo
+processes+=("net-iptables" "net-knockd" "net-dnsmasq" "net-hostapd" "net-sshd" "net-darkstat") # misc-step os-falco os-sysdig # todo
 for (( n=0; n<${#processes[@]}; n++ )); do
     process_each_step "${processes[n]}" "$(expr $n + 1)/${#processes[@]}"
 done
@@ -149,6 +147,6 @@ fi
 # echo "1" > /proc/sys/net/ipv4/ip_forward
 
 # disable offline repository
-#if [[ ${OFFLINE_REPOSITORY} -gt 0 ]]; then
+#if [[ ${RUN_OS_REPOS} -gt 0 ]]; then
 #    umount /opt/jangbi/imgs/debian
 #fi

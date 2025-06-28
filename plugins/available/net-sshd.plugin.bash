@@ -1,11 +1,11 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'sshd install configurations.'
-# C : OSLOCAL_SETTING, DURE_SWAPSIZE, DURE_DEPLOY_PATH
 
 function net-sshd {
     about 'sshd install configurations'
-    group 'net'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ net-sshd check/install/uninstall/run'
@@ -66,13 +66,13 @@ function __net-sshd_install {
     fi
 }
 
-function __net-sshd_uninstall { # UPDATE_FIRMWARE=0
+function __net-sshd_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall net-sshd."
     systemctl stop ssh
     systemctl disable ssh
 }
 
-function __net-sshd_disable { # UPDATE_FIRMWARE=0
+function __net-sshd_disable { # RUN_OS_FIRMWARE=0
     systemctl stop ssh
     systemctl disable ssh
     return 0
@@ -83,10 +83,10 @@ function __net-sshd_check { # running_status 0 installed, running_status 5 can i
     log_debug "Starting net-sshd Check"
 
     # check global variable
-    [[ -z ${RUN_SSHD} ]] && \
-        log_info "RUN_SSHD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_SSHD} != 1 ]] && \
-        log_info "RUN_SSHD is not enabled." && __net-sshd_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_NET_SSHD} ]] && \
+        log_info "RUN_NET_SSHD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_SSHD} != 1 ]] && \
+        log_info "RUN_NET_SSHD is not enabled." && __net-sshd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "openssh-server") -lt 1 ]] && \
         log_info "openssh-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5

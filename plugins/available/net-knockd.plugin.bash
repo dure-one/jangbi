@@ -4,7 +4,8 @@ about-plugin 'knockd install configurations.'
 
 function net-knockd {
     about 'knockd install configurations'
-    group 'net'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ net-knockd check/install/uninstall/run'
@@ -55,14 +56,14 @@ function __net-knockd_install {
 rm /tmp/mycron
 }
 
-function __net-knockd_uninstall { # UPDATE_FIRMWARE=0
+function __net-knockd_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall net-knockd."
     rm /sbin/knock_otp_regen.sh 2>/dev/null
     systemctl stop knockd
     systemctl disable knockd
 }
 
-function __net-knockd_disable { # UPDATE_FIRMWARE=0
+function __net-knockd_disable { # RUN_OS_FIRMWARE=0
     systemctl stop knockd
     systemctl disable knockd
     return 0
@@ -73,10 +74,10 @@ function __net-knockd_check { ## running_status 0 installed, running_status 5 ca
     log_debug "Starting net-knockd Check"
     
     # check global variable
-    [[ -z ${RUN_KNOCKD} ]] && \
-        log_info "RUN_KNOCKD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_KNOCKD} != 1 ]] && \
-        log_info "RUN_KNOCKD is not enabled." && __net-knockd_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_NET_KNOCKD} ]] && \
+        log_info "RUN_NET_KNOCKD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_KNOCKD} != 1 ]] && \
+        log_info "RUN_NET_KNOCKD is not enabled." && __net-knockd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package knockd
     [[ $(dpkg -l|awk '{print $2}'|grep -c "knockd") -lt 1 ]] && \
         log_info "knockd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

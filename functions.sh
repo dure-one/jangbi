@@ -52,7 +52,7 @@ _get_author_name ()
 
 _composure_keywords ()
 {
-  echo "about author example group param version"
+  echo "about author example group param version deps"
 }
 
 _letterpress ()
@@ -642,7 +642,7 @@ echo_reset_color="\033[39m"
 ### end of colors.bash
 
 # support 'plumbing' metadata
-cite _about _param _example _group _author _version
+cite _about _param _example _group _author _version _deps
 cite about-alias about-plugin about-completion
 
 # Declare our end-of-main finishing hook, but don't use `declare`/`typeset`

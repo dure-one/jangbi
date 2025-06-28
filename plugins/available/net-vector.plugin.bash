@@ -1,0 +1,92 @@
+# shellcheck shell=bash
+cite about-plugin
+about-plugin 'vector install configurations.'
+
+function net-vector {
+    about 'vector install configurations'
+    group 'postnet'
+    deps  ''
+    param '1: command'
+    param '2: params'
+    example '$ net-vector check/install/uninstall/run'
+
+    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+        _load_config
+        _root_only
+        _distname_check
+    fi
+
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-vector_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-vector_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-vector_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-vector_run "$2"
+    else
+        __net-vector_help
+    fi
+}
+
+function __net-vector_help {
+    echo -e "Usage: net-vector [COMMAND] [profile]\n"
+    echo -e "Helper to vector install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help      Show this help message"
+    echo "   install   Install os firmware"
+    echo "   uninstall Uninstall installed firmware"
+    echo "   check     Check vars available"
+    echo "   run       Run tasks"
+}
+
+function __net-vector_install {
+    export DEBIAN_FRONTEND=noninteractive
+    WLANINF=${DURE_WLANINF}
+    # WLANIP="${DURE_WLAN}"
+    # WLANIP=$(ipcalc-ng "${DURE_WLAN}"|grep Address:|cut -f2)
+    # WLANMINIP=$(ipcalc-ng "${DURE_WLAN}"|grep HostMin:|cut -f2)
+    # WLANMAXIP=$(ipcalc-ng "${DURE_WLAN}"|grep HostMax:|cut -f2)
+
+    apt install -yq vector
+    mkdir -p /etc/vector
+    cp -rf ./configs/vector.conf.default /etc/vector/
+   
+}
+
+function __net-vector_uninstall { # RUN_OS_FIRMWARE=0
+    pidof vector | xargs kill -9 2>/dev/null
+    apt purge -qy vector
+}
+
+function __net-vector_disabled { # RUN_OS_FIRMWARE=0
+    pidof vector | xargs kill -9 2>/dev/null
+    return 0
+}
+
+function __net-vector_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+    running_status=0
+    log_debug "Starting net-vector Check"
+
+    # check global variable
+    [[ -z ${RUN_NET_VECTOR} ]] && \
+        log_info "RUN_NET_VECTOR variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_VECTOR} != 1 ]] && \
+        log_info "RUN_NET_VECTOR is not enabled." && __net-vector_disabled && [[ $running_status -lt 20 ]] && running_status=20
+    # check package installed
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "vector") -lt 1 ]] && \
+        log_info "vector is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof vector) -lt 1 ]] && \
+        log_info "vector is running." && [[ $running_status -lt 0 ]] && running_status=0
+
+    return 0
+}
+
+function __net-vector_run {
+    pidof vector | xargs kill -9 2>/dev/null
+    vector /etc/vector/vector.conf &>>/var/log/vector.log &
+    pidof vector && return 0 || return 1
+}
+
+complete -F __net-vector_run net-vector

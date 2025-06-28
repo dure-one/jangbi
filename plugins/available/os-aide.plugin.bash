@@ -1,11 +1,11 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'aide install configurations.'
-# VARS
 
 function os-aide {
     about 'aide install configurations'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-aide check/install/uninstall/run'
@@ -53,7 +53,7 @@ function __os-aide_install {
     log_debug "aide db is generating on background."
 }
 
-function __os-aide_uninstall { # UPDATE_FIRMWARE=0
+function __os-aide_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall os-aide."
     apt purge -yq aide
 }
@@ -63,10 +63,10 @@ function __os-aide_check { # running_status 0 installed, running_status 5 can in
     log_debug "Starting os-aide Check"
 
     # check global variable
-    [[ -z ${RUN_AIDE} ]] && \
-        log_info "RUN_AIDE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_AIDE} != 1 ]] && \
-        log_info "RUN_AIDE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_AIDE} ]] && \
+        log_info "RUN_OS_AIDE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_AIDE} != 1 ]] && \
+        log_info "RUN_OS_AIDE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check package aide
     [[ $(dpkg -l|awk '{print $2}'|grep -c "aide") -lt 1 ]] && \
         log_info "aide is not installed." && [[ $running_status -lt 5 ]] && running_status=5

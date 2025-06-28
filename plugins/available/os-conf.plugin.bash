@@ -4,7 +4,8 @@ about-plugin 'custom os configurations'
 
 function os-conf {
     about 'helper function for os configuration'
-    group 'os'
+    group 'prenet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-conf check/install/uninstall/run'
@@ -78,7 +79,7 @@ function __os-conf_install {
     fi
 }
 
-function __os-conf_uninstall { # UPDATE_FIRMWARE=0
+function __os-conf_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall os-conf."
     # remove swapfile
     swapoff -a
@@ -89,7 +90,7 @@ function __os-conf_uninstall { # UPDATE_FIRMWARE=0
     sudo rm -f /etc/sudoers.d/timeout
 }
 
-function __os-conf_disable { # UPDATE_FIRMWARE=0
+function __os-conf_disable { # RUN_OS_FIRMWARE=0
     # remove swapfile
     swapoff -a
     return 0

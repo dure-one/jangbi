@@ -1,11 +1,11 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'redis install configurations.'
-# C : OSLOCAL_SETTING, DURE_SWAPSIZE, DURE_DEPLOY_PATH
 
 function os-redis {
     about 'redis install configurations'
-    group 'os'
+    group 'postnet'
+    deps  ''
     param '1: command'
     param '2: params'
     example '$ os-redis check/install/uninstall/run'
@@ -54,13 +54,13 @@ function __os-redis_install {
     systemctl enable redis-server
 }
 
-function __os-redis_uninstall { # UPDATE_FIRMWARE=0
+function __os-redis_uninstall { # RUN_OS_FIRMWARE=0
     log_debug "Trying to uninstall os-redis."
     systemctl stop redis-server
     systemctl disable redis-server
 }
 
-function __os-redis_disable { # UPDATE_FIRMWARE=0
+function __os-redis_disable { # RUN_OS_FIRMWARE=0
     systemctl stop redis-server
     systemctl disable redis-server
     return 0
@@ -71,10 +71,10 @@ function __os-redis_check { # check config, installation
     log_debug "Starting os-redis Check"
 
     # check global variable
-    [[ -z ${RUN_REDIS} ]] && \
-        log_info "RUN_REDIS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_REDIS} != 1 ]] && \
-        log_info "RUN_REDIS is not enabled." && __os-redis_disable && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_REDIS} ]] && \
+        log_info "RUN_OS_REDIS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_REDIS} != 1 ]] && \
+        log_info "RUN_OS_REDIS is not enabled." && __os-redis_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "redis-server") -lt 1 ]] && \
         log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
