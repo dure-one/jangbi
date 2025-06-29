@@ -1,0 +1,10 @@
+
+[[actions]]
+name = "Log error"
+type = "Log"
+level = "Error"
+template = """{{check_name}} check didn't have valid data for alarm '{{alarm_name}}' and id '{{alarm_id}}': {{check_error}}."""
+
+[log]
+level = "Info" # Info|Debug|Warning|Error
+target = "Stdout" # Stdout|Stderr|Journal

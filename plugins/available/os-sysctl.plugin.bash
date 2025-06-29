@@ -5,12 +5,13 @@ about-plugin 'sysctl install configurations.'
 function os-sysctl {
     about 'sysctl install configurations'
     group 'prenet'
+    runtype 'none'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-sysctl check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -47,12 +48,12 @@ function __os-sysctl_install {
     chmod 400 /etc/sysctl.orig
 }
 
-function __os-sysctl_uninstall { # RUN_OS_FIRMWARE=0
+function __os-sysctl_uninstall { 
     log_debug "Trying to uninstall sysctl_install."
     sysctl -e -p /etc/sysctl.orig &>/dev/null
 }
 
-function __os-sysctl_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+function __os-sysctl_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-sysctl Check"
     [[ -z ${RUN_OS_SYSCTL} ]] && \
@@ -72,11 +73,11 @@ function __os-sysctl_run {
 
     if [[ $(sysctl kernel.printk|wc -l) -gt 0 ]]; then
         # sysctl hardening
-        sysctl -e -p ./configs/98-mikehoen-sysctl.conf &>/dev/null
-        sysctl -e -p ./configs/98-imthenachoman-sysctl.conf &>/dev/null
-        sysctl -e -p ./configs/98-2dure-sysctl.conf &>/dev/null
-        sysctl -e -p ./configs/99-disable-coredump.conf &>/dev/null
-        sysctl -e -p ./configs/99-disable-maxusernamespaces.conf &>/dev/null
+        sysctl -e -p ./configs/sysctl/98-mikehoen-sysctl.conf &>/dev/null
+        sysctl -e -p ./configs/sysctl/98-imthenachoman-sysctl.conf &>/dev/null
+        sysctl -e -p ./configs/sysctl/98-2dure-sysctl.conf &>/dev/null
+        sysctl -e -p ./configs/sysctl/99-disable-coredump.conf &>/dev/null
+        sysctl -e -p ./configs/sysctl/99-disable-maxusernamespaces.conf &>/dev/null
     fi
 
     [[ $(sysctl kernel.panic|awk '{print $3}') == '10' ]]

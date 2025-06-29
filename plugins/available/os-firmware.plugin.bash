@@ -5,12 +5,13 @@ about-plugin 'custom os firmware install in kernel.'
 function os-firmware {
     about 'helper function for os firmware update'
     group 'prenet'
+    runtype 'none'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-firmware check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -41,10 +42,10 @@ function __os-firmware_help {
 }
 
 function __os-firmware_install {
-    local RUN_OS_FIRMWARE_file
-    RUN_OS_FIRMWARE_file="./pkgs/$(basename "${RUN_OS_FIRMWARE}")"
+    local firmware_file
+    firmware_file="./pkgs/$(basename "${FIRMWARE_URL}")"
     log_debug "Trying to install os-firmware."
-    if [[ -f ${RUN_OS_FIRMWARE_file} ]]; then
+    if [[ -f ${firmware_file} ]]; then
         if [[ ! -f ".firmware_original.tar.gz" ]]; then
             log_debug "Starting to backup firware from system"
             # backup original firmware from system
@@ -58,16 +59,16 @@ function __os-firmware_install {
         fi
         # unzip new firmware
         # unzip -d "/lib/firmware" "${RUN_OS_FIRMWARE_file}" && f=("/lib/firmware"/*) && cp -rf "/lib/firmware"/*/* "/lib/firmware" && rm -rf "${f[@]}"
-        tar xfv "${RUN_OS_FIRMWARE_file}" -C /lib/firmware --strip-components=1
+        tar xfv "${firmware_file}" -C /lib/firmware --strip-components=1
         log_debug "new firmware file unzip to /lib/firmware."
         systemctl restart systemd-modules-load.service # reload kernel modules
         log_debug "new firmware has loaded."
         # save installed firmware file size
-        find "${RUN_OS_FIRMWARE_file}" -printf "%s\n" > /lib/firmware/.last_firmware_updated.size
+        find "${firmware_file}" -printf "%s\n" > /lib/firmware/.last_firmware_updated.size
     fi
 }
 
-function __os-firmware_uninstall { # RUN_OS_FIRMWARE=0
+function __os-firmware_uninstall { 
     log_debug "Trying to uninstall os-firmware."
     sha256sum -c ".firmware_original.sha256"
     # [[ $(du -s /lib/firmware| cut -f1) -ne $(cat .firmware_updated.size|cut -f1) ]] && echo "/lib/firmware folder has changed since last firmware installed. please retry with --force argument." && update_proceed=0
@@ -77,14 +78,16 @@ function __os-firmware_uninstall { # RUN_OS_FIRMWARE=0
     echo "firmware reloaded."
 }
 
-function __os-firmware_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
+function __os-firmware_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-firmware Check"
 
     # check global variable
     [[ -z ${RUN_OS_FIRMWARE} ]] && \
         log_info "RUN_OS_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${#RUN_OS_FIRMWARE[@]} -lt 1 ]] && \
+    [[ -z ${FIRMWARE_URL} ]] && \
+        log_info "FIRMWARE_URL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_FIRMWARE} != 1 ]] && \
         log_info "RUN_OS_FIRMWARE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check new firmware file exists
     [[ ! -f ./pkgs/$(basename "${RUN_OS_FIRMWARE}") ]] && \
@@ -97,7 +100,7 @@ function __os-firmware_check { # running_status 0 installed, running_status 5 ca
     # compare /lib/firmware with RUN_OS_FIRMWARE size
     local exists_size new_size
     exists_size=$( ( cut -f1 < /lib/firmware/.last_firmware_updated.size ) 2>/dev/null || echo 0)
-    new_size=$(find "./pkgs/$(basename "${RUN_OS_FIRMWARE}")" -printf "%s\n" || echo 0)
+    new_size=$(find "./pkgs/$(basename "${FIRMWARE_URL}")" -printf "%s\n" || echo 0)
     [[ $(( "${new_size}" - "${exists_size}" )) != 0 ]] &&
         log_info "new firmware size is different with pre-installed firmware." && running_status=5
 

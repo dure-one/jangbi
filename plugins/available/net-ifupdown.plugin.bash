@@ -5,12 +5,13 @@ about-plugin 'network configurations.'
 function net-ifupdown {
     about 'network configurations'
     group 'net'
+    runtype 'systemd'
     deps  'os-systemd'
     param '1: command'
     param '2: params'
     example '$ net-ifupdown check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -46,13 +47,14 @@ function __net-ifupdown_install {
     mkdir -p /etc/network/default
     mv /etc/network/* /etc/network/default 2>/dev/null
     mkdir -p /etc/network/if-post-down.d /etc/network/if-pre-up.d /etc/network/if-up.d /etc/network/if-down.d
+    log_debug "JB_DEPLOY_PATH : ${JB_DEPLOY_PATH}"
     __net-ifupdown_generate
 }
 
 function __net-ifupdown_generate {
-    if [[ -n ${DURE_IFUPDOWN} ]];then # custom interfaces exists
-        log_debug "Generating /etc/network/interfaces from DURE_IFUPDOWN config."
-        echo "${DURE_IFUPDOWN}" > /etc/network/interfaces
+    if [[ -n ${JB_IFUPDOWN} ]];then # custom interfaces exists
+        log_debug "Generating /etc/network/interfaces from JB_IFUPDOWN config."
+        echo "${JB_IFUPDOWN}" > /etc/network/interfaces
         chmod 600 /etc/network/interfaces 2>&1 1>/dev/null
     else # custom interfaces not exists
         log_debug "Generating /etc/network/interfaces from config."
@@ -60,8 +62,8 @@ function __net-ifupdown_generate {
 auto lo
 iface lo inet loopback
 EOT
-        log_debug "waninf=${DURE_WANINF} laninf=${DURE_LANINF} wlaninf=${DURE_WLANINF}"
-        local waninf=${DURE_WANINF} laninf=${DURE_LANINF} wlaninf=${DURE_WLANINF}
+        log_debug "waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}"
+        local waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}
         # generate netplan based netinf
         if [[ -z ${waninf} && -z ${laninf} && -z ${wlaninf} ]]; then
             log_debug "Starting to select wan, lan, wlan interfaces..."
@@ -79,14 +81,15 @@ EOT
                     [[ ! ${wlaninf} && ${dure_infs[j]} != ${laninf} && ${dure_infs[j]} != ${waninf} ]] && wlaninf=${dure_infs[j]} && continue
                 fi
             }
-            sed -i "s|DURE_WANINF=.*|DURE_WANINF=${waninf}|g" "${DURE_DEPLOY_PATH}/.config"
-            [[ -z ${DURE_WAN} ]] && sed -i "s|DURE_WAN=.*|DURE_WAN=\"dhcp\"|g" "${DURE_DEPLOY_PATH}/.config"
-            sed -i "s|DURE_LANINF=.*|DURE_LANINF=${laninf}|g" "${DURE_DEPLOY_PATH}/.config"
-            [[ -z ${DURE_LAN} ]] && sed -i "s|DURE_LAN=.*|DURE_LAN=\"192.168.1.1/24\"|g" "${DURE_DEPLOY_PATH}/.config"
-            sed -i "s|DURE_WLANINF=.*|DURE_WLANINF=${wlaninf}|g" "${DURE_DEPLOY_PATH}/.config"
-            [[ -z ${DURE_WLAN} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"192.168.100.1/24\"|g" "${DURE_DEPLOY_PATH}/.config"
-            [[ -z ${DURE_WLAN_SSID} ]] && sed -i "s|DURE_WLAN_SSID=.*|DURE_WLAN_SSID=\"durejangbi\"|g" "${DURE_DEPLOY_PATH}/.config"
-            [[ -z ${DURE_WLAN_PASS} ]] && sed -i "s|DURE_WLAN=.*|DURE_WLAN=\"durejangbi\"|g" "${DURE_DEPLOY_PATH}/.config"
+            log_debug "Writing selected interface WAN:${waninf} LAN:${laninf} WLAN:${wlaninf} to .config..."
+            sed -i "s|JB_WANINF=.*|JB_WANINF=${waninf}|g" "${JB_DEPLOY_PATH}/.config"
+            [[ -z ${JB_WAN} ]] && sed -i "s|JB_WAN=.*|JB_WAN=\"dhcp\"|g" "${JB_DEPLOY_PATH}/.config"
+            sed -i "s|JB_LANINF=.*|JB_LANINF=${laninf}|g" "${JB_DEPLOY_PATH}/.config"
+            [[ -z ${JB_LAN} ]] && sed -i "s|JB_LAN=.*|JB_LAN=\"192.168.1.1/24\"|g" "${JB_DEPLOY_PATH}/.config"
+            sed -i "s|JB_WLANINF=.*|JB_WLANINF=${wlaninf}|g" "${JB_DEPLOY_PATH}/.config"
+            [[ -z ${JB_WLAN} ]] && sed -i "s|JB_WLAN=.*|JB_WLAN=\"192.168.100.1/24\"|g" "${JB_DEPLOY_PATH}/.config"
+            [[ -z ${JB_WLAN_SSID} ]] && sed -i "s|JB_WLAN_SSID=.*|JB_WLAN_SSID=\"durejangbi\"|g" "${JB_DEPLOY_PATH}/.config"
+            [[ -z ${JB_WLAN_PASS} ]] && sed -i "s|JB_WLAN=.*|JB_WLAN=\"durejangbi\"|g" "${JB_DEPLOY_PATH}/.config"
         fi
 
         dure_infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
@@ -95,59 +98,59 @@ EOT
             operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
             [[ ${operstate} == "down" ]] && continue # iface ${dure_infs[j]} inet manual
 
-            if [[ ${dure_infs[j]} = "${waninf}" ]]; then # match DURE_WANINF
-                # DURE_WANINF="enp4s0"
-                # DURE_WAN="192.168.56.2/24" # or DHCP
-                # DURE_WANGW="192.168.56.1" # or blank
-                if [[ ${DURE_WAN,,} = "dhcp" || ${DURE_WAN} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${waninf}" ]]; then # match JB_WANINF
+                # JB_WANINF="enp4s0"
+                # JB_WAN="192.168.56.2/24" # or DHCP
+                # JB_WANGW="192.168.56.1" # or blank
+                if [[ ${JB_WAN,,} = "dhcp" || ${JB_WAN} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${waninf}
 iface ${waninf} inet dhcp
 EOT
                 else
-                    # WANNET=$(ipcalc-ng ${DURE_WAN}|grep Network:|cut -f2)
-                    # WANIP=$(ipcalc-ng ${DURE_WAN}|grep Address:|cut -f2)
-                    if [[ ! ${DURE_WANGW} ]]; then
-                        WANGW=$(ipcalc-ng ${DURE_WAN}|grep HostMin:|cut -f2)
+                    # WANNET=$(ipcalc-ng ${JB_WAN}|grep Network:|cut -f2)
+                    # WANIP=$(ipcalc-ng ${JB_WAN}|grep Address:|cut -f2)
+                    if [[ ! ${JB_WANGW} ]]; then
+                        WANGW=$(ipcalc-ng ${JB_WAN}|grep HostMin:|cut -f2)
                     else
-                        WANGW=${DURE_WANGW}
+                        WANGW=${JB_WANGW}
                     fi
-                    # WANSUBNET=$(ipcalc-ng ${DURE_WAN}|grep Netmask:|cut -f2|cut -d ' ' -f1)
-                    # WANMINIP=$(ipcalc-ng ${DURE_WAN}|grep HostMin:|cut -f2)
-                    # WANMAXIP=$(ipcalc-ng ${DURE_WAN}|grep HostMax:|cut -f2)
+                    # WANSUBNET=$(ipcalc-ng ${JB_WAN}|grep Netmask:|cut -f2|cut -d ' ' -f1)
+                    # WANMINIP=$(ipcalc-ng ${JB_WAN}|grep HostMin:|cut -f2)
+                    # WANMAXIP=$(ipcalc-ng ${JB_WAN}|grep HostMax:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${waninf}
 iface ${waninf} inet static
-address ${DURE_WAN}
+address ${JB_WAN}
 gateway ${WANGW}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${laninf}" ]]; then # match DURE_LANINF
-                # DURE_LANINF="enp4s0"
-                # DURE_LAN="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN,,} = "dhcp" || ${DURE_LAN} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${laninf}" ]]; then # match JB_LANINF
+                # JB_LANINF="enp4s0"
+                # JB_LAN="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN,,} = "dhcp" || ${JB_LAN} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${laninf}
 iface ${laninf} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN}|grep Address:|cut -f2)
-                    if [[ ! ${DURE_LANGW} ]]; then
-                        LANGW=$(ipcalc-ng ${DURE_LAN}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN}|grep Address:|cut -f2)
+                    if [[ ! ${JB_LANGW} ]]; then
+                        LANGW=$(ipcalc-ng ${JB_LAN}|grep HostMin:|cut -f2)
                         tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${laninf}
 iface ${laninf} inet static
-    address ${DURE_LAN}
+    address ${JB_LAN}
 EOT
                     else
-                        LANGW=${DURE_LANGW}
+                        LANGW=${JB_LANGW}
                         tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${laninf}
 iface ${laninf} inet static
-address ${DURE_LAN}
+address ${JB_LAN}
 gateway ${LANGW}
 EOT
                     fi
@@ -155,204 +158,204 @@ EOT
                 continue
             fi
             #
-            # searching & match DURE_LAN0INF ~ DURE_LAN9INF
+            # searching & match JB_LAN0INF ~ JB_LAN9INF
             #
-            if [[ ${dure_infs[j]} = "${DURE_LAN0INF}" ]]; then # match DURE_LAN0INF
-                # DURE_LAN0INF="enp4s0"
-                # DURE_LAN0="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN0,,} = "dhcp" || ${DURE_LAN0} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN0INF}" ]]; then # match JB_LAN0INF
+                # JB_LAN0INF="enp4s0"
+                # JB_LAN0="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN0,,} = "dhcp" || ${JB_LAN0} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN0INF}
-iface ${DURE_LAN0INF} inet dhcp
+auto ${JB_LAN0INF}
+iface ${JB_LAN0INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN0}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN0}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN0}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN0}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN0}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN0}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN0INF}
-iface ${DURE_LAN0INF} inet static
-    address ${DURE_LAN0}
+auto ${JB_LAN0INF}
+iface ${JB_LAN0INF} inet static
+    address ${JB_LAN0}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN1INF}" ]]; then # match DURE_LAN1INF
-                # DURE_LAN1INF="enp4s0"
-                # DURE_LAN1="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN1,,} = "dhcp" || ${DURE_LAN1} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN1INF}" ]]; then # match JB_LAN1INF
+                # JB_LAN1INF="enp4s0"
+                # JB_LAN1="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN1,,} = "dhcp" || ${JB_LAN1} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN1INF}
-iface ${DURE_LAN1INF} inet dhcp
+auto ${JB_LAN1INF}
+iface ${JB_LAN1INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN1}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN1}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN1}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN1INF}
-iface ${DURE_LAN1INF} inet static
-    address ${DURE_LAN1}
+auto ${JB_LAN1INF}
+iface ${JB_LAN1INF} inet static
+    address ${JB_LAN1}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN2INF}" ]]; then # match DURE_LAN2INF
-                # DURE_LAN2INF="enp4s0"
-                # DURE_LAN2="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN2,,} = "dhcp" || ${DURE_LAN2} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN2INF}" ]]; then # match JB_LAN2INF
+                # JB_LAN2INF="enp4s0"
+                # JB_LAN2="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN2,,} = "dhcp" || ${JB_LAN2} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN2INF}
-iface ${DURE_LAN2INF} inet dhcp
+auto ${JB_LAN2INF}
+iface ${JB_LAN2INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN2}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN2}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN2}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN2}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN2}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN2}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN2INF}
-iface ${DURE_LAN2INF} inet static
-    address ${DURE_LAN2}
+auto ${JB_LAN2INF}
+iface ${JB_LAN2INF} inet static
+    address ${JB_LAN2}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN3INF}" ]]; then # match DURE_LAN3INF
-                # DURE_LAN3INF="enp4s0"
-                # DURE_LAN3="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN3,,} = "dhcp" || ${DURE_LAN3} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN3INF}" ]]; then # match JB_LAN3INF
+                # JB_LAN3INF="enp4s0"
+                # JB_LAN3="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN3,,} = "dhcp" || ${JB_LAN3} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN3INF}
-iface ${DURE_LAN3INF} inet dhcp
+auto ${JB_LAN3INF}
+iface ${JB_LAN3INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN3}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN3}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN3}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN3}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN3}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN3}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN3INF}
-iface ${DURE_LAN3INF} inet static
-    address ${DURE_LAN3}
+auto ${JB_LAN3INF}
+iface ${JB_LAN3INF} inet static
+    address ${JB_LAN3}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN4INF}" ]]; then # match DURE_LAN4INF
-                # DURE_LAN4INF="enp4s0"
-                # DURE_LAN4="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN4,,} = "dhcp" || ${DURE_LAN4} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN4INF}" ]]; then # match JB_LAN4INF
+                # JB_LAN4INF="enp4s0"
+                # JB_LAN4="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN4,,} = "dhcp" || ${JB_LAN4} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN4INF}
-iface ${DURE_LAN4INF} inet dhcp
+auto ${JB_LAN4INF}
+iface ${JB_LAN4INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN4}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN4}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN4}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN4}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN4}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN4}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN4INF}
-iface ${DURE_LAN4INF} inet static
-    address ${DURE_LAN4}
+auto ${JB_LAN4INF}
+iface ${JB_LAN4INF} inet static
+    address ${JB_LAN4}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN5INF}" ]]; then # match DURE_LAN5INF
-                # DURE_LAN5INF="enp4s0"
-                # DURE_LAN5="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN5,,} = "dhcp" || ${DURE_LAN5} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN5INF}" ]]; then # match JB_LAN5INF
+                # JB_LAN5INF="enp4s0"
+                # JB_LAN5="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN5,,} = "dhcp" || ${JB_LAN5} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN5INF}
-iface ${DURE_LAN5INF} inet dhcp
+auto ${JB_LAN5INF}
+iface ${JB_LAN5INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN5}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN5}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN5}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN5}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN5}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN5}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN5INF}
-iface ${DURE_LAN5INF} inet static
-    address ${DURE_LAN5}
+auto ${JB_LAN5INF}
+iface ${JB_LAN5INF} inet static
+    address ${JB_LAN5}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN6INF}" ]]; then # match DURE_LAN6INF
-                # DURE_LAN6INF="enp4s0"
-                # DURE_LAN6="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN6,,} = "dhcp" || ${DURE_LAN6} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN6INF}" ]]; then # match JB_LAN6INF
+                # JB_LAN6INF="enp4s0"
+                # JB_LAN6="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN6,,} = "dhcp" || ${JB_LAN6} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN6INF}
-iface ${DURE_LAN6INF} inet dhcp
+auto ${JB_LAN6INF}
+iface ${JB_LAN6INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN6}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN6}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN6}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN6}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN6}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN6}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN6INF}
-iface ${DURE_LAN6INF} inet static
-    address ${DURE_LAN6}
+auto ${JB_LAN6INF}
+iface ${JB_LAN6INF} inet static
+    address ${JB_LAN6}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN7INF}" ]]; then # match DURE_LAN7INF
-                # DURE_LAN7INF="enp4s0"
-                # DURE_LAN7="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN7,,} = "dhcp" || ${DURE_LAN7} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN7INF}" ]]; then # match JB_LAN7INF
+                # JB_LAN7INF="enp4s0"
+                # JB_LAN7="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN7,,} = "dhcp" || ${JB_LAN7} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN7INF}
-iface ${DURE_LAN7INF} inet dhcp
+auto ${JB_LAN7INF}
+iface ${JB_LAN7INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN1}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN1}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN1}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN7INF}
-iface ${DURE_LAN7INF} inet static
-    address ${DURE_LAN7}
+auto ${JB_LAN7INF}
+iface ${JB_LAN7INF} inet static
+    address ${JB_LAN7}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN8INF}" ]]; then # match DURE_LAN8INF
-                # DURE_LAN8INF="enp4s0"
-                # DURE_LAN8="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN8,,} = "dhcp" || ${DURE_LAN8} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN8INF}" ]]; then # match JB_LAN8INF
+                # JB_LAN8INF="enp4s0"
+                # JB_LAN8="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN8,,} = "dhcp" || ${JB_LAN8} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN8INF}
-iface ${DURE_LAN8INF} inet dhcp
+auto ${JB_LAN8INF}
+iface ${JB_LAN8INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN1}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN1}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN1}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN8INF}
-iface ${DURE_LAN8INF} inet static
-    address ${DURE_LAN8}
+auto ${JB_LAN8INF}
+iface ${JB_LAN8INF} inet static
+    address ${JB_LAN8}
 EOT
                 fi
                 continue
             fi
-            if [[ ${dure_infs[j]} = "${DURE_LAN9INF}" ]]; then # match DURE_LAN9INF
-                # DURE_LAN9INF="enp4s0"
-                # DURE_LAN9="192.168.57.2/24" # or DHCP
-                if [[ ${DURE_LAN9,,} = "dhcp" || ${DURE_LAN9} = "" ]]; then
+            if [[ ${dure_infs[j]} = "${JB_LAN9INF}" ]]; then # match JB_LAN9INF
+                # JB_LAN9INF="enp4s0"
+                # JB_LAN9="192.168.57.2/24" # or DHCP
+                if [[ ${JB_LAN9,,} = "dhcp" || ${JB_LAN9} = "" ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN9INF}
-iface ${DURE_LAN9INF} inet dhcp
+auto ${JB_LAN9INF}
+iface ${JB_LAN9INF} inet dhcp
 EOT
                 else
-                    # LANNET=$(ipcalc-ng ${DURE_LAN1}|grep Network:|cut -f2)
-                    # LANIP=$(ipcalc-ng ${DURE_LAN1}|grep Address:|cut -f2)
-                    # LANGW=$(ipcalc-ng ${DURE_LAN1}|grep HostMin:|cut -f2)
+                    # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
+                    # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
+                    # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
                     tee -a /etc/network/interfaces > /dev/null <<EOT
-auto ${DURE_LAN9INF}
-iface ${DURE_LAN9INF} inet static
-    address ${DURE_LAN9}
+auto ${JB_LAN9INF}
+iface ${JB_LAN9INF} inet static
+    address ${JB_LAN9}
 EOT
                 fi
                 continue
@@ -372,35 +375,35 @@ EOT
             #
             # wireless adapters
             #
-            if [[ ${dure_infs[j]} = "${wlaninf}" ]]; then # match DURE_WLANINF
-                # DURE_WLANINF="enp4s0"
-                # DURE_WLAN="192.168.58.2/24" # or DHCP
-                if [[ ${DURE_WLAN,,} = "dhcp" || ${DURE_WLAN} = "" ]]; then # client, dhcp mode
+            if [[ ${dure_infs[j]} = "${wlaninf}" ]]; then # match JB_WLANINF
+                # JB_WLANINF="enp4s0"
+                # JB_WLAN="192.168.58.2/24" # or DHCP
+                if [[ ${JB_WLAN,,} = "dhcp" || ${JB_WLAN} = "" ]]; then # client, dhcp mode
                     tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${wlaninf}
 iface ${wlaninf} inet dhcp
 EOT
                 else # gateway, wstunnel, ap mode, static gateway ip
-                    # WLANNET=$(ipcalc-ng ${DURE_WLAN}|grep Network:|cut -f2)
-                    # WLANIP=$(ipcalc-ng ${DURE_WLAN}|grep Address:|cut -f2)
-                    if [[ ! ${DURE_WLANGW} ]]; then
+                    # WLANNET=$(ipcalc-ng ${JB_WLAN}|grep Network:|cut -f2)
+                    # WLANIP=$(ipcalc-ng ${JB_WLAN}|grep Address:|cut -f2)
+                    if [[ ! ${JB_WLANGW} ]]; then
                     tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${wlaninf}
 iface ${wlaninf} inet static
-    address ${DURE_WLAN}
+    address ${JB_WLAN}
 EOT
                     else
-                    WLANGW=${DURE_WLANGW}
+                    WLANGW=${JB_WLANGW}
                     tee -a /etc/network/interfaces > /dev/null <<EOT
 auto ${wlaninf}
 iface ${wlaninf} inet static
-address ${DURE_WLAN}
+address ${JB_WLAN}
 gateway ${WLANGW}
 EOT
                     fi
-                    # WLANSUBNET=$(ipcalc-ng ${DURE_WLAN}|grep Netmask:|cut -f2|cut -d ' ' -f1)
-                    # WLANMINIP=$(ipcalc-ng ${DURE_WLAN}|grep HostMin:|cut -f2)
-                    # WLANMAXIP=$(ipcalc-ng ${DURE_WLAN}|grep HostMax:|cut -f2)
+                    # WLANSUBNET=$(ipcalc-ng ${JB_WLAN}|grep Netmask:|cut -f2|cut -d ' ' -f1)
+                    # WLANMINIP=$(ipcalc-ng ${JB_WLAN}|grep HostMin:|cut -f2)
+                    # WLANMAXIP=$(ipcalc-ng ${JB_WLAN}|grep HostMax:|cut -f2)
                 fi
                 continue
             fi
@@ -413,22 +416,25 @@ EOT
             fi
         }
         chmod 600 /etc/network/interfaces 2>&1 1>/dev/null
+        log_debug "Generated ifupdown config ===="
+        cat /etc/network/interfaces
+        log_debug "===="
     fi
 
 }
 
-function __net-ifupdown_uninstall { # RUN_OS_FIRMWARE=0
+function __net-ifupdown_uninstall { 
     systemctl stop networking
     systemctl disable networking
 }
 
-function __net-ifupdown_disable { # RUN_OS_FIRMWARE=0
+function __net-ifupdown_disable { 
     systemctl stop networking
     systemctl disable networking
     return 0
 }
 
-function __net-ifupdown_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
+function __net-ifupdown_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-ifupdown Check $running_status"
 
@@ -444,8 +450,8 @@ function __net-ifupdown_check { # running_status 0 installed, running_status 5 c
         log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     log_debug "check networking is running"
-    [[ $(systemctl status networking 2>/dev/null|grep -c "Active") -gt 0 ]] && \
-        log_info "networking(ifupdown) is started." && [[ $running_status -lt 0 ]] && running_status=0
+    [[ $(systemctl status networking 2>/dev/null|grep -c "Active") -lt 1 ]] && \
+        log_info "networking(ifupdown) is not running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

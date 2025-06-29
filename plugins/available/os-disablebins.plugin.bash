@@ -5,12 +5,13 @@ about-plugin 'disable binaries.'
 function os-disablebins {
     about 'helper function for disable binaries'
     group 'prenet'
+    runtype 'none'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-disablebins check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -165,13 +166,13 @@ function __os-disablebins_install {
     __os-disablebins_blankrep /usr/libexec/tracker-miner-rss-3 &>/dev/null # disable file indexing
 }
 
-function __os-disablebins_uninstall { # RUN_OS_FIRMWARE=0
+function __os-disablebins_uninstall { 
     log_debug "Trying to uninstall os-disablebins."
     __os-disablebins_install
     rm -rf /etc/modprobe.d/blacklist.conf
 }
 
-function __os-disablebins_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
+function __os-disablebins_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-disablebins Check"
     [[ -z ${RUN_OS_DISABLEBINS} ]] && \
@@ -180,9 +181,8 @@ function __os-disablebins_check { # running_status 0 installed, running_status 5
         log_info "RUN_OS_DISABLEBINS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
 
     # check avahi-daemon exists
-    [[ $(which avahi-daemon|wc -l) -eq 0 ]] && \
-        log_info "avahi-daemon is disabled. it seems disabled." && \
-        [[ $running_status -lt 0 ]] && running_status=0
+    [[ $(which avahi-daemon|wc -l) -gt 0 ]] && \
+        log_info "avahi-daemon is not disabled." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

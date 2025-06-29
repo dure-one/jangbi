@@ -5,12 +5,13 @@ about-plugin 'vector install configurations.'
 function net-vector {
     about 'vector install configurations'
     group 'postnet'
+    runtype 'minmon'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ net-vector check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -42,29 +43,29 @@ function __net-vector_help {
 
 function __net-vector_install {
     export DEBIAN_FRONTEND=noninteractive
-    WLANINF=${DURE_WLANINF}
-    # WLANIP="${DURE_WLAN}"
-    # WLANIP=$(ipcalc-ng "${DURE_WLAN}"|grep Address:|cut -f2)
-    # WLANMINIP=$(ipcalc-ng "${DURE_WLAN}"|grep HostMin:|cut -f2)
-    # WLANMAXIP=$(ipcalc-ng "${DURE_WLAN}"|grep HostMax:|cut -f2)
+    WLANINF=${JB_WLANINF}
+    # WLANIP="${JB_WLAN}"
+    # WLANIP=$(ipcalc-ng "${JB_WLAN}"|grep Address:|cut -f2)
+    # WLANMINIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMin:|cut -f2)
+    # WLANMAXIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMax:|cut -f2)
 
     apt install -yq vector
     mkdir -p /etc/vector
-    cp -rf ./configs/vector.conf.default /etc/vector/
+    cp -rf ./configs/vector/vector.conf.default /etc/vector/
    
 }
 
-function __net-vector_uninstall { # RUN_OS_FIRMWARE=0
+function __net-vector_uninstall { 
     pidof vector | xargs kill -9 2>/dev/null
     apt purge -qy vector
 }
 
-function __net-vector_disabled { # RUN_OS_FIRMWARE=0
+function __net-vector_disabled { 
     pidof vector | xargs kill -9 2>/dev/null
     return 0
 }
 
-function __net-vector_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+function __net-vector_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-vector Check"
 
@@ -78,7 +79,7 @@ function __net-vector_check { # running_status 0 installed, running_status 5 can
         log_info "vector is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof vector) -lt 1 ]] && \
-        log_info "vector is running." && [[ $running_status -lt 0 ]] && running_status=0
+        log_info "vector is not running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

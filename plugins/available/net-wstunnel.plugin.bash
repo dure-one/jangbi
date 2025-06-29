@@ -5,12 +5,13 @@ about-plugin 'wstunnel install configurations.'
 function net-wstunnel {
     about 'wstunnel install configurations'
     group 'postnet'
+    runtype 'minmon'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ net-wstunnel check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -60,7 +61,7 @@ function __net-wstunnel_disable {
     return 0
 }
 
-function __net-wstunnel_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+function __net-wstunnel_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-wstunnel Check"
 
@@ -74,7 +75,7 @@ function __net-wstunnel_check { # running_status 0 installed, running_status 5 c
         log_info "wstunnel is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof wstunnel) -lt 1 ]] && \
-        log_info "wstunnel is running." && [[ $running_status -lt 0 ]] && running_status=0
+        log_info "wstunnel is not running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

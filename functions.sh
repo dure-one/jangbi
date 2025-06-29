@@ -52,7 +52,7 @@ _get_author_name ()
 
 _composure_keywords ()
 {
-  echo "about author example group param version deps"
+  echo "about author example group param version deps runtype"
 }
 
 _letterpress ()
@@ -642,7 +642,7 @@ echo_reset_color="\033[39m"
 ### end of colors.bash
 
 # support 'plumbing' metadata
-cite _about _param _example _group _author _version _deps
+cite _about _param _example _group _author _version _deps _runtype
 cite about-alias about-plugin about-completion
 
 # Declare our end-of-main finishing hook, but don't use `declare`/`typeset`
@@ -2693,7 +2693,7 @@ _trim_string() { # Usage: _trim_string "   example   string    "
 
 _load_config() { # Load config including parent config ex) _load_config .config
   local conf=.config
-  DURE_VARS=""
+  JB_VARS=""
   [[ -z "$1" ]] && conf=/opt/jangbi/.config
   [[ ! -f "${conf}" ]] && log_fatal "config file ${conf} not exist." && return 1
   stack=()
@@ -2712,10 +2712,10 @@ _load_config() { # Load config including parent config ex) _load_config .config
   for((j=${#stack[@]};j>0;j--)){
     conf=${stack[j-1]}
     [[ -f ${conf} ]] && source ${conf}
-    DURE_VARS="${DURE_VARS} $(cat ${conf}|grep -v '^#'|grep .|cut -d= -f1)"
-    DURE_CFILES="${DURE_CFILES} ${conf}"
+    JB_VARS="${JB_VARS} $(cat ${conf}|grep -v '^#'|grep .|cut -d= -f1)"
+    JB_CFILES="${JB_CFILES} ${conf}"
   }
-  DURE_VARS="${DURE_VARS} DURE_CFILES"
+  JB_VARS="${JB_VARS} JB_CFILES"
 
   # setup slog
   LOGFILE=${LOGFILE:="jangbi.log"}

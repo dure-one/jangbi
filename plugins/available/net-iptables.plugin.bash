@@ -67,12 +67,13 @@ about-plugin 'iptables install configurations.'
 function net-iptables {
     about 'iptables install configurations'
     group 'postnet'
+    runtype 'systemd'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ net-iptables check/install/uninstall/run/build'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -122,9 +123,9 @@ function __net-iptables_install {
     systemctl enable nftables
     mkdir -p /etc/iptables
 
-    cp -rf ./configs/rules-both.iptables /etc/iptables/rules-both.iptables
-    cp -rf ./configs/rules-ipv4.iptables /etc/iptables/rules-ipv4.iptables
-    cp -rf ./configs/rules-ipv6.ip6tables /etc/iptables/rules-ipv6.ip6tables
+    cp -rf ./configs/iptables/rules-both.iptables /etc/iptables/rules-both.iptables
+    cp -rf ./configs/iptables/rules-ipv4.iptables /etc/iptables/rules-ipv4.iptables
+    cp -rf ./configs/iptables/rules-ipv6.ip6tables /etc/iptables/rules-ipv6.ip6tables
 
     systemctl stop nftables
     echo ""> /etc/nftables.conf
@@ -149,19 +150,19 @@ function __net-iptables_install {
     fi
 }
 
-function __net-iptables_uninstall { # RUN_OS_FIRMWARE=0
+function __net-iptables_uninstall { 
     log_debug "Trying to uninstall net-iptables."
     systemctl stop nftables
     systemctl disable nftables
 }
 
-function __net-iptables_disable { # RUN_OS_FIRMWARE=0
+function __net-iptables_disable { 
     systemctl stop nftables
     systemctl disable nftables
     return 0
 }
 
-function __net-iptables_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+function __net-iptables_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting net-iptables Check"
     # check cmd exists
@@ -176,8 +177,8 @@ function __net-iptables_check { # running_status 0 installed, running_status 5 c
     [[ $(dpkg -l|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(systemctl status nftables 2>/dev/null|grep Active|grep running) -gt 0 ]] && \
-        log_info "nftables is started." && [[ $running_status -lt 0 ]] && running_status=0
+    [[ $(systemctl status nftables 2>/dev/null|grep -c active) -lt 1 ]] && \
+        log_info "nftables is not running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
@@ -231,16 +232,19 @@ function __net-iptables_build {
     # EMPTY RULES
     nft flush ruleset
 
+    # GET VARs
+    local waninf=$(_trim_string ${JB_WANINF}) laninf=$(_trim_string ${JB_LANINF}) wlaninf=$(_trim_string ${JB_WLANINF})
+
     #
     # ARP RULES
     #
     # WAN_INF WHITELISTED_MACADDRESSES
-    # GW_ADDR=$(route -n|grep "${DURE_WANINF}"|awk '{ print $2 }'|grep -v 0.0.0.0)
+    # GW_ADDR=$(route -n|grep "${waninf}"|awk '{ print $2 }'|grep -v 0.0.0.0)
     # [[ $(arp -na|grep -c "incomplete") -gt 0 ]] && arp -d "${GW_ADDR}"
     # GW_MAC=($(arp -na|awk '{ print $4 }'))
     # GW_MAC=$(nmap -sn "${GW_ADDR}"|grep MAC|awk '{print $3}')
     
-    #[[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${DURE_WANINF}" "${GW_MAC}" # targetinf macaddrs
+    #[[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${waninf}" "${GW_MAC}" # targetinf macaddrs
     # IPTABLES_GWMACONLY
     log_debug "iptables_mangle_ext_both_gwmaconly"
     [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
@@ -262,7 +266,7 @@ function __net-iptables_build {
     [[ ${IPTABLES_DROP_NON_SYN} -gt 0 ]] && __net-iptables_mangle_all_both_dropnonsyn
     # IPTABLES_DROP_SPOOFING=1
     log_debug "iptables_mangle_all_both_dropspoofing"
-    [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing "${DURE_WANINF}"  # tarinf:null
+    [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing "${waninf}"  # tarinf:null
     # IPTABLES_LIMIT_MSS
     log_debug "iptables_mangle_all_both_limitmss"
     [[ ${IPTABLES_LIMIT_MSS} -gt 0 ]] && __net-iptables_mangle_all_both_limitmss
@@ -281,9 +285,7 @@ function __net-iptables_build {
 
     #
     # HOST RULES
-    #
-    # GET VARs
-    local waninf=${DURE_WANINF} laninf=${DURE_LANINF} wlaninf=${DURE_WLANINF}
+    #    
 
     # PORT FORWARDING WAN->LAN
     # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090|8010:192.168.0.1:8010"
@@ -296,14 +298,14 @@ function __net-iptables_build {
                 local lanip=${forwardinfo[1]}
                 local lanport=${forwardinfo[2]}
                 log_debug "iptables_nat_ext_both_portforward"
-                __net-iptables_nat_ext_both_portforward "${DURE_WANINF}" "${wanport}" "${lanip}" "${lanport}"  # waninf wanport lanip lanport
+                __net-iptables_nat_ext_both_portforward "${waninf}" "${wanport}" "${lanip}" "${lanport}"  # waninf wanport lanip lanport
             fi
         }
     fi
     # DMZ SETTINGS WAN->HOST
     # IPTABLES_DMZ="192.168.0.1" IPTABLES_SUPERDMZ=1
     log_debug "iptables_nat_ext_both_dmzsdmz"
-    [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz "${DURE_WANINF}" "${DURE_LANINF}" "${DMZIP}" # waninf laninf dmzip sdmz
+    [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz "${waninf}" "${laninf}" "${DMZIP}" # waninf laninf dmzip sdmz
 
     # MASQUERADE WAN->NET
     # IPTABLES_MASQ="LAN<WAN|LAN1<WAN"
@@ -315,51 +317,51 @@ function __net-iptables_build {
             if [[ $(_trim_string ${masqinfs[0]}) = "LAN" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
                 frominf=${laninf}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "WLAN" && $(_trim_string ${masqinfs[1]}) = "WAN"  ]]; then
                 frominf=${wlaninf}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_WLAN}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_WLAN}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN0" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN0INF}
+                frominf=${JB_LAN0INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN0}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN0}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN1" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN1INF}
+                frominf=${JB_LAN1INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN1}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN2" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN2INF}
+                frominf=${JB_LAN2INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN2}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN2}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN3" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN3INF}
+                frominf=${JB_LAN3INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN3}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN3}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN4" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN4INF}
+                frominf=${JB_LAN4INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN4}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN4}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN5" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN5INF}
+                frominf=${JB_LAN5INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN5}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN5}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN6" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN6INF}
+                frominf=${JB_LAN6INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN6}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN6}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN7" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN7INF}
+                frominf=${JB_LAN7INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN7}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN7}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN8" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN8INF}
+                frominf=${JB_LAN8INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN8}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN8}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN9" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${DURE_LAN9INF}
+                frominf=${JB_LAN9INF}
                 toinf=${waninf}
-                fromnet=$(ipcalc-ng ${DURE_LAN9}|grep Network:|cut -f2)
+                fromnet=$(ipcalc-ng ${JB_LAN9}|grep Network:|cut -f2)
             fi
 
             if [[ -n ${frominf} && -n ${toinf} ]]; then
@@ -382,27 +384,38 @@ function __net-iptables_build {
 # Arptables : MAC Whitelisting
 # WHITELISTED_MACADDRESSES?=aa:bb:cc:dd:ee|ab:cd:be:c0:a1
 function __net-iptables_mangle_all_both_macwhitelist {
-    local funcname="mab_macwhitelist"
-    local targetinf="$1"
-    local macaddrs="$2"
+    local funcname targetinf macaddrs
+    funcname="mab_macwhitelist"
+    targetinf=$(_trim_string "$1")
+    macaddrs=$(_trim_string "$2")
 
-    if [[ ${#macaddrs[@]} -gt 0 ]]; then
-        IFS=$'|' read -d "" -ra MACADDR <<< "${macaddrs}" # split
-        for((j=0;j<${#MACADDR[@]};j++)){
-            arptables -A INPUT -i "${targetinf}" --source-mac "${MACADDR[j]}" -j ACCEPT
-            log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT"
-        }
-        [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
-    fi
+    [[ ${#targetinf} -lt 1 ]] && log_error "${funcname}: targetinf is not set" && return 1
+    [[ ${#macaddrs} -lt 1 ]] && log_error "${funcname}: macaddrs is not set" && return 1
+
+    IFS=$'|' read -d "" -ra MACADDR <<< "${macaddrs}" # split
+    for((j=0;j<${#MACADDR[@]};j++)){
+        arptables -A INPUT -i "${targetinf}" --source-mac "${MACADDR[j]}" -j ACCEPT
+        log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT"
+    }
+    [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 
 # Arptables : Allow only from Gateway on wan
 # IPTABLES_GWMACONLYIPTABLES_GWMACONLY=1
 function __net-iptables_mangle_ext_both_gwmaconly {
-    local funcname="mab_gwonly"
-    local targetinf=$(route |grep default|awk '{print $8}') # net-tools
-    local gwip=$(route |grep default|awk '{print $2}') # net-tools
-    local gwmac=$(nmap -sn "${gwip}"|grep MAC|awk '{print $3}')
+    local funcname targetinf gwip gwmac
+    funcname="mab_gwonly"
+    targetinf=$(route|grep default|awk '{print $8}') # net-tools
+    targetinf=$(_trim_string ${targetinf})
+    gwip=$(routel|grep default|awk '{print $2}') # net-tools
+    gwip=$(_trim_string ${gwip})
+    gwmac=$(cat /proc/net/arp|grep "${gwip}"|awk '{print $4}')
+    gwmac=$(_trim_string ${gwmac})
+
+    [[ ${#targetinf} -lt 1 ]] && log_error "${funcname}: targetinf is not set" && return 1
+    [[ ${#gwip} -lt 1 ]] && log_error "${funcname}: gwip is not set" && return 1
+    [[ ${#gwmac} -lt 1 ]] && log_error "${funcname}: gwmac is not set" && return 1
+
     arptables -A INPUT -i "${targetinf}" --source-mac "${gwmac}" -j ACCEPT
     log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${gwmac} -j ACCEPT"
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
@@ -412,8 +425,11 @@ function __net-iptables_mangle_ext_both_gwmaconly {
 # IPTABLES_CONNLIMIT_PER_IP=50
 function __net-iptables_mangle_all_both_conlimitperip {
     local funcname="mab_conlimitperip"
-    local conlimitperip="$1"
+    local conlimitperip
+    conlimitperip=$(_trim_string "$1")
+    [[ ${conlimitperip} -lt 1 ]] && log_error "${funcname}: conlimitperip is not set" && return 1
     [[ -z $conlimitperip ]] && conlimitperip=50
+    
     IPTABLE="PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP"
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -A ${IPTABLE}
 }
@@ -449,8 +465,11 @@ function __net-iptables_mangle_all_both_dropnonsyn {
 # IPTABLES_DROP_SPOOFING=1 TARINF?=eth0
 function __net-iptables_mangle_all_both_dropspoofing {
     local funcname="mab_dropspoofing"
-    local tarinf="${1}"
+    local tarinf
+    tarinf=$(_trim_string "$1")
     local BLOCKING_LIST="224.0.0.0/3|169.254.0.0/16|172.16.0.0/12|192.0.2.0/24|192.168.0.0/16|10.0.0.0/8|0.0.0.0/8|240.0.0.0/5|127.0.0.0/8"
+
+    [[ ${#tarinf} -lt 1 ]] && log_error "${funcname}: tarinf is not set" && return 1
 
     IFS=$'\n' read -d "" -ra routing_allow_list <<< "$(routel|grep /|grep -v 127.0.0.0/8|cut -d" " -f1)" # split
     routing_allow_list+=("127.0.0.1/29") # add localhost range 127.0.0.1-14 for anydnsdqy and dnsmasq
@@ -459,16 +478,18 @@ function __net-iptables_mangle_all_both_dropspoofing {
         __bp_trim_whitespace iptables_block_ip "${routing_block_list[j]}"
         for((k=0;k<${#routing_allow_list[@]};k++)){
             __bp_trim_whitespace iptables_allow_ip "${routing_allow_list[k]}"
-            log_debug "${iptables_allow_ip} ${iptables_block_ip}"
+            # log_debug "${iptables_allow_ip} ${iptables_block_ip}"
             ALMINIP=$(_ip2conv "$(ipcalc-ng "${iptables_allow_ip}"|grep HostMin:|cut -f2)")
             ALMAXIP=$(_ip2conv "$(ipcalc-ng "${iptables_allow_ip}"|grep HostMax:|cut -f2)")
             BLMINIP=$(_ip2conv "$(ipcalc-ng "${iptables_block_ip}"|grep HostMin:|cut -f2)")
             BLMAXIP=$(_ip2conv "$(ipcalc-ng "${iptables_block_ip}"|grep HostMax:|cut -f2)")
             if [[ ${ALMINIP} -gt ${BLMINIP} && ${ALMAXIP} -lt ${BLMAXIP} ]]; then
+                log_debug "allowing ip ${iptables_allow_ip}"
                 IPTABLE="PREROUTING -s ${iptables_allow_ip} -m comment --comment ${funcname}_allow_${j}${k} -j ACCEPT"
                 iptables -t mangle -S | grep "${funcname}_allow_${j}${k}" || iptables -t mangle -A ${IPTABLE}
             fi
         }
+        log_debug "blocking ip ${iptables_block_ip}"
         [[ ${#tarinf[@]} -gt 0 ]] && IPTABLE="PREROUTING -s ${iptables_block_ip} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP"
         [[ ${#tarinf[@]} -eq 0 ]] && IPTABLE="PREROUTING -s ${iptables_block_ip} -m comment --comment ${funcname}_block_${j} -j DROP"
         iptables -t mangle -S | grep "${funcname}_block_${j}" || iptables -t mangle -A ${IPTABLE}
@@ -489,9 +510,16 @@ function __net-iptables_mangle_all_both_limitmss {
 # IPTABLES_MASQ?="WLAN<WAN|LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) #laninf lannet waninf
 function __net-iptables_filternat_all_both_masquerade {
     local funcname="fab_masquerade"
-    local frominf="$1"
-    local fromnet="$2"
-    local toinf="$3"
+    local frominf
+    frominf=$(_trim_string "$1")
+    local fromnet
+    fromnet=$(_trim_string "$2")
+    local toinf
+    toinf=$(_trim_string "$3")
+
+    [[ ${#frominf} -lt 1 ]] && log_error "${funcname}: frominf is not set" && return 1
+    [[ ${#fromnet} -lt 1 ]] && log_error "${funcname}: fromnet is not set" && return 1
+    [[ ${#toinf} -lt 1 ]] && log_error "${funcname}: toinf is not set" && return 1
 
     IPTABLE="FORWARD -i ${frominf} -o ${toinf} -m comment --comment ${funcname}_${j}_filter1 -j ACCEPT"
     iptables -t filter -S | grep "${funcname}_${j}_filter1" || iptables -t filter -A ${IPTABLE}
@@ -522,11 +550,17 @@ function __net-iptables_filternat_all_both_masquerade {
 # DMZ - after portforward, SDMZ - prior to portforward
 # IPTABLES_DMZ="DMZ" or SDMZ waninf laninf dmzip sdmz
 function __net-iptables_nat_ext_both_dmzsdmz {
-    local funcname="neb_portforward"
-    local waninf="$1"
-    local laninf="$2"
-    local dmzip="$3"
-    local sdmz="${4:0}"
+    local funcname waninf laninf dmzip sdmz
+    funcname="neb_portforward"
+    waninf=$(_trim_string "$1")
+    laninf=$(_trim_string "$2")
+    dmzip=$(_trim_string "$3")
+    sdmz=$(_trim_string "${4:0}")
+
+    [[ ${#waninf} -lt 1 ]] && log_error "${funcname}: waninf is not set" && return 1
+    [[ ${#laninf} -lt 1 ]] && log_error "${funcname}: laninf is not set" && return 1
+    [[ ${#dmzip} -lt 1 ]] && log_error "${funcname}: dmzip is not set" && return 1
+    [[ ${#sdmz} -lt 1 ]] && log_error "${funcname}: sdmz is not set" && return 1
 
     local ruleaddoverinsert="-A"
     [[ ${sdmz} -eq "1" ]] && ruleaddoverinsert="-I"
@@ -549,11 +583,17 @@ function __net-iptables_nat_ext_both_dmzsdmz {
 # NAT Prerouting/Postrouting Port forward
 # IPTABLES_PORTFORWARD="" waninf wanport lanip lanport
 function __net-iptables_nat_ext_both_portforward {
+    local funcname waninf wanport lanip lanport
     local funcname="neb_portforward"
-    local waninf="$1"
-    local wanport="$2"
-    local lanip="$3"
-    local lanport="$4"
+    waninf=$(_trim_string "$1")
+    wanport=$(_trim_string "$2")
+    lanip=$(_trim_string "$3")
+    lanport=$(_trim_string "$4")
+
+    [[ ${#waninf} -lt 1 ]] && log_error "${funcname}: waninf is not set" && return 1
+    [[ ${#wanport} -lt 1 ]] && log_error "${funcname}: wanport is not set" && return 1
+    [[ ${#lanip} -lt 1 ]] && log_error "${funcname}: lanip is not set" && return 1
+    [[ ${#lanport} -lt 1 ]] && log_error "${funcname}: lanport is not set" && return 1
 
     IPTABLE="PREROUTING -p tcp --dst ${waninf} --dport ${wanport} -j DNAT --to-destination ${lanip}:${lanport} -m comment -comment ${funcname}_pre"
     iptables -t nat -S | grep "${funcname}_pre" || iptables -t nat -A $IPTABLE
@@ -624,7 +664,9 @@ function __net-iptables_raw_all_both_portscanner {
 # IPTABLES_BLACK_NAMELIST="url|url" blockurls
 function __net-iptables_filter_all_both_ipblacklist {
     local funcname="fab_ipblacklist"
-    local blockurls="$1" #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
+    local blockurls #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
+    blockurls=$(_trim_string "$1")
+    [[ ${#blockurls} -lt 1 ]] && log_error "${funcname}: blockurls is not set" && return 1
     IFS=$'|' read -d "" -ra blist_url <<< "${blockurls}" # split
     local urlcount=$(echo "${blockurls}" | grep -o "|" | wc -l)
     for((j=0;j<=${urlcount};j++)){

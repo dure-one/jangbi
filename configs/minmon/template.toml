@@ -1,0 +1,33 @@
+
+### __PLUGINNAME__ start ###
+[[checks]]
+disable = false
+name = "__PLUGINNAME__ check"
+type = "ProcessExitStatus"
+# check optional
+interval = 30
+timeout = 5
+# ProcessExitStatus
+#path = "/usr/bin/pidof"
+#arguments = ["dnsmasq"]
+#status_code = [0]
+path = "/opt/jangbi/init.sh"
+arguments = ["--check","__PLUGINNAME__"]
+
+[[checks.alarms]]
+status_codes = [0]
+disable = false
+name = "__PLUGINNAME__ alarm"
+action = "__PLUGINNAME__ run"
+# alarms optional
+cycles = 2
+repeat_cycles = 100
+error_repeat_cycles = 200
+error_action = "Log error"
+
+[[actions]]
+name = "__PLUGINNAME__ run"
+type = "Process"
+path = "/opt/jangbi/init.sh"
+arguments = ["--launch","__PLUGINNAME__"]
+### __PLUGINNAME__ end ###
