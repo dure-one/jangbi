@@ -5,12 +5,13 @@ about-plugin 'custom kernel params in cmdline.'
 function os-kparams {
     about 'helper function for os firmware update'
     group 'prenet'
+    runtype 'none'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-kparams check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -44,19 +45,19 @@ function __os-kparams_install {
     log_debug "Trying to install os-kparams."
 }
 
-function __os-kparams_uninstall { # RUN_OS_FIRMWARE=0
+function __os-kparams_uninstall { 
     log_debug "Trying to uninstall os-kparams."
     local kparams_cmdline="/etc/kernel_cmdline"
     umount /root/cmdline
     rm ${kparams_cmdline}
 }
 
-function __os-kparams_disable { # RUN_OS_FIRMWARE=0
+function __os-kparams_disable { 
     umount /root/cmdline
     return 0
 }
 
-function __os-kparams_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
+function __os-kparams_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-kparams Check"
 
@@ -65,8 +66,8 @@ function __os-kparams_check { # running_status 0 installed, running_status 5 can
     [[ ${#RUN_OS_KPARAMS[@]} -lt 1 ]] && \
         log_info "RUN_OS_KPARAMS is not enabled." && __os-kparams_disable && [[ $running_status -lt 20 ]] && running_status=20
 
-    [[ $(mount|grep -c "/proc/cmdline") -gt 0 ]] && \
-        log_info "kernel custom cmdline has already mounted." && [[ $running_status -lt 0 ]] && running_status=0
+    [[ $(mount|grep -c "/proc/cmdline") -lt 1 ]] && \
+        log_info "kernel custom cmdline is not mounted." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

@@ -5,12 +5,13 @@ about-plugin 'auditd install configurations.'
 function os-auditd {
     about 'auditd install configurations'
     group 'prenet'
+    runtype 'systemd'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-auditd check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -47,7 +48,8 @@ function __os-auditd_install {
     apt install -qy ./pkgs/auditd*.deb
 
     # auditd hardening dynamic
-    cp -rf ./configs/audit.rules  /etc/audit/audit.rules
+    mkdir -p /etc/audit
+    cp -rf ./configs/audit/audit.rules  /etc/audit/audit.rules
     # auditctl -R /etc/audit/audit.rules
     # add rules by force
     string_with_newlines=$(cat /etc/audit/audit.rules|grep -v "#"|grep -v -e '^[[:space:]]*$')
@@ -79,7 +81,7 @@ function __os-auditd_disable {
     return 0
 }
 
-function __os-auditd_check {  # running_status 0 installed, running_status 5 can install, running_status 10 can't install
+function __os-auditd_check {  # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-auditd Check"
 
@@ -93,7 +95,7 @@ function __os-auditd_check {  # running_status 0 installed, running_status 5 can
         log_info "auditd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof auditd) -lt 1 ]] && \
-        log_info "auditd is running." && [[ $running_status -lt 0 ]] && running_status=0
+        log_info "auditd is not running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

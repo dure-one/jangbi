@@ -171,7 +171,7 @@ function buf() {
     group 'base'
     local filename="${1?}" filetime
     filetime=$(date +%Y%m%d_%H%M%S)
-    cp -a "${filename}" "${filename}_${filetime}"
+    cp -a "${filename}" "${filename}_${filetime}.bak"
 }
 
 if ! _command_exists del; then

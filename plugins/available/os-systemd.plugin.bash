@@ -1,17 +1,18 @@
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'setup systemd.'
-# VARS REMOVE_RAREPKGS
+# VARS SYSTEMD_REMOVERAREPKGS
 
 function os-systemd {
     about 'helper function for local os repository'
     group 'prenet'
+    runtype 'none'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-systemd check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -57,7 +58,7 @@ function __os-systemd_install { # 0 - full systemd, 1 - disable completely, 2 - 
 
 function __os-systemd_disable_completely {
     log_debug "Starting os-systemd disable completely(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
-    if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
+    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utils figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
@@ -79,7 +80,7 @@ function __os-systemd_disable_completely {
 
 function __os-systemd_only_journald {
     log_debug "Starting os-systemd only journald(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
-    if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
+    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utils figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
@@ -99,14 +100,14 @@ function __os-systemd_only_journald {
 
 function __os-systemd_full_systemd {
     log_debug "Starting os-systemd full systemd(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
-    if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
+    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
         apt purge -yq figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
     __os-systemd_uninstall
 }
 
-function __os-systemd_uninstall { # RUN_OS_FIRMWARE=0
+function __os-systemd_uninstall { 
     log_debug "Starting os-systemd Uninstall"
     # recover system
     systemctl disable networking.service
@@ -124,12 +125,12 @@ function __os-systemd_uninstall { # RUN_OS_FIRMWARE=0
     apt install -yq systemd-timesyncd systemd-resolved rsyslog
 }
 
-function __os-systemd_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install
+function __os-systemd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-systemd Check"
 
     # # check rare packages
-    # if [[ ${REMOVE_RAREPKGS} -gt 0 ]]; then
+    # if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
     #     [[ $(dpkg -l|awk '{print $2}'|grep modemmanager|wc -l) -gt 0 ]] \
     #         && echo "INFO: rare packages not remoted" && return_code=0
     # fi

@@ -5,12 +5,13 @@ about-plugin 'redis install configurations.'
 function os-redis {
     about 'redis install configurations'
     group 'postnet'
+    runtype 'systemd'
     deps  ''
     param '1: command'
     param '2: params'
     example '$ os-redis check/install/uninstall/run'
 
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
         _distname_check
@@ -41,32 +42,30 @@ function __os-redis_help {
 }
 
 function __os-redis_install {
-    export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install os-redis."
-    apt -qy install lsb-release curl gpg
-    curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-    chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
-    echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-    apt -qy update
-    apt -qy  install redis-server
+    extrepo enable redis
+    extrepo update redis
+    export DEBIAN_FRONTEND=noninteractive
+    # apt-get update -qy -o Dir::Etc::sourcelist="sources.list.d/redis.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
+    apt -qy install redis-server
     mkdir -p /var/log/redis
     chown redis:redis /var/log/redis
     systemctl enable redis-server
 }
 
-function __os-redis_uninstall { # RUN_OS_FIRMWARE=0
+function __os-redis_uninstall { 
     log_debug "Trying to uninstall os-redis."
     systemctl stop redis-server
     systemctl disable redis-server
 }
 
-function __os-redis_disable { # RUN_OS_FIRMWARE=0
+function __os-redis_disable { 
     systemctl stop redis-server
     systemctl disable redis-server
     return 0
 }
 
-function __os-redis_check { # check config, installation
+function __os-redis_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Starting os-redis Check"
 
@@ -80,7 +79,7 @@ function __os-redis_check { # check config, installation
         log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof redis-server) -lt 1 ]] && \
-        log_info "redis-server is running." && [[ $running_status -lt 0 ]] && running_status=0
+        log_info "redis-server is not running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
