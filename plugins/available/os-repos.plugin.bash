@@ -83,7 +83,7 @@ function __os-repos_enable_offline {
     # mount pkg iso img
     [[ $(mount|grep -c "imgs/debian") -lt 1 ]] && \
         mount -o loop "${JB_DEPLOY_PATH}/imgs/${DIST_PKG_IMG}" "${JB_DEPLOY_PATH}/imgs/debian"
-
+    
     # add offline repository
     if [[ $(grep -c "cdrom:" < "/etc/apt/sources.list") -lt 1 ]]; then
         tee -a /etc/apt/sources.list > /dev/null <<EOT
