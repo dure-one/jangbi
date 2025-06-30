@@ -131,23 +131,6 @@ function __net-iptables_install {
     echo ""> /etc/nftables.conf
     systemctl start nftables
     systemctl stop nftables
-
-    if [[ -n ${nftables_override} ]]; then # NFTABLES_OVERRIDE ON
-        echo "${nftables_override}" > /tmp/nftables.tmp.conf
-        if ! nft -c -f /tmp/nftables.tmp.conf; then # on error
-            echo "ERROR: \$NFTABLES_OVERRIDE has error."
-            return 1
-        else # on success
-            nft -f /tmp/nftables.tmp.conf
-        fi
-    else # NFTABLES_OVERRIDE OFF
-        if [[ ${disable_ipv6} -gt 0 ]]; then # disable ipv6
-            iptables-restore /etc/iptables/rules-ipv4.iptables
-            ip6tables -I FORWARD -j DROP && ip6tables -I OUTPUT -j DROP && ip6tables -I INPUT -j DROP
-        else # enable ipv6
-            iptables-restore /etc/iptables/rules-both.iptables
-        fi
-    fi
 }
 
 function __net-iptables_uninstall { 
@@ -248,6 +231,24 @@ function __net-iptables_build {
     # IPTABLES_GWMACONLY
     log_debug "iptables_mangle_ext_both_gwmaconly"
     [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
+
+    # Base Rules
+    if [[ -n ${nftables_override} ]]; then # NFTABLES_OVERRIDE ON
+        echo "${nftables_override}" > /tmp/nftables.tmp.conf
+        if ! nft -c -f /tmp/nftables.tmp.conf; then # on error
+            echo "ERROR: \$NFTABLES_OVERRIDE has error."
+            return 1
+        else # on success
+            nft -f /tmp/nftables.tmp.conf
+        fi
+    else # NFTABLES_OVERRIDE OFF
+        if [[ ${disable_ipv6} -gt 0 ]]; then # disable ipv6
+            iptables-restore /etc/iptables/rules-ipv4.iptables
+            ip6tables -I FORWARD -j DROP && ip6tables -I OUTPUT -j DROP && ip6tables -I INPUT -j DROP
+        else # enable ipv6
+            iptables-restore /etc/iptables/rules-both.iptables
+        fi
+    fi
 
     #
     # NET RULES

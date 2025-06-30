@@ -2,14 +2,14 @@
 cite about-plugin
 about-plugin 'vector install configurations.'
 
-function net-vector {
+function os-vector {
     about 'vector install configurations'
     group 'postnet'
     runtype 'minmon'
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ net-vector check/install/uninstall/run'
+    example '$ os-vector check/install/uninstall/run'
 
     if [[ -z ${JB_DEPLOY_PATH} ]]; then
         _load_config
@@ -18,20 +18,20 @@ function net-vector {
     fi
 
     if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-        __net-vector_install "$2"
+        __os-vector_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-        __net-vector_uninstall "$2"
+        __os-vector_uninstall "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-vector_check "$2"
+        __os-vector_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-vector_run "$2"
+        __os-vector_run "$2"
     else
-        __net-vector_help
+        __os-vector_help
     fi
 }
 
-function __net-vector_help {
-    echo -e "Usage: net-vector [COMMAND] [profile]\n"
+function __os-vector_help {
+    echo -e "Usage: os-vector [COMMAND] [profile]\n"
     echo -e "Helper to vector install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"
@@ -41,39 +41,34 @@ function __net-vector_help {
     echo "   run       Run tasks"
 }
 
-function __net-vector_install {
+function __os-vector_install {
     export DEBIAN_FRONTEND=noninteractive
-    WLANINF=${JB_WLANINF}
-    # WLANIP="${JB_WLAN}"
-    # WLANIP=$(ipcalc-ng "${JB_WLAN}"|grep Address:|cut -f2)
-    # WLANMINIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMin:|cut -f2)
-    # WLANMAXIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMax:|cut -f2)
-
-    apt install -yq vector
+    apt install -yq ./pkgs/vector*.deb ./pkgs/sysdig*.deb
+    
     mkdir -p /etc/vector
     cp -rf ./configs/vector/vector.conf.default /etc/vector/
    
 }
 
-function __net-vector_uninstall { 
+function __os-vector_uninstall { 
     pidof vector | xargs kill -9 2>/dev/null
-    apt purge -qy vector
+    apt purge -qy vector sysdig
 }
 
-function __net-vector_disabled { 
+function __os-vector_disabled { 
     pidof vector | xargs kill -9 2>/dev/null
     return 0
 }
 
-function __net-vector_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+function __os-vector_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-vector Check"
+    log_debug "Starting os-vector Check"
 
     # check global variable
-    [[ -z ${RUN_NET_VECTOR} ]] && \
-        log_info "RUN_NET_VECTOR variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_NET_VECTOR} != 1 ]] && \
-        log_info "RUN_NET_VECTOR is not enabled." && __net-vector_disabled && [[ $running_status -lt 20 ]] && running_status=20
+    [[ -z ${RUN_OS_VECTOR} ]] && \
+        log_info "RUN_OS_VECTOR variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_VECTOR} != 1 ]] && \
+        log_info "RUN_OS_VECTOR is not enabled." && __os-vector_disabled && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "vector") -lt 1 ]] && \
         log_info "vector is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -84,10 +79,10 @@ function __net-vector_check { # running_status: 0 running, 1 installed, running_
     return 0
 }
 
-function __net-vector_run {
+function __os-vector_run {
     pidof vector | xargs kill -9 2>/dev/null
-    vector /etc/vector/vector.conf &>>/var/log/vector.log &
+    vector -c /etc/vector/vector.toml &
     pidof vector && return 0 || return 1
 }
 
-complete -F __net-vector_run net-vector
+complete -F __os-vector_run os-vector

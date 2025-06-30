@@ -45,6 +45,8 @@ function __net-sshd_install {
     log_debug "Trying to install net-sshd."
 
     export DEBIAN_FRONTEND=noninteractive
+    [[ $(dpkg -l|awk '{print $2}'|grep runit-helper|wc -l) -lt 1 ]] && apt install -qy ./pkgs/runit-helper_*.deb
+    [[ $(dpkg -l|awk '{print $2}'|grep openssh-sftp-server|wc -l) -lt 1 ]] && apt install -qy ./pkgs/openssh-sftp-server_*.deb
     apt install -qy ./pkgs/openssh-server_*.deb
     mkdir -p /run/sshd
 
