@@ -18,12 +18,14 @@ net-netplan|pkgs/netplan.io*.deb|http://ftp.de.debian.org/debian/pool/main/n/net
 os-sshd|pkgs/openssh-sftp-server_*.deb|http://ftp.de.debian.org/debian/pool/main/o/openssh/openssh-sftp-server_9.2p1-2+deb12u6_amd64.deb
 os-sshd|pkgs/runit-helper_*.deb|http://ftp.de.debian.org/debian/pool/main/d/dh-runit/runit-helper_2.15.2_all.deb
 net-sshd|pkgs/openssh-server_*.deb|http://ftp.de.debian.org/debian/pool/main/o/openssh/openssh-server_9.2p1-2+deb12u6_amd64.deb
-net-auditd|pkgs/libauparse0_*.deb|http://ftp.de.debian.org/debian/pool/main/a/audit/libauparse0_3.0.9-1_amd64.deb
-net-auditd|pkgs/auditd_*.deb|http://ftp.de.debian.org/debian/pool/main/a/audit/auditd_3.0.9-1_amd64.deb
+os-auditd|pkgs/libauparse0_*.deb|http://ftp.de.debian.org/debian/pool/main/a/audit/libauparse0_3.0.9-1_amd64.deb
+os-auditd|pkgs/auditd_*.deb|http://ftp.de.debian.org/debian/pool/main/a/audit/auditd_3.0.9-1_amd64.deb
 os-aide|pkgs/aide_*.deb|http://ftp.de.debian.org/debian/pool/main/a/aide/aide_0.18.3-1+deb12u3_amd64.deb
 os-conf|pkgs/extrepo_*.deb|http://ftp.de.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb
 os-conf|pkgs/libcryptx-perl_*.deb|http://ftp.de.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl_0.077-1+b1_amd64.deb
 os-vector|pkgs/vector_*.deb|https://api.github.com/repos/vectordotdev/vector/releases/latest
 os-vector|pkgs/sysdig-*.deb|https://api.github.com/repos/draios/sysdig/releases/latest
 net-wstunnel|pkgs/wstunnel_*.tar.gz|https://api.github.com/repos/erebe/wstunnel/releases/latest
-# |pkgs/*.deb| 
+
+
+

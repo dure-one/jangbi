@@ -22,9 +22,11 @@ pkg_str="$(cat pkgs.list|grep -v "^#"|grep -v -e '^[[:space:]]*$')"
 IFS=$'\n' read -rd '' -a lines <<<"$pkg_str"
 for((j=0;j<${#lines[@]};j++)){
     IFS=$'|' read -rd '' -a pkg <<<"${lines[j]}"
-    pluginname=${pkg[0]};
+    pluginname=${pkg[0]}
     pkgpath=${pkg[1]};
-    pkgfile=${pkgpath//pkgs\//}
+    IFS=$'\/' read -rd '' -a pkgdir <<<"$(_trim_string ${pkgpath})"
+    pkgdir=${pkgdir[0]}
+    pkgfile=${pkgdir[1]}
     IFS=$'\*' read -rd '' -a pkgfilefix <<<"$(_trim_string ${pkgfile})"
     pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
     pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
@@ -55,13 +57,13 @@ for((j=0;j<${#lines[@]};j++)){
             if [[ ${#durls[@]} -gt 1 ]]; then
                 if [[ ${durl} == *"linux"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
                     echo "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-                    wget --directory-prefix=./pkgs "${durl}"
+                    wget --directory-prefix=./"${pkgdir}" "${durl}"
                     break
                 fi
             else
                 if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
                     echo "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-                    wget --directory-prefix=./pkgs "${durl}"
+                    wget --directory-prefix=./"${pkgdir}" "${durl}"
                     break
                 fi
             fi
@@ -69,8 +71,8 @@ for((j=0;j<${#lines[@]};j++)){
         break
     else
         if [[ ${pkgurl} == *"debian.org"* ]]; then
-            echo "Downloading ${pkgurl} to ./pkgs..."
-            wget --directory-prefix=./pkgs "${pkgurl}"
+            echo "Downloading ${pkgurl} to ./"${pkgdir}"..."
+            wget --directory-prefix=./"${pkgdir}" "${pkgurl}"
         else
             echo "debian.org and github.com is only supported for now."
         fi

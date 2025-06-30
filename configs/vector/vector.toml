@@ -109,8 +109,8 @@ group_by = ["user", "process_path"]
 merge_strategies.connection_endpoints = "concat"
 # expire_after_ms = 3600000  # 1 hour in milliseconds
 # flush_period_ms = 3600000  # Flush every hour
-expire_after_ms = 300000  # 1 hour in milliseconds
-flush_period_ms = 300000  # Flush every hour
+expire_after_ms = 300000  # 5 minutes in milliseconds
+flush_period_ms = 300000  # Flush every 5 minutes
 
 # Format final output
 [transforms.format_output]
@@ -155,6 +155,25 @@ inputs = ["format_output"]
 path = "/tmp/vector/network_connections_%Y%m%d_%H.log"
 encoding.codec = "text"
 encoding.text.message_key = "output"
+
+# Configure buffer to flush more frequently
+[sinks.hourly_file.buffer]
+type = "memory"
+max_events = 100
+when_full = "block"
+
+# Backup sink - save individual parsed events immediately (no buffering)
+[sinks.backup_file]
+type = "file"
+inputs = ["parse_sysdig"]
+path = "/tmp/vector/raw_connections_%Y%m%d_%H.log"
+encoding.codec = "json"
+
+# Minimal buffering for backup file
+[sinks.backup_file.buffer]
+type = "memory"
+max_events = 10
+when_full = "block"
 
 # Also output to console for monitoring
 [sinks.console_output]
