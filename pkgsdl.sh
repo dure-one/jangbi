@@ -26,9 +26,10 @@ for((j=0;j<${#lines[@]};j++)){
     pkgpath=${pkg[1]};
     pkgfile=${pkgpath//pkgs\//}
     IFS=$'\*' read -rd '' -a pkgfilefix <<<"$(_trim_string ${pkgfile})"
-    pkgfileprefix=$(_trim_string ${pkgfilefix[0],,});
-    pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,});
-    pkgurl=$(_trim_string ${pkg[2]});
+    pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
+    pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
+    pkgurl=$(_trim_string ${pkg[2]})
+    pkgurl=${pkgurl//amd64/${arch1,,}}
 
     # check if plugin enabled
     about_txt=$(typeset -f -- "${pluginname}"|metafor about)
