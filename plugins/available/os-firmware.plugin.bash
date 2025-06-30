@@ -90,7 +90,7 @@ function __os-firmware_check { # running_status: 0 running, 1 installed, running
     [[ ${RUN_OS_FIRMWARE} != 1 ]] && \
         log_info "RUN_OS_FIRMWARE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check new firmware file exists
-    [[ ! -f ./pkgs/$(basename "${RUN_OS_FIRMWARE}") ]] && \
+    [[ ! -f ./pkgs/$(basename "${FIRMWARE_URL}") ]] && \
         log_info "${RUN_OS_FIRMWARE} file not exists in pkg directory." && [[ $running_status -lt 10 ]] && running_status=10
 
     # check old firmware backup exists

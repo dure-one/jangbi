@@ -1,0 +1,178 @@
+#                                    __   __  __
+#                                    \ \ / / / /
+#                                     \ V / / /
+#                                      \_/  \/
+#
+#                                    V E C T O R
+#                                   Configuration
+#
+# ------------------------------------------------------------------------------
+# Website: https://vector.dev
+# Docs: https://vector.dev/docs
+# Chat: https://chat.vector.dev
+# https://docs.sysdig.com/en/sysdig-secure/rule-fields-library/
+# ------------------------------------------------------------------------------
+
+# Change this to use a non-default directory for Vector data storage:
+data_dir = "/tmp/vector"
+
+# Execute sysdig command to capture network connections
+[sources.sysdig_network]
+type = "exec"
+command = ["sysdig", "evt.type in (connect,accept)", "-p", "%evt.datetime.s %user.name %proc.exepath pid=%proc.pid ppid=%proc.ppid %fd.cip:%fd.cport %fd.sip:%fd.sport %fd.lip:%fd.lport %fd.rip:%fd.rport"]
+mode = "streaming"
+
+# Parse sysdig output and extract network connection data
+[transforms.parse_sysdig] 
+type = "remap"
+inputs = ["sysdig_network"]
+source = '''
+  # Handle empty messages
+  if is_null(.message) || length(string!(.message)) == 0 {
+    log("Empty message received", level: "debug")
+    abort
+  }
+  
+  # Log the raw message for debugging
+  raw_msg = string!(.message)
+  log("Raw sysdig output: " + raw_msg, level: "debug")
+  
+  # Split the message by spaces - more flexible parsing
+  parts = split(raw_msg, " ")
+  
+  # Be more lenient with part count - just need at least timestamp, user, process
+  if length(parts) < 3 {
+    log("Sysdig output has fewer parts than expected (" + to_string(length(parts)) + "): " + raw_msg, level: "warn")
+    abort
+  }
+  
+  # Parse timestamp (first two parts) - handle multiple formats more robustly
+  timestamp_str = if length(parts) > 1 { string!(parts[0]) + " " + string!(parts[1]) } else { string!(parts[0]) }
+  log("Trying to parse timestamp: " + timestamp_str, level: "debug")
+  
+  # Try different timestamp formats - be very flexible
+  .timestamp = parse_timestamp(timestamp_str, format: "%Y-%m-%d %H:%M:%S") ??
+               now()
+  
+  # Parse user (third part) - handle cases where it might be missing
+  .user = if length(parts) > 2 { parts[2] } else { "unknown" }
+  
+  # Parse executable path (fourth part) - handle cases where it might be missing  
+  .process_path = if length(parts) > 3 { parts[3] } else { "unknown" }
+  
+  # Extract IP:port combinations from the remaining parts
+  .connection_endpoints = []
+  
+  for_each(parts) -> |_index, part| {
+    # Look for patterns like IP:port, but exclude time patterns (HH:MM:SS format)
+    # Also exclude parts that are exactly in time format or look like time
+    is_time_pattern = length(part) == 8 && contains(part, ":") && 
+                     (starts_with(part, "0") || starts_with(part, "1") || starts_with(part, "2"))
+    
+    if contains(part, ":") && 
+       !starts_with(part, "pid=") && 
+       !starts_with(part, "ppid=") &&
+       !is_time_pattern {
+      .connection_endpoints = push(.connection_endpoints, part)
+    }
+  }
+  
+  # Remove duplicates from connection_endpoints
+  .connection_endpoints = unique(.connection_endpoints)
+
+  # Create unique key for deduplication - handle empty connection_endpoints gracefully
+  endpoints_str = join(.connection_endpoints, " ") ?? "no_connections"
+  .dedup_key = string!(.user) + "|" + string!(.process_path) + "|" + endpoints_str
+  
+  # Log what we parsed for debugging
+  log("Parsed - user: " + string!(.user) + ", process: " + string!(.process_path) + ", endpoints: " + endpoints_str, level: "debug")
+  
+  # Don't skip events even if no connections - we want to see what's happening for debugging
+  # if length(.connection_endpoints) == 0 {
+  #   log("No connection endpoints found for: " + raw_msg, level: "debug")
+  #   abort
+  # }
+'''
+
+# Deduplicate connections over 60 minutes window
+[transforms.deduplicate_connections]
+type = "dedupe"
+inputs = ["parse_sysdig"]
+fields.match = ["user", "process_path"]
+cache.num_events = 10000
+
+# Aggregate connections by user and process path
+[transforms.aggregate_connections] 
+type = "reduce"
+inputs = ["deduplicate_connections"]
+group_by = ["user", "process_path"]
+merge_strategies.connection_endpoints = "concat"
+# expire_after_ms = 3600000  # 1 hour in milliseconds
+# flush_period_ms = 3600000  # Flush every hour
+expire_after_ms = 300000  # 1 hour in milliseconds
+flush_period_ms = 300000  # Flush every hour
+
+# Format final output
+[transforms.format_output]
+type = "remap"
+inputs = ["aggregate_connections"]
+source = '''
+  # Handle the concatenated connection_endpoints from reduce transform
+  # The connection_endpoints field now contains all endpoints from all events for this user/process
+  
+  # Split the concatenated endpoints back into individual endpoints
+  all_endpoints_raw = split(string!(.connection_endpoints), " ")
+  
+  # Flatten and deduplicate all connection endpoints
+  all_endpoints = []
+  for_each(all_endpoints_raw) -> |_index, endpoint| {
+    # Skip empty strings and "no_connections" entries
+    if length(endpoint) > 0 && endpoint != "no_connections" {
+      # Split by space if there are multiple endpoints in one string
+      individual_endpoints = split(endpoint, " ")
+      for_each(individual_endpoints) -> |_idx, individual_endpoint| {
+        if length(individual_endpoint) > 0 && individual_endpoint != "no_connections" {
+          if !includes(all_endpoints, individual_endpoint) {
+            all_endpoints = push(all_endpoints, individual_endpoint)
+          }
+        }
+      }
+    }
+  }
+  
+  # Final deduplication using unique() function to ensure no duplicates
+  all_endpoints = unique(all_endpoints)
+  
+  # Create the final output format: user, process_path: ip:port|ip:port|ip:port
+  .output = string!(.user) + ", " + string!(.process_path) + ": " + join!(all_endpoints, "|")
+  .timestamp = now()
+'''
+
+# Save to file every hour
+[sinks.hourly_file]
+type = "file"
+inputs = ["format_output"]
+path = "/tmp/vector/network_connections_%Y%m%d_%H.log"
+encoding.codec = "text"
+encoding.text.message_key = "output"
+
+# Also output to console for monitoring
+[sinks.console_output]
+type = "console"
+inputs = ["format_output"]
+encoding.codec = "text"
+encoding.text.message_key = "output"
+
+# Debug sink to see raw parsed data
+[sinks.debug_output]
+type = "console"
+inputs = ["parse_sysdig"]
+encoding.codec = "json"
+encoding.json.pretty = true
+
+# Vector's GraphQL API (disabled by default)
+# Uncomment to try it out with the `vector top` command or
+# in your browser at http://localhost:8686
+# [api]
+# enabled = true
+# address = "127.0.0.1:8686"
