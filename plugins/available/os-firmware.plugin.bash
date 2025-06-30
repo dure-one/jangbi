@@ -44,6 +44,9 @@ function __os-firmware_help {
 function __os-firmware_install {
     local firmware_file
     firmware_file="./pkgs/$(basename "${FIRMWARE_URL}")"
+
+    [[ ! -f ${firmware_file} ]] && log_debug "Downloading Firmware File..." && wget --directory-prefix=./pkgs "${FIRMWARE_URL}"
+
     log_debug "Trying to install os-firmware."
     if [[ -f ${firmware_file} ]]; then
         if [[ ! -f ".firmware_original.tar.gz" ]]; then
@@ -89,10 +92,7 @@ function __os-firmware_check { # running_status: 0 running, 1 installed, running
         log_info "FIRMWARE_URL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_FIRMWARE} != 1 ]] && \
         log_info "RUN_OS_FIRMWARE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
-    # check new firmware file exists
-    [[ ! -f ./pkgs/$(basename "${FIRMWARE_URL}") ]] && \
-        log_info "${RUN_OS_FIRMWARE} file not exists in pkg directory." && [[ $running_status -lt 10 ]] && running_status=10
-
+    
     # check old firmware backup exists
     [[ ! -f .firmware_original.tar.gz ]] && \
         log_info "original firmware backup file(.firmware_original.tar.gz) does not exist" && [[ $running_status -lt 5 ]] && running_status=5
