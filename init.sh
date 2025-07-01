@@ -72,7 +72,7 @@ RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
 LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
 LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
 
-if [[ -z ${JB_DEPLOY_PATH} ]]; then
+if [[ -z ${JB_VARS} ]]; then
     _load_config
     _root_only
     _distname_check

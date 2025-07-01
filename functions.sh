@@ -2695,7 +2695,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   local conf=.config
   JB_VARS=""
   [[ -z "$1" ]] && conf=/opt/jangbi/.config
-  [[ ! -f "${conf}" ]] && log_fatal "config file ${conf} not exist." && return 1
+  [[ ! -f "${conf}" ]] && log_fatal "config file ${conf} not exist." && exit 1
   stack=()
   push() { stack+=("$@"); }
   # track config to top
@@ -2736,7 +2736,7 @@ _checkbin() {
 _root_only() {
   if [[ $EUID -ne 0 ]]; then
     log_fatal "This script must be run as root"
-    return 1
+    exit 1
   fi
 }
 

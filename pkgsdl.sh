@@ -4,7 +4,7 @@ SCRIPT_FILENAME=$(basename "$self")
 cd $(dirname $0)
 source functions.sh
 
-if [[ -z ${JB_DEPLOY_PATH} ]]; then
+if [[ -z ${JB_VARS} ]]; then
     _load_config
     _root_only
     _distname_check
@@ -17,6 +17,8 @@ fi
 arch2=$(arch) 
 arch1=$(dpkg --print-architecture) 
 os=$(uname -s)
+
+bash init.sh --sync
 
 pkg_str="$(cat pkgs.list|grep -v "^#"|grep -v -e '^[[:space:]]*$')"
 IFS=$'\n' read -rd '' -a lines <<<"$pkg_str"

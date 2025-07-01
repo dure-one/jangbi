@@ -11,7 +11,7 @@ function net-sshd {
     param '2: params'
     example '$ net-sshd check/install/uninstall/run'
 
-    if [[ -z ${JB_DEPLOY_PATH} ]]; then
+    if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
         _distname_check
