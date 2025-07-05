@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([5fcbf2a](https://github.com/dure-one/jangbi/commit/5fcbf2a54b3948acf691c8f8fcb82e330975ae3b) by nikescar).
+- Add changelog automatically ([d5408c1](https://github.com/dure-one/jangbi/commit/d5408c10932beeff5b195248a7e6f1bc50ec5579) by nikescar).
 
 ### Fixed
 
+- fix: fix varible check on start, fix root check ([7211493](https://github.com/dure-one/jangbi/commit/72114936c43e8fee40685f594697c8bdc131bcbd) by Woojae, Park).
+- fix: iso download for pkgsdl arch fix ([4292c22](https://github.com/dure-one/jangbi/commit/4292c221bbdad509225dabb51952e24ae41d1dba) by Woojae, Park).
 - fix: download firmware file on install process ([da67a29](https://github.com/dure-one/jangbi/commit/da67a2909211cd76b29094a0cb7060c72da7c917) by Woojae, Park).
 - fix: change arch automatically on download ([b783518](https://github.com/dure-one/jangbi/commit/b7835188c8fda0f19fd5a00fd6b453ca426b9007) by Woojae, Park).
 - fix: dnsmasq port error ([62b584d](https://github.com/dure-one/jangbi/commit/62b584dda49cb3286ca2ec4922b2d6e312689c63) by Woojae, Park).
