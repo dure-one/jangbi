@@ -137,11 +137,11 @@ function __net-dnsmasq_generate_config {
         netminip="127.0.0.1"
         netmaxip="127.0.0.1"
     fi
-    if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
-        upstreamdns="127.0.0.1"
-    else
-        upstreamdns="${DNS_UPSTREAM}"
-    fi
+    # if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
+    #    upstreamdns="127.0.0.1"
+    #else
+    upstreamdns="${DNS_UPSTREAM}"
+    #fi
     tee /etc/dnsmasq.d/dnsmasq.conf > /dev/null <<EOT
 # JB_ROLE=${JB_ROLE}
 domain-needed
@@ -295,11 +295,11 @@ function __net-dnsmasq_run {
 
     # RUN_NET_DNSMASQ=1 JB_ROLE=client 127.0.0.2:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
     # RUN_NET_DNSMASQ=1 JB_ROLE=gateway 192.168.0.1:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
-    if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
-        echo "nameserver 127.0.0.2"|tee /etc/resolv.conf
-    else
-        echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
-    fi
+    # if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
+    #     echo "nameserver 127.0.0.2"|tee /etc/resolv.conf
+    # else
+    echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
+    # fi
     chmod 444 /etc/resolv.conf
     _time_sync "${DNS_UPSTREAM}"
 
