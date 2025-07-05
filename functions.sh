@@ -951,7 +951,7 @@ spinner () {
         if [ ${SPINNER_CLEAR} -eq 1 ]; then
           tput el
         fi
-	      rm -f ${SPINNER_DONEFILE}
+	      rm -f ${SPINNER_DONEFILE} "=1000" "=500" 2>/dev/null
 	      break 2
       fi
       # This is questionable. sleep with fractional seconds is not
@@ -1087,7 +1087,7 @@ run_ok () {
       printf "$log_pref Failed with error: ${res}\\n" >> ${RUN_LOG}
       env printf "${REDBG} ER ${NORMAL}\\n"
       if [ "$RUN_ERRORS_FATAL" ]; then
-        log_fatal "Something went wrong with the previous command. Exiting."
+        log_fatal "Something went wrong with the previous command. Exiting.\n"
         return 1
       fi
       return ${res}

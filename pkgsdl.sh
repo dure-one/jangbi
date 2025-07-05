@@ -59,13 +59,13 @@ for((j=0;j<${#lines[@]};j++)){
             if [[ ${#durls[@]} -gt 1 ]]; then
                 if [[ ${durl} == *"linux"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
                     echo "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-                    wget --directory-prefix=./"${pkgdir}" "${durl}"
+                    wget --directory-prefix=./"${pkgdir}" "${durl}" || echo "error downloading ${pkgfile}"; exit 1
                     break
                 fi
             else
                 if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
                     echo "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-                    wget --directory-prefix=./"${pkgdir}" "${durl}"
+                    wget --directory-prefix=./"${pkgdir}" "${durl}" || echo "error downloading ${pkgfile}"; exit 1
                     break
                 fi
             fi

@@ -107,6 +107,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 load_plugin=${load_plugin,,}
                 load_plugin=${load_plugin//_/-}
                 _enable-thing "plugins" "plugin" "${load_plugin}" "250" # enable which is set 1 on config
+                source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
                 [[ ${group_txt// /} == "postnet" ]] && postnet+=(${load_plugin})
                 [[ ${group_txt// /} == "prenet" ]] && prenet+=(${load_plugin})
@@ -119,7 +120,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 }
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
-source 'reloader.bash' 'plugin' 'plugins'
+# source 'reloader.bash' 'plugin' 'plugins'
 log_debug "====="
 
 #####
