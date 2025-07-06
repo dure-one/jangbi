@@ -167,6 +167,7 @@ function __net-iptables_check { # running_status: 0 running, 1 installed, runnin
 }
 
 function __net-iptables_run {
+    echo ""> /etc/nftables.conf # prevent not running because of xttables for nftables
     systemctl restart nftables
 
     # backup and restore is failed too often
