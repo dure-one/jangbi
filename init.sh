@@ -96,14 +96,15 @@ durl="http://ftp.de.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
-_disable-thing "plugins" "plugin" "all" # disable all plugins for apply configs
+# _disable-thing "plugins" "plugin" "all" # disable all plugins for apply configs
+rm ./enabled/* # remove all enabled plugins
 prenet=() postnet=()
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown")
-    _enable-thing "plugins" "plugin" "net-ifupdown" "250"
+    ln -s "./plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
 else # case 1 full systemd
     postnet+=("net-netplan")
-    _enable-thing "plugins" "plugin" "net-netplan" "250"
+    ln -s "./plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
 fi
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
@@ -116,7 +117,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 load_plugin=${JB_VARS[j]##RUN_}
                 load_plugin=${load_plugin,,}
                 load_plugin=${load_plugin//_/-}
-                _enable-thing "plugins" "plugin" "${load_plugin}" "250" # enable which is set 1 on config
+                ln -s "./plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
                 source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
                 [[ ${group_txt// /} == "postnet" ]] && postnet+=(${load_plugin})
