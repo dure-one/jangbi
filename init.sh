@@ -216,11 +216,6 @@ fi
 if [[ ${JB_ROLE} = "gateway" ]]; then
     log_debug "Enabling forwarding on kernel."
     echo "1" > /proc/sys/net/ipv4/ip_forward
-    # enable iptables
-    if [[ ${RUN_NET_IPTABLES} -gt 0 ]]; then
-        log_debug "Enabling iptables."
-        _iptables_enable
-    fi
 else
     log_debug "Not gateway, disabling forwarding on kernel."
     echo "0" > /proc/sys/net/ipv4/ip_forward
