@@ -65,7 +65,7 @@ function __net-dnsmasq_generate_config {
     if [[ ${JB_ROLE} = 'gateway' ]]; then
         # 1. JB_LANINF exists 2. netinf not set 3. JB_LANINF is up
         if [[ -n ${JB_LANINF} && -z ${netinf} ]]; then
-            if [[ $(< "/sys/class/net/${JB_LANINF}/operstate") = "up" ]]; then
+            if [[ $(< "/sys/class/net/${JB_LANINF}/operstate") = *"up"* ]]; then
                 netinf=${JB_LANINF}
                 netrange=${JB_LAN}
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="no-dhcpv6-interface=${JB_LANINF}"
@@ -77,7 +77,7 @@ function __net-dnsmasq_generate_config {
         if [[ -n ${JB_WLANINF} && -z ${netinf} ]]; then
             local netstate
             netstate=$(< "/sys/class/net/${JB_WLANINF}/operstate")
-            if [[ ${netstate} = "up" ]]; then
+            if [[ ${netstate} = *"up"* ]]; then
                 netinf=${JB_WLANINF}
                 netrange=${JB_WLAN}
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
@@ -87,7 +87,7 @@ function __net-dnsmasq_generate_config {
         elif [[ -n ${JB_WLANINF} && -n ${netinf} ]]; then
             local netstate
             netstate=$(< "/sys/class/net/${JB_WLANINF}/operstate")
-            if [[ ${netstate} = "up" ]]; then
+            if [[ ${netstate} = *"up"* ]]; then
                 addiinf=${JB_WLANINF}
                 addirange=${JB_WLAN}
 
@@ -245,7 +245,7 @@ function __net-dnsmasq_run {
 
     # DNSMASQ_DENY_DHCP_WAN
     if [[ -n ${JB_WANINF} ]]; then # RUN_NET_IPTABLES=1
-        if [[ $(< /sys/class/net/${JB_WANINF}/operstate) == "up" ]]; then
+        if [[ $(< /sys/class/net/${JB_WANINF}/operstate) = *"up"* ]]; then
             log_debug "dnsmasq deny dhcp service for WAN"
             iptables -S | grep "DMQ_DW1_${JB_WANINF}" || \
                 iptables -t filter -I INPUT -i ${JB_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${JB_WANINF} -j DROP
@@ -254,7 +254,7 @@ function __net-dnsmasq_run {
 
     # DNSMASQ_DHCPB DNSMASQ_DNSR
     if [[ -n ${JB_LANINF} ]]; then
-        if [[ $(< /sys/class/net/${JB_LANINF}/operstate) == "up" ]]; then
+        if [[ $(< /sys/class/net/${JB_LANINF}/operstate) = *"up"* ]]; then
             log_debug "dnsmasq accept dhcp for LAN"
             iptables -S | grep "DMQ_DLA_${JB_LANINF}" || \
                 iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DLA_${JB_LANINF} -j ACCEPT
@@ -265,7 +265,7 @@ function __net-dnsmasq_run {
         fi
     fi
     if [[ -n ${JB_WLANINF} ]]; then
-        if [[ $(< /sys/class/net/${JB_WLANINF}/operstate) == "up"  ]]; then
+        if [[ $(< /sys/class/net/${JB_WLANINF}/operstate) = *"up"*  ]]; then
             log_debug "dnsmasq accept dhcp for WLAN"
             iptables -S | grep "DMQ_DWLA_${JB_WLANINF}" || \
                 iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DWLA_${JB_WLANINF} -j ACCEPT

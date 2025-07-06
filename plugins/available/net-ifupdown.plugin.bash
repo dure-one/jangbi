@@ -463,7 +463,7 @@ function __net-ifupdown_run {
     # IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
     # for((j=0;j<${#dure_infs[@]};j++)){
     #     operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
-    #     if [[ ${operstate} == "up" ]]; then
+    #     if [[ ${operstate} == *"up"* ]]; then
     #         sed -i "s|iface ${dure_infs[j]} inet manual.*|iface ${dure_infs[j]} inet dhcp|g" /etc/network/interfaces
     #     elif [[ ${operstate} == "down" ]]; then
     #         sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
