@@ -293,7 +293,7 @@ function __net-iptables_build {
 
     # PORT FORWARDING WAN->LAN
     # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090|8010:192.168.0.1:8010"
-    if [[ ${IPTABLES_PORTFORWARD} -gt 0 ]]; then
+    if [[ ${#IPTABLES_PORTFORWARD} -gt 0 ]]; then
         IFS=$'|' read -d "" -ra forwardsinfo <<< "${IPTABLES_PORTFORWARD}" # split
         for((j=0;j<${#forwardsinfo[@]};j++)){
             IFS=$':' read -d "" -ra forwardinfo <<< "${forwardsinfo[j]}" # split
