@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([6a42b4b](https://github.com/dure-one/jangbi/commit/6a42b4b55da6c9dd56a0dca68ad11d4484b4ca06) by nikescar).
+- Add changelog automatically ([e7a2a09](https://github.com/dure-one/jangbi/commit/e7a2a095baf91c93b4267359e9b6fafdcdc77fb7) by nikescar).
 
 ### Fixed
 
+- fix: put specific error msg ([b6cc7fe](https://github.com/dure-one/jangbi/commit/b6cc7fe5575ae36fcbbda67da71b71f2dac03358) by Woojae, Park).
 - fix: fix systemd check setting for 3 scenario ([b283acd](https://github.com/dure-one/jangbi/commit/b283acd276bc52782083fec0275bfba996faddb9) by Woojae, Park).
 - fix: dnsmasq net inf check error ([cb4e027](https://github.com/dure-one/jangbi/commit/cb4e027e48fabc688d9fa44261802949981b0ff9) by Woojae, Park).
 - fix: dnsmasq net inf state check error ([5672f8f](https://github.com/dure-one/jangbi/commit/5672f8ff45eca50ed72ddc8025701d6878dcd2a1) by Woojae, Park).
