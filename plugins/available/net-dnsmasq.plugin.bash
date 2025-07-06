@@ -119,33 +119,43 @@ function __net-dnsmasq_generate_config {
                 local lanxinf lanxip lanxminip lanxmaxip
                 IFS=$'<' read -d "" -ra MASQINFS <<< "${MASQROUTES[j]}"
                 if [[ $(_trim_string "${MASQINFS[0]}") = "LAN0" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN0INF} ]] && log_error "JB_LAN0INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN0INF}
                     lanxipNET=${JB_LAN0}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN1" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN1INF} ]] && log_error "JB_LAN1INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN1INF}
                     lanxipNET=${JB_LAN1}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN2" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN2INF} ]] && log_error "JB_LAN2INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN2INF}
                     lanxipNET=${JB_LAN2}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN3" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN3INF} ]] && log_error "JB_LAN3INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN3INF}
                     lanxipNET=${JB_LAN3}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN4" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN4INF} ]] && log_error "JB_LAN4INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN4INF}
                     lanxipNET=${JB_LAN4}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN5" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN5INF} ]] && log_error "JB_LAN5INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN5INF}
                     lanxipNET=${JB_LAN5}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN6" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN6INF} ]] && log_error "JB_LAN6INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN6INF}
                     lanxipNET=${JB_LAN6}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN7" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN7INF} ]] && log_error "JB_LAN7INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN7INF}
                     lanxipNET=${JB_LAN7}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN8" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN8INF} ]] && log_error "JB_LAN8INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN8INF}
                     lanxipNET=${JB_LAN8}
                 elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN9" && $(_trim_string "${MASQINFS[1]}") = "WAN" ]]; then
+                    [[ -z ${JB_LAN9INF} ]] && log_error "JB_LAN9INF is not set, please check your network configuration." && continue
                     lanxinf=${JB_LAN9INF}
                     lanxipNET=${JB_LAN9}
                 else
