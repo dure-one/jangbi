@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([67653b2](https://github.com/dure-one/jangbi/commit/67653b273846e991863fb43d11d824d9f5df2acd) by nikescar).
+- Add changelog automatically ([8d5aaad](https://github.com/dure-one/jangbi/commit/8d5aaad62816e87cdc5c19768136b29f3756510a) by nikescar).
 
 ### Fixed
 
+- fix: iptables portforward parse error, aide warn for database_ie ([0614a2d](https://github.com/dure-one/jangbi/commit/0614a2d42616d526f3f642a42c9d0b6a1e8d4954) by Woojae, Park).
 - fix: fix multiple interfaces support for dnsmasq ([8ab7a56](https://github.com/dure-one/jangbi/commit/8ab7a56c67ff914bfc36043f7663edd4a0e4e3d9) by Woojae, Park).
 - fix: run os-systemd everytime ([cea126e](https://github.com/dure-one/jangbi/commit/cea126ee7df45fef37227add1d1f5bd245d65067) by Woojae, Park).
 - fix: fix running in check, clean dnsmasq ([5f9fdf4](https://github.com/dure-one/jangbi/commit/5f9fdf4647767057aff03d6d2c28a215f2d32bc3) by Woojae, Park).
