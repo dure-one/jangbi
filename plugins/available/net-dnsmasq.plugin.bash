@@ -64,27 +64,39 @@ function __net-dnsmasq_generate_config {
     local addiinf addirange addiip addiminip addimaxip
     if [[ ${JB_ROLE} = 'gateway' ]]; then
         # 1. JB_LANINF exists 2. netinf not set 3. JB_LANINF is up
-        if [[ -n ${JB_LANINF} && -z ${netinf} && $(cat /sys/class/net/${JB_LANINF}/operstate) = "up" ]]; then
-            netinf=${JB_LANINF}
-            netrange=${JB_LAN}
-            [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_LANINF}"
+        if [[ -n ${JB_LANINF} && -z ${netinf} ]]; then
+            if [[ $(cat /sys/class/net/${JB_LANINF}/operstate) = "up" ]]; then
+                netinf=${JB_LANINF}
+                netrange=${JB_LAN}
+                [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="no-dhcpv6-interface=${JB_LANINF}"
+            else
+                log_error "JB_LANINF is not up, please check your network configuration."
+            fi
         fi
         
-        if [[ -n ${JB_WLANINF} && -z ${netinf} && $(cat /sys/class/net/${JB_WLANINF}/operstate) = "up" ]]; then
-            netinf=${JB_WLANINF}
-            netrange=${JB_WLAN}
-            [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
-        elif [[ -n ${JB_WLANINF} && -n ${netinf} && $(cat /sys/class/net/${JB_WLANINF}/operstate) = "up" ]]; then
-            addiinf=${JB_WLANINF}
-            addirange=${JB_WLAN}
+        if [[ -n ${JB_WLANINF} && -z ${netinf} ]]; then
+            if [[ $(cat /sys/class/net/${JB_WLANINF}/operstate) = "up" ]]; then
+                netinf=${JB_WLANINF}
+                netrange=${JB_WLAN}
+                [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
+            else
+                log_error "JB_WLANINF is not up, please check your network configuration."
+            fi
+        elif [[ -n ${JB_WLANINF} && -n ${netinf} ]]; then
+            if [[ $(cat /sys/class/net/${JB_WLANINF}/operstate) = "up" ]]; then
+                addiinf=${JB_WLANINF}
+                addirange=${JB_WLAN}
 
-            addiip=$(ipcalc-ng "${addirange}"|grep Address:|cut -f2)
-            addiminip=$(ipcalc-ng "${addirange}"|grep HostMin:|cut -f2)
-            addimaxip=$(ipcalc-ng "${addirange}"|grep HostMax:|cut -f2)
+                addiip=$(ipcalc-ng "${addirange}"|grep Address:|cut -f2)
+                addiminip=$(ipcalc-ng "${addirange}"|grep HostMin:|cut -f2)
+                addimaxip=$(ipcalc-ng "${addirange}"|grep HostMax:|cut -f2)
 
-            additional_listenaddr="${additional_listenaddr}listen-address=${addiip}"
-            additional_netinf="${additional_netinf}interface=${addiinf}"
-            additional_dhcprange="${additional_dhcprange}dhcp-range=interface:${addiinf},${addiminip},${addimaxip},12h"
+                additional_listenaddr="${additional_listenaddr}listen-address=${addiip}"
+                additional_netinf="${additional_netinf}interface=${addiinf}"
+                additional_dhcprange="${additional_dhcprange}dhcp-range=interface:${addiinf},${addiminip},${addimaxip},12h"
+            else
+                log_error "JB_WLANINF is not up, please check your network configuration."
+            fi
         fi
 
         if [[ -z ${netinf} ]]; then
