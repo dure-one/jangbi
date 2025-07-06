@@ -109,12 +109,15 @@ log_debug "Printing Loaded Configs..."
 rm ./enabled/* 2>/dev/null # remove all enabled plugins
 prenet=("os-systemd") postnet=()
 ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
+source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown")
     ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
+    source $(find ./enabled|grep bash|grep "net-ifupdown") # load plugin
 else # case 1 full systemd
     postnet+=("net-netplan")
     ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
+    source $(find ./enabled|grep bash|grep "net-netplan") # load plugin
 fi
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
