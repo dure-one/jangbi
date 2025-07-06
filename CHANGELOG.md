@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([27fbb75](https://github.com/dure-one/jangbi/commit/27fbb754abe4ac3c5f78731d14edb532449e655f) by nikescar).
+- Add changelog automatically ([09eb8a0](https://github.com/dure-one/jangbi/commit/09eb8a0a0b6b0ff102219d7e06f58deea62d28ff) by nikescar).
 
 ### Fixed
 
+- fix: file contents may have carriage return ([1bffe9a](https://github.com/dure-one/jangbi/commit/1bffe9a3d1d7f16031d58930043e8fa5bc4d558c) by Woojae, Park).
 - fix: the case for vars not ready ([becb07f](https://github.com/dure-one/jangbi/commit/becb07f293063199a1952daf79d7f06aeb11fef3) by Woojae, Park).
 - fix: fix not loading some plugins on start ([98d0a01](https://github.com/dure-one/jangbi/commit/98d0a013cce4021322f1b5508c6e44077832963b) by Woojae, Park).
 - fix: replace cat command to arrow mark ([ca3ae1c](https://github.com/dure-one/jangbi/commit/ca3ae1c838d9afb4fe4a45ce17eca1392e33ded8) by Woojae, Park).
