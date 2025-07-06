@@ -84,6 +84,16 @@ fi
 [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
     log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
+# install extrepo if not exists
+durl="https://ftp.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl_0.077-1+b1_$(dpkg --print-architecture).deb"
+[[ $(dpkg -l|awk '{print $2}'|grep libcryptx-perl|wc -l) -lt 1 ]] && \
+    wget --directory-prefix=./pkgs "${durl}" && \
+    apt install -qy ./pkgs/libcryptx-perl_*.deb
+durl="http://ftp.de.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
+[[ $(dpkg -l|awk '{print $2}'|grep extrepo|wc -l) -lt 1 ]] && \
+    wget --directory-prefix=./pkgs "${durl}" && \
+    apt install -qy ./pkgs/extrepo_*.deb
+
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
 _disable-thing "plugins" "plugin" "all" # disable all plugins for apply configs
@@ -120,10 +130,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 }
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
-# source 'reloader.bash' 'plugin' 'plugins'
-log_debug "====="
 
-#####
 # add to rclocal
 if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then
     [ ! -f "/etc/rc.local" ] && cp ./configs/rc.local /etc/rc.local
@@ -206,9 +213,15 @@ else
 fi
 
 # allow forwarding when gateway
-# echo "1" > /proc/sys/net/ipv4/ip_forward
-
-# disable offline repository
-#if [[ ${RUN_OS_REPOS} -gt 0 ]]; then
-#    umount /opt/jangbi/imgs/debian
-#fi
+if [[ ${JB_ROLE} = "gateway" ]]; then
+    log_debug "Enabling forwarding on kernel."
+    echo "1" > /proc/sys/net/ipv4/ip_forward
+    # enable iptables
+    if [[ ${RUN_NET_IPTABLES} -gt 0 ]]; then
+        log_debug "Enabling iptables."
+        _iptables_enable
+    fi
+else
+    log_debug "Not gateway, disabling forwarding on kernel."
+    echo "0" > /proc/sys/net/ipv4/ip_forward
+fi

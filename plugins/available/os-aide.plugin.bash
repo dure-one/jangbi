@@ -45,7 +45,8 @@ function __os-aide_install {
     log_debug "Trying to install os-aide."
 
     export DEBIAN_FRONTEND=noninteractive
-    apt install -yq ./pkgs/aide*.deb
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "aide") -lt 1 ]] && apt install -qy aide
     
     mkdir -p /etc/aide /var/lib/aide /var/log/aide
     cp -rf ./configs/aide/aide.conf /etc/aide/aide.conf # normal configurations

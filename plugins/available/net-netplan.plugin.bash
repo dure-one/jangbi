@@ -44,11 +44,11 @@ function __net-netplan_help {
 function __net-netplan_install {
     local nftables_override="$1" # $NFTABLES_OVERRIDE
     local disable_ipv6="$2"
+
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-netplan."
-    [[ $(dpkg -l|awk '{print $2}'|grep libnetplan0|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libnetplan0*.deb
-    [[ $(dpkg -l|awk '{print $2}'|grep python3-netifaces|wc -l) -lt 1 ]] && apt install -qy ./pkgs/python3-netifaces*.deb
-    apt install -yq ./pkgs/netplan.io*.deb
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "netplan.io") -lt 1 ]] && apt install -qy netplan.io
     mkdir -p /etc/netplan
     __net-netplan_build
 }

@@ -45,9 +45,8 @@ function __net-sshd_install {
     log_debug "Trying to install net-sshd."
 
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(dpkg -l|awk '{print $2}'|grep runit-helper|wc -l) -lt 1 ]] && apt install -qy ./pkgs/runit-helper_*.deb
-    [[ $(dpkg -l|awk '{print $2}'|grep openssh-sftp-server|wc -l) -lt 1 ]] && apt install -qy ./pkgs/openssh-sftp-server_*.deb
-    apt install -qy ./pkgs/openssh-server_*.deb
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "openssh-server") -lt 1 ]] && apt install -qy openssh-server
     mkdir -p /run/sshd
 
     local ssh_config="# JB_SSHD_CONFIG" infip

@@ -43,11 +43,10 @@ function __os-redis_help {
 
 function __os-redis_install {
     log_debug "Trying to install os-redis."
-    extrepo enable redis
-    extrepo update redis
     export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "redis") -lt 1 ]] && extrepo enable redis; extrepo update redis
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "redis-server") -lt 1 ]] && apt install -qy redis-server
     # apt-get update -qy -o Dir::Etc::sourcelist="sources.list.d/redis.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
-    apt -qy install redis-server
     mkdir -p /var/log/redis
     chown redis:redis /var/log/redis
     systemctl enable redis-server

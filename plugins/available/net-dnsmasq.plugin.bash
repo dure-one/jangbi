@@ -44,7 +44,8 @@ function __net-dnsmasq_help {
 function __net-dnsmasq_install { # RUN_NET_DNSMASQ
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-dnsmasq.."
-    apt install -yq dnsmasq-base
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq-base") -lt 1 ]] && apt install -qy dnsmasq-base
     mkdir -p /etc/dnsmasq.d
     cp -rf ./configs/dnsmasq/dnsmasq.conf.default /etc/dnsmasq.d/
     cp -rf ./configs/dnsmasq/trust-anchors.conf /etc/dnsmasq.d/

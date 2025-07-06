@@ -74,7 +74,11 @@ function __os-systemd_disable_completely {
         systemd-networkd systemd-networkd.socket
     systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    apt install -yq isc-dhcp-client
+
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && apt install -qy isc-dhcp-client
+
     systemctl enable networking.service
 }
 
@@ -94,7 +98,10 @@ function __os-systemd_only_journald {
         systemd-networkd systemd-networkd.socket
     systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    apt install -yq isc-dhcp-client
+    
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && apt install -qy isc-dhcp-client
     systemctl enable networking.service
 }
 
@@ -121,8 +128,12 @@ function __os-systemd_uninstall {
         systemd-networkd systemd-networkd.socket
     systemctl unmask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl unmask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
+    
     apt remove -yq isc-dhcp-client
-    apt install -yq systemd-timesyncd systemd-resolved rsyslog
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-timesyncd") -lt 1 ]] && apt install -qy systemd-timesyncd systemd-resolved rsyslog
+
 }
 
 function __os-systemd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip

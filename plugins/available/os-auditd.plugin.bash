@@ -44,8 +44,8 @@ function __os-auditd_help {
 function __os-auditd_install {
     log_debug "Trying to install os-auditd."
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(dpkg -l|awk '{print $2}'|grep libauparse0|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libauparse0*.deb
-    apt install -qy ./pkgs/auditd*.deb
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "auditd") -lt 1 ]] && apt install -qy auditd
 
     # auditd hardening dynamic
     mkdir -p /etc/audit

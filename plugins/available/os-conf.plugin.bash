@@ -96,9 +96,6 @@ function __os-conf_install {
     crontab /tmp/mycron
     rm /tmp/mycron
 
-    # E. extrepo install
-    [[ $(dpkg -l|awk '{print $2}'|grep libcryptx-perl|wc -l) -lt 1 ]] && apt install -qy ./pkgs/libcryptx-perl_*.deb
-    apt install -qy ./pkgs/extrepo*.deb
 }
 
 function __os-conf_uninstall { 

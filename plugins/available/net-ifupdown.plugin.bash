@@ -43,7 +43,8 @@ function __net-ifupdown_help {
 
 function __net-ifupdown_install {
     # install ifupdown
-    apt install -qy ./pkgs/ifupdown*.deb
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && apt install -qy ifupdown
     mkdir -p /etc/network/default
     mv /etc/network/* /etc/network/default 2>/dev/null
     mkdir -p /etc/network/if-post-down.d /etc/network/if-pre-up.d /etc/network/if-up.d /etc/network/if-down.d

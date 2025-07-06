@@ -85,9 +85,9 @@ function __os-repos_enable_offline {
         mount -o loop "${JB_DEPLOY_PATH}/imgs/${DIST_PKG_IMG}" "${JB_DEPLOY_PATH}/imgs/debian"
     
     # add offline repository
-    if [[ $(grep -c "cdrom:" < "/etc/apt/sources.list") -lt 1 ]]; then
+    if [[ $(grep -c "file:" < "/etc/apt/sources.list") -lt 1 ]]; then
         tee -a /etc/apt/sources.list > /dev/null <<EOT
-deb [trusted=yes] file:${JB_DEPLOY_PATH}/imgs/debian bookworm main contrib non-free non-free-firmware # DEBIAN SECURITY
+deb [trusted=yes] file:${JB_DEPLOY_PATH}/imgs/debian bookworm main contrib non-free non-free-firmware # DEBIAN OFFLINEREPO
 EOT
     fi
     # if [[ $(grep -c "cdrom:" < "/etc/apt/sources.list") -lt 1 ]]; then
