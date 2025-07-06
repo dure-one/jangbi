@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([0f33696](https://github.com/dure-one/jangbi/commit/0f33696700921436c0215ce122fc2a1822bdae2e) by nikescar).
+- Add changelog automatically ([67653b2](https://github.com/dure-one/jangbi/commit/67653b273846e991863fb43d11d824d9f5df2acd) by nikescar).
 
 ### Fixed
 
+- fix: fix multiple interfaces support for dnsmasq ([8ab7a56](https://github.com/dure-one/jangbi/commit/8ab7a56c67ff914bfc36043f7663edd4a0e4e3d9) by Woojae, Park).
+- fix: run os-systemd everytime ([cea126e](https://github.com/dure-one/jangbi/commit/cea126ee7df45fef37227add1d1f5bd245d65067) by Woojae, Park).
 - fix: fix running in check, clean dnsmasq ([5f9fdf4](https://github.com/dure-one/jangbi/commit/5f9fdf4647767057aff03d6d2c28a215f2d32bc3) by Woojae, Park).
 - fix: fix unexpected end of start of rc.local ([7c4c3db](https://github.com/dure-one/jangbi/commit/7c4c3db9f3dd8d83f9be22102f43aef3f9cb0b08) by Woojae, Park).
 - fix: fix unnecessary part ([90cc626](https://github.com/dure-one/jangbi/commit/90cc626f12005a9c4ec9c054c093ee4abb0a8099) by Woojae, Park).
