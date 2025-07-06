@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([0ad6438](https://github.com/dure-one/jangbi/commit/0ad64387517d0bcc37929b2900eeb98ee4c800dd) by nikescar).
+- Add changelog automatically ([27fbb75](https://github.com/dure-one/jangbi/commit/27fbb754abe4ac3c5f78731d14edb532449e655f) by nikescar).
 
 ### Fixed
 
+- fix: the case for vars not ready ([becb07f](https://github.com/dure-one/jangbi/commit/becb07f293063199a1952daf79d7f06aeb11fef3) by Woojae, Park).
+- fix: fix not loading some plugins on start ([98d0a01](https://github.com/dure-one/jangbi/commit/98d0a013cce4021322f1b5508c6e44077832963b) by Woojae, Park).
 - fix: replace cat command to arrow mark ([ca3ae1c](https://github.com/dure-one/jangbi/commit/ca3ae1c838d9afb4fe4a45ce17eca1392e33ded8) by Woojae, Park).
 - fix: put specific error msg ([b6cc7fe](https://github.com/dure-one/jangbi/commit/b6cc7fe5575ae36fcbbda67da71b71f2dac03358) by Woojae, Park).
 - fix: fix systemd check setting for 3 scenario ([b283acd](https://github.com/dure-one/jangbi/commit/b283acd276bc52782083fec0275bfba996faddb9) by Woojae, Park).
