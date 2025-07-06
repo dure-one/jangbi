@@ -67,7 +67,7 @@ function __net-dnsmasq_generate_config {
             netip=$(ipcalc-ng "${JB_LAN}"|grep Address:|cut -f2)
             netminip=$(ipcalc-ng "${JB_LAN}"|grep HostMin:|cut -f2)
             netmaxip=$(ipcalc-ng "${JB_LAN}"|grep HostMax:|cut -f2)
-            [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_LANINF}\n"
+            [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_LANINF}"
         elif [[ -n ${JB_WLANINF} ]]; then
             netinf=${JB_WLANINF}
             netip=$(ipcalc-ng "${JB_WLAN}"|grep Address:|cut -f2)
@@ -75,7 +75,7 @@ function __net-dnsmasq_generate_config {
             netmaxip=$(ipcalc-ng "${JB_WLAN}"|grep HostMax:|cut -f2)
             # ip link set ${JB_WLANINF} up
             # ip addr add ${JB_WLAN} dev ${JB_WLANINF}
-            [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}\n"
+            [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
         else
             netinf="lo"
             netip="127.0.0.1"
@@ -125,10 +125,10 @@ function __net-dnsmasq_generate_config {
                 lanxip=$(ipcalc-ng "${lanxipNET}"|grep Address:|cut -f2)
                 lanxminip=$(ipcalc-ng "${lanxipNET}"|grep HostMin:|cut -f2)
                 lanxmaxip=$(ipcalc-ng "${lanxipNET}"|grep HostMax:|cut -f2)
-                additional_listenaddr="${additional_listenaddr}listen-address=${lanxip}\n"
-                additional_netinf="${additional_netinf}interface=${lanxinf}\n"
-                additional_dhcprange="${additional_dhcprange}dhcp-range=interface:${lanxinf},${lanxminip},${lanxmaxip},12h\n"
-                [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${lanxinf}\n"
+                additional_listenaddr="${additional_listenaddr}listen-address=${lanxip}"
+                additional_netinf="${additional_netinf}interface=${lanxinf}"
+                additional_dhcprange="${additional_dhcprange}dhcp-range=interface:${lanxinf},${lanxminip},${lanxmaxip},12h"
+                [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${lanxinf}"
             }
         fi
     else # local->wan # client mode, wstunnel mode

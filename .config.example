@@ -47,6 +47,7 @@ NFTABLES_OVERRIDE=""
 # arp rules
 IPTABLES_WHITELISTED_MACADDRESSES=""
 IPTABLES_GWMACONLY=1
+IPTABLES_ARPALLINFS=1
 # net rules
 IPTABLES_BLACK_NAMELIST="https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
 # host rules

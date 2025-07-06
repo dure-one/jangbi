@@ -231,6 +231,9 @@ function __net-iptables_build {
     # IPTABLES_GWMACONLY
     log_debug "iptables_mangle_ext_both_gwmaconly"
     [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
+    # IPTABLES_ARPALLINFS # Arptables : Allow all other network except gateway
+    log_debug "iptables_mangle_all_both_arpallinfs"
+    [[ ${IPTABLES_ARPALLINFS} -gt 0 ]] && __net-iptables_mangle_all_both_arpallinfs
 
     # Base Rules
     if [[ -n ${nftables_override} ]]; then # NFTABLES_OVERRIDE ON
@@ -405,7 +408,8 @@ function __net-iptables_mangle_all_both_macwhitelist {
 # IPTABLES_GWMACONLYIPTABLES_GWMACONLY=1
 function __net-iptables_mangle_ext_both_gwmaconly {
     local funcname targetinf gwip gwmac
-    funcname="mab_gwonly"
+    funcname="meb_gwonly"
+    
     targetinf=$(route|grep default|awk '{print $8}') # net-tools
     targetinf=$(_trim_string ${targetinf})
     gwip=$(routel|grep default|awk '{print $2}') # net-tools
@@ -419,6 +423,34 @@ function __net-iptables_mangle_ext_both_gwmaconly {
 
     arptables -A INPUT -i "${targetinf}" --source-mac "${gwmac}" -j ACCEPT
     log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${gwmac} -j ACCEPT"
+    [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
+}
+
+
+# Arptables : Allow all other network except gateway
+# IPTABLES_ARPALLINFS=1
+function __net-iptables_mangle_all_both_arpallinfs {
+    local funcname targetinf gwip gwmac allinfx
+    funcname="mab_arpallinfs"
+
+    targetinf=$(route|grep default|awk '{print $8}') # net-tools
+    targetinf=$(_trim_string ${targetinf})
+    gwip=$(routel|grep default|awk '{print $2}') # net-tools
+    gwip=$(_trim_string ${gwip})
+    gwmac=$(cat /proc/net/arp|grep "${gwip}"|awk '{print $4}')
+    gwmac=$(_trim_string ${gwmac})
+
+    allinfx=$(cat /proc/net/dev|grep :|awk '{print $1}'|sed 's/://g')
+    for((i=0;i<${#allinfx[@]};i++)){
+        if [[ ${allinfx[i]} = "lo" ]]; then
+            continue
+        fi
+        if [[ ${allinfx[i]} = ${gwmac} ]]; then # except gateway mac
+            continue
+        fi
+        arptables -A INPUT -i "${targetinf}" -j ACCEPT
+        log_debug "arptables -A INPUT -i ${targetinf} -j ACCEPT"
+    }
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 
