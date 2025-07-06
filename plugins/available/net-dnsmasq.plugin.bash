@@ -244,33 +244,37 @@ function __net-dnsmasq_run {
     # __bp_trim_whitespace JB_WLANINF "${JB_WLANINF}"
 
     # DNSMASQ_DENY_DHCP_WAN
-    if [[ -n ${JB_WANINF} && $(cat /sys/class/net/${JB_WANINF}/operstate) == "up" ]]; then # RUN_NET_IPTABLES=1
-        log_debug "dnsmasq deny dhcp service for WAN"
-        iptables -S | grep "DMQ_DW1_${JB_WANINF}" || \
-            iptables -t filter -I INPUT -i ${JB_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${JB_WANINF} -j DROP
+    if [[ -n ${JB_WANINF} ]]; then # RUN_NET_IPTABLES=1
+        if [[ $(< /sys/class/net/${JB_WANINF}/operstate) == "up" ]]; then
+            log_debug "dnsmasq deny dhcp service for WAN"
+            iptables -S | grep "DMQ_DW1_${JB_WANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${JB_WANINF} -j DROP
+        fi
     fi
 
     # DNSMASQ_DHCPB DNSMASQ_DNSR
-    if [[ -n ${JB_LANINF} && $(cat /sys/class/net/${JB_LANINF}/operstate) == "up" ]]; then
-        log_debug "dnsmasq accept dhcp for LAN"
-        iptables -S | grep "DMQ_DLA_${JB_LANINF}" || \
-            iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DLA_${JB_LANINF} -j ACCEPT
-        iptables -S | grep "DMQ_DLB_${JB_LANINF}" || \
-            iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DLB_${JB_LANINF} -j ACCEPT
-        iptables -S | grep "DMQ_DLR_${JB_LANINF}" || \
-            iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 53 -m comment --comment DMQ_DLR_${JB_LANINF} -j ACCEPT
+    if [[ -n ${JB_LANINF} ]]; then
+        if [[ $(< /sys/class/net/${JB_LANINF}/operstate) == "up" ]]; then
+            log_debug "dnsmasq accept dhcp for LAN"
+            iptables -S | grep "DMQ_DLA_${JB_LANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DLA_${JB_LANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DLB_${JB_LANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DLB_${JB_LANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DLR_${JB_LANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 53 -m comment --comment DMQ_DLR_${JB_LANINF} -j ACCEPT
+        fi
     fi
-    
-    if [[ -n ${JB_WLANINF} && $(cat /sys/class/net/${JB_LANINF}/operstate) == "up" ]]; then
-        log_debug "dnsmasq accept dhcp for WLAN"
-        iptables -S | grep "DMQ_DWLA_${JB_WLANINF}" || \
-            iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DWLA_${JB_WLANINF} -j ACCEPT
-        iptables -S | grep "DMQ_DWLB_${JB_WLANINF}" || \
-            iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DWLB_${JB_WLANINF} -j ACCEPT
-        iptables -S | grep "DMQ_DWLR_${JB_WLANINF}" || \
-            iptables -t filter -A INPUT -i ${JB_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${JB_WLANINF} -j ACCEPT
+    if [[ -n ${JB_WLANINF} ]]; then
+        if [[ $(< /sys/class/net/${JB_WLANINF}/operstate) == "up"  ]]; then
+            log_debug "dnsmasq accept dhcp for WLAN"
+            iptables -S | grep "DMQ_DWLA_${JB_WLANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DWLA_${JB_WLANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DWLB_${JB_WLANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DWLB_${JB_WLANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DWLR_${JB_WLANINF}" || \
+                iptables -t filter -A INPUT -i ${JB_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${JB_WLANINF} -j ACCEPT
+        fi
     fi
-
     # Additional Listening for Masqueraded Interface
     if [[ ${RUN_NET_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
         log_debug "dnsmasq accept dhcp for MASQ"
