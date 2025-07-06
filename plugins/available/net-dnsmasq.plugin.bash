@@ -65,17 +65,19 @@ function __net-dnsmasq_generate_config {
     if [[ ${JB_ROLE} = 'gateway' ]]; then
         # 1. JB_LANINF exists 2. netinf not set 3. JB_LANINF is up
         if [[ -n ${JB_LANINF} && -z ${netinf} ]]; then
-            if [[ $(cat "/sys/class/net/${JB_LANINF}/operstate") = "up" ]]; then
+            if [[ $(< "/sys/class/net/${JB_LANINF}/operstate") = "up" ]]; then
                 netinf=${JB_LANINF}
                 netrange=${JB_LAN}
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="no-dhcpv6-interface=${JB_LANINF}"
             else
-                log_error "JB_LANINF(${JB_LANINF}) is not up, please check your network configuration."
+                log_error "JB_LANINF(${JB_LANINF}) is not up, please check your network configuration and config file."
             fi
         fi
         
         if [[ -n ${JB_WLANINF} && -z ${netinf} ]]; then
-            if [[ $(cat "/sys/class/net/${JB_WLANINF}/operstate") = "up" ]]; then
+            local netstate
+            netstate=$(< "/sys/class/net/${JB_WLANINF}/operstate")
+            if [[ ${netstate} = "up" ]]; then
                 netinf=${JB_WLANINF}
                 netrange=${JB_WLAN}
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
@@ -83,7 +85,9 @@ function __net-dnsmasq_generate_config {
                 log_error "JB_WLANINF(${JB_WLANINF}) is not up, please check your network configuration."
             fi
         elif [[ -n ${JB_WLANINF} && -n ${netinf} ]]; then
-            if [[ $(cat "/sys/class/net/${JB_WLANINF}/operstate") = "up" ]]; then
+            local netstate
+            netstate=$(< "/sys/class/net/${JB_WLANINF}/operstate")
+            if [[ ${netstate} = "up" ]]; then
                 addiinf=${JB_WLANINF}
                 addirange=${JB_WLAN}
 
