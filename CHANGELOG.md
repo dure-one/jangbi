@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([72fb91b](https://github.com/dure-one/jangbi/commit/72fb91b782f005a770aa0dd24fcafd3074032d4e) by nikescar).
+- Add changelog automatically ([b31e2b0](https://github.com/dure-one/jangbi/commit/b31e2b05805d79d90ffb18e5c400d424ea165bb3) by nikescar).
 
 ### Fixed
 
+- fix: extrepo update ([7d72805](https://github.com/dure-one/jangbi/commit/7d72805358ef64b04014a0b29d083e43d6412846) by Woojae, Park).
 - fix: change installation of offline packages to extrepo ([8464351](https://github.com/dure-one/jangbi/commit/8464351c48860d983a15863d81cbfdcfbd8cf457) by Woojae, Park).
 - fix: dnsmasq fix. remove anydnsdqy. ([f0ab5db](https://github.com/dure-one/jangbi/commit/f0ab5db86f143ba48bc042119e3c47bb317dbb71) by Woojae, Park).
 - fix: fix message printing ([5d15260](https://github.com/dure-one/jangbi/commit/5d15260a84c7002b3fab8e4d8d105f7640d7cbf2) by Woojae, Park).
