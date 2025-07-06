@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([e7a2a09](https://github.com/dure-one/jangbi/commit/e7a2a095baf91c93b4267359e9b6fafdcdc77fb7) by nikescar).
+- Add changelog automatically ([0ad6438](https://github.com/dure-one/jangbi/commit/0ad64387517d0bcc37929b2900eeb98ee4c800dd) by nikescar).
 
 ### Fixed
 
+- fix: replace cat command to arrow mark ([ca3ae1c](https://github.com/dure-one/jangbi/commit/ca3ae1c838d9afb4fe4a45ce17eca1392e33ded8) by Woojae, Park).
 - fix: put specific error msg ([b6cc7fe](https://github.com/dure-one/jangbi/commit/b6cc7fe5575ae36fcbbda67da71b71f2dac03358) by Woojae, Park).
 - fix: fix systemd check setting for 3 scenario ([b283acd](https://github.com/dure-one/jangbi/commit/b283acd276bc52782083fec0275bfba996faddb9) by Woojae, Park).
 - fix: dnsmasq net inf check error ([cb4e027](https://github.com/dure-one/jangbi/commit/cb4e027e48fabc688d9fa44261802949981b0ff9) by Woojae, Park).
