@@ -78,8 +78,8 @@ function __net-darkstat_check { # running_status: 0 running, 1 installed, runnin
     [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof darkstat) -lt 1 ]] && \
-        log_info "darkstat is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof darkstat) -gt 0 ]] && \
+        log_info "darkstat is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

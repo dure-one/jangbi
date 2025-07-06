@@ -102,8 +102,8 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
     [[ $(dpkg -l|awk '{print $2}'|grep -c "knockd") -lt 1 ]] && \
         log_info "knockd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(systemctl status knockd 2>/dev/null|grep -c active) -lt 1 ]] && \
-        log_info "knockd is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(systemctl status knockd 2>/dev/null|grep -c active) -gt 0 ]] && \
+        log_info "knockd is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

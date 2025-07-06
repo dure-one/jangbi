@@ -60,29 +60,25 @@ function __net-dnsmasq_generate_config {
     # 2. client local->wan
     # 3. wastunnel local->wan
     local additional_listenaddr additional_netinf additional_dhcprange
-    local netinf netip netminip netmaxip
+    local netinf netrange netip netminip netmaxip
     if [[ ${JB_ROLE} = 'gateway' ]]; then
         # ** fix this to working on LAN & WLAN interface together **
         if [[ -n ${JB_LANINF} ]]; then
             netinf=${JB_LANINF}
-            netip=$(ipcalc-ng "${JB_LAN}"|grep Address:|cut -f2)
-            netminip=$(ipcalc-ng "${JB_LAN}"|grep HostMin:|cut -f2)
-            netmaxip=$(ipcalc-ng "${JB_LAN}"|grep HostMax:|cut -f2)
+            netrange=${JB_LAN}
             [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_LANINF}"
         elif [[ -n ${JB_WLANINF} ]]; then
             netinf=${JB_WLANINF}
-            netip=$(ipcalc-ng "${JB_WLAN}"|grep Address:|cut -f2)
-            netminip=$(ipcalc-ng "${JB_WLAN}"|grep HostMin:|cut -f2)
-            netmaxip=$(ipcalc-ng "${JB_WLAN}"|grep HostMax:|cut -f2)
-            # ip link set ${JB_WLANINF} up
-            # ip addr add ${JB_WLAN} dev ${JB_WLANINF}
+            netrange=${JB_WLAN}
             [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
         else
             netinf="lo"
-            netip="127.0.0.1"
-            netminip="127.0.0.1"
-            netmaxip="127.0.0.1"
+            netrange="127.0.0.1/24"
         fi
+        netip=$(ipcalc-ng "${netrange}"|grep Address:|cut -f2)
+        netminip=$(ipcalc-ng "${netrange}"|grep HostMin:|cut -f2)
+        netmaxip=$(ipcalc-ng "${netrange}"|grep HostMax:|cut -f2)
+        
         # Additional Listening for Masqueraded Interface
         if [[ ${RUN_NET_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
             local additional_listenaddr additional_netinf additional_dhcprange
@@ -202,8 +198,8 @@ function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running
     [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq") -lt 1 ]] && \
         log_info "dnsmasq is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof dnsmasq) -lt 1 ]] && \
-        log_info "dnsmasq is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof dnsmasq) -gt 0 ]] && \
+        log_info "dnsmasq is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

@@ -89,8 +89,8 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
     [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && \
         log_info "hostapd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof hostapd) -lt 1 ]] && \
-        log_info "hostapd is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof hostapd) -gt 0 ]] && \
+        log_info "hostapd is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

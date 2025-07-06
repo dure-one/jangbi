@@ -51,10 +51,11 @@ function __os-aide_install {
     mkdir -p /etc/aide /var/lib/aide /var/log/aide
     cp -rf ./configs/aide/aide.conf /etc/aide/aide.conf # normal configurations
     cp -rf ./configs/aide/aide.minimal.conf /etc/aide/aide.minimal.conf # minimal configurations
-    # aide --init --config=/etc/aide/aide.conf &>jangbi_aide.log &
+    
     # log_debug "aide db is generating on background."
-    ( aide --init --config=/etc/aide/aide.minimal.conf 2>/dev/null && \
-        cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz ) &
+    aide --init --config=/etc/aide/aide.minimal.conf 2>/dev/null && \
+        cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
+    # aide --init --config=/etc/aide/aide.conf &>jangbi_aide.log &
 }
 
 function __os-aide_uninstall { 
@@ -75,15 +76,15 @@ function __os-aide_check { # running_status: 0 running, 1 installed, running_sta
     [[ $(dpkg -l|awk '{print $2}'|grep -c "aide") -lt 1 ]] && \
         log_info "aide is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof aide) -lt 1 ]] && \
-        log_info "aide is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof aide) -gt 0 ]] && \
+        log_info "aide is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
 
 function __os-aide_run {
     ## aide minimal check for first run
-    aide --check --config=/etc/aide/aide.minimal.conf 
+    aide --check --config=/etc/aide/aide.minimal.conf
     return 0
 }
 

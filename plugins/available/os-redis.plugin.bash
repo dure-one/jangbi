@@ -77,8 +77,8 @@ function __os-redis_check { # running_status: 0 running, 1 installed, running_st
     [[ $(dpkg -l|awk '{print $2}'|grep -c "redis-server") -lt 1 ]] && \
         log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof redis-server) -lt 1 ]] && \
-        log_info "redis-server is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof redis-server) -gt 0 ]] && \
+        log_info "redis-server is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

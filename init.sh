@@ -25,6 +25,7 @@ usage() {
   printf "%s\\n" "  ${YELLOW}--check net-darkstat   |-c${NORMAL}   check single plugin"
   printf "%s\\n" "  ${YELLOW}--launch net-darkstat  |-l${NORMAL}   run single plugin"
   printf "%s\\n" "  ${YELLOW}--sync                 |-s${NORMAL}   sync enabled plugin in config to jangbi-it and exit"
+  printf "%s\\n" "  ${YELLOW}--load                 |-d${NORMAL}   load jangbi-it and exit"
   echo
 }
 
@@ -44,6 +45,12 @@ while [[ $# -gt 0 ]]; do
     --launch | -l)
       TRPROC=$2
       ${TRPROC} run
+      exit 0
+      ;;
+    --load | -d)
+      printf "%s\\n\\n" "jangbi-it has loaded."
+      source ./functions.sh
+      jangbi-it show plugins
       exit 0
       ;;
     --sync | -s)
@@ -84,6 +91,9 @@ fi
 [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
     log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
+# pkgs imgs preparations
+[[ ! -d ./pkgs ]] && mkdir -p ./pkgs ./imgs
+
 # install extrepo if not exists
 durl="https://ftp.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl_0.077-1+b1_$(dpkg --print-architecture).deb"
 [[ $(dpkg -l|awk '{print $2}'|grep libcryptx-perl|wc -l) -lt 1 ]] && \
@@ -96,15 +106,14 @@ durl="http://ftp.de.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
-# _disable-thing "plugins" "plugin" "all" # disable all plugins for apply configs
-rm ./enabled/* # remove all enabled plugins
+rm ./enabled/* 2>/dev/null # remove all enabled plugins
 prenet=() postnet=()
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown")
-    ln -s "./plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
+    ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
 else # case 1 full systemd
     postnet+=("net-netplan")
-    ln -s "./plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
+    ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
 fi
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
@@ -117,7 +126,9 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 load_plugin=${JB_VARS[j]##RUN_}
                 load_plugin=${load_plugin,,}
                 load_plugin=${load_plugin//_/-}
-                ln -s "./plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
+                [[ $(find ./enabled|grep -c ${load_plugin}) -lt 1 ]] && \
+                    ln -s "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
+
                 source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
                 [[ ${group_txt// /} == "postnet" ]] && postnet+=(${load_plugin})

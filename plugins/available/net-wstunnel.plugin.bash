@@ -74,8 +74,8 @@ function __net-wstunnel_check { # running_status: 0 running, 1 installed, runnin
     [[ $(which wstunnel|wc -l) -lt 1 ]] && \
         log_info "wstunnel is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof wstunnel) -lt 1 ]] && \
-        log_info "wstunnel is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof wstunnel) -gt 0 ]] && \
+        log_info "wstunnel is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

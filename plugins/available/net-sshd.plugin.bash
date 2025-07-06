@@ -93,8 +93,8 @@ function __net-sshd_check { # running_status: 0 running, 1 installed, running_st
     [[ $(dpkg -l|awk '{print $2}'|grep -c "openssh-server") -lt 1 ]] && \
         log_info "openssh-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof sshd) -lt 1 ]] && \
-        log_info "sshd is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof sshd) -gt 0 ]] && \
+        log_info "sshd is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

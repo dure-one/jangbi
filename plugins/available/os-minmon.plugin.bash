@@ -98,8 +98,8 @@ function __os-minmon_check { # running_status: 0 running, 1 installed, running_s
     [[ $(which minmon|grep -c "minmon") -lt 1 ]] && \
         log_info "minmon is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof minmon) -lt 1 ]] && \
-        log_info "minmon is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof minmon) -gt 0 ]] && \
+        log_info "minmon is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

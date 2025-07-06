@@ -94,8 +94,8 @@ function __os-auditd_check {  # running_status: 0 running, 1 installed, running_
     [[ $(dpkg -l|awk '{print $2}'|grep -c "auditd") -lt 1 ]] && \
         log_info "auditd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof auditd) -lt 1 ]] && \
-        log_info "auditd is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof auditd) -gt 0 ]] && \
+        log_info "auditd is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
