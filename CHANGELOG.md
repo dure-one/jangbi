@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([fa4db60](https://github.com/dure-one/jangbi/commit/fa4db60128b7a0a373d623bac446066bad59880c) by nikescar).
+- Add changelog automatically ([d276b70](https://github.com/dure-one/jangbi/commit/d276b709f5357d65a05f7ae8830a2079077caa56) by nikescar).
 
 ### Fixed
 
+- fix: dnsmasq fix. remove anydnsdqy. ([f0ab5db](https://github.com/dure-one/jangbi/commit/f0ab5db86f143ba48bc042119e3c47bb317dbb71) by Woojae, Park).
 - fix: fix message printing ([5d15260](https://github.com/dure-one/jangbi/commit/5d15260a84c7002b3fab8e4d8d105f7640d7cbf2) by Woojae, Park).
 - fix: fix varible check on start, fix root check ([7211493](https://github.com/dure-one/jangbi/commit/72114936c43e8fee40685f594697c8bdc131bcbd) by Woojae, Park).
 - fix: iso download for pkgsdl arch fix ([4292c22](https://github.com/dure-one/jangbi/commit/4292c221bbdad509225dabb51952e24ae41d1dba) by Woojae, Park).
