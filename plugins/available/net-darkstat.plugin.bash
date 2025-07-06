@@ -46,7 +46,7 @@ function __net-darkstat_install {
     
     export DEBIAN_FRONTEND=noninteractive
     log_debug "Trying to install net-darkstat."
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && apt install -qy darkstat
     mkdir -p /etc/darkstat
     cp ./configs/darkstat.init.cfg.default /etc/darkstat/init.cfg

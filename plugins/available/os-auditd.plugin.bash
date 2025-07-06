@@ -44,7 +44,7 @@ function __os-auditd_help {
 function __os-auditd_install {
     log_debug "Trying to install os-auditd."
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "auditd") -lt 1 ]] && apt install -qy auditd
 
     # auditd hardening dynamic

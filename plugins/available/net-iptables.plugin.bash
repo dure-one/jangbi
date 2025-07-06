@@ -118,7 +118,7 @@ function __net-iptables_install {
     local disable_ipv6="$2"
 
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; extrepo update debian_official
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && apt install -qy nftables iptables arptables xtables-addons-common
     systemctl enable nftables
     mkdir -p /etc/iptables
