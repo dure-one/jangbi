@@ -70,7 +70,7 @@ function __net-dnsmasq_generate_config {
                 netrange=${JB_LAN}
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="no-dhcpv6-interface=${JB_LANINF}"
             else
-                log_error "JB_LANINF is not up, please check your network configuration."
+                log_error "JB_LANINF(${JB_LANINF}) is not up, please check your network configuration."
             fi
         fi
         
@@ -80,7 +80,7 @@ function __net-dnsmasq_generate_config {
                 netrange=${JB_WLAN}
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
             else
-                log_error "JB_WLANINF is not up, please check your network configuration."
+                log_error "JB_WLANINF(${JB_WLANINF}) is not up, please check your network configuration."
             fi
         elif [[ -n ${JB_WLANINF} && -n ${netinf} ]]; then
             if [[ $(cat "/sys/class/net/${JB_WLANINF}/operstate") = "up" ]]; then
@@ -95,7 +95,7 @@ function __net-dnsmasq_generate_config {
                 additional_netinf="${additional_netinf}interface=${addiinf}"
                 additional_dhcprange="${additional_dhcprange}dhcp-range=interface:${addiinf},${addiminip},${addimaxip},12h"
             else
-                log_error "JB_WLANINF is not up, please check your network configuration."
+                log_error "JB_WLANINF(${JB_WLANINF}) is not up, please check your network configuration."
             fi
         fi
 
