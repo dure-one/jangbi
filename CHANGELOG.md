@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([1a7f7d3](https://github.com/dure-one/jangbi/commit/1a7f7d30000e67faa2f3e6813af176df4bfa16fd) by nikescar).
+- Add changelog automatically ([9923fe7](https://github.com/dure-one/jangbi/commit/9923fe787505d36a99511f33fe8da779ab23f94f) by nikescar).
 
 ### Fixed
 
+- fix: fix unexpected end of start of rc.local ([7c4c3db](https://github.com/dure-one/jangbi/commit/7c4c3db9f3dd8d83f9be22102f43aef3f9cb0b08) by Woojae, Park).
 - fix: fix unnecessary part ([90cc626](https://github.com/dure-one/jangbi/commit/90cc626f12005a9c4ec9c054c093ee4abb0a8099) by Woojae, Park).
 - fix: extrepo update ([7d72805](https://github.com/dure-one/jangbi/commit/7d72805358ef64b04014a0b29d083e43d6412846) by Woojae, Park).
 - fix: change installation of offline packages to extrepo ([8464351](https://github.com/dure-one/jangbi/commit/8464351c48860d983a15863d81cbfdcfbd8cf457) by Woojae, Park).
