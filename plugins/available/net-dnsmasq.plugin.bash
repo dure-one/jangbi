@@ -60,21 +60,38 @@ function __net-dnsmasq_generate_config {
     # 2. client local->wan
     # 3. wastunnel local->wan
     local additional_listenaddr additional_netinf additional_dhcprange
-    local netinf netrange netip netminip netmaxip
+    local netinf netrange netip netminip netmaxip 
+    local addiinf addirange addiip addiminip addimaxip
     if [[ ${JB_ROLE} = 'gateway' ]]; then
-        # ** fix this to working on LAN & WLAN interface together **
-        if [[ -n ${JB_LANINF} ]]; then
+        # 1. JB_LANINF exists 2. netinf not set 3. JB_LANINF is up
+        if [[ -n ${JB_LANINF} && -z ${netinf} && $(cat /sys/class/net/${JB_LANINF}/operstate) = "up" ]]; then
             netinf=${JB_LANINF}
             netrange=${JB_LAN}
             [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_LANINF}"
-        elif [[ -n ${JB_WLANINF} ]]; then
+        fi
+        
+        if [[ -n ${JB_WLANINF} && -z ${netinf} && $(cat /sys/class/net/${JB_WLANINF}/operstate) = "up" ]]; then
             netinf=${JB_WLANINF}
             netrange=${JB_WLAN}
             [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${JB_WLANINF}"
-        else
+        elif [[ -n ${JB_WLANINF} && -n ${netinf} && $(cat /sys/class/net/${JB_WLANINF}/operstate) = "up" ]]; then
+            addiinf=${JB_WLANINF}
+            addirange=${JB_WLAN}
+
+            addiip=$(ipcalc-ng "${addirange}"|grep Address:|cut -f2)
+            addiminip=$(ipcalc-ng "${addirange}"|grep HostMin:|cut -f2)
+            addimaxip=$(ipcalc-ng "${addirange}"|grep HostMax:|cut -f2)
+
+            additional_listenaddr="${additional_listenaddr}listen-address=${addiip}"
+            additional_netinf="${additional_netinf}interface=${addiinf}"
+            additional_dhcprange="${additional_dhcprange}dhcp-range=interface:${addiinf},${addiminip},${addimaxip},12h"
+        fi
+
+        if [[ -z ${netinf} ]]; then
             netinf="lo"
             netrange="127.0.0.1/24"
         fi
+
         netip=$(ipcalc-ng "${netrange}"|grep Address:|cut -f2)
         netminip=$(ipcalc-ng "${netrange}"|grep HostMin:|cut -f2)
         netmaxip=$(ipcalc-ng "${netrange}"|grep HostMax:|cut -f2)
