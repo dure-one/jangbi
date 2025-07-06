@@ -107,7 +107,8 @@ durl="http://ftp.de.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
 rm ./enabled/* 2>/dev/null # remove all enabled plugins
-prenet=() postnet=()
+prenet=("os-systemd") postnet=()
+ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown")
     ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
