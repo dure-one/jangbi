@@ -177,19 +177,19 @@ process_each_step() {
             log_debug "$!"
             run_ok "${command} run" "${command}(${step}) Running..."
             log_debug "$!"
-        ;;
+            ;;
         0)
             run_ok "${command} run" "${command}(${step}) Running..."
             log_debug "$!"
-        ;; # nothing to do
+            ;; # nothing to do
         10)
             log_fatal "Something went wrong. Exiting."
             exit 1
-        ;;
+            ;;
         20)
             log_info "${command}(${step}) Skiped..."
             log_debug "$!"
-        ;;
+            ;;
     esac
 }
 

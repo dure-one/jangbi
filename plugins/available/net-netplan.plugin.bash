@@ -388,7 +388,7 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
     #[[ -f /etc/netplan/dure_network.yaml ]] && \
     #    log_info "netplan is configured." && [[ $running_status -lt 0 ]] && running_status=0
     # check if running
-    [[ $(systemctl status systemd-networkd 2>/dev/null|grep -c active) -gt 0 ]] && \
+    [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
         log_info "systemd-networkd is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
