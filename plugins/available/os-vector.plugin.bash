@@ -66,9 +66,9 @@ function __os-vector_check { # running_status: 0 running, 1 installed, running_s
 
     # check global variable
     [[ -z ${RUN_OS_VECTOR} ]] && \
-        log_info "RUN_OS_VECTOR variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_VECTOR variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_VECTOR} != 1 ]] && \
-        log_info "RUN_OS_VECTOR is not enabled." && __os-vector_disabled && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_VECTOR is not enabled." && __os-vector_disabled && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "vector") -lt 1 ]] && \
         log_info "vector is not installed." && [[ $running_status -lt 5 ]] && running_status=5

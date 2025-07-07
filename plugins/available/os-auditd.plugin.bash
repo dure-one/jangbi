@@ -87,9 +87,9 @@ function __os-auditd_check {  # running_status: 0 running, 1 installed, running_
 
     # check global variable
     [[ -z ${RUN_OS_AUDITD} ]] && \
-        log_info "RUN_OS_AUDITD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_AUDITD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_AUDITD} != 1 ]] && \
-        log_info "RUN_OS_AUDITD is not enabled." && __os-auditd_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_AUDITD is not enabled." && __os-auditd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "auditd") -lt 1 ]] && \
         log_info "auditd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

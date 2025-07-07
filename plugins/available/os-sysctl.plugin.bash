@@ -57,9 +57,9 @@ function __os-sysctl_check { # running_status: 0 running, 1 installed, running_s
     running_status=0
     log_debug "Starting os-sysctl Check"
     [[ -z ${RUN_OS_SYSCTL} ]] && \
-        log_info "RUN_OS_SYSCTL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_SYSCTL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_SYSCTL} != 1 ]] && \
-        log_info "RUN_OS_SYSCTL is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_SYSCTL is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
 
     return 0
 }

@@ -70,9 +70,9 @@ function __os-redis_check { # running_status: 0 running, 1 installed, running_st
 
     # check global variable
     [[ -z ${RUN_OS_REDIS} ]] && \
-        log_info "RUN_OS_REDIS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_REDIS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_REDIS} != 1 ]] && \
-        log_info "RUN_OS_REDIS is not enabled." && __os-redis_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_REDIS is not enabled." && __os-redis_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "redis-server") -lt 1 ]] && \
         log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5

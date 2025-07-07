@@ -74,9 +74,9 @@ function __net-darkstat_check { # running_status: 0 running, 1 installed, runnin
 
     # check global variable
     [[ -z ${RUN_NET_DARKSTAT} ]] && \
-        log_info "RUN_NET_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_NET_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_DARKSTAT} != 1 ]] && \
-        log_info "RUN_NET_DARKSTAT is not enabled." && __net-darkstat_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_NET_DARKSTAT is not enabled." && __net-darkstat_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && \
         log_info "darkstat is not installed." && [[ $running_status -lt 5 ]] && running_status=5

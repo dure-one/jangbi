@@ -233,9 +233,9 @@ function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running
 
     # check global variable
     [[ -z ${RUN_NET_DNSMASQ} ]] && \
-        log_info "RUN_NET_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_NET_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_DNSMASQ} != 1 ]] && \
-        log_info "RUN_NET_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_NET_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package dnsmasq
     [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq") -lt 1 ]] && \
         log_info "dnsmasq is not installed." && [[ $running_status -lt 5 ]] && running_status=5

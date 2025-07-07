@@ -121,11 +121,11 @@ function __os-conf_check { # running_status: 0 running, 1 installed, running_sta
 
     # check global variable
     [[ -z ${RUN_OS_CONF} ]] && \
-        log_info "RUN_OS_CONF variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_CONF variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_CONF} != 1 ]] && \
-        log_info "RUN_OS_CONF is not enabled." && __os-conf_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_CONF is not enabled." && __os-conf_disable && [[ $running_status -lt 20 ]] && running_status=20
     [[ -z ${CONF_TIMEZONE} ]] && \
-        log_info "CONF_TIMEZONE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "CONF_TIMEZONE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     # [[ ${#CONF_SWAPSIZE[@]} -lt 1 ]] && \
     #     log_info "CONF_SWAPSIZE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     # [[ ${#JB_USERID[@]} -lt 1 ]] && \

@@ -144,7 +144,7 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
     
     # check global variable
     [[ -z ${RUN_OS_SYSTEMD} ]] && \
-        log_info "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     
     # check disabled systemd components installed
     # 0 - disable completely, 1 - full systemd, 2 - only journald

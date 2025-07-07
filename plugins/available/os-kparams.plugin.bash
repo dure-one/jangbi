@@ -62,9 +62,9 @@ function __os-kparams_check { # running_status: 0 running, 1 installed, running_
     log_debug "Starting os-kparams Check"
 
     [[ -z ${RUN_OS_KPARAMS} ]] && \
-        log_info "RUN_OS_KPARAMS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_KPARAMS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${#RUN_OS_KPARAMS[@]} -lt 1 ]] && \
-        log_info "RUN_OS_KPARAMS is not enabled." && __os-kparams_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_KPARAMS is not enabled." && __os-kparams_disable && [[ $running_status -lt 20 ]] && running_status=20
 
     [[ $(mount|grep -c "/proc/cmdline") -gt 0 ]] && \
         log_info "kernel custom cmdline is mounted." && [[ $running_status -lt 1 ]] && running_status=1

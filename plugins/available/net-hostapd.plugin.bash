@@ -82,9 +82,9 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
 
     # check global variable
     [[ -z ${RUN_NET_HOSTAPD} ]] && \
-        log_info "RUN_NET_HOSTAPD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_NET_HOSTAPD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_HOSTAPD} != 1 ]] && \
-        log_info "RUN_NET_HOSTAPD is not enabled." && __net-hostapd_disabled && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_NET_HOSTAPD is not enabled." && __net-hostapd_disabled && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && \
         log_info "hostapd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

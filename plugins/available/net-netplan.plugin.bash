@@ -376,11 +376,11 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
 
     # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
     [[ -z ${RUN_OS_SYSTEMD} ]] && \
-        log_info "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_SYSTEMD} == 0 ]] && \
-        log_info "RUN_OS_SYSTEMD set to disable completely(RUN_OS_SYSTEMD=0)." && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_SYSTEMD set to disable completely(RUN_OS_SYSTEMD=0)." && [[ $running_status -lt 20 ]] && running_status=20
     [[ ${RUN_OS_SYSTEMD} == 2 ]] && \
-        log_info "RUN_OS_SYSTEMD set to only journald(RUN_OS_SYSTEMD=2)." && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_SYSTEMD set to only journald(RUN_OS_SYSTEMD=2)." && [[ $running_status -lt 20 ]] && running_status=20
     # check package netplan
     [[ $(dpkg -l|awk '{print $2}'|grep -c "netplan") -lt 1 ]] && \
         log_info "netplan is not installed." && [[ $running_status -lt 5 ]] && running_status=5

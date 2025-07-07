@@ -118,11 +118,11 @@ function __os-repos_check { # running_status: 0 running, 1 installed, running_st
 
     # check global variable
     [[ -z ${RUN_OS_REPOS} ]] && \
-        log_info "RUN_OS_REPOS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_REPOS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_REPOS} != 1 ]] && \
-        log_info "RUN_OS_REPOS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_REPOS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     [[ ! -f "${DIST_PKG_IMG}" ]] && \
-        log_info "Pkg image can not be found on ${DIST_PKG_IMG}" && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "Pkg image can not be found on ${DIST_PKG_IMG}" && [[ $running_status -lt 10 ]] && running_status=10
 
     # check img file mounted and apt source direct it # check apt repository directed to offline repo
     [[ $(mount |grep -c "imgs/debian") -lt 1 ]] && \

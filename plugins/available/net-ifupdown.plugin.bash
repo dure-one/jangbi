@@ -442,9 +442,9 @@ function __net-ifupdown_check { # running_status: 0 running, 1 installed, runnin
     # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
     log_debug "check RUN_OS_SYSTEMD" 
     [[ -z ${RUN_OS_SYSTEMD} ]] && \
-        log_info "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_SYSTEMD} == 1 ]] && \
-        log_info "RUN_OS_SYSTEMD set to full systemd(RUN_OS_SYSTEMD=1)." && __net-ifupdown_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_SYSTEMD set to full systemd(RUN_OS_SYSTEMD=1)." && __net-ifupdown_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package ifupdown
     log_debug "check ifupdown is installed"
     [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && \

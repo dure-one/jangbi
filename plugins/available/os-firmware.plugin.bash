@@ -87,11 +87,11 @@ function __os-firmware_check { # running_status: 0 running, 1 installed, running
 
     # check global variable
     [[ -z ${RUN_OS_FIRMWARE} ]] && \
-        log_info "RUN_OS_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_FIRMWARE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ -z ${FIRMWARE_URL} ]] && \
-        log_info "FIRMWARE_URL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "FIRMWARE_URL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_FIRMWARE} != 1 ]] && \
-        log_info "RUN_OS_FIRMWARE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_FIRMWARE is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     
     # check old firmware backup exists
     [[ ! -f .firmware_original.tar.gz ]] && \

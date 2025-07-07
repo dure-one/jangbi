@@ -67,9 +67,9 @@ function __net-wstunnel_check { # running_status: 0 running, 1 installed, runnin
 
     # check global variable
     [[ -z ${RUN_NET_WSTUNNEL} ]] && \
-        log_info "RUN_NET_WSTUNNEL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_NET_WSTUNNEL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_WSTUNNEL} != 1 ]] && \
-        log_info "RUN_NET_WSTUNNEL variable is not enabled." && __net-wstunnel_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_NET_WSTUNNEL variable is not enabled." && __net-wstunnel_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check wstunnel bin exists
     [[ $(which wstunnel|wc -l) -lt 1 ]] && \
         log_info "wstunnel is not installed." && [[ $running_status -lt 5 ]] && running_status=5

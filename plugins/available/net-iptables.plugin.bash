@@ -150,12 +150,12 @@ function __net-iptables_check { # running_status: 0 running, 1 installed, runnin
     log_debug "Starting net-iptables Check"
     # check cmd exists
     [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
-        log_info "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
     # check global variable
     [[ -z ${RUN_NET_IPTABLES} ]] && \
-        log_info "RUN_NET_IPTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_NET_IPTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_IPTABLES} != 1 ]] && \
-        log_info "RUN_NET_IPTABLES is not enabled." && __net-iptables_disable && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_NET_IPTABLES is not enabled." && __net-iptables_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package iptables
     [[ $(dpkg -l|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5

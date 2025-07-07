@@ -176,9 +176,9 @@ function __os-disablebins_check { # running_status: 0 running, 1 installed, runn
     running_status=0
     log_debug "Starting os-disablebins Check"
     [[ -z ${RUN_OS_DISABLEBINS} ]] && \
-        log_info "RUN_OS_DISABLEBINS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+        log_error "RUN_OS_DISABLEBINS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_DISABLEBINS} != 1 ]] && \
-        log_info "RUN_OS_DISABLEBINS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_DISABLEBINS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
 
     # check avahi-daemon exists
     [[ $(which avahi-daemon|wc -l) -gt 0 ]] && \
