@@ -289,37 +289,37 @@ function __net-dnsmasq_run {
         log_debug "dnsmasq accept dhcp for MASQ"
         IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
-        TARINF=""
-        IFS=$'<' read -d "" -ra MASQINFS <<< "${MASQROUTES[j]}"
-        if [[ $(_trim_string "${MASQINFS[0]}") = "LAN0" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN0INF} ]]; then
-            TARINF=${JB_LAN0INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN1" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN1INF} ]]; then
-            TARINF=${JB_LAN1INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN2" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN2INF} ]]; then
-            TARINF=${JB_LAN2INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN3" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN3INF} ]]; then
-            TARINF=${JB_LAN3INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN4" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN4INF} ]]; then
-            TARINF=${JB_LAN4INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN5" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN5INF} ]]; then
-            TARINF=${JB_LAN5INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN6" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN6INF} ]]; then
-            TARINF=${JB_LAN6INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN7" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN7INF} ]]; then
-            TARINF=${JB_LAN7INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN8" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN8INF} ]]; then
-            TARINF=${JB_LAN8INF}
-        elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN9" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN9INF} ]]; then
-            TARINF=${JB_LAN9INF}
-        else
-            continue
-        fi
-        iptables -S | grep "DMQ_DA_${TARINF}" || \
-            iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DA_${TARINF} -j ACCEPT
-        iptables -S | grep "DMQ_DB_${TARINF}" || \
-            iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DB_${TARINF} -j ACCEPT
-        iptables -S | grep "DMQ_DR_${TARINF}" || \
-            iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
+            TARINF=""
+            IFS=$'<' read -d "" -ra MASQINFS <<< "${MASQROUTES[j]}"
+            if [[ $(_trim_string "${MASQINFS[0]}") = "LAN0" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN0INF} ]]; then
+                TARINF=${JB_LAN0INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN1" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN1INF} ]]; then
+                TARINF=${JB_LAN1INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN2" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN2INF} ]]; then
+                TARINF=${JB_LAN2INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN3" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN3INF} ]]; then
+                TARINF=${JB_LAN3INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN4" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN4INF} ]]; then
+                TARINF=${JB_LAN4INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN5" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN5INF} ]]; then
+                TARINF=${JB_LAN5INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN6" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN6INF} ]]; then
+                TARINF=${JB_LAN6INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN7" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN7INF} ]]; then
+                TARINF=${JB_LAN7INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN8" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN8INF} ]]; then
+                TARINF=${JB_LAN8INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN9" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN9INF} ]]; then
+                TARINF=${JB_LAN9INF}
+            else
+                continue
+            fi
+            iptables -S | grep "DMQ_DA_${TARINF}" || \
+                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DA_${TARINF} -j ACCEPT
+            iptables -S | grep "DMQ_DB_${TARINF}" || \
+                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DB_${TARINF} -j ACCEPT
+            iptables -S | grep "DMQ_DR_${TARINF}" || \
+                iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
         }
     fi
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
