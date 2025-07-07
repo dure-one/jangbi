@@ -59,6 +59,7 @@ IPTABLES_DMZ=
 IPTABLES_SUPERDMZ=
 
 # gateway apps
+RUN_NET_MALTRAIL=0
 RUN_NET_HOSTAPD=1
 RUN_NET_DNSMASQ=1
 DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
