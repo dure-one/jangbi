@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([3eed686](https://github.com/dure-one/jangbi/commit/3eed686c62034a291c3ffc66e699f409830c2e43) by nikescar).
+- Add changelog automatically ([27fbac6](https://github.com/dure-one/jangbi/commit/27fbac6e49e6c23c7f993c18646e80cf8043a925) by nikescar).
 
 ### Fixed
 
+- fix: change apt update only after 24 hours ([4d60ab3](https://github.com/dure-one/jangbi/commit/4d60ab3055d973e8c9ab71b9c0bf87aeaae37855) by Woojae, Park).
+- fix: vector default config path ([96ac4a9](https://github.com/dure-one/jangbi/commit/96ac4a9036b1e4577a6c72768250a2e79c20d11f) by Woojae, Park).
 - fix: change error message from log_info to log_error ([747a359](https://github.com/dure-one/jangbi/commit/747a359332fa989fd0b2d2322c327330805d6890) by Woojae, Park).
 - fix: fix arp infs split error ([3a04a11](https://github.com/dure-one/jangbi/commit/3a04a1176d94229304e59e086d13ae63e08f507a) by Woojae, Park).
 - fix: fix iptables load ([462154a](https://github.com/dure-one/jangbi/commit/462154adcfdd920d336036a7f1fa2bf07c2a1e8a) by Woojae, Park).
