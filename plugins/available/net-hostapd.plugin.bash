@@ -48,7 +48,8 @@ function __net-hostapd_install {
     # WLANIP=$(ipcalc-ng "${JB_WLAN}"|grep Address:|cut -f2)
     # WLANMINIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMin:|cut -f2)
     # WLANMAXIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMax:|cut -f2)
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; apt update -qy
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && apt install -qy hostapd
     mkdir -p /etc/hostapd
     cp -rf ./configs/hostapd.conf.default /etc/hostapd/

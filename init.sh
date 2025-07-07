@@ -99,10 +99,14 @@ durl="https://ftp.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl
 [[ $(dpkg -l|awk '{print $2}'|grep libcryptx-perl|wc -l) -lt 1 ]] && \
     wget --directory-prefix=./pkgs "${durl}" && \
     apt install -qy ./pkgs/libcryptx-perl_*.deb
-durl="http://ftp.de.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
+durl="http://ftp.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
 [[ $(dpkg -l|awk '{print $2}'|grep extrepo|wc -l) -lt 1 ]] && \
     wget --directory-prefix=./pkgs "${durl}" && \
-    apt install -qy ./pkgs/extrepo_*.deb
+    apt install -qy ./pkgs/extrepo_*.deb && \
+    mv /etc/apt/sources.list /etc/apt/sources.list_$(date +"%Y%m%d").bak && \
+    echo "" > /etc/apt/sources.list && \
+    extrepo enable debian_official && \
+    apt update -qy
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."

@@ -45,7 +45,8 @@ function __net-knockd_install {
     log_debug "Trying to install net-knockd."
 
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; apt update -qy
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "knockd") -lt 1 ]] && apt install -qy knockd
     systemctl enable knockd
     
