@@ -48,7 +48,10 @@ function __net-darkstat_install {
     log_debug "Trying to install net-darkstat."
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official; apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && apt install -qy darkstat
+
+    # generate configs
     mkdir -p /etc/darkstat
+    mv /etc/darkstat/init.cfg /etc/darkstat/init.cfg_$(date +%Y%m%d_%H%M%S).bak 2>/dev/null
     cp ./configs/darkstat.init.cfg.default /etc/darkstat/init.cfg
     sed -i "s|START_DARKSTAT=.*|START_DARKSTAT=yes|g" /etc/darkstat/init.cfg
     sed -i "s|INTERFACE=.*|INTERFACE=${JB_WANINF}|g" /etc/darkstat/init.cfg

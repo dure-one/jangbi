@@ -445,8 +445,8 @@ function __net-iptables_mangle_all_both_arpallinfs {
         if [[ ${allinfx[i]} = ${targetinf} ]]; then # except gateway interface
             continue
         fi
-        arptables -A INPUT -i "${targetinf}" -j ACCEPT
-        log_debug "arptables -A INPUT -i ${targetinf} -j ACCEPT"
+        arptables -A INPUT -i "${allinfx[i]}" -j ACCEPT
+        log_debug "arptables -A INPUT -i ${allinfx[i]} -j ACCEPT"
     }
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }

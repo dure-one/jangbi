@@ -12,4 +12,4 @@ DNS="--no-dns"
 # Additional command line Arguments:
 OPTIONS="--no-promisc --syslog --export $INF.export --highest-port 65535"
 
-# EXTRA_OPTS="darkstat $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS"
+# darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
