@@ -12,11 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([a3462ee](https://github.com/dure-one/jangbi/commit/a3462ee4588997437b7505791cf32b85ae7c1135) by nikescar).
+- Add changelog automatically ([d11cf95](https://github.com/dure-one/jangbi/commit/d11cf95bd0aac9e29dc13e46409bac75bcccf211) by nikescar).
 
 ### Fixed
 
-- fix: fix iptables load ([a9ad0ff](https://github.com/dure-one/jangbi/commit/a9ad0ffdc114469948c1b8db6cc25b6841ff8478) by Woojae, Park).
+- fix: fix iptables load ([462154a](https://github.com/dure-one/jangbi/commit/462154adcfdd920d336036a7f1fa2bf07c2a1e8a) by Woojae, Park).
 - fix: run order ([567d950](https://github.com/dure-one/jangbi/commit/567d95011c6a14f757c923dd165d5c0f26470fc4) by Woojae, Park).
 - fix: indent error ([f63bbec](https://github.com/dure-one/jangbi/commit/f63bbec853caa01d00c6290909f390b6d8069416) by Woojae, Park).
 - fix: darkstat, backup configs. dnsmasq, arptables ([ac24b0b](https://github.com/dure-one/jangbi/commit/ac24b0b284e6c4b1f0e73b4fab44e21b7b7c7b80) by Woojae, Park).
