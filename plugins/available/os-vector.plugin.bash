@@ -46,7 +46,7 @@ function __os-vector_install {
     apt install -yq ./pkgs/vector*.deb ./pkgs/sysdig*.deb
     
     mkdir -p /etc/vector
-    cp -rf ./configs/vector/vector.conf.default /etc/vector/
+    cp -rf ./configs/vector/vector.toml /etc/vector/
    
 }
 
