@@ -431,14 +431,15 @@ function __net-iptables_mangle_ext_both_gwmaconly {
 # Arptables : Allow all other network except gateway
 # IPTABLES_ARPALLINFS=1
 function __net-iptables_mangle_all_both_arpallinfs {
-    local funcname targetinf allinfx
+    local funcname targetinf allinfx infs
     funcname="mab_arpallinfs"
 
     targetinf=$(route|grep default|awk '{print $8}') # net-tools
     targetinf=$(_trim_string ${targetinf})
 
-    allinfx=$(cat /proc/net/dev|grep :|awk '{print $1}'|sed 's/://g')
-    for((i=0;i<${#allinfx[@]};i++)){
+    infs=$(cat /proc/net/dev|grep :|awk '{print $1}'|sed 's/://g')
+    IFS=$'\n' read -rd '' -a allinfx <<<"$infs"
+    for((i=0;i<${#allinfx[@]};i++)){ 
         if [[ ${allinfx[i]} = "lo" ]]; then
             continue
         fi
