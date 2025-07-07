@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([941801d](https://github.com/dure-one/jangbi/commit/941801d520104a3737379652d4b36d9a41897a98) by nikescar).
+- Add changelog automatically ([5dc1c62](https://github.com/dure-one/jangbi/commit/5dc1c6223903e2aad832c9c5b8b34fd429c71f94) by nikescar).
 
 ### Fixed
 
+- fix: fix target infs for arptables ([fbab7f3](https://github.com/dure-one/jangbi/commit/fbab7f34328a8d06be0b873c40758b3aeb4b2318) by Woojae, Park).
 - fix: dnsmasq, interface exsits check ([8bce4d2](https://github.com/dure-one/jangbi/commit/8bce4d26924fc04dbadf31afa98ed61af1cb5333) by Woojae, Park).
 - fix: add netstate to error msg ([85f813e](https://github.com/dure-one/jangbi/commit/85f813e4eaeb6738750027580254da6596460a47) by Woojae, Park).
 - fix: file contents may have carriage return ([1bffe9a](https://github.com/dure-one/jangbi/commit/1bffe9a3d1d7f16031d58930043e8fa5bc4d558c) by Woojae, Park).
