@@ -49,11 +49,12 @@ function __net-maltrail_install {
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
     [[ $(dpkg -l|awk '{print $2}'|grep -c "maltrail") -lt 1 ]] && \
-        apt install -qy git python3 python3-dev python3-pip python-is-python3 libpcap-dev build-essential procps schedtool
+        apt install -qy git python3 python3-dev python3-pip python-is-python3 libpcap-dev build-essential procps schedtool python3-venv
 
     [[ ! -d "/opt/maltrail" ]] && \
         git clone --depth 1 https://github.com/stamparm/maltrail.git /opt/maltrail
-    if [[ -d "/opt/maltrail"]]; then
+
+    if [[ -d "/opt/maltrail" ]]; then
         pushd /opt/maltrail
         git pull 2>&1 1>/dev/null
         python3 -m venv .
@@ -67,7 +68,7 @@ function __net-maltrail_install {
     mkdir -p /etc/maltrail
     cp ./configs/maltrail.conf /etc/maltrail/maltrail.conf
     inf="127.0.0.1"
-    [[ -n ${JB_LANINF} ]] && inf="${JB_LANINF}"
+    [[ -n ${JB_LANINF} ]] && inf=$(ip addr show "${JB_LANINF}" 2>/dev/null|grep "inet "|awk '{print $2}'|cut -d'/' -f1)
     sed -i "s|HTTP_ADDRESS\ .*|HTTP_ADDRESS\ ${inf}|g" /etc/maltrail/maltrail.conf
 }
 
@@ -108,7 +109,7 @@ function __net-maltrail_run {
     ps ax|grep "python3\ server.py"|awk '{print $1}'|xargs kill &>/dev/null
     ps ax|grep "python3\ sensor.py"|awk '{print $1}'|xargs kill &>/dev/null
 
-    if [[ -d "/opt/maltrail"]]; then
+    if [[ -d "/opt/maltrail" ]]; then
         pushd /opt/maltrail
         source bin/activate
         python3 sensor.py -c /etc/maltrail/maltrail.conf &
