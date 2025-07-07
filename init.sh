@@ -119,6 +119,7 @@ else # case 1 full systemd
     ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
     source $(find ./enabled|grep bash|grep "net-netplan") # load plugin
 fi
+source $(find ./enabled|grep bash|grep "net-iptables") # load plugin
 predefined=("os-systemd" "net-ifupdown" "net-netplan" "net-iptables")
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
