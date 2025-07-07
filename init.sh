@@ -111,14 +111,15 @@ prenet=("os-systemd") postnet=()
 ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
 source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
-    postnet+=("net-ifupdown")
+    postnet+=("net-ifupdown" "net-iptables")
     ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
     source $(find ./enabled|grep bash|grep "net-ifupdown") # load plugin
 else # case 1 full systemd
-    postnet+=("net-netplan")
+    postnet+=("net-netplan" "net-iptables")
     ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
     source $(find ./enabled|grep bash|grep "net-netplan") # load plugin
 fi
+predefined=("os-systemd" "net-ifupdown" "net-netplan" "net-iptables")
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
 IFS=$'\n' read -d "" -ra lvars <<< "${loaded_vars}" # split
@@ -130,6 +131,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 load_plugin=${JB_VARS[j]##RUN_}
                 load_plugin=${load_plugin,,}
                 load_plugin=${load_plugin//_/-}
+                case "${predefined[@]}" in  *"${load_plugin}"*) continue ;; esac
                 [[ $(find ./enabled|grep -c ${load_plugin}) -lt 1 ]] && \
                     ln -s "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
 
