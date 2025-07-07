@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([1b0a572](https://github.com/dure-one/jangbi/commit/1b0a572e2b65291df8070ac5a1ba15065949242c) by nikescar).
+- Add changelog automatically ([3eed686](https://github.com/dure-one/jangbi/commit/3eed686c62034a291c3ffc66e699f409830c2e43) by nikescar).
 
 ### Fixed
 
+- fix: change error message from log_info to log_error ([747a359](https://github.com/dure-one/jangbi/commit/747a359332fa989fd0b2d2322c327330805d6890) by Woojae, Park).
 - fix: fix arp infs split error ([3a04a11](https://github.com/dure-one/jangbi/commit/3a04a1176d94229304e59e086d13ae63e08f507a) by Woojae, Park).
 - fix: fix iptables load ([462154a](https://github.com/dure-one/jangbi/commit/462154adcfdd920d336036a7f1fa2bf07c2a1e8a) by Woojae, Park).
 - fix: run order ([567d950](https://github.com/dure-one/jangbi/commit/567d95011c6a14f757c923dd165d5c0f26470fc4) by Woojae, Park).
