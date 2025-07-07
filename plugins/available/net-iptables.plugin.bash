@@ -431,22 +431,18 @@ function __net-iptables_mangle_ext_both_gwmaconly {
 # Arptables : Allow all other network except gateway
 # IPTABLES_ARPALLINFS=1
 function __net-iptables_mangle_all_both_arpallinfs {
-    local funcname targetinf gwip gwmac allinfx
+    local funcname targetinf allinfx
     funcname="mab_arpallinfs"
 
     targetinf=$(route|grep default|awk '{print $8}') # net-tools
     targetinf=$(_trim_string ${targetinf})
-    gwip=$(routel|grep default|awk '{print $2}') # net-tools
-    gwip=$(_trim_string ${gwip})
-    gwmac=$(cat /proc/net/arp|grep "${gwip}"|awk '{print $4}')
-    gwmac=$(_trim_string ${gwmac})
 
     allinfx=$(cat /proc/net/dev|grep :|awk '{print $1}'|sed 's/://g')
     for((i=0;i<${#allinfx[@]};i++)){
         if [[ ${allinfx[i]} = "lo" ]]; then
             continue
         fi
-        if [[ ${allinfx[i]} = ${gwmac} ]]; then # except gateway mac
+        if [[ ${allinfx[i]} = ${targetinf} ]]; then # except gateway interface
             continue
         fi
         arptables -A INPUT -i "${targetinf}" -j ACCEPT
