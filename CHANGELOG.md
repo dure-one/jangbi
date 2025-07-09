@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([e4aaa3c](https://github.com/dure-one/jangbi/commit/e4aaa3c42aa6e4f3ba7a1a6568723cf058fa8f36) by nikescar).
+- Add changelog automatically ([c779330](https://github.com/dure-one/jangbi/commit/c7793300d22791cbd209ef9dbb82a64d95ccf529) by nikescar).
 
 ### Fixed
 
+- fix: fix dnscrypt proxy pkg url and name ([9f0339d](https://github.com/dure-one/jangbi/commit/9f0339dcf21e23b4aa294973fd6c4b7dafff49a2) by Woojae, Park).
 - fix: fix varname ([bcb623b](https://github.com/dure-one/jangbi/commit/bcb623b3b202e432cf2f36d7304df21976901de4) by Woojae, Park).
 - fix: add -r option to systemd-run for non signaling processs, darkstat ([8847a58](https://github.com/dure-one/jangbi/commit/8847a58d441d9366ee915217a6708488d8e77d5f) by Woojae, Park).
 - fix: change bg proc run with systemd-run ([429cc8f](https://github.com/dure-one/jangbi/commit/429cc8fc7a5965a27fe75d675ec92a226d4d9082) by Woojae, Park).
