@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([4aba6a6](https://github.com/dure-one/jangbi/commit/4aba6a6743db3314848d4a1147c702485bc8bb0e) by nikescar).
+- Add changelog automatically ([5031134](https://github.com/dure-one/jangbi/commit/50311343d7f9d393876c07710fc681c9a87c6ee5) by nikescar).
 
 ### Fixed
 
+- fix: change bg proc run with systemd-run ([429cc8f](https://github.com/dure-one/jangbi/commit/429cc8fc7a5965a27fe75d675ec92a226d4d9082) by Woojae, Park).
 - fix: more descriptive log message for iptables ([f73ef12](https://github.com/dure-one/jangbi/commit/f73ef120b21b969fbb397fb43ffe46b87c8c59fa) by Woojae, Park).
 - fix: change systemd start command to restart ([61b65e0](https://github.com/dure-one/jangbi/commit/61b65e045fb22ed13b02a239ba31676942e6e4d3) by Woojae, Park).
 - fix: change bg proc run with disown ([72a5e8f](https://github.com/dure-one/jangbi/commit/72a5e8ff1c019510fec792829d9a0ff5deb6da4f) by Woojae, Park).
