@@ -85,7 +85,7 @@ function __os-aide_check { # running_status: 0 running, 1 installed, running_sta
 
 function __os-aide_run {
     ## aide minimal check for first run
-    nohup aide --check --config=/etc/aide/aide.minimal.conf
+    ( nohup aide --check --config=/etc/aide/aide.minimal.conf & disown )
     return 0
 }
 
