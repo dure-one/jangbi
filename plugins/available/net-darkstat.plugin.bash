@@ -97,8 +97,8 @@ function __net-darkstat_run {
     pidof darkstat|xargs kill &>/dev/null
     # shellcheck disable=SC1091
     source /etc/darkstat/init.cfg && \
-        systemd-run darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
-        systemd-run darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS 
+        systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
+        systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS 
     pidof darkstat && return 0 || return 1
 }
 

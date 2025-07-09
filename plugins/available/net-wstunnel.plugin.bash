@@ -85,7 +85,7 @@ function __net-wstunnel_run { # run socks proxy $NET
     ip_addr=$(ipcalc-ng "$1" 2>/dev/null|grep Address:)
     if [[ -n ${ip_addr} ]]; then
         # ws proxy only
-        systemd-run wstunnel server "wss://${ip_addr}:38080"
+        systemd-run -r wstunnel server "wss://${ip_addr}:38080"
         # socks proxy on top
         # wstunnel client -L socks5://${ip_addr}:38888 --connection-min-idle 5 wss://${ip_addr}:38080  &
     fi

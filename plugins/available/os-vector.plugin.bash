@@ -81,7 +81,7 @@ function __os-vector_check { # running_status: 0 running, 1 installed, running_s
 
 function __os-vector_run {
     pidof vector | xargs kill -9 2>/dev/null
-    systemd-run vector -c /etc/vector/vector.toml
+    systemd-run -r vector -c /etc/vector/vector.toml
     pidof vector && return 0 || return 1
 }
 
