@@ -336,15 +336,10 @@ function __net-dnsmasq_run {
 
     pidof dnsmasq | xargs kill -9 2>/dev/null
     dnsmasq -d --conf-file=/etc/dnsmasq.d/dnsmasq.conf &>/var/log/dnsmasq.log &
-
-    # RUN_NET_DNSMASQ=1 JB_ROLE=client 127.0.0.2:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
-    # RUN_NET_DNSMASQ=1 JB_ROLE=gateway 192.168.0.1:53 UPSTREAM 127.0.0.1(anydnsdqy enabled)|1.1.1.1(disabled)
-    # if [[ ${RUN_NET_ANYDNSDQY} -gt 0 ]]; then
-    #     echo "nameserver 127.0.0.2"|tee /etc/resolv.conf
-    # else
+    
     echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
-    # fi
     chmod 444 /etc/resolv.conf
+
     _time_sync "${DNS_UPSTREAM}"
 
     pidof dnsmasq && return 0 || return 1

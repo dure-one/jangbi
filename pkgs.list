@@ -26,6 +26,6 @@ os-conf|pkgs/libcryptx-perl_*.deb|http://ftp.de.debian.org/debian/pool/main/libc
 os-vector|pkgs/vector_*.deb|https://api.github.com/repos/vectordotdev/vector/releases/latest
 os-vector|pkgs/sysdig-*.deb|https://api.github.com/repos/draios/sysdig/releases/latest
 net-wstunnel|pkgs/wstunnel_*.tar.gz|https://api.github.com/repos/erebe/wstunnel/releases/latest
-
+net-dnscryptproxy|pkgs/dnscrypt-proxy-*.tar.gz|https://api.github.com/repos/dnscrypt-proxy/releases/latest
 
 
