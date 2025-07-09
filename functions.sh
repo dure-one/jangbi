@@ -2692,25 +2692,26 @@ _trim_string() { # Usage: _trim_string "   example   string    "
 }
 
 _load_config() { # Load config including parent config ex) _load_config .config
-  local conf=.config
+  local conf=".config"
   JB_VARS=""
-  [[ -z "$1" ]] && conf=/opt/jangbi/.config
   [[ ! -f "${conf}" ]] && log_fatal "config file ${conf} not exist." && exit 1
   stack=()
-  push() { stack+=("$@"); }
+  pushstk() { stack+=("$@"); }
   # track config to top
   while [[ -n ${conf} ]] ;
   do
-    push ${conf//\"/}
-    if [[ $(cat ${conf//\"/}|grep PARENT_CONFIG|wc -l) -gt 0 ]]; then
+    pushstk ${conf//\"/}
+    if [[ $(cat ${conf//\"/}|grep -c ^PARENT_CONFIG) -gt 0 ]]; then
       conf=$(cat ${conf//\"/}|grep PARENT_CONFIG|cut -d= -f2)
     else
       conf=
     fi
   done
+  # echo "load next configs : ${stack[@]}"
   # load config in order
   for((j=${#stack[@]};j>0;j--)){
     conf=${stack[j-1]}
+    # echo "config file(${conf}) is loading..."
     [[ -f ${conf} ]] && source ${conf}
     JB_VARS="${JB_VARS} $(cat ${conf}|grep -v '^#'|grep .|cut -d= -f1)"
     JB_CFILES="${JB_CFILES} ${conf}"

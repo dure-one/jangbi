@@ -89,6 +89,8 @@ function net-iptables {
         __net-iptables_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
         __net-iptables_build "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "watch" ]]; then
+        __net-iptables_watch "$2"
 #    elif [[ $# -eq 1 ]] && [[ "$1" = "backup" ]]; then
 #		__net-iptables_backup "$2"
 #    elif [[ $# -eq 1 ]] && [[ "$1" = "restore" ]]; then
@@ -177,6 +179,10 @@ function __net-iptables_run {
 
     __net-iptables_build
     systemctl status nftables && return 0 || return 1
+}
+
+function __net-iptables_watch {
+    watch -n 1 'nft list ruleset |grep -v 0\ drop|grep -v }'
 }
 
 #function __net-iptables_backup {
