@@ -437,14 +437,17 @@ function __net-iptables_mangle_all_both_arpallinfs {
 
     targetinf=$(route|grep default|awk '{print $8}') # net-tools
     targetinf=$(_trim_string ${targetinf})
+    log_debug "check network interfaces for arptables"
 
     infs=$(cat /proc/net/dev|grep :|awk '{print $1}'|sed 's/://g')
     IFS=$'\n' read -rd '' -a allinfx <<<"$infs"
     for((i=0;i<${#allinfx[@]};i++)){ 
         if [[ ${allinfx[i]} = "lo" ]]; then
+            log_debug "skip lo interface for arptables"
             continue
         fi
         if [[ ${allinfx[i]} = ${targetinf} ]]; then # except gateway interface
+            log_debug "skip ${targetinf} interface for arptables"
             continue
         fi
         arptables -A INPUT -i "${allinfx[i]}" -j ACCEPT
