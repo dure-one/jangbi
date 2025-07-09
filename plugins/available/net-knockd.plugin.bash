@@ -110,7 +110,7 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
 }
 
 function __net-knockd_run {
-    systemctl start knockd
+    systemctl restart knockd
     systemctl status knockd && return 0 || return 1
 }
 

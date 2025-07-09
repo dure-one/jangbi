@@ -102,7 +102,7 @@ function __os-auditd_check {  # running_status: 0 running, 1 installed, running_
 }
 
 function __os-auditd_run {
-    systemctl start auditd
+    systemctl restart auditd
     return 0
 }
 

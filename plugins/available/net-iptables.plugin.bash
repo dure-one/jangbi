@@ -130,7 +130,7 @@ function __net-iptables_install {
 
     systemctl stop nftables
     echo ""> /etc/nftables.conf
-    systemctl start nftables
+    systemctl restart nftables
     systemctl stop nftables
 }
 

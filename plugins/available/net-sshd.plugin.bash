@@ -101,7 +101,7 @@ function __net-sshd_check { # running_status: 0 running, 1 installed, running_st
 }
 
 function __net-sshd_run {
-    systemctl start ssh
+    systemctl restart ssh
     pidof sshd && return 0 || return 1
 }
 

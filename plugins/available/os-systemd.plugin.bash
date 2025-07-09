@@ -124,7 +124,7 @@ function __os-systemd_uninstall {
         systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
         systemd-logind.service \
         systemd-networkd systemd-networkd.socket
-    systemctl start \
+    systemctl restart \
         systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
         systemd-logind.service \
         systemd-networkd systemd-networkd.socket
