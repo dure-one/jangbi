@@ -81,7 +81,7 @@ function __os-vector_check { # running_status: 0 running, 1 installed, running_s
 
 function __os-vector_run {
     pidof vector | xargs kill -9 2>/dev/null
-    vector -c /etc/vector/vector.toml &
+    nohup vector -c /etc/vector/vector.toml &
     pidof vector && return 0 || return 1
 }
 
