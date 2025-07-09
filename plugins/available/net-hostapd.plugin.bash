@@ -98,7 +98,7 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
 
 function __net-hostapd_run {
     pidof hostapd | xargs kill -9 2>/dev/null
-    ( nohup hostapd /etc/hostapd/hostapd.conf &>>/var/log/hostapd.log & disown )
+    systemd-run hostapd /etc/hostapd/hostapd.conf &>>/var/log/hostapd.log
     pidof hostapd && return 0 || return 1
 }
 
