@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([318edc7](https://github.com/dure-one/jangbi/commit/318edc753288c9328839498999595683f105bf06) by nikescar).
+- Add changelog automatically ([c40f96e](https://github.com/dure-one/jangbi/commit/c40f96e2e493824803d5021c75c4fa7d88710156) by nikescar).
 
 ### Fixed
 
+- fix: more descriptive log message for iptables ([f73ef12](https://github.com/dure-one/jangbi/commit/f73ef120b21b969fbb397fb43ffe46b87c8c59fa) by Woojae, Park).
+- fix: change systemd start command to restart ([61b65e0](https://github.com/dure-one/jangbi/commit/61b65e045fb22ed13b02a239ba31676942e6e4d3) by Woojae, Park).
 - fix: maltrail, errors install, run ([7b0ee2e](https://github.com/dure-one/jangbi/commit/7b0ee2e674767ba1dcc5717ddd8f7bfbc5a5137a) by Woojae, Park).
 - fix: change apt update only after 24 hours ([4d60ab3](https://github.com/dure-one/jangbi/commit/4d60ab3055d973e8c9ab71b9c0bf87aeaae37855) by Woojae, Park).
 - fix: vector default config path ([96ac4a9](https://github.com/dure-one/jangbi/commit/96ac4a9036b1e4577a6c72768250a2e79c20d11f) by Woojae, Park).
