@@ -12,12 +12,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([1ce20d0](https://github.com/dure-one/jangbi/commit/1ce20d0912e0acb09416ede95fbc055b6319af98) by nikescar).
+- Add changelog automatically ([4aba6a6](https://github.com/dure-one/jangbi/commit/4aba6a6743db3314848d4a1147c702485bc8bb0e) by nikescar).
 
 ### Fixed
 
 - fix: more descriptive log message for iptables ([f73ef12](https://github.com/dure-one/jangbi/commit/f73ef120b21b969fbb397fb43ffe46b87c8c59fa) by Woojae, Park).
 - fix: change systemd start command to restart ([61b65e0](https://github.com/dure-one/jangbi/commit/61b65e045fb22ed13b02a239ba31676942e6e4d3) by Woojae, Park).
+- fix: change bg proc run with disown ([72a5e8f](https://github.com/dure-one/jangbi/commit/72a5e8ff1c019510fec792829d9a0ff5deb6da4f) by Woojae, Park).
 - fix: run minmon type process defach from tty ([80e5133](https://github.com/dure-one/jangbi/commit/80e5133cd68fc3490032632b68b561931f151405) by Woojae, Park).
 - fix: maltrail, errors install, run ([7b0ee2e](https://github.com/dure-one/jangbi/commit/7b0ee2e674767ba1dcc5717ddd8f7bfbc5a5137a) by Woojae, Park).
 - fix: change apt update only after 24 hours ([4d60ab3](https://github.com/dure-one/jangbi/commit/4d60ab3055d973e8c9ab71b9c0bf87aeaae37855) by Woojae, Park).
