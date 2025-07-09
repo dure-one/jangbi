@@ -4,7 +4,8 @@ about-plugin 'dnscryptproxy install configurations.'
 
 function net-dnscryptproxy {
     about 'dnscryptproxy install configurations'
-    group 'net'
+    group 'postnet'
+    runtype 'minmon'
     param '1: command'
     param '2: params'
     example '$ net-dnscryptproxy check/install/uninstall/run'
