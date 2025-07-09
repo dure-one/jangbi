@@ -11,6 +11,7 @@ jangbi_aide.log
 jangbi.log
 swapfile
 plugins/testing
+nohup.out
 
 # pyvenv
 venv
