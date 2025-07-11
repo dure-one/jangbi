@@ -72,8 +72,8 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 - (done)license listing
 - (done)time settings with script based ntp client
 - (done)dmz or twin ip(super dmz)
-- keep process running & working : wstunnel hostapd dnsmasq anydnsdqy darkstat
-- iptables : all occurence by modes cases
+- (done)keep process running & working : wstunnel hostapd dnsmasq anydnsdqy darkstat
+- (done)iptables : all occurence by modes cases
 - (done)Reduce the sudo timeout to 1 minute
 - change mac address(random) on wan interface - macchanger
 - (done)network monitoring(darkstat)
@@ -84,7 +84,8 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 - host search by mac address network tools
 - qos speed limit by ip, mac, hostname
 - (done)new dns client : anydnsdqy
--
+- bugs on ifupdown network interfaces for WLAN, dnsmasq network for WLAN
+
 ### Later
 - Stress Tests(iperf)
 - automatic wan interface selecting
