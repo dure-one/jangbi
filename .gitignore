@@ -12,6 +12,7 @@ jangbi.log
 swapfile
 plugins/testing
 nohup.out
+stopspinning
 
 # pyvenv
 venv
