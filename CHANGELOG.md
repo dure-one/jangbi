@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([5308758](https://github.com/dure-one/jangbi/commit/5308758ab1b23365261db39b389abcc3856195d0) by nikescar).
+- Add changelog automatically ([c8458e2](https://github.com/dure-one/jangbi/commit/c8458e2f3f95d6682607762eb25317705c9198a1) by nikescar).
 
 ### Fixed
 
+- fix: add stopspinng to .gitignore ([731e0b3](https://github.com/dure-one/jangbi/commit/731e0b3691d42860488a130916b137d4eec0a962) by Woojae, Park).
 - fix: add msg to load_config, add iptables watch cmd ([4289fa2](https://github.com/dure-one/jangbi/commit/4289fa2cdcadd39a04c56ae1127019a3f0920e17) by Woojae, Park).
 - fix: dnscryptproxy group, runtype ([ff643e1](https://github.com/dure-one/jangbi/commit/ff643e1e7d8b47aa784c8cd6cbb078c9bfd5a839) by Woojae, Park).
 - fix: fix dnscrypt proxy pkg url and name ([9f0339d](https://github.com/dure-one/jangbi/commit/9f0339dcf21e23b4aa294973fd6c4b7dafff49a2) by Woojae, Park).
