@@ -25,7 +25,6 @@ usage() {
   printf "%s\\n" "  ${YELLOW}--check net-darkstat   |-c${NORMAL}   check single plugin"
   printf "%s\\n" "  ${YELLOW}--launch net-darkstat  |-l${NORMAL}   run single plugin"
   printf "%s\\n" "  ${YELLOW}--sync                 |-s${NORMAL}   sync enabled plugin in config to jangbi-it and exit"
-  printf "%s\\n" "  ${YELLOW}--load                 |-d${NORMAL}   load jangbi-it and exit"
   echo
 }
 
@@ -45,12 +44,6 @@ while [[ $# -gt 0 ]]; do
     --launch | -l)
       TRPROC=$2
       ${TRPROC} run
-      exit 0
-      ;;
-    --load | -d)
-      printf "%s\\n\\n" "jangbi-it has loaded."
-      source ./functions.sh
-      jangbi-it show plugins
       exit 0
       ;;
     --sync | -s)
@@ -92,7 +85,9 @@ fi
     log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
 # pkgs imgs preparations
-[[ ! -d ./pkgs ]] && mkdir -p ./pkgs ./imgs
+[[ ! -d ./pkgs ]] && mkdir -p ./pkgs
+[[ ! -d ./imgs ]] && mkdir -p ./imgs
+[[ ! -d ./enabled ]] && mkdir -p ./enabled
 
 # install extrepo if not exists
 durl="https://ftp.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl_0.077-1+b1_$(dpkg --print-architecture).deb"
@@ -203,6 +198,7 @@ process_each_step() {
             ;;
     esac
 }
+INTERNET_AVAIL=0
 
 log_debug "Starting prenet tasks..."
 for (( n=0; n<${#prenet[@]}; n++ )); do
@@ -225,10 +221,8 @@ for (( n=0; n<${#postnet[@]}; n++ )); do
 done
 
 # check network
-INTERNET_AVAIL=0
 if [[ -z $(curl google.com 2>/dev/null|grep 301\ Moved) ]]; then
-    log_error "not connected. please check network settings"
-    exit 1
+    log_error "not connected. proceed with offline install."
 else
     # set date and add to crontab
     log_debug "Trying to sync time with DNS Server ${DNS_UPSTREAM}"

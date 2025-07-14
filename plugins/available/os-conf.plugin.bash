@@ -9,7 +9,9 @@ function os-conf {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-conf check/install/uninstall/run'
+    example '$ os-conf subcommand'
+    local PKGNAME="conf"
+    local DMNNAME="os-conf"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -25,6 +27,8 @@ function os-conf {
         __os-conf_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-conf_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-conf_download "$2"
     else
         __os-conf_help
     fi
@@ -80,9 +84,22 @@ function __os-conf_install {
     fi
 
     # D. cron enable
+    log_debug "Installing cron..."
     export DEBIAN_FRONTEND=noninteractive
-    apt install -qy cron
-    systemctl enable cron
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy cron
+    else
+        local filepat="./pkgs/cron*.deb"
+        local pkglist="./pkgs/cron.pkgs"
+        [[ ! -f ${filepat} ]] && apt update -qy && __net-conf_download
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < ${pkglist}
+        apt install -qy $(<${pkgslist_down[@]})
+    fi
 
     crontab -l > /tmp/mycron
     sed -i "s|^.*# CONF_TIMESYNC||g" "/tmp/mycron"
@@ -95,11 +112,16 @@ function __os-conf_install {
     fi
     crontab /tmp/mycron
     rm /tmp/mycron
+}
 
+function __os-conf_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs cron
+    return 0
 }
 
 function __os-conf_uninstall { 
-    log_debug "Trying to uninstall os-conf."
+    log_debug "Uninstalling ${DMNNAME}..."
     # remove swapfile
     swapoff -a
     rm -rf "${JB_DEPLOY_PATH}/swapfile"
@@ -110,14 +132,14 @@ function __os-conf_uninstall {
 }
 
 function __os-conf_disable { 
-    # remove swapfile
+    log_debug "Disabling ${DMNNAME}..."
     swapoff -a
     return 0
 }
 
 function __os-conf_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-conf Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_OS_CONF} ]] && \
@@ -163,4 +185,4 @@ function __os-conf_run {
     return 0
 }
 
-complete -F __os-conf_run os-conf
+complete -F _blank os-conf

@@ -9,7 +9,9 @@ function net-hostapd {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ net-hostapd check/install/uninstall/run'
+    example '$ net-hostapd subcommand'
+    local PKGNAME="hostapd"
+    local DMNNAME="net-hostapd"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -25,6 +27,12 @@ function net-hostapd {
         __net-hostapd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-hostapd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-hostapd_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-hostapd_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-hostapd_download "$2"
     else
         __net-hostapd_help
     fi
@@ -37,24 +45,44 @@ function __net-hostapd_help {
     echo "   help      Show this help message"
     echo "   install   Install os firmware"
     echo "   uninstall Uninstall installed firmware"
+    echo "   configgen   Configs Generator"
+    echo "   configapply Apply Configs"
+    echo "   download    download pkg files to pkg dir"
     echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
 function __net-hostapd_install {
+    log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
-    WLANINF=${JB_WLANINF}
-    # WLANIP="${JB_WLAN}"
-    # WLANIP=$(ipcalc-ng "${JB_WLAN}"|grep Address:|cut -f2)
-    # WLANMINIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMin:|cut -f2)
-    # WLANMAXIP=$(ipcalc-ng "${JB_WLAN}"|grep HostMax:|cut -f2)
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && apt install -qy hostapd
-    mkdir -p /etc/hostapd
-    cp -rf ./configs/hostapd.conf.default /etc/hostapd/
-    tee /etc/hostapd/hostapd.conf > /dev/null <<EOT
-interface=${WLANINF}
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy ${PKGNAME}
+    else
+        local filepat="./pkgs/${PKGNAME}*.deb"
+        local pkglist="./pkgs/${PKGNAME}.pkgs"
+        [[ ! -f ${filepat} ]] && apt update -qy && __net-hostapd_download
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < ${pkglist}
+        apt install -qy $(<${pkgslist_down[@]})
+        
+    fi
+    if ! __net-hostapd_configgen; then # if gen config is different do apply
+        __net-hostapd_configapply
+        rm -rf /tmp/${PKGNAME}
+    fi
+}
+
+function __net-hostapd_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
+    tee /tmp/hostapd/hostapd.conf > /dev/null <<EOT
+interface=${JB_WLANINF}
 ssid=${JB_WLAN_SSID}
 hw_mode=g
 channel=6
@@ -65,21 +93,44 @@ wpa_key_mgmt=WPA-PSK
 rsn_pairwise=CCMP
 wmm_enabled=1
 EOT
+    # diff check
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
 }
 
-function __net-hostapd_uninstall { 
+function __net-hostapd_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    patch -i /tmp/${PKGNAME}.diff
+    popd 2>&1 1>/dev/null
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-hostapd_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs hostapd
+    return 0
+}
+
+function __net-hostapd_uninstall {
+    log_debug "Uninstalling ${DMNNAME}..."
     pidof hostapd | xargs kill -9 2>/dev/null
     apt purge -qy hostapd
 }
 
 function __net-hostapd_disabled { 
+    log_debug "Disabling ${DMNNAME}..."
     pidof hostapd | xargs kill -9 2>/dev/null
     return 0
 }
 
 function __net-hostapd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-hostapd Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_NET_HOSTAPD} ]] && \
@@ -97,9 +148,10 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
 }
 
 function __net-hostapd_run {
+    log_debug "Running ${DMNNAME}..."
     pidof hostapd | xargs kill -9 2>/dev/null
-    systemd-run -r hostapd /etc/hostapd/hostapd.conf &>>/var/log/hostapd.log
+    systemd-run -r hostapd /etc/hostapd/hostapd.conf -f /var/log/hostapd.log
     pidof hostapd && return 0 || return 1
 }
 
-complete -F __net-hostapd_run net-hostapd
+complete -F _blank net-hostapd

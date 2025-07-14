@@ -9,7 +9,9 @@ function os-firmware {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-firmware check/install/uninstall/run'
+    example '$ os-firmware subcommand'
+    local PKGNAME="firmware"
+    local DMNNAME="os-firmware"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -42,6 +44,8 @@ function __os-firmware_help {
 }
 
 function __os-firmware_install {
+    log_debug "Installing ${DMNNAME}..."
+    
     local firmware_file
     firmware_file="./pkgs/$(basename "${FIRMWARE_URL}")"
 
@@ -72,7 +76,7 @@ function __os-firmware_install {
 }
 
 function __os-firmware_uninstall { 
-    log_debug "Trying to uninstall os-firmware."
+    log_debug "Uninstalling ${DMNNAME}..."
     sha256sum -c ".firmware_original.sha256"
     # [[ $(du -s /lib/firmware| cut -f1) -ne $(cat .firmware_updated.size|cut -f1) ]] && echo "/lib/firmware folder has changed since last firmware installed. please retry with --force argument." && update_proceed=0
     tar -zxf .firmware_original.tar.gz -C /lib/firmware --strip-components=2
@@ -83,7 +87,7 @@ function __os-firmware_uninstall {
 
 function __os-firmware_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-firmware Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_OS_FIRMWARE} ]] && \
@@ -112,4 +116,4 @@ function __os-firmware_run {
     return 0
 }
 
-complete -F __os-firmware_run os-firmware
+complete -F _blank os-firmware

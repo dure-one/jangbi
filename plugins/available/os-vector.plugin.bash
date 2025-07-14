@@ -9,7 +9,9 @@ function os-vector {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-vector check/install/uninstall/run'
+    example '$ os-vector subcommand'
+    local PKGNAME="vector"
+    local DMNNAME="os-vector"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -85,4 +87,4 @@ function __os-vector_run {
     pidof vector && return 0 || return 1
 }
 
-complete -F __os-vector_run os-vector
+complete -F _blank os-vector

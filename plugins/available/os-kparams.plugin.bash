@@ -9,7 +9,9 @@ function os-kparams {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-kparams check/install/uninstall/run'
+    example '$ os-kparams subcommand'
+    local PKGNAME="kparams"
+    local DMNNAME="os-kparams"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -42,24 +44,25 @@ function __os-kparams_help {
 }
 
 function __os-kparams_install {
-    log_debug "Trying to install os-kparams."
+    log_debug "Installing ${DMNNAME}..."
 }
 
 function __os-kparams_uninstall { 
-    log_debug "Trying to uninstall os-kparams."
+    log_debug "Uninstalling ${DMNNAME}..."
     local kparams_cmdline="/etc/kernel_cmdline"
     umount /root/cmdline
     rm ${kparams_cmdline}
 }
 
-function __os-kparams_disable { 
+function __os-kparams_disable {
+    log_debug "Disabling ${DMNNAME}..."
     umount /root/cmdline
     return 0
 }
 
 function __os-kparams_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-kparams Check"
+    log_debug "Checking ${DMNNAME}..."
 
     [[ -z ${RUN_OS_KPARAMS} ]] && \
         log_error "RUN_OS_KPARAMS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
@@ -73,6 +76,8 @@ function __os-kparams_check { # running_status: 0 running, 1 installed, running_
 }
 
 function __os-kparams_run {
+    log_debug "Running ${DMNNAME}..."
+
     local kparams_cmdline="/etc/kernel_cmdline"
     umount /proc/cmdline &>/dev/null
     cat /proc/cmdline > ${kparams_cmdline}
@@ -85,4 +90,4 @@ function __os-kparams_run {
     return 0
 }
 
-complete -F __os-kparams_run os-kparams
+complete -F _blank os-kparams

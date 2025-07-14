@@ -9,7 +9,9 @@ function os-disablebins {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-disablebins check/install/uninstall/run'
+    example '$ os-disablebins subcommand'
+    local PKGNAME="disablebins"
+    local DMNNAME="os-disablebins"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -53,7 +55,7 @@ function __os-disablebins_blankrep() { # binary file replacement
 }
 
 function __os-disablebins_install {
-    [[ ${RUN_OS_DISABLEBINS} -gt 0 ]] && log_debug "Trying to install os-disablebins."
+    [[ ${RUN_OS_DISABLEBINS} -gt 0 ]] && log_debug "Installing ${DMNNAME}..."
     # kernel module blacklist
     cp -rf ./configs/blacklist.conf /etc/modprobe.d/blacklist.conf
     # https://github.com/MikeHorn-git/Kernel-Hardening/blob/main/conf/blacklist.conf
@@ -167,14 +169,15 @@ function __os-disablebins_install {
 }
 
 function __os-disablebins_uninstall { 
-    log_debug "Trying to uninstall os-disablebins."
+    log_debug "Uninstalling ${DMNNAME}..."
     __os-disablebins_install
     rm -rf /etc/modprobe.d/blacklist.conf
 }
 
 function __os-disablebins_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-disablebins Check"
+    log_debug "Checking ${DMNNAME}..."
+    
     [[ -z ${RUN_OS_DISABLEBINS} ]] && \
         log_error "RUN_OS_DISABLEBINS variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_DISABLEBINS} != 1 ]] && \
@@ -192,4 +195,4 @@ function __os-disablebins_run {
     return 0
 }
 
-complete -F __os-disablebins_run os-disablebins
+complete -F _blank os-disablebins

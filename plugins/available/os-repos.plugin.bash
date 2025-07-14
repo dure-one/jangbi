@@ -9,7 +9,7 @@ function os-repos {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-repos check/install/uninstall/run'
+    example '$ os-repos subcommand'
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -145,4 +145,4 @@ function __os-repos_run {
     return 0
 }
 
-complete -F __os-repos_run os-repos
+complete -F _blank os-repos

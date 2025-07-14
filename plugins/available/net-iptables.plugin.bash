@@ -71,7 +71,7 @@ function net-iptables {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ net-iptables check/install/uninstall/run/build'
+    example '$ net-iptables subcommand'
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -85,16 +85,18 @@ function net-iptables {
         __net-iptables_uninstall "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
         __net-iptables_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-iptables_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-iptables_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-iptables_download "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-iptables_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
         __net-iptables_build "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "watch" ]]; then
         __net-iptables_watch "$2"
-#    elif [[ $# -eq 1 ]] && [[ "$1" = "backup" ]]; then
-#		__net-iptables_backup "$2"
-#    elif [[ $# -eq 1 ]] && [[ "$1" = "restore" ]]; then
-#		__net-iptables_apply "$2"
     else
         __net-iptables_help
     fi
@@ -105,35 +107,64 @@ function __net-iptables_help {
     echo -e "Helper to iptables install configurations.\n"
     echo -e "Commands:\n"
     echo "   help                       Show this help message"
-    echo "   install 1 nft_rules        Install os iptables ex) install $ipv6enabled $nft_rules"
+    echo "   install                    Install os iptables"
     echo "   uninstall                  Uninstall installed iptables"
+    echo "   configgen                  Configs Generator"
+    echo "   configapply                Apply Configs"
+    echo "   download                   download pkg files to pkg dir"
     echo "   check                      Check vars available"
     echo "   run                        do task at bootup"
     echo "   build                      rebuild iptables by configs"
-#    echo "   backup                     backup current iptables to /etc/nftables"
-#    echo "   apply                    restore nftables from /etc/nftables"
+    echo "   watch                      watch nftables"
 }
 
 function __net-iptables_install {
-    log_debug "Trying to install net-iptables."
-    local nftables_override="$1" # $NFTABLES_OVERRIDE
-    local disable_ipv6="$2"
-
+    log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && apt install -qy nftables iptables arptables xtables-addons-common net-tools
-    systemctl enable nftables
-    mkdir -p /etc/iptables
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy nftables iptables arptables net-tools
+    else
+        local filepat="./pkgs/${PKGNAME}*.deb"
+        local pkglist="./pkgs/${PKGNAME}.pkgs"
+        [[ ! -f ${filepat} ]] && apt update -qy && __net-iptables_download
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < ${pkglist}
+        apt install -qy $(<${pkgslist_down[@]})
+    fi
+    if ! __net-iptables_configgen; then # if gen config is different do apply
+        __net-iptables_configapply
+        rm -rf /tmp/iptables
+    fi
+}
 
-    cp -rf ./configs/iptables/rules-both.iptables /etc/iptables/rules-both.iptables
-    cp -rf ./configs/iptables/rules-ipv4.iptables /etc/iptables/rules-ipv4.iptables
-    cp -rf ./configs/iptables/rules-ipv6.ip6tables /etc/iptables/rules-ipv6.ip6tables
+function __net-iptables_configgen { # config generator and diff
+    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
 
-    systemctl stop nftables
-    echo ""> /etc/nftables.conf
-    systemctl restart nftables
-    systemctl stop nftables
+    __net-iptables_build # after build, /etc/nftables.conf /etc/iptables/nftables.conf have same contents
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __net-iptables_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    patch -i /tmp/${PKGNAME}.diff
+    popd 2>&1 1>/dev/null
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-iptables_download {
+    _download_apt_pkgs "nftables iptables arptables net-tools"
+    return 0
 }
 
 function __net-iptables_uninstall { 
@@ -163,60 +194,21 @@ function __net-iptables_check { # running_status: 0 running, 1 installed, runnin
     [[ $(dpkg -l|awk '{print $2}'|grep -c iptables) -lt 1 ]] && \
         log_info "iptables is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    #[[ $(systemctl status nftables 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
-    #    log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(systemctl status nftables 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+        log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
 
 function __net-iptables_run {
-    echo ""> /etc/nftables.conf # prevent not running because of xttables for nftables
+    # echo ""> /etc/nftables.conf # prevent not running because of xttables for nftables
     systemctl restart nftables
-
-    # backup and restore is failed too often
-    #[[ ! -d /etc/nftables ]] && __net-iptables_build && __net-iptables_backup
-    #__net-iptables_apply
-
-    __net-iptables_build
     systemctl status nftables && return 0 || return 1
 }
 
 function __net-iptables_watch {
     watch -n 1 'nft list ruleset |grep -v 0\ drop|grep -v }'
 }
-
-#function __net-iptables_backup {
-#    local arp=$(nft list ruleset arp)
-#    local ip=$(nft list ruleset ip)
-#    local iplegacy=$(iptables-nft-save|wc -l)
-#    local ip6=$(nft list ruleset ip6)
-#    local ip6legacy=$(ip6tables-nft-save|wc -l)
-#    local bridge=$(nft list ruleset bridge)
-#    local inet=$(nft list ruleset inet)
-#    mkdir -p /etc/nftables
-#    [[ ${#arp[@]} -gt 0 ]] && nft list ruleset arp > /etc/nftables/arp.nft
-#    [[ ${#ip[@]} -gt 0 ]] && nft list ruleset ip > /etc/nftables/ip.nft
-#    [[ ${iplegacy} -gt 0 ]] && iptables-legacy-save > /etc/nftables/iplegacy.iptables
-#    [[ ${#ip6[@]} -gt 0 ]] && nft list ruleset ip6 > /etc/nftables/ip6.nft
-#    [[ ${ip6legacy} -gt 0 ]] && ip6tables-legacy-save > /etc/nftables/ip6legacy.iptables
-#    [[ ${#bridge[@]} -gt 0 ]] && nft list ruleset bridge > /etc/nftables/bridge.nft
-#    [[ ${#inet[@]} -gt 0 ]] && nft list ruleset inet > /etc/nftables/inet.nft
-#
-#	return 0
-#}
-#
-#function __net-iptables_apply {
-#    nft flush ruleset
-#    nft -f /etc/nftables/arp.nft
-#    nft -f /etc/nftables/ip.nft &>/dev/null
-#    iptables-legacy-restore /etc/nftables/iplegacy.iptables
-#    nft -f /etc/nftables/ip6.nft &>/dev/null
-#    ip6tables-legacy-restore /etc/nftables/ip6legacy.iptables
-#    nft -f /etc/nftables/bridge.nft
-#    nft -f /etc/nftables/inet.nft
-#
-#	return 0
-#}
 
 function __net-iptables_build {
     # read config apply
@@ -385,7 +377,7 @@ function __net-iptables_build {
 
     # IPTABLES_SNAT="LAN<WAN|LAN1<WAN"
     # [[ ${IPTABLES_SNAT} -gt 0 ]] && __net-iptables_filternat_all_both_snat # laninf lannet waninf wanip
-
+    nft list ruleset > /tmp/iptables/nftables.conf
     return 0
 }
 
@@ -721,4 +713,4 @@ function __net-iptables_filter_all_both_ipblacklist {
     }
 }
 
-complete -F __net-iptables_run net-iptables
+complete -F _blank net-iptables

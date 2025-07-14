@@ -9,7 +9,9 @@ function os-sysctl {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-sysctl check/install/uninstall/run'
+    example '$ os-sysctl subcommand'
+    local PKGNAME="sysctl"
+    local DMNNAME="os-sysctl"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -85,4 +87,4 @@ function __os-sysctl_run {
     return 0
 }
 
-complete -F __os-sysctl_run os-sysctl
+complete -F _blank os-sysctl

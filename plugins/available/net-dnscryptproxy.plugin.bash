@@ -6,9 +6,12 @@ function net-dnscryptproxy {
     about 'dnscryptproxy install configurations'
     group 'postnet'
     runtype 'minmon'
+    deps ''
     param '1: command'
     param '2: params'
-    example '$ net-dnscryptproxy check/install/uninstall/run'
+    example '$ net-dnscryptproxy subcommand'
+    local PKGNAME="dnscryptproxy"
+    local DMNNAME="net-dnscryptproxy"
 
     if [[ -z ${DURE_DEPLOY_PATH} ]]; then
         _load_config
@@ -24,6 +27,12 @@ function net-dnscryptproxy {
         __net-dnscryptproxy_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-dnscryptproxy_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-dnscryptproxy_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-dnscryptproxy_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-dnscryptproxy_download "$2"
     else
         __net-dnscryptproxy_help
     fi
@@ -33,45 +42,86 @@ function __net-dnscryptproxy_help {
     echo -e "Usage: net-dnscryptproxy [COMMAND] [profile]\n"
     echo -e "Helper to dnscryptproxy install configurations.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install dnscryptproxy"
-    echo "   uninstall Uninstall installed dnscryptproxy"
-    echo "   check     Check vars available"
-    echo "   run       run"
+    echo "   help        Show this help message"
+    echo "   install     Install dnscryptproxy"
+    echo "   uninstall   Uninstall installed dnscryptproxy"
+    echo "   configgen   Configs Generator"
+    echo "   configapply Apply Configs"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   check       Check vars available"
+    echo "   run         run"
 }
 
 function __net-dnscryptproxy_install {
     export DEBIAN_FRONTEND=noninteractive
-    log_debug "Trying to install net-dnscryptproxy."
-    mkdir -p /tmp/dnscryptproxy
-    tar -zxvf ./pkgs/dnscrypt-proxy-linux*.tar.gz -C /tmp/dnscryptproxy --strip-components=1 2>/dev/null 2>&1
+    log_debug "Installing ${DMNNAME}..."
+
+    local filepat="./pkgs/dnscrypt-proxy-linux*.tar.gz"
+    local tmpdir="/tmp/dnscryptproxy"
+    rm -rf ${tmpdir} 2>&1 1>/dev/null
+    mkdir -p ${tmpdir} 2>&1 1>/dev/null
+
+    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-dnscryptproxy_download
+    tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 2>/dev/null 2>&1
     if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy ]]; then
         log_error "dnscryptproxy binary not found in package."
         return 1
     fi
-    cp /tmp/dnscryptproxy/dnscrypt-proxy /usr/sbin/dnscrypt-proxy
+    cp ${tmpdir}/dnscrypt-proxy /usr/sbin/dnscrypt-proxy
     chmod 755 /sbin/dnscrypt-proxy
+    rm -rf ${tmpdir} 2>&1 1>/dev/null
+    touch /var/log/dnscryptproxy.log
 
-    mkdir -p /etc/dnscrypt-proxy
-    cp ./configs/dnscrypt-proxy/* /etc/dnscrypt-proxy/
-    
-    touch /var/log/dnscrypt-proxy.log
+    if ! __net-dnscryptproxy_configgen; then # if gen config is different do apply
+        __net-dnscryptproxy_configapply
+        rm -rf ${tmpdir}
+    fi
+}
+
+function __net-dnscryptproxy_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
+    # diff check
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __net-dnscryptproxy_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && mv "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    patch -i /tmp/${PKGNAME}.diff
+    popd 2>&1 1>/dev/null
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-dnscryptproxy_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz
+    return 0
 }
 
 function __net-dnscryptproxy_disable {
+    log_debug "Disabling ${DMNNAME}..."
     pidof dnscrypt-proxy | xargs kill -9 2>/dev/null
     return 0
 }
 
 function __net-dnscryptproxy_uninstall {
-    log_debug "Trying to uninstall net-dnscryptproxy."
+    log_debug "Uninstalling ${DMNNAME}..."
     pidof dnscrypt-proxy | xargs kill -9 2>/dev/null
     rm -rf /usr/sbin/dnscrypt-proxy
 }
 
 function __net-dnscryptproxy_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-dnscryptproxy Check"
+    log_debug "Checking ${DMNNAME}..."
+
     # check package file exists
     [[ $(find ./pkgs/dnscrypt-proxy-linux*|wc -l) -lt 1 ]] && \
         log_info "dnscryptproxy package file does not exist." && [[ $running_status -lt 10 ]] && running_status=10
@@ -91,12 +141,12 @@ function __net-dnscryptproxy_check { # running_status 0 installed, running_statu
 }
 
 function __net-dnscryptproxy_run {
-    log_debug "Running dnscryptproxy..."
+    log_debug "Running ${DMNNAME}..."
     
     pidof dnscrypt-proxy | xargs kill &>/dev/null
     
     log_debug "Starting dnscrypt-proxy" 
-    systemd-run -r dnscrypt-proxy -config /etc/dnscrypt-proxy/dnscrypt-proxy.toml -logfile /var/log/dnscrypt-proxy.log
+    systemd-run -r dnscrypt-proxy -config /etc/dnscryptproxy/dnscrypt-proxy.toml -logfile /var/log/dnscryptproxy.log
     
     # if dnsmasq is disabled set default dns resolver to dnscrypt-proxy.
     if [[ ${RUN_NET_DNSMASQ} -lt 1 ]]; then
@@ -115,4 +165,4 @@ function __net-dnscryptproxy_run {
         log_error "dnscryptproxy failed to run." && return 1
 }
 
-complete -F __net-dnscryptproxy_run net-dnscryptproxy
+complete -F _blank net-dnscryptproxy

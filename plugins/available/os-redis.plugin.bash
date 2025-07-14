@@ -9,7 +9,9 @@ function os-redis {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ os-redis check/install/uninstall/run'
+    example '$ os-redis subcommand'
+    local PKGNAME="redis"
+    local DMNNAME="os-redis"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -34,11 +36,14 @@ function __os-redis_help {
     echo -e "Usage: os-redis [COMMAND] [profile]\n"
     echo -e "Helper to redis install configurations.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware"
-    echo "   check     Check vars available"
-    echo "   run       Run tasks"
+    echo "   help         Show this help message"
+    echo "   install      Install os firmware"
+    echo "   uninstall    Uninstall installed firmware"
+    echo "   configgen    Configs Generator"
+    echo "   configapply  Apply Configs"
+    echo "   download     Download pkg files to pkg dir"
+    echo "   check        Check vars available"
+    echo "   run          Run tasks"
 }
 
 function __os-redis_install {
@@ -89,4 +94,4 @@ function __os-redis_run {
     systemctl status redis-server 2>/dev/null
 }
 
-complete -F __os-redis_run os-redis
+complete -F _blank os-redis

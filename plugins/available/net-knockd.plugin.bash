@@ -9,7 +9,9 @@ function net-knockd {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ net-knockd check/install/uninstall/run'
+    example '$ net-knockd subcommand'
+    local PKGNAME="knockd"
+    local DMNNAME="net-knockd"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -25,6 +27,12 @@ function net-knockd {
         __net-knockd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-knockd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-knockd_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-knockd_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-knockd_download "$2"
     else
         __net-knockd_help
     fi
@@ -34,26 +42,38 @@ function __net-knockd_help {
     echo -e "Usage: net-knockd [COMMAND] [profile]\n"
     echo -e "Helper to knockd install configurations.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install knockd"
-    echo "   uninstall Uninstall installed knockd"
-    echo "   check     Check vars available"
-    echo "   run       Run tasks"
+    echo "   help          Show this help message"
+    echo "   install       Install knockd"
+    echo "   uninstall     Uninstall installed knockd"
+    echo "   configgen     Configs Generator"
+    echo "   configapply   Apply Configs"
+    echo "   download      Download pkg files to pkg dir"
+    echo "   check         Check vars available"
+    echo "   run           Run tasks"
 }
 
 function __net-knockd_install {
-    log_debug "Trying to install net-knockd."
-
+    log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "knockd") -lt 1 ]] && apt install -qy knockd
-    systemctl enable knockd
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy knockd
+    else
+        local filepat="./pkgs/${PKGNAME}*.deb"
+        local pkglist="./pkgs/${PKGNAME}.pkgs"
+        [[ ! -f ${filepat} ]] && apt update -qy && __net-knockd_download
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < ${pkglist}
+        apt install -qy $(<${pkgslist_down[@]})
+    fi
     
-    mv /etc/knockd.conf /etc/knockd.old.conf 2>/dev/null
-    cp ./configs/knockd/knockd.conf.default /etc/knockd.conf
-    sed -i "s|7000,8000,9000|${KNOCKD_STATIC_SSH}|g" "/etc/knockd.conf"
-    chmod 600 /etc/knockd.conf
+    # mv /etc/knockd.conf /etc/knockd.old.conf 2>/dev/null
+    # cp ./configs/knockd/knockd.conf.default /etc/knockd.conf
+    # sed -i "s|7000,8000,9000|${KNOCKD_STATIC_SSH}|g" "/etc/knockd.conf"
+    # chmod 600 /etc/knockd.conf
 
     # > step crypto otp generate --issuer dure.jangbi --account router_hostname --period=300 --length=10 --alg=SHA512 --qr dure.png > dure.totp
     # KNOCKD_WITH_STEPTOTP=1
@@ -73,16 +93,50 @@ function __net-knockd_install {
     # echo "*/10 * * * * /sbin/knock_otp_regen.sh # KNOCKD" >> /tmp/mycron
     # crontab /tmp/mycron
     # rm /tmp/mycron
+
+    if ! __net-knockd_configgen; then # if gen config is different do apply
+        __net-knockd_configapply
+        rm -rf /tmp/knockd
+    fi
+}
+
+function __net-knockd_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
+    # diff check
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __net-knockd_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    patch -i /tmp/${PKGNAME}.diff
+    popd 2>&1 1>/dev/null
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-knockd_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs knockd
+    return 0
 }
 
 function __net-knockd_uninstall { 
-    log_debug "Trying to uninstall net-knockd."
+    log_debug "Uninstalling ${DMNNAME}..."
     # rm /sbin/knock_otp_regen.sh 2>/dev/null
     systemctl stop knockd
     systemctl disable knockd
 }
 
-function __net-knockd_disable { 
+function __net-knockd_disable {
+    log_debug "Disabling ${DMNNAME}..."
     systemctl stop knockd
     systemctl disable knockd
     return 0
@@ -90,7 +144,7 @@ function __net-knockd_disable {
 
 function __net-knockd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-knockd Check"
+    log_debug "Checking ${DMNNAME}..."
     
     # check global variable
     [[ -z ${RUN_NET_KNOCKD} ]] && \
@@ -110,8 +164,9 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
 }
 
 function __net-knockd_run {
+    log_debug "Running ${DMNNAME}..."
     systemctl restart knockd
     systemctl status knockd && return 0 || return 1
 }
 
-complete -F __net-knockd_run net-knockd
+complete -F _blank net-knockd

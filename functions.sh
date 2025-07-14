@@ -2752,6 +2752,53 @@ _distname_check() {
   fi
 }
 
+_download_apt_pkgs() { # _download_apt_pkgs darkstat
+  local pkgs=($1)
+  local pkgname=$(_trim_string ${pkgs[0]})
+  [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+  [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+  # [[ ! -f .task-ssh-server ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-ssh-server| grep "^\w" > .task-ssh-server
+  [[ ! -f .task-desktop ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-desktop| grep "^\w" > .task-desktop
+  apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends $1| grep "^\w" > /tmp/compare_pkg
+  grep -Fxv -f .task-desktop /tmp/compare_pkg > /tmp/unique_pkg
+  pushd pkgs 2>&1 1>/dev/null
+  cp /tmp/unique_pkg "${pkgname}.pkgs"
+  apt download $(</tmp/unique_pkg)
+  popd 2>&1 1>/dev/null
+}
+
+_download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz
+  local arch1=$(dpkg --print-architecture)
+  local arch2=$(arch)
+  [[ $(echo $1|grep -c "/") != 1 ]] && log_debug "please set only githubid/repoid." && return 1
+  local pkgurl="https://api.github.com/repos/$(_trim_string $1)/releases/latest"
+  IFS=$'\*' read -rd '' -a pkgfilefix <<<"$(_trim_string $2)"
+  pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
+  pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
+  local possible_list=$(curl -sSL "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
+  IFS=$'\n' read -rd '' -a durls <<<"$possible_list"
+  for((k=0;k<${#durls[@]};k++)){
+    durl=$(_trim_string ${durls[k],,});
+    if [[ ${#durls[@]} -gt 1 ]]; then
+      if [[ ${durl} == *"linux"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+        log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
+        wget --directory-prefix=./pkgs "${durl}" || log_error "error downloading ${pkgfile}"; return 1
+        break
+      fi
+    else
+      if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
+        log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
+        wget --directory-prefix=./pkgs "${durl}" || log_error "error downloading ${pkgfile}"; return 1
+        break
+      fi
+    fi
+  }
+}
+
+_blank(){
+  :
+}
+
 _time_sync(){
   # date -s "$(curl -s --head ${1} | grep ^Date: | sed 's/Date: //g')"
   log_debug "Syncing system time with 1.1. Taking time."

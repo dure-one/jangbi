@@ -13,6 +13,7 @@ swapfile
 plugins/testing
 nohup.out
 stopspinning
+.task-desktop
 
 # pyvenv
 venv

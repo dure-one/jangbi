@@ -65,7 +65,7 @@ RUN_OS_KPARAMS=1
 DISABLE_IPV6=1
 ADDTO_RCLOCAL=1
 # only tar.gz link allowed
-RUN_OS_FIRMWARE=1
+RUN_OS_FIRMWARE=0
 FIRMWARE_URL="https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz"
 SYSTEMD_REMOVERAREPKGS=1
 RUN_OS_DISABLEBINS=1

@@ -9,7 +9,9 @@ function net-ifupdown {
     deps  'os-systemd'
     param '1: command'
     param '2: params'
-    example '$ net-ifupdown check/install/uninstall/run'
+    example '$ net-ifupdown subcommand'
+    local PKGNAME="ifupdown"
+    local DMNNAME="net-ifupdown"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -25,6 +27,12 @@ function net-ifupdown {
         __net-ifupdown_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-ifupdown_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-ifupdown_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-ifupdown_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-ifupdown_download "$2"
     else
         __net-ifupdown_help
     fi
@@ -34,36 +42,80 @@ function __net-ifupdown_help {
     echo -e "Usage: net-ifupdown [COMMAND] [profile]\n"
     echo -e "Helper to network configurations.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install os ifupdown"
-    echo "   uninstall Uninstall installed ifupdown"
-    echo "   check     Check vars available"
-    echo "   run       Run tasks"
+    echo "   help        Show this help message"
+    echo "   install     Install os ifupdown"
+    echo "   uninstall   Uninstall installed ifupdown"
+    echo "   configgen   Configs Generator"
+    echo "   configapply Apply Configs"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   check       Check vars available"
+    echo "   run         Run tasks"
 }
 
 function __net-ifupdown_install {
-    # install ifupdown
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && apt install -qy ifupdown
-    mkdir -p /etc/network/default
-    mv /etc/network/* /etc/network/default 2>/dev/null
-    mkdir -p /etc/network/if-post-down.d /etc/network/if-pre-up.d /etc/network/if-up.d /etc/network/if-down.d
-    log_debug "JB_DEPLOY_PATH : ${JB_DEPLOY_PATH}"
+    log_debug "Installing ${DMNNAME}..."
+    export DEBIAN_FRONTEND=noninteractive
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy ifupdown iproute2
+    else
+        local filepat="./pkgs/${PKGNAME}*.deb"
+        local pkglist="./pkgs/${PKGNAME}.pkgs"
+        [[ ! -f ${filepat} ]] && apt update -qy && __net-ifupdown_download
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < ${pkglist}
+        apt install -qy $(<${pkgslist_down[@]})
+        
+    fi
+    if ! __net-ifupdown_configgen; then # if gen config is different do apply
+        __net-ifupdown_configapply
+        rm -rf /tmp/${PKGNAME}
+    fi
+}
+
+function __net-ifupdown_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
+    mkdir -p /tmp/${PKGNAME} /etc/network 2>&1 1>/dev/null
+    mkdir -p /tmp/ifupdown/if-post-down.d /tmp/ifupdown/if-pre-up.d /tmp/ifupdown/if-up.d /tmp/ifupdown/if-down.d
     __net-ifupdown_generate
+    diff -Naur /etc/network /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __net-ifupdown_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/network" ]] && cp -rf "/etc/network" "/etc/.network.${dtnow}"
+    pushd /etc/network 2>&1 1>/dev/null
+    patch -i /tmp/${PKGNAME}.diff
+    popd 2>&1 1>/dev/null
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-ifupdown_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs "ifupdown iproute2"
+    return 0
 }
 
 function __net-ifupdown_generate {
     if [[ -n ${JB_IFUPDOWN} ]];then # custom interfaces exists
-        log_debug "Generating /etc/network/interfaces from JB_IFUPDOWN config."
-        echo "${JB_IFUPDOWN}" > /etc/network/interfaces
-        chmod 600 /etc/network/interfaces 2>&1 1>/dev/null
+        log_debug "Generating /tmp/${PKGNAME}/interfaces from JB_IFUPDOWN config."
+        echo "${JB_IFUPDOWN}" > /tmp/${PKGNAME}/interfaces
+        chmod 600 /tmp/${PKGNAME}/interfaces 2>&1 1>/dev/null
     else # custom interfaces not exists
-        log_debug "Generating /etc/network/interfaces from config."
-        tee /etc/network/interfaces > /dev/null <<EOT
+        log_debug "Generating /tmp/${PKGNAME}/interfaces from config."
+        tee /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto lo
 iface lo inet loopback
 EOT
+        chmod 600 /tmp/${PKGNAME}/interfaces 2>&1 1>/dev/null
         log_debug "waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}"
         local waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}
         # generate netplan based netinf
@@ -105,7 +157,7 @@ EOT
                 # JB_WAN="192.168.56.2/24" # or DHCP
                 # JB_WANGW="192.168.56.1" # or blank
                 if [[ ${JB_WAN,,} = "dhcp" || ${JB_WAN} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${waninf}
 iface ${waninf} inet dhcp
 EOT
@@ -120,7 +172,7 @@ EOT
                     # WANSUBNET=$(ipcalc-ng ${JB_WAN}|grep Netmask:|cut -f2|cut -d ' ' -f1)
                     # WANMINIP=$(ipcalc-ng ${JB_WAN}|grep HostMin:|cut -f2)
                     # WANMAXIP=$(ipcalc-ng ${JB_WAN}|grep HostMax:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${waninf}
 iface ${waninf} inet static
 address ${JB_WAN}
@@ -133,7 +185,7 @@ EOT
                 # JB_LANINF="enp4s0"
                 # JB_LAN="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN,,} = "dhcp" || ${JB_LAN} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${laninf}
 iface ${laninf} inet dhcp
 EOT
@@ -142,14 +194,14 @@ EOT
                     # LANIP=$(ipcalc-ng ${JB_LAN}|grep Address:|cut -f2)
                     if [[ ! ${JB_LANGW} ]]; then
                         LANGW=$(ipcalc-ng ${JB_LAN}|grep HostMin:|cut -f2)
-                        tee -a /etc/network/interfaces > /dev/null <<EOT
+                        tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${laninf}
 iface ${laninf} inet static
     address ${JB_LAN}
 EOT
                     else
                         LANGW=${JB_LANGW}
-                        tee -a /etc/network/interfaces > /dev/null <<EOT
+                        tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${laninf}
 iface ${laninf} inet static
 address ${JB_LAN}
@@ -166,7 +218,7 @@ EOT
                 # JB_LAN0INF="enp4s0"
                 # JB_LAN0="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN0,,} = "dhcp" || ${JB_LAN0} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN0INF}
 iface ${JB_LAN0INF} inet dhcp
 EOT
@@ -174,7 +226,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN0}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN0}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN0}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN0INF}
 iface ${JB_LAN0INF} inet static
     address ${JB_LAN0}
@@ -186,7 +238,7 @@ EOT
                 # JB_LAN1INF="enp4s0"
                 # JB_LAN1="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN1,,} = "dhcp" || ${JB_LAN1} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN1INF}
 iface ${JB_LAN1INF} inet dhcp
 EOT
@@ -194,7 +246,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN1INF}
 iface ${JB_LAN1INF} inet static
     address ${JB_LAN1}
@@ -206,7 +258,7 @@ EOT
                 # JB_LAN2INF="enp4s0"
                 # JB_LAN2="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN2,,} = "dhcp" || ${JB_LAN2} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN2INF}
 iface ${JB_LAN2INF} inet dhcp
 EOT
@@ -214,7 +266,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN2}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN2}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN2}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN2INF}
 iface ${JB_LAN2INF} inet static
     address ${JB_LAN2}
@@ -226,7 +278,7 @@ EOT
                 # JB_LAN3INF="enp4s0"
                 # JB_LAN3="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN3,,} = "dhcp" || ${JB_LAN3} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN3INF}
 iface ${JB_LAN3INF} inet dhcp
 EOT
@@ -234,7 +286,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN3}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN3}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN3}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN3INF}
 iface ${JB_LAN3INF} inet static
     address ${JB_LAN3}
@@ -246,7 +298,7 @@ EOT
                 # JB_LAN4INF="enp4s0"
                 # JB_LAN4="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN4,,} = "dhcp" || ${JB_LAN4} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN4INF}
 iface ${JB_LAN4INF} inet dhcp
 EOT
@@ -254,7 +306,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN4}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN4}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN4}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN4INF}
 iface ${JB_LAN4INF} inet static
     address ${JB_LAN4}
@@ -266,7 +318,7 @@ EOT
                 # JB_LAN5INF="enp4s0"
                 # JB_LAN5="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN5,,} = "dhcp" || ${JB_LAN5} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN5INF}
 iface ${JB_LAN5INF} inet dhcp
 EOT
@@ -274,7 +326,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN5}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN5}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN5}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN5INF}
 iface ${JB_LAN5INF} inet static
     address ${JB_LAN5}
@@ -286,7 +338,7 @@ EOT
                 # JB_LAN6INF="enp4s0"
                 # JB_LAN6="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN6,,} = "dhcp" || ${JB_LAN6} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN6INF}
 iface ${JB_LAN6INF} inet dhcp
 EOT
@@ -294,7 +346,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN6}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN6}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN6}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN6INF}
 iface ${JB_LAN6INF} inet static
     address ${JB_LAN6}
@@ -306,7 +358,7 @@ EOT
                 # JB_LAN7INF="enp4s0"
                 # JB_LAN7="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN7,,} = "dhcp" || ${JB_LAN7} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN7INF}
 iface ${JB_LAN7INF} inet dhcp
 EOT
@@ -314,7 +366,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN7INF}
 iface ${JB_LAN7INF} inet static
     address ${JB_LAN7}
@@ -326,7 +378,7 @@ EOT
                 # JB_LAN8INF="enp4s0"
                 # JB_LAN8="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN8,,} = "dhcp" || ${JB_LAN8} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN8INF}
 iface ${JB_LAN8INF} inet dhcp
 EOT
@@ -334,7 +386,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN8INF}
 iface ${JB_LAN8INF} inet static
     address ${JB_LAN8}
@@ -346,7 +398,7 @@ EOT
                 # JB_LAN9INF="enp4s0"
                 # JB_LAN9="192.168.57.2/24" # or DHCP
                 if [[ ${JB_LAN9,,} = "dhcp" || ${JB_LAN9} = "" ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN9INF}
 iface ${JB_LAN9INF} inet dhcp
 EOT
@@ -354,7 +406,7 @@ EOT
                     # LANNET=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
                     # LANIP=$(ipcalc-ng ${JB_LAN1}|grep Address:|cut -f2)
                     # LANGW=$(ipcalc-ng ${JB_LAN1}|grep HostMin:|cut -f2)
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${JB_LAN9INF}
 iface ${JB_LAN9INF} inet static
     address ${JB_LAN9}
@@ -367,7 +419,7 @@ EOT
             # rest non-prematched non-wireless adapters
             #
             if [[ ${dure_infs[j]:0:1} != 'w' ]]; then # match REST
-                tee -a /etc/network/interfaces > /dev/null <<EOT
+                tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${dure_infs[j]}
 iface ${dure_infs[j]} inet dhcp
 EOT
@@ -381,7 +433,7 @@ EOT
                 # JB_WLANINF="enp4s0"
                 # JB_WLAN="192.168.58.2/24" # or DHCP
                 if [[ ${JB_WLAN,,} = "dhcp" || ${JB_WLAN} = "" ]]; then # client, dhcp mode
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${wlaninf}
 iface ${wlaninf} inet dhcp
 EOT
@@ -389,14 +441,14 @@ EOT
                     # WLANNET=$(ipcalc-ng ${JB_WLAN}|grep Network:|cut -f2)
                     # WLANIP=$(ipcalc-ng ${JB_WLAN}|grep Address:|cut -f2)
                     if [[ ! ${JB_WLANGW} ]]; then
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${wlaninf}
 iface ${wlaninf} inet static
     address ${JB_WLAN}
 EOT
                     else
                     WLANGW=${JB_WLANGW}
-                    tee -a /etc/network/interfaces > /dev/null <<EOT
+                    tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${wlaninf}
 iface ${wlaninf} inet static
 address ${JB_WLAN}
@@ -410,27 +462,25 @@ EOT
                 continue
             fi
             if [[ ${dure_infs[j]:0:1} = 'w' ]]; then  # match REST
-                tee -a /etc/network/interfaces > /dev/null <<EOT
+                tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${dure_infs[j]}
 iface ${dure_infs[j]} inet dhcp
 EOT
                 continue
             fi
         }
-        chmod 600 /etc/network/interfaces 2>&1 1>/dev/null
-        log_debug "Generated ifupdown config ===="
-        cat /etc/network/interfaces
-        log_debug "===="
     fi
 
 }
 
-function __net-ifupdown_uninstall { 
+function __net-ifupdown_uninstall {
+    log_debug "Uninstalling ${DMNNAME}..."
     systemctl stop networking
     systemctl disable networking
 }
 
-function __net-ifupdown_disable { 
+function __net-ifupdown_disable {
+    log_debug "Disabling ${DMNNAME}..."
     systemctl stop networking
     systemctl disable networking
     return 0
@@ -438,7 +488,7 @@ function __net-ifupdown_disable {
 
 function __net-ifupdown_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-ifupdown Check $running_status"
+    log_debug "Checking ${DMNNAME}..."
 
     # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
     log_debug "check RUN_OS_SYSTEMD" 
@@ -474,4 +524,4 @@ function __net-ifupdown_run {
     systemctl status networking && return 0 || return 1
 }
 
-complete -F __net-ifupdown_run net-ifupdown
+complete -F _blank net-ifupdown

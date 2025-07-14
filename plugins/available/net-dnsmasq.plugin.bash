@@ -9,7 +9,9 @@ function net-dnsmasq {
     deps  ''
     param '1: command'
     param '2: params'
-    example '$ net-dnsmasq check/install/uninstall/run'
+    example '$ net-dnsmasq subcommand'
+    local PKGNAME="dnsmasq"
+    local DMNNAME="net-dnsmasq"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -25,6 +27,14 @@ function net-dnsmasq {
         __net-dnsmasq_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-dnsmasq_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-dnsmasq_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-dnsmasq_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-dnsmasq_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "updateblist" ]]; then
+        __net-dnsmasq_update_blacklist "$2"
     else
         __net-dnsmasq_help
     fi
@@ -34,24 +44,79 @@ function __net-dnsmasq_help {
     echo -e "Usage: net-dnsmasq [COMMAND] [profile]\n"
     echo -e "Helper to dnsmasq install configurations.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware"
-    echo "   check     Check vars available"
-    echo "   run       Run tasks"
+    echo "   help        Show this help message"
+    echo "   install     Install os firmware"
+    echo "   uninstall   Uninstall installed firmware"
+    echo "   configgen   Configs Generator"
+    echo "   configapply Apply Configs"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   updateblist Update blacklist"
+    echo "   check       Check vars available"
+    echo "   run         Run tasks"
 }
 
 function __net-dnsmasq_install { # RUN_NET_DNSMASQ
+    log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
-    log_debug "Trying to install net-dnsmasq.."
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq-base") -lt 1 ]] && apt install -qy dnsmasq-base
-    mkdir -p /etc/dnsmasq.d
-    cp -rf ./configs/dnsmasq/dnsmasq.conf.default /etc/dnsmasq.d/
-    cp -rf ./configs/dnsmasq/trust-anchors.conf /etc/dnsmasq.d/
-    
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy dnsmasq-base
+    else
+        local filepat="./pkgs/dnsmasq-base*.deb"
+        local pkglist="./pkgs/dnsmasq-base.pkgs"
+        [[ ! -f ${filepat} ]] && apt update -qy && __net-dnsmasq_download
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < ${pkglist}
+        apt install -qy $(<${pkgslist_down[@]})
+    fi
+
+    if ! __net-dnsmasq_configgen; then # if gen config is different do apply
+        __net-dnsmasq_configapply
+        rm -rf /tmp/${PKGNAME}
+    fi
+}
+
+function __net-dnsmasq_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
     __net-dnsmasq_generate_config
+    __net-dnsmasq_update_blacklist
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __net-dnsmasq_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    patch -i /tmp/${PKGNAME}.diff
+    popd 2>&1 1>/dev/null
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-dnsmasq_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs dnsmasq-base
+    return 0
+}
+
+function __net-dnsmasq_update_blacklist {
+    log_debug "Updating blacklist ${DMNNAME}..."
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        IFS=$'|' read -d "" -ra urls <<< "${DNSMASQ_BLACKLIST_URLS}" # split
+        for((j=0;j<${#urls[@]};j++)){
+            echo "# ${urls[j]}" > /etc/dnsmasq/malware$j.conf
+            wget -O- "${urls[j]}" | awk '$1 == "0.0.0.0" { print "address=/"$2"/0.0.0.0/"}' >> /etc/dnsmasq/malware$j.conf
+        }
+    fi
 }
 
 function __net-dnsmasq_generate_config {
@@ -182,7 +247,7 @@ function __net-dnsmasq_generate_config {
     #else
     upstreamdns="${DNS_UPSTREAM}"
     #fi
-    tee /etc/dnsmasq.d/dnsmasq.conf > /dev/null <<EOT
+    tee /tmp/dnsmasq/dnsmasq.conf > /dev/null <<EOT
 # JB_ROLE=${JB_ROLE}
 domain-needed
 bogus-priv
@@ -192,7 +257,7 @@ filterwin2k
 strict-order
 no-resolv
 no-poll
-conf-file=/etc/dnsmasq.d/trust-anchors.conf
+conf-file=/etc/dnsmasq/trust-anchors.conf
 server=${upstreamdns}
 listen-address=${netip}
 $(printf '%s' "${additional_listenaddr}")
@@ -206,7 +271,7 @@ $(printf '%s' "${additional_dhcprange}")
 dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 cache-size=1000
 no-negcache
-conf-dir=/etc/dnsmasq.d/,*.conf
+conf-dir=/etc/dnsmasq/*.conf
 local-service
 dns-loop-detect
 log-queries
@@ -215,14 +280,15 @@ EOT
 }
 
 function __net-dnsmasq_uninstall { 
-    log_debug "Trying to uninstall net-dnsmasq.."
+    log_debug "Uninstalling ${DMNNAME}..."
     pidof dnsmasq | xargs kill -9 2>/dev/null
     echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
     _time_sync "${DNS_UPSTREAM}"
     chmod 444 /etc/resolv.conf
 }
 
-function __net-dnsmasq_disable { 
+function __net-dnsmasq_disable {
+    log_debug "Disabling ${DMNNAME}..."
     pidof dnsmasq | xargs kill -9 2>/dev/null
     echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
     return 0
@@ -230,7 +296,7 @@ function __net-dnsmasq_disable {
 
 function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-dnsmasq Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_NET_DNSMASQ} ]] && \
@@ -248,6 +314,7 @@ function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running
 }
 
 function __net-dnsmasq_run {
+    log_debug "Running ${DMNNAME}..."
     # add iptables rules
     # __bp_trim_whitespace JB_WANINF "${JB_WANINF}"
     # __bp_trim_whitespace JB_LANINF "${JB_LANINF}"
@@ -323,19 +390,12 @@ function __net-dnsmasq_run {
                 iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
         }
     fi
-    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
-        log_debug "dnsmasq download blacklist"
-        IFS=$'|' read -d "" -ra urls <<< "${DNSMASQ_BLACKLIST_URLS}" # split
-        for((j=0;j<${#urls[@]};j++)){
-            echo "# ${urls[j]}" > /etc/dnsmasq.d/malware$j.conf
-            wget -O- "${urls[j]}" | awk '$1 == "0.0.0.0" { print "address=/"$2"/0.0.0.0/"}' >> /etc/dnsmasq.d/malware$j.conf
-        }
-    fi
     
-    __net-dnsmasq_generate_config
+    __net-dnsmasq_update_blacklist
+    # __net-dnsmasq_generate_config
 
     pidof dnsmasq | xargs kill -9 2>/dev/null
-    systemd-run -r dnsmasq -d --conf-file=/etc/dnsmasq.d/dnsmasq.conf &>/var/log/dnsmasq.log
+    systemd-run -r dnsmasq -d --conf-file=/etc/dnsmasq/dnsmasq.conf &>/var/log/dnsmasq.log
     
     echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
     chmod 444 /etc/resolv.conf
@@ -345,4 +405,4 @@ function __net-dnsmasq_run {
     pidof dnsmasq && return 0 || return 1
 }
 
-complete -F __net-dnsmasq_run net-dnsmasq
+complete -F _blank net-dnsmasq
