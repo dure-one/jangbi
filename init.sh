@@ -21,10 +21,11 @@ usage() {
   echo
   echo "  bootstraping scripts for jangbi system"
   echo
-  printf "%s\\n" "  ${YELLOW}--help                 |-h${NORMAL}   display this help and exit"
-  printf "%s\\n" "  ${YELLOW}--check net-darkstat   |-c${NORMAL}   check single plugin"
-  printf "%s\\n" "  ${YELLOW}--launch net-darkstat  |-l${NORMAL}   run single plugin"
-  printf "%s\\n" "  ${YELLOW}--sync                 |-s${NORMAL}   sync enabled plugin in config to jangbi-it and exit"
+  printf "%s\\n" "  ${YELLOW}--help                          |-h${NORMAL}   display this help and exit"
+  printf "%s\\n" "  ${YELLOW}--check net-darkstat            |-c${NORMAL}   check single plugin"
+  printf "%s\\n" "  ${YELLOW}--launch net-darkstat           |-l${NORMAL}   run single plugin"
+  printf "%s\\n" "  ${YELLOW}--sync                          |-s${NORMAL}   sync enabled plugin in config to jangbi-it and exit"
+  printf "%s\\n" "  ${YELLOW}--download enabled/net-darkstat |-s${NORMAL}   download pkg file for offline installation"
   echo
 }
 
@@ -48,6 +49,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --sync | -s)
       SYNC_AND_BREAK=1
+      shift
+      ;;
+    --download | -d)
+      DN_OPTION="$2"
+      shift
       shift
       ;;
     -* | --*)
@@ -149,6 +155,18 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 }
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
+
+# download
+if [[ ${DN_OPTION} = "enabled" || $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    for plugin in "./enabled"/*".plugin.bash"; do
+        plug=${plugin##.*---}
+        plug=${plug%%.plugin.bash}
+        echo "${plug}"
+        __${plug}_download
+        
+    done
+    exit 0
+fi
 
 # add to rclocal
 if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then
