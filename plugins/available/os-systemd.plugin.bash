@@ -56,6 +56,12 @@ function __os-systemd_install { # 0 - disable completely, 1 - full systemd, 2 - 
             __os-systemd_only_journald
         ;;
     esac
+
+    log_debug "Reduce network timeout 5Min to 15Sec"
+    mkdir -p /etc/systemd/system/networking.service.d/
+    echo "[Service]" > /etc/systemd/system/networking.service.d/override.conf
+    echo "TimeoutStartSec=15" >> /etc/systemd/system/networking.service.d/override.conf
+    systemctl daemon-reload
 }
 
 function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1 - full systemd(netplan), 2 - only journald(ifupdown)

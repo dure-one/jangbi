@@ -61,18 +61,18 @@ function __net-dnsmasq_install { # RUN_NET_DNSMASQ
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy dnsmasq-base
+        apt install -qy dnsmasq-base || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/dnsmasq-base*.deb"
         local pkglist="./pkgs/dnsmasq-base.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-dnsmasq_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy $(<${pkgslist_down[@]})
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
-
     if ! __net-dnsmasq_configgen; then # if gen config is different do apply
         __net-dnsmasq_configapply
         rm -rf /tmp/${PKGNAME}
@@ -81,8 +81,8 @@ function __net-dnsmasq_install { # RUN_NET_DNSMASQ
 
 function __net-dnsmasq_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
     __net-dnsmasq_generate_config
     __net-dnsmasq_update_blacklist
@@ -95,9 +95,9 @@ function __net-dnsmasq_configapply {
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
     [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }
@@ -271,7 +271,7 @@ $(printf '%s' "${additional_dhcprange}")
 dhcp-leasefile=/var/lib/misc/dnsmasq.leases
 cache-size=1000
 no-negcache
-conf-dir=/etc/dnsmasq/*.conf
+conf-dir=/etc/dnsmasq/,*.conf
 local-service
 dns-loop-detect
 log-queries

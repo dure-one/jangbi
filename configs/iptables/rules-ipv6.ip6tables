@@ -110,7 +110,7 @@
 
 # Accept worldwide access to SSH and use SSHBRUTE chain for preventing 
 # brute-force attacks.
--A INPUT -p tcp --dport 22 --syn -m conntrack --ctstate NEW -j SSHBRUTE
+# -A INPUT -p tcp --dport 22 --syn -m conntrack --ctstate NEW -j SSHBRUTE
 
 # Permit needed ICMP packet types for IPv6 per RFC 4890.
 -A INPUT              -p ipv6-icmp --icmpv6-type 1   -j ACCEPT
@@ -136,7 +136,7 @@
 
 # Permit IMCP echo requests (ping) and use ICMPFLOOD chain for preventing ping 
 # flooding.
--A INPUT -p ipv6-icmp --icmpv6-type 128 -j ICMPFLOOD
+# -A INPUT -p ipv6-icmp --icmpv6-type 128 -j ICMPFLOOD
 
 # Do not log packets that are going to ports used by SMB
 # (Samba / Windows Sharing).

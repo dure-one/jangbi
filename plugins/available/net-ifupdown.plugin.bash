@@ -67,7 +67,7 @@ function __net-ifupdown_install {
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy $(<${pkgslist_down[@]})
+        apt install -qy "${pkgslist_down[@]}"
         
     fi
     if ! __net-ifupdown_configgen; then # if gen config is different do apply
@@ -78,8 +78,8 @@ function __net-ifupdown_install {
 
 function __net-ifupdown_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/network 2>&1 1>/dev/null
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/network 1>/dev/null 2>&1
     mkdir -p /tmp/ifupdown/if-post-down.d /tmp/ifupdown/if-pre-up.d /tmp/ifupdown/if-up.d /tmp/ifupdown/if-down.d
     __net-ifupdown_generate
     diff -Naur /etc/network /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
@@ -91,9 +91,9 @@ function __net-ifupdown_configapply {
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
     [[ -d "/etc/network" ]] && cp -rf "/etc/network" "/etc/.network.${dtnow}"
-    pushd /etc/network 2>&1 1>/dev/null
+    pushd /etc/network 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }
@@ -108,14 +108,14 @@ function __net-ifupdown_generate {
     if [[ -n ${JB_IFUPDOWN} ]];then # custom interfaces exists
         log_debug "Generating /tmp/${PKGNAME}/interfaces from JB_IFUPDOWN config."
         echo "${JB_IFUPDOWN}" > /tmp/${PKGNAME}/interfaces
-        chmod 600 /tmp/${PKGNAME}/interfaces 2>&1 1>/dev/null
+        chmod 600 /tmp/${PKGNAME}/interfaces 1>/dev/null 2>&1
     else # custom interfaces not exists
         log_debug "Generating /tmp/${PKGNAME}/interfaces from config."
         tee /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto lo
 iface lo inet loopback
 EOT
-        chmod 600 /tmp/${PKGNAME}/interfaces 2>&1 1>/dev/null
+        chmod 600 /tmp/${PKGNAME}/interfaces 1>/dev/null 2>&1
         log_debug "waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}"
         local waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}
         # generate netplan based netinf

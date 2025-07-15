@@ -68,7 +68,7 @@ function __net-sshd_install {
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy $(<${pkgslist_down[@]})
+        apt install -qy "${pkgslist_down[@]}"
         
     fi
     if ! __net-sshd_configgen; then # if gen config is different do apply
@@ -79,8 +79,8 @@ function __net-sshd_install {
 
 function __net-sshd_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/ssh 2>&1 1>/dev/null
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/ssh 1>/dev/null 2>&1
     cp -rf /etc/ssh/* /tmp/sshd/
     cp -rf ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
 
@@ -111,9 +111,9 @@ function __net-sshd_configapply {
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
     [[ -d "/etc/ssh" ]] && cp -rf "/etc/ssh" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }

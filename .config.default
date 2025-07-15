@@ -70,7 +70,7 @@ FIRMWARE_URL="https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/
 SYSTEMD_REMOVERAREPKGS=1
 RUN_OS_DISABLEBINS=1
 OSLOCAL_SETTING=1
-RUN_OS_REPOS=1
+RUN_OS_REPOS=0
 RUN_OS_AUDITD=1
 RUN_OS_AIDE=1
 

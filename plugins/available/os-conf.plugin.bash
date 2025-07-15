@@ -98,7 +98,7 @@ function __os-conf_install {
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy $(<${pkgslist_down[@]})
+        apt install -qy "${pkgslist_down[@]}"
     fi
 
     crontab -l > /tmp/mycron

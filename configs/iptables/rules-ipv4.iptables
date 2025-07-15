@@ -118,7 +118,7 @@
 
 # Accept worldwide access to SSH and use SSHBRUTE chain for preventing 
 # brute-force attacks.
--A INPUT -p tcp --dport 22 --syn -m conntrack --ctstate NEW -j SSHBRUTE
+# -A INPUT -p tcp --dport 22 --syn -m conntrack --ctstate NEW -j SSHBRUTE
 
 # Permit useful IMCP packet types.
 # Note: RFC 792 states that all hosts MUST respond to ICMP ECHO requests.

@@ -58,18 +58,18 @@ function __net-dnscryptproxy_install {
 
     local filepat="./pkgs/dnscrypt-proxy-linux*.tar.gz"
     local tmpdir="/tmp/dnscryptproxy"
-    rm -rf ${tmpdir} 2>&1 1>/dev/null
-    mkdir -p ${tmpdir} 2>&1 1>/dev/null
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
+    mkdir -p ${tmpdir} 1>/dev/null 2>&1
 
-    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-dnscryptproxy_download
-    tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 2>/dev/null 2>&1
+    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-dnscryptproxy_download 
+    tar -zxvf "${filepat}" -C ${tmpdir} --strip-components=1 2>/dev/null 2>&1
     if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy ]]; then
         log_error "dnscryptproxy binary not found in package."
         return 1
     fi
     cp ${tmpdir}/dnscrypt-proxy /usr/sbin/dnscrypt-proxy
     chmod 755 /sbin/dnscrypt-proxy
-    rm -rf ${tmpdir} 2>&1 1>/dev/null
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
     touch /var/log/dnscryptproxy.log
 
     if ! __net-dnscryptproxy_configgen; then # if gen config is different do apply
@@ -80,8 +80,8 @@ function __net-dnscryptproxy_install {
 
 function __net-dnscryptproxy_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
     # diff check
     diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
@@ -92,17 +92,17 @@ function __net-dnscryptproxy_configapply {
     [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
-    [[ -d "/etc/${PKGNAME}" ]] && mv "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }
 
 function __net-dnscryptproxy_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz
+    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz || log_error "${DMNNAME} download failed."
     return 0
 }
 

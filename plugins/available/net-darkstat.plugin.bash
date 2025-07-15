@@ -54,22 +54,23 @@ function __net-darkstat_help {
 }
 
 function __net-darkstat_install {
+    INTERNET_AVAIL=0
     log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy darkstat # [[ $(dpkg -l|awk '{print $2}'|grep -c "darkstat") -lt 1 ]] && 
+        apt install -qy darkstat || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/darkstat*.deb"
         local pkglist="./pkgs/darkstat.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-darkstat_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy $(<${pkgslist_down[@]})
-        
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
     if ! __net-darkstat_configgen; then # if gen config is different do apply
         __net-darkstat_configapply
@@ -79,10 +80,10 @@ function __net-darkstat_install {
 
 function __net-darkstat_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
-    [[ ${#JB_WANINF} -lt 1 ]] && log_error "${funcname}: JB_WANINF is not set" && exit 1
+    [[ ${#JB_WANINF} -lt 1 ]] && log_error "JB_WANINF is not set" && exit 1
 
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    rm -rf "/tmp/${PKGNAME}" 1>/dev/null 2>&1
+    mkdir -p "/tmp/${PKGNAME}" "/etc/${PKGNAME}" 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
     # instant edit
     sed -i "s|START_DARKSTAT=.*|START_DARKSTAT=yes|g" /tmp/darkstat/init.conf
@@ -96,10 +97,10 @@ function __net-darkstat_configapply {
     [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
-    [[ -d "/etc/${PKGNAME}" ]] && mv "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }
@@ -147,6 +148,7 @@ function __net-darkstat_run {
     pidof darkstat|xargs kill &>/dev/null
     # shellcheck disable=SC1091
     source /etc/darkstat/init.conf && \
+        systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
         systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
     pidof darkstat && return 0 || return 1
 }

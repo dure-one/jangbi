@@ -10,6 +10,8 @@ function os-repos {
     param '1: command'
     param '2: params'
     example '$ os-repos subcommand'
+    local PKGNAME="repos"
+    local DMNNAME="os-repos"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config

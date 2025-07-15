@@ -58,8 +58,8 @@ function __net-wstunnel_install {
 
     local filepat="./pkgs/wstunnel_*.tar.gz"
     local tmpdir="/tmp/wstunnel"
-    rm -rf ${tmpdir} 2>&1 1>/dev/null
-    mkdir -p ${tmpdir} 2>&1 1>/dev/null
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
+    mkdir -p ${tmpdir} 1>/dev/null 2>&1
 
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-wstunnel_download
     tar -zxvf ${filepat} -C ${tmpdir} 2>/dev/null 2>&1
@@ -69,7 +69,7 @@ function __net-wstunnel_install {
     fi
     mv /tmp/wstunnel/wstunnel /usr/sbin/wstunnel
     chmod 600 /sbin/wstunnel
-    rm -rf ${tmpdir} 2>&1 1>/dev/null
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
 
     # if ! __net-wstunnel_configgen; then # if gen config is different do apply
     #     __net-wstunnel_configapply
@@ -79,8 +79,8 @@ function __net-wstunnel_install {
 
 function __net-wstunnel_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
     
     # diff check
@@ -93,9 +93,9 @@ function __net-wstunnel_configapply {
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
     [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }

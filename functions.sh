@@ -2323,6 +2323,7 @@ __bp_install() {
     local existing_prompt_command
     # Remove setting our trap install string and sanitize the existing prompt command string
     existing_prompt_command="${PROMPT_COMMAND:-}"
+    # shellcheck disable=SC1087
     existing_prompt_command="${existing_prompt_command//$__bp_install_string[;$'\n']}" # Edge case of appending to PROMPT_COMMAND
     existing_prompt_command="${existing_prompt_command//$__bp_install_string}"
     __bp_sanitize_string existing_prompt_command "$existing_prompt_command"
@@ -2728,7 +2729,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
 }
 
 _checkbin() {
-  if ! which "${1}" 2>&1 1>/dev/null;then
+  if ! which "${1}" 1>/dev/null 2>&1;then
     log_fatal "You must install '${1}'."
     return 1
   fi
@@ -2761,10 +2762,10 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
   [[ ! -f .task-desktop ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-desktop| grep "^\w" > .task-desktop
   apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends $1| grep "^\w" > /tmp/compare_pkg
   grep -Fxv -f .task-desktop /tmp/compare_pkg > /tmp/unique_pkg
-  pushd pkgs 2>&1 1>/dev/null
+  pushd pkgs 1>/dev/null 2>&1
   cp /tmp/unique_pkg "${pkgname}.pkgs"
   apt download $(</tmp/unique_pkg)
-  popd 2>&1 1>/dev/null
+  popd 1>/dev/null 2>&1
 }
 
 _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz

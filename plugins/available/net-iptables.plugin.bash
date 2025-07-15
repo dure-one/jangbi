@@ -72,6 +72,8 @@ function net-iptables {
     param '1: command'
     param '2: params'
     example '$ net-iptables subcommand'
+    local PKGNAME="iptables"
+    local DMNNAME="net-iptables"
 
     if [[ -z ${JB_VARS} ]]; then
         _load_config
@@ -124,16 +126,16 @@ function __net-iptables_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy nftables iptables arptables net-tools
+        apt install -qy nftables iptables arptables net-tools ipset iprange || log_error "Error installing net-iptables"; exit 1
     else
-        local filepat="./pkgs/${PKGNAME}*.deb"
-        local pkglist="./pkgs/${PKGNAME}.pkgs"
+        local filepat="./pkgs/nftables*.deb"
+        local pkglist="./pkgs/nftables.pkgs"
         [[ ! -f ${filepat} ]] && apt update -qy && __net-iptables_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy $(<${pkgslist_down[@]})
+        apt install -qy "${pkgslist_down[@]}"
     fi
     if ! __net-iptables_configgen; then # if gen config is different do apply
         __net-iptables_configapply
@@ -142,8 +144,8 @@ function __net-iptables_install {
 }
 
 function __net-iptables_configgen { # config generator and diff
-    rm -rf /tmp/${PKGNAME} 2>&1 1>/dev/null
-    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 2>&1 1>/dev/null
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
 
     __net-iptables_build # after build, /etc/nftables.conf /etc/iptables/nftables.conf have same contents
@@ -155,15 +157,15 @@ function __net-iptables_configapply {
     [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
     local dtnow=$(date +%Y%m%d_%H%M%S)
     [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 2>&1 1>/dev/null
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
-    popd 2>&1 1>/dev/null
+    popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
 }
 
 function __net-iptables_download {
-    _download_apt_pkgs "nftables iptables arptables net-tools"
+    _download_apt_pkgs "nftables iptables arptables net-tools ipset iprange"
     return 0
 }
 
@@ -256,9 +258,6 @@ function __net-iptables_build {
     #
     # NET RULES
     #
-    # IPTABLES_CONNLIMIT_PER_IP
-    log_debug "iptables_mangle_all_both_conlimitperip"
-    [[ ${IPTABLES_CONNLIMIT_PER_IP} -gt 0 ]] && __net-iptables_mangle_all_both_conlimitperip "${IPTABLES_CONNLIMIT_PER_IP}" # conlimitperip:null
     # IPTABLES_DROP_ICMP
     log_debug "iptables_mangle_all_both_dropicmp"
     [[ ${IPTABLES_DROP_ICMP} -gt 0 ]] && __net-iptables_mangle_all_both_dropicmp
@@ -274,15 +273,9 @@ function __net-iptables_build {
     # IPTABLES_LIMIT_MSS
     log_debug "iptables_mangle_all_both_limitmss"
     [[ ${IPTABLES_LIMIT_MSS} -gt 0 ]] && __net-iptables_mangle_all_both_limitmss
-    # IPTABLES_GUARD_OVERLOAD
-    log_debug "iptables_raw_all_both_limitudppps"
-    [[ ${IPTABLES_GUARD_OVERLOAD} -gt 0 ]] && __net-iptables_raw_all_both_limitudppps
     # IPTABLES_INVALID_TCPFLAG
     log_debug "iptables_raw_all_both_dropinvtcpflag"
     [[ ${IPTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-iptables_raw_all_both_dropinvtcpflag
-    # IPTABLES_GUARD_PORT_SCANNER
-    log_debug "iptables_raw_all_both_portscanner"
-    [[ ${IPTABLES_GUARD_PORT_SCANNER} -gt 0 ]] && __net-iptables_raw_all_both_portscanner
     # IPTABLES_BLACK_NAMELIST
     log_debug "iptables_filter_all_both_ipblacklist"
     [[ ${#IPTABLES_BLACK_NAMELIST[@]} -gt 0 ]] && __net-iptables_filter_all_both_ipblacklist "${IPTABLES_BLACK_NAMELIST}" # blockurls
@@ -306,6 +299,7 @@ function __net-iptables_build {
             fi
         }
     fi
+
     # DMZ SETTINGS WAN->HOST
     # IPTABLES_DMZ="192.168.0.1" IPTABLES_SUPERDMZ=1
     log_debug "iptables_nat_ext_both_dmzsdmz"
@@ -374,7 +368,7 @@ function __net-iptables_build {
             fi
         }
     fi
-
+    # nft --check --file /tmp/iptables/nftables.conf
     # IPTABLES_SNAT="LAN<WAN|LAN1<WAN"
     # [[ ${IPTABLES_SNAT} -gt 0 ]] && __net-iptables_filternat_all_both_snat # laninf lannet waninf wanip
     nft list ruleset > /tmp/iptables/nftables.conf
@@ -452,19 +446,6 @@ function __net-iptables_mangle_all_both_arpallinfs {
         log_debug "arptables -A INPUT -i ${allinfx[i]} -j ACCEPT"
     }
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
-}
-
-# Mangle Prerouting : Ip Connection Limit per IP
-# IPTABLES_CONNLIMIT_PER_IP=50
-function __net-iptables_mangle_all_both_conlimitperip {
-    local funcname="mab_conlimitperip"
-    local conlimitperip
-    conlimitperip=$(_trim_string "$1")
-    [[ ${conlimitperip} -lt 1 ]] && log_error "${funcname}: conlimitperip is not set" && return 1
-    [[ -z $conlimitperip ]] && conlimitperip=50
-    
-    IPTABLE="PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP"
-    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -A ${IPTABLE}
 }
 
 # Mangle Prerouting : Drop ICMP
@@ -638,18 +619,6 @@ function __net-iptables_nat_ext_both_portforward {
     # iptables -t nat -A customipchain -p udp -m udp --dport 33540 -j DNAT --to-destination 192.168.0.5
 }
 
-# Raw Prerouting : Guard Overload Limit UDP PPS
-# IPTABLES_GUARD_OVERLOAD=1
-function __net-iptables_raw_all_both_limitudppps {
-    local funcname="rab_limitudppps"
-    # Safeguard against CPU overload during amplificated DDoS attacks by limiting DNS/NTP packets per second rate (PPS).
-    # Limited UDP source ports (against amplification
-    local lusp="19,53,123,111,123,137,389,1900,3702,5353"
-
-    IPTABLE="PREROUTING -p udp -m multiport --sports "${lusp}" -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name ${funcname} --hashlimit-above 256/m -m comment --comment ${funcname} -j DROP"
-    iptables -t raw -S | grep "${funcname}" || iptables -t raw -A $IPTABLE
-}
-
 # Raw Prerouting : Drop Invalid Tcp Flag
 # IPTABLES_INVALID_TCPFLAG=1
 function __net-iptables_raw_all_both_dropinvtcpflag {
@@ -673,24 +642,6 @@ function __net-iptables_raw_all_both_dropinvtcpflag {
     iptables -t raw -S | grep "${funcname}5" || iptables -t raw -A $IPTABLE5
     iptables -t raw -S | grep "${funcname}6" || iptables -t raw -A $IPTABLE6
     iptables -t raw -S | grep "${funcname}7" || iptables -t raw -A $IPTABLE7
-}
-
-# Filter Input : Drop Port Scanner IP
-# IPTABLES_GUARD_PORT_SCANNER=1
-function __net-iptables_raw_all_both_portscanner {
-    SETNAME=IPTABLES_GUARD_PORT_SCANNER
-    ipset list | grep -q IPTABLES_GUARD_PORT_SCANNER || ipset create IPTABLES_GUARD_PORT_SCANNER hash:ip family inet hashsize 32768 maxelem 65536 timeout 600
-    ipset list | grep -q IPTABLES_GUARD_SCANNED_PORTS || ipset create IPTABLES_GUARD_SCANNED_PORTS hash:ip,port family inet hashsize 32768 maxelem 65536 timeout 60
-
-    IPTABLE1='INPUT -m state --state INVALID -m comment --comment IPTABLES_GUARD_PORT_SCANNER1 -j DROP'
-    IPTABLE2='INPUT -m state --state NEW -m set ! --match-set IPTABLES_GUARD_SCANNED_PORTS src,dst -m hashlimit --hashlimit-above 1/hour --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name IPTABLES_GUARD_PORT_SCANNER --hashlimit-htable-expire 10000 -j SET --add-set IPTABLES_GUARD_PORT_SCANNER src --exist'
-    IPTABLE3='INPUT -m state --state NEW -m set --match-set IPTABLES_GUARD_PORT_SCANNER src -j DROP'
-    IPTABLE4='INPUT -m state --state NEW -j SET --add-set IPTABLES_GUARD_SCANNED_PORTS src,dst'
-
-    iptables -S | grep "IPTABLES_GUARD_PORT_SCANNER1" || iptables -A $IPTABLE1
-    iptables -S | grep -- "-A $IPTABLE2" || iptables -A $IPTABLE2
-    iptables -S | grep -- "-A $IPTABLE3" || iptables -A $IPTABLE3
-    iptables -S | grep -- "-A $IPTABLE4" || iptables -A $IPTABLE4
 }
 
 # Filter Input : Drop IPs from blacklist
