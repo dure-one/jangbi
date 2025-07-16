@@ -395,7 +395,7 @@ function __net-dnsmasq_run {
     # __net-dnsmasq_generate_config
 
     pidof dnsmasq | xargs kill -9 2>/dev/null
-    systemd-run -r dnsmasq -d --conf-file=/etc/dnsmasq/dnsmasq.conf &>/var/log/dnsmasq.log
+    systemd-run -r dnsmasq -d --conf-file=/etc/dnsmasq/dnsmasq.conf # &>/var/log/dnsmasq.log
     
     echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
     chmod 444 /etc/resolv.conf

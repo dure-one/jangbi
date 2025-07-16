@@ -191,8 +191,7 @@ function __os-disablebins_check { # running_status: 0 running, 1 installed, runn
 }
 
 function __os-disablebins_run {
-    # no need
-    return 0
+    :
 }
 
 complete -F _blank os-disablebins

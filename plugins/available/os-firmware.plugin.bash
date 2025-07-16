@@ -112,8 +112,7 @@ function __os-firmware_check { # running_status: 0 running, 1 installed, running
 }
 
 function __os-firmware_run {
-    # nothign to do
-    return 0
+    :
 }
 
 complete -F _blank os-firmware

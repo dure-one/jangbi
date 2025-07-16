@@ -53,7 +53,6 @@ function __net-dnscryptproxy_help {
 }
 
 function __net-dnscryptproxy_install {
-    export DEBIAN_FRONTEND=noninteractive
     log_debug "Installing ${DMNNAME}..."
 
     local filepat="./pkgs/dnscrypt-proxy-linux*.tar.gz"
@@ -62,9 +61,9 @@ function __net-dnscryptproxy_install {
     mkdir -p ${tmpdir} 1>/dev/null 2>&1
 
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-dnscryptproxy_download 
-    tar -zxvf "${filepat}" -C ${tmpdir} --strip-components=1 2>/dev/null 2>&1
+    tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 1>/dev/null 2>&1
     if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy ]]; then
-        log_error "dnscryptproxy binary not found in package."
+        log_error "dnscrypt-proxy binary not found in package."
         return 1
     fi
     cp ${tmpdir}/dnscrypt-proxy /usr/sbin/dnscrypt-proxy

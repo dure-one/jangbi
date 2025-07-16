@@ -58,16 +58,17 @@ function __net-netplan_install {
   if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
       [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
       [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-      apt install -qy netplan.io iproute2
+      apt install -qy netplan.io iproute2 || log_error "${DMNNAME} online install failed."
   else
       local filepat="./pkgs/${PKGNAME}*.deb"
       local pkglist="./pkgs/${PKGNAME}.pkgs"
-      [[ ! -f ${filepat} ]] && apt update -qy && __net-netplan_download
+      [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
       pkgslist_down=()
       while read -r pkg; do
           [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
       done < ${pkglist}
-      apt install -qy "${pkgslist_down[@]}"
+      # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
   fi
   if ! __net-netplan_configgen; then # if gen config is different do apply
       __net-netplan_configapply
@@ -99,7 +100,7 @@ function __net-knetplan_configapply {
 
 function __net-netplan_download {
   log_debug "Downloading ${DMNNAME}..."
-  _download_apt_pkgs "netplan.io iproute2"
+  _download_apt_pkgs "netplan.io iproute2" || log_error "${DMNNAME} download failed."
   return 0
 }
 
@@ -423,7 +424,7 @@ function __net-netplan_disable {
 
 function __net-netplan_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
   running_status=0
-  log_debug "Starting net-netplan Check"
+  log_debug "Checking ${DMNNAME}..."
 
   # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
   [[ -z ${RUN_OS_SYSTEMD} ]] && \

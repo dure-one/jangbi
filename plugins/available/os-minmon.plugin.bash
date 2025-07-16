@@ -58,7 +58,7 @@ function __os-minmon_install {
     mkdir -p ${tmpdir} 1>/dev/null 2>&1
 
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-minmon_download
-    tar -zxvf ${filepat} -C ${tmpdir} 2>/dev/null 2>&1
+    tar -zxvf ${filepat} -C ${tmpdir} 1>/dev/null 2>&1
     if [[ ! -f /tmp/minmon/minmon ]]; then
         log_error "minmon binary not found in package."
         return 1
@@ -99,14 +99,12 @@ function __os-minmon_configapply {
 }
 
 function __os-minmon_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs hostapd
+    log_debug "Downloading ${DMNNAME}..." || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs hostapd 
     return 0
 }
 
 function __os-minmon_generate_config {
-    log_debug "Generating config for ${DMNNAME}..."
-
     mkdir -p /tmp/minmon
     cp ./configs/minmon/minmon.toml /tmp/minmon/minmon.toml
     enabled_plugins=$(_jangbi-it-describe "plugins" "a" "plugin" "Plugin"|grep \[x\]|awk '{print $1}')

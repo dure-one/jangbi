@@ -2,7 +2,7 @@
 cite about-plugin a
 about-plugin 'iptables install configurations.'
 
-# filter(INPUT FORWARD OUTPUT .ICMPFLOOD .SSHBRUTE)
+# filter(INPUT FORWARD OUTPUT)
 # nat(PREROUTING INPUT OUTPUT POSTROUTING)
 # mangle(PREROUTING INPUT FORWARD OUTPUT POSTROUTING)
 # raw(PREROUTING OUTPUT)
@@ -126,16 +126,17 @@ function __net-iptables_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy nftables iptables arptables net-tools ipset iprange || log_error "Error installing net-iptables"; exit 1
+        apt install -qy nftables iptables arptables net-tools ipset iprange || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/nftables*.deb"
         local pkglist="./pkgs/nftables.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-iptables_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
     if ! __net-iptables_configgen; then # if gen config is different do apply
         __net-iptables_configapply
@@ -144,6 +145,7 @@ function __net-iptables_install {
 }
 
 function __net-iptables_configgen { # config generator and diff
+    [[ -z ${PKGNAME} ]] && log_error "please run this function from ${DMNNAME} cmd." && return 1
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
     mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
@@ -165,12 +167,12 @@ function __net-iptables_configapply {
 }
 
 function __net-iptables_download {
-    _download_apt_pkgs "nftables iptables arptables net-tools ipset iprange"
+    _download_apt_pkgs "nftables iptables arptables net-tools ipset iprange" || log_error "${DMNNAME} download failed."
     return 0
 }
 
 function __net-iptables_uninstall { 
-    log_debug "Trying to uninstall net-iptables."
+    log_debug "Uninstalling ${DMNNAME}..."
     systemctl stop nftables
     systemctl disable nftables
 }
@@ -183,7 +185,7 @@ function __net-iptables_disable {
 
 function __net-iptables_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-iptables Check"
+    log_debug "Checking ${DMNNAME}..."
     # check cmd exists
     [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
         log_error "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
@@ -218,18 +220,22 @@ function __net-iptables_build {
     nft flush ruleset
 
     # GET VARs
-    local waninf=$(_trim_string ${JB_WANINF}) laninf=$(_trim_string ${JB_LANINF}) wlaninf=$(_trim_string ${JB_WLANINF})
-
+    local waninf laninf wlaninf wanip lanip wlanip
+    waninf=$(_trim_string ${JB_WANINF})
+    laninf=$(_trim_string ${JB_LANINF})
+    wlaninf=$(_trim_string ${JB_WLANINF})
+    wanip=$(cat "/proc/net/arp"|grep "${waninf}"|awk '{print $1}')
+    [[ -z ${wanip} ]] && wanip="127.0.0.1"
+    lanip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
+    [[ -z ${lanip} ]] && lanip="127.0.0.1"
+    wlanip=$(cat "/proc/net/arp"|grep "${wlaninf}"|awk '{print $1}')
+    [[ -z ${wlanip} ]] && wlanip="127.0.0.1"
+    
     #
     # ARP RULES
     #
-    # WAN_INF WHITELISTED_MACADDRESSES
-    # GW_ADDR=$(route -n|grep "${waninf}"|awk '{ print $2 }'|grep -v 0.0.0.0)
-    # [[ $(arp -na|grep -c "incomplete") -gt 0 ]] && arp -d "${GW_ADDR}"
-    # GW_MAC=($(arp -na|awk '{ print $4 }'))
-    # GW_MAC=$(nmap -sn "${GW_ADDR}"|grep MAC|awk '{print $3}')
-    
-    #[[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${waninf}" "${GW_MAC}" # targetinf macaddrs
+    # IPTABLES_WHITELISTED_MACADDRESSES
+    [[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${waninf}" "${GW_MAC}" # targetinf macaddrs
     # IPTABLES_GWMACONLY
     log_debug "iptables_mangle_ext_both_gwmaconly"
     [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
@@ -238,16 +244,17 @@ function __net-iptables_build {
     [[ ${IPTABLES_ARPALLINFS} -gt 0 ]] && __net-iptables_mangle_all_both_arpallinfs
 
     # Base Rules
-    if [[ -n ${nftables_override} ]]; then # NFTABLES_OVERRIDE ON
-        echo "${nftables_override}" > /tmp/nftables.tmp.conf
-        if ! nft -c -f /tmp/nftables.tmp.conf; then # on error
+    if [[ -n ${NFTABLES_OVERRIDE} ]]; then # NFTABLES_OVERRIDE ON
+        echo "${NFTABLES_OVERRIDE}" > /tmp/nftables_override.conf
+        if ! nft -c -f /tmp/nftables_override.conf; then # on error
             echo "ERROR: \$NFTABLES_OVERRIDE has error."
             return 1
         else # on success
-            nft -f /tmp/nftables.tmp.conf
+            nft -f /tmp/nftables_override.conf
         fi
+        rm /tmp/nftables_override.conf
     else # NFTABLES_OVERRIDE OFF
-        if [[ ${disable_ipv6} -gt 0 ]]; then # disable ipv6
+        if [[ ${DISABLE_IPV6} -gt 0 ]]; then # disable ipv6
             iptables-restore /etc/iptables/rules-ipv4.iptables
             ip6tables -I FORWARD -j DROP && ip6tables -I OUTPUT -j DROP && ip6tables -I INPUT -j DROP
         else # enable ipv6
@@ -261,15 +268,12 @@ function __net-iptables_build {
     # IPTABLES_DROP_ICMP
     log_debug "iptables_mangle_all_both_dropicmp"
     [[ ${IPTABLES_DROP_ICMP} -gt 0 ]] && __net-iptables_mangle_all_both_dropicmp
-    # IPTABLES_DROP_INVALID_STATE
-    log_debug "iptables_mangle_all_both_dropinvalidstate"
-    [[ ${IPTABLES_DROP_INVALID_STATE} -gt 0 ]]  && __net-iptables_mangle_all_both_dropinvalidstate
     # IPTABLES_DROP_NON_SYN
     log_debug "iptables_mangle_all_both_dropnonsyn"
     [[ ${IPTABLES_DROP_NON_SYN} -gt 0 ]] && __net-iptables_mangle_all_both_dropnonsyn
     # IPTABLES_DROP_SPOOFING=1
     log_debug "iptables_mangle_all_both_dropspoofing"
-    [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing "${waninf}"  # tarinf:null
+    [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing
     # IPTABLES_LIMIT_MSS
     log_debug "iptables_mangle_all_both_limitmss"
     [[ ${IPTABLES_LIMIT_MSS} -gt 0 ]] && __net-iptables_mangle_all_both_limitmss
@@ -278,16 +282,16 @@ function __net-iptables_build {
     [[ ${IPTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-iptables_raw_all_both_dropinvtcpflag
     # IPTABLES_BLACK_NAMELIST
     log_debug "iptables_filter_all_both_ipblacklist"
-    [[ ${#IPTABLES_BLACK_NAMELIST[@]} -gt 0 ]] && __net-iptables_filter_all_both_ipblacklist "${IPTABLES_BLACK_NAMELIST}" # blockurls
+    [[ ${#IPTABLES_BLACK_NAMELIST[@]} -gt 0 ]] && __net-iptables_filter_all_both_ipblacklist
 
     #
     # HOST RULES
     #    
 
     # PORT FORWARDING WAN->LAN
-    # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090|8010:192.168.0.1:8010"
+    # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090,8010:192.168.0.1:8010"
     if [[ ${#IPTABLES_PORTFORWARD} -gt 0 ]]; then
-        IFS=$'|' read -d "" -ra forwardsinfo <<< "${IPTABLES_PORTFORWARD}" # split
+        IFS=$',' read -d "" -ra forwardsinfo <<< "${IPTABLES_PORTFORWARD}" # split
         for((j=0;j<${#forwardsinfo[@]};j++)){
             IFS=$':' read -d "" -ra forwardinfo <<< "${forwardsinfo[j]}" # split
             if [[ ${#forwardinfo[@]} -eq 3 ]]; then
@@ -306,9 +310,9 @@ function __net-iptables_build {
     [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz "${waninf}" "${laninf}" "${DMZIP}" # waninf laninf dmzip sdmz
 
     # MASQUERADE WAN->NET
-    # IPTABLES_MASQ="LAN<WAN|LAN1<WAN"
+    # IPTABLES_MASQ="LAN<WAN,LAN1<WAN"
     if [[ -n ${IPTABLES_MASQ} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
-        IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
+        IFS=$',' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
             local frominf="" toinf="" fromnet="" tonet=""
             IFS=$'<' read -d "" -ra masqinfs <<< "${MASQROUTES[j]}"
@@ -369,9 +373,10 @@ function __net-iptables_build {
         }
     fi
     # nft --check --file /tmp/iptables/nftables.conf
-    # IPTABLES_SNAT="LAN<WAN|LAN1<WAN"
+    # IPTABLES_SNAT="LAN<WAN,LAN1<WAN"
     # [[ ${IPTABLES_SNAT} -gt 0 ]] && __net-iptables_filternat_all_both_snat # laninf lannet waninf wanip
-    nft list ruleset > /tmp/iptables/nftables.conf
+    [[ -f "/tmp/iptables/nftables.conf" ]] && nft list ruleset > /tmp/iptables/nftables.conf
+    [[ ! -f "/tmp/iptables/nftables.conf" ]] && nft list ruleset > /tmp/nftables.conf
     return 0
 }
 
@@ -379,8 +384,8 @@ function __net-iptables_build {
 # TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
 # PREFIX : int/ext/all inc/oug/both contents
 
-# Arptables : MAC Whitelisting
-# WHITELISTED_MACADDRESSES?=aa:bb:cc:dd:ee|ab:cd:be:c0:a1
+# Arptables : MAC Whitelisting (inf)-(mac), inf: LAN/WAN/WLAN/ALL
+# WHITELISTED_MACADDRESSES?=LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1
 function __net-iptables_mangle_all_both_macwhitelist {
     local funcname targetinf macaddrs
     funcname="mab_macwhitelist"
@@ -390,10 +395,16 @@ function __net-iptables_mangle_all_both_macwhitelist {
     [[ ${#targetinf} -lt 1 ]] && log_error "${funcname}: targetinf is not set" && return 1
     [[ ${#macaddrs} -lt 1 ]] && log_error "${funcname}: macaddrs is not set" && return 1
 
-    IFS=$'|' read -d "" -ra MACADDR <<< "${macaddrs}" # split
-    for((j=0;j<${#MACADDR[@]};j++)){
-        arptables -A INPUT -i "${targetinf}" --source-mac "${MACADDR[j]}" -j ACCEPT
-        log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${MACADDR[j]} -j ACCEPT"
+    IFS=$',' read -d "" -ra blockconf <<< "${macaddrs}" # split
+    for((j=0;j<${#blockconf[@]};j++)){
+        local targetinf infmac
+        IFS=$'-' read -d "" -ra infmac <<< "${blockconf[j]}" # split
+        [[ ${#infmac[@]} != 2 ]] && log_error "${funcname}: wrong params(${blockconf[j]})."
+        [[ ${infmac[0]} = "WAN" ]] && targetinf=${waninf}
+        [[ ${infmac[0]} = "LAN" ]] && targetinf=${laninf}
+        [[ ${infmac[0]} = "WLAN" ]] && targetinf=${wlaninf}
+        arptables -A INPUT -i "${targetinf}" --source-mac "${infmac[1]}" -j ACCEPT
+        log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${infmac[1]} -j ACCEPT"
     }
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
@@ -402,7 +413,7 @@ function __net-iptables_mangle_all_both_macwhitelist {
 # IPTABLES_GWMACONLYIPTABLES_GWMACONLY=1
 function __net-iptables_mangle_ext_both_gwmaconly {
     local funcname targetinf gwip gwmac
-    funcname="meb_gwonly"
+    funcname="meb_gwmaconly"
     
     targetinf=$(route|grep default|awk '{print $8}') # net-tools
     targetinf=$(_trim_string ${targetinf})
@@ -419,7 +430,6 @@ function __net-iptables_mangle_ext_both_gwmaconly {
     log_debug "arptables -A INPUT -i ${targetinf} --source-mac ${gwmac} -j ACCEPT"
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
-
 
 # Arptables : Allow all other network except gateway
 # IPTABLES_ARPALLINFS=1
@@ -476,18 +486,19 @@ function __net-iptables_mangle_all_both_dropnonsyn {
 }
 
 # Mangle Prerouting : Drop Spoofing Packets
-# IPTABLES_DROP_SPOOFING=1 TARINF?=eth0
+# IPTABLES_DROP_SPOOFING=1 IPTABLES_DROP_SPOOFING_TARINF=WAN IPTABLES_DROP_SPOOFING_NET="224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8"
 function __net-iptables_mangle_all_both_dropspoofing {
     local funcname="mab_dropspoofing"
-    local tarinf
-    tarinf=$(_trim_string "$1")
-    local BLOCKING_LIST="224.0.0.0/3|169.254.0.0/16|172.16.0.0/12|192.0.2.0/24|192.168.0.0/16|10.0.0.0/8|0.0.0.0/8|240.0.0.0/5|127.0.0.0/8"
-
+    local tarinf tarnets
+    tarinf=$(_trim_string "${IPTABLES_DROP_SPOOFING_TARINF}")
+    tarnets=$(_trim_string "${IPTABLES_DROP_SPOOFING_NET}")
+    
     [[ ${#tarinf} -lt 1 ]] && log_error "${funcname}: tarinf is not set" && return 1
+    [[ ${#tarnets} -lt 1 ]] && log_error "${funcname}: tarnets is not set" && return 1
 
     IFS=$'\n' read -d "" -ra routing_allow_list <<< "$(routel|grep /|grep -v 127.0.0.0/8|cut -d" " -f1)" # split
     routing_allow_list+=("127.0.0.1/29") # add localhost range 127.0.0.1-14 for anydnsdqy and dnsmasq
-    IFS=$'|' read -d "" -ra routing_block_list <<< "${BLOCKING_LIST}" # split
+    IFS=$',' read -d "" -ra routing_block_list <<< "${tarnets}" # split
     for((j=0;j<${#routing_block_list[@]};j++)){
         __bp_trim_whitespace iptables_block_ip "${routing_block_list[j]}"
         for((k=0;k<${#routing_allow_list[@]};k++)){
@@ -545,7 +556,7 @@ function __net-iptables_filternat_all_both_masquerade {
 }
 
 ## Filter/NAT Forward/Postrouting SNAT
-## IPTABLES_SNAT?="WLAN<WAN|LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) # laninf lannet waninf wanip
+## IPTABLES_SNAT?="WLAN<WAN,LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) # laninf lannet waninf wanip
 #function __net-iptables_filternat_all_both_snat {
 #    local funcname="fnab_masquerade"
 #    local frominf="$1" # internal network
@@ -562,7 +573,7 @@ function __net-iptables_filternat_all_both_masquerade {
 #}
 
 # DMZ - after portforward, SDMZ - prior to portforward
-# IPTABLES_DMZ="DMZ" or SDMZ waninf laninf dmzip sdmz
+# IPTABLES_DMZ="DMZ" IPTABLES_SUPERDMZ=1
 function __net-iptables_nat_ext_both_dmzsdmz {
     local funcname waninf laninf dmzip sdmz
     funcname="neb_portforward"
@@ -648,20 +659,22 @@ function __net-iptables_raw_all_both_dropinvtcpflag {
 # IPTABLES_BLACK_NAMELIST="url|url" blockurls
 function __net-iptables_filter_all_both_ipblacklist {
     local funcname="fab_ipblacklist"
-    local blockurls #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
-    blockurls=$(_trim_string "$1")
+    local blockurls filename_with_suffix filename #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
+    blockurls=$(_trim_string "${IPTABLES_BLACK_NAMELIST}")
     [[ ${#blockurls} -lt 1 ]] && log_error "${funcname}: blockurls is not set" && return 1
     IFS=$'|' read -d "" -ra blist_url <<< "${blockurls}" # split
     local urlcount=$(echo "${blockurls}" | grep -o "|" | wc -l)
     for((j=0;j<=${urlcount};j++)){
-        local blist_name=$(echo "${blist_url[j]}"|sed 's/[^0-9A-Za-z]*//g')
-        blist_name=${blist_name:0:30}
+        filename_with_suffix=${urlcount[j]##*/} # Extracts "file.html?param=value#fragment"
+        filename=${filename_with_suffix%%[?#]*} # Removes query and fragment, resulting in "file.html"
+        local blist_name="bl$j_$filename"
         ipset -q flush "${blist_name}"
         ipset -q create "${blist_name}" hash:net
         for ip in $(curl --compressed "${blist_url[j]}" 2>/dev/null | grep -v "#" | grep -v -E "\s[1-2]$" | cut -f 1); do ipset add "${blist_name}" "$ip"; done
         iptables -D INPUT -m set --match-set "${blist_name}" src -j DROP 2>/dev/null
         iptables -I INPUT -m set --match-set "${blist_name}" src -j DROP
     }
+    ipset save > /etc/iptables/ipset.conf
 }
 
 complete -F _blank net-iptables

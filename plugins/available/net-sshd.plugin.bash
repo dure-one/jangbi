@@ -59,16 +59,17 @@ function __net-sshd_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy openssh-server
+        apt install -qy openssh-server || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/openssh-server*.deb"
         local pkglist="./pkgs/openssh-server.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-sshd_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
         
     fi
     if ! __net-sshd_configgen; then # if gen config is different do apply
@@ -110,8 +111,8 @@ function __net-sshd_configapply {
     [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
-    [[ -d "/etc/ssh" ]] && cp -rf "/etc/ssh" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
+    [[ -d "/etc/ssh" ]] && cp -rf "/etc/ssh" "/etc/.ssh.${dtnow}"
+    pushd /etc/ssh 1>/dev/null 2>&1
     patch -i /tmp/${PKGNAME}.diff
     popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
@@ -120,12 +121,12 @@ function __net-sshd_configapply {
 
 function __net-sshd_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs openssh-server
+    _download_apt_pkgs openssh-server || log_error "${DMNNAME} download failed."
     return 0
 }
 
 function __net-sshd_uninstall { 
-    log_debug "Trying to uninstall net-sshd."
+    log_debug "Uninstalling ${DMNNAME}..."
     systemctl stop ssh
     systemctl disable ssh
 }
@@ -138,7 +139,7 @@ function __net-sshd_disable {
 
 function __net-sshd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting net-sshd Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_NET_SSHD} ]] && \

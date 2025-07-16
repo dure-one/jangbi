@@ -44,20 +44,20 @@ function __os-sysctl_help {
 }
 
 function __os-sysctl_install {
-    log_debug "Trying to install sysctl_install."
+    log_debug "Installing ${DMNNAME}..."
     # backup original sysctl on first run
     [[ ! -f "/etc/sysctl.orig" ]] && sysctl -a > /etc/sysctl.orig
     chmod 400 /etc/sysctl.orig
 }
 
 function __os-sysctl_uninstall { 
-    log_debug "Trying to uninstall sysctl_install."
+    log_debug "Uninstalling ${DMNNAME}..."
     sysctl -e -p /etc/sysctl.orig &>/dev/null
 }
 
 function __os-sysctl_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-sysctl Check"
+    log_debug "Checking ${DMNNAME}..."
     [[ -z ${RUN_OS_SYSCTL} ]] && \
         log_error "RUN_OS_SYSCTL variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_SYSCTL} != 1 ]] && \
@@ -67,6 +67,7 @@ function __os-sysctl_check { # running_status: 0 running, 1 installed, running_s
 }
 
 function __os-sysctl_run {
+    log_debug "Running ${DMNNAME}..."
     # core dump limit
     if [[ $(grep -c "hard\ core\ 0" < "/etc/security/limits.conf") -lt 1 ]]; then
         echo "* hard core 0" >> /etc/security/limits.conf

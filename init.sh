@@ -128,6 +128,7 @@ ln -s "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptab
 source $(find ./enabled|grep bash|grep "net-iptables") # load plugin
 predefined=("os-systemd" "net-ifupdown" "net-netplan" "net-iptables")
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
+# shellcheck disable=SC1102
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
 IFS=$'\n' read -d "" -ra lvars <<< "${loaded_vars}" # split
 for((j=0;j<${#JB_VARS[@]};j++)){

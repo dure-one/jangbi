@@ -62,12 +62,13 @@ function __os-auditd_install {
     else
         local filepat="./pkgs/auditd*.deb"
         local pkglist="./pkgs/auditd.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-auditd_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __net-auditd_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
 
     if ! __net-auditd_configgen; then # if gen config is different do apply

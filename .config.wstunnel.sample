@@ -12,7 +12,6 @@ DIST_PKG_IMG="debian-12.9.0-arm64-DVD-1.iso"
 # host specific configurations
 JB_USERID=test
 JB_SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXueL1iMLhGA8N5Fv1va1sUFfcC+U+6pl8uxI8kQr/m/Du9sMZD/bU1hmcy10sQmMx12vdyImJC8BEwwf/1HxZ/o/qD5N6ggiGji+t8sHE9rZX6OBYQnNUJdRmCpBNXaUyFMZdyJi8iKtuVuALLzRospczw93qed7a2nk1Fe8sLHwrOhmIqwebpQQg0sd1V8et/OvTlUoXlA26F2/+dfgsXqbp48jECJOxog1WlRkgViYB1oGRvpV5MWDXbKd9Ny2L+cRbD1H83XsawOvMz9RqT06zhQ2DwF+raCHWRJBDXWqyGL7rc7kBalMNIESc9b/5HdENG4kTUpF/3AUpNaUHHDk8TABcK9PxnOUsV17gT9+uMN8/8HLxzDfpfRzzX/HXv2crF41WNO1Dra9EOgn2q5CvalscwJK/5lKeKeyY06LNZwOn2HdlJDemTOut+6jPe4fr8Pej2107vzTWYmAEa2kQT1PBEetLqGhVJ9Us= root@com"
-JB_HOSTNAME="orangepi5-plus"
 
 # network settings
 RUN_OS_SYSTEMD=1

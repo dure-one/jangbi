@@ -62,16 +62,17 @@ function __os-aide_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy aide
+        apt install -qy aide || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/aide*.deb"
         local pkglist="./pkgs/aide.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-aide_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
 
     if ! __net-aide_configgen; then # if gen config is different do apply
@@ -106,7 +107,7 @@ function __net-aide_configapply {
 
 function __net-aide_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs aide
+    _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
     return 0
 }
 
@@ -114,6 +115,12 @@ function __os-aide_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
     apt purge -yq aide
 }
+
+function __net-disable_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    :
+}
+
 
 function __os-aide_checkpoint {
     log_debug "Make new checkpoint for os-aide."
@@ -128,7 +135,7 @@ function __os-aide_checkpoint {
 
 function __os-aide_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-aide Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_OS_AIDE} ]] && \

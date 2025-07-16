@@ -58,16 +58,17 @@ function __net-ifupdown_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy ifupdown iproute2
+        apt install -qy ifupdown iproute2 || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/${PKGNAME}*.deb"
         local pkglist="./pkgs/${PKGNAME}.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-ifupdown_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
         
     fi
     if ! __net-ifupdown_configgen; then # if gen config is different do apply
@@ -100,7 +101,7 @@ function __net-ifupdown_configapply {
 
 function __net-ifupdown_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs "ifupdown iproute2"
+    _download_apt_pkgs "ifupdown iproute2" || log_error "${DMNNAME} download failed."
     return 0
 }
 

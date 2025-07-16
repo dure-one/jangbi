@@ -93,12 +93,13 @@ function __os-conf_install {
     else
         local filepat="./pkgs/cron*.deb"
         local pkglist="./pkgs/cron.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-conf_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __net-conf_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
 
     crontab -l > /tmp/mycron
@@ -182,7 +183,7 @@ function __os-conf_check { # running_status: 0 running, 1 installed, running_sta
 }
 
 function __os-conf_run {
-    return 0
+    :
 }
 
 complete -F _blank os-conf

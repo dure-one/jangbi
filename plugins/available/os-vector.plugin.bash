@@ -27,6 +27,12 @@ function os-vector {
         __os-vector_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-vector_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __os-vector_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __os-vector_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-vector_download "$2"
     else
         __os-vector_help
     fi
@@ -39,17 +45,58 @@ function __os-vector_help {
     echo "   help      Show this help message"
     echo "   install   Install os firmware"
     echo "   uninstall Uninstall installed firmware"
+    echo "   configgen   Configs Generator"
+    echo "   configapply Apply Configs"
+    echo "   download    Download pkg files to pkg dir"
     echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
 
 function __os-vector_install {
-    export DEBIAN_FRONTEND=noninteractive
+    log_debug "Installing ${DMNNAME}..."
+
+    local filepat="./pkgs/vector*.deb"
+    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-vector_download
     apt install -yq ./pkgs/vector*.deb ./pkgs/sysdig*.deb
-    
-    mkdir -p /etc/vector
-    cp -rf ./configs/vector/vector.toml /etc/vector/
+    touch /var/log/vector.log
+    mkdir -p /var/log/vector 1>/dev/null 2>&1
+
+    if ! __os-vector_configgen; then # if gen config is different do apply
+        __os-vector_configapply
+        rm -rf ${tmpdir}
+    fi
    
+}
+
+function __os-vector_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
+    cp -rf /etc/${PKGNAME}/* /tmp/${PKGNAME}/
+    cp -rf ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
+    
+    # diff check
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __os-vector_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
+    patch -i /tmp/${PKGNAME}.diff
+    popd 1>/dev/null 2>&1
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __os-vector_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_github_pkgs vectordotdev/vector vector_*.deb || log_error "${DMNNAME} download failed."
+    _download_github_pkgs draios/sysdig sysdig-*.deb || log_error "${DMNNAME} download failed."
+    return 0
 }
 
 function __os-vector_uninstall { 
@@ -64,7 +111,7 @@ function __os-vector_disabled {
 
 function __os-vector_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-vector Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_OS_VECTOR} ]] && \

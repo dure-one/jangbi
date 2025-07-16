@@ -4,7 +4,7 @@ load "${MAIN_JANGBI_IT_DIR?}/test/test_helper.bash"
 
 function local_setup_file() {
 	setup_libs "helpers"
-	load "${BASH_IT?}/plugins/available/base.plugin.bash"
+	load "${MAIN_JANGBI_IT_DIR?}/plugins/available/base.plugin.bash"
 }
 
 @test 'plugins base: ips()' {

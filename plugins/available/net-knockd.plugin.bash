@@ -62,12 +62,13 @@ function __net-knockd_install {
     else
         local filepat="./pkgs/${PKGNAME}*.deb"
         local pkglist="./pkgs/${PKGNAME}.pkgs"
-        [[ ! -f ${filepat} ]] && apt update -qy && __net-knockd_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __net-knockd_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
         done < ${pkglist}
-        apt install -qy "${pkgslist_down[@]}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
     
     # mv /etc/knockd.conf /etc/knockd.old.conf 2>/dev/null

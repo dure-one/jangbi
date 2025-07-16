@@ -12,9 +12,10 @@
 # Chat: https://chat.vector.dev
 # https://docs.sysdig.com/en/sysdig-secure/rule-fields-library/
 # ------------------------------------------------------------------------------
+# 
 
 # Change this to use a non-default directory for Vector data storage:
-data_dir = "/tmp/vector"
+data_dir = "/var/log/vector"
 
 # Execute sysdig command to capture network connections
 [sources.sysdig_network]
@@ -26,7 +27,7 @@ mode = "streaming"
 [sinks.backup_file]
 type = "file"
 inputs = ["sysdig_network"]
-path = "/tmp/vector/raw_connections_%Y%m%d_%H.log"
+path = "/var/log/vector/raw_connections_%Y%m%d_%H.log"
 encoding.codec = "text"
 
 # Minimal buffering for backup file
@@ -34,142 +35,3 @@ encoding.codec = "text"
 type = "memory"
 max_events = 10
 when_full = "block"
-
-# Debug sink to see raw parsed data
-[sinks.debug_output]
-type = "console"
-inputs = ["sysdig_network"]
-encoding.codec = "text"
-encoding.json.pretty = true
-
-
-[sources.connection_logs]
-type = "file"
-include = ["/tmp/vector/raw_connections_*.log"]
-# Read from the beginning of new files
-read_from = "beginning"
-# Remove processed files after reading
-remove_after_secs = 3600  # 1 hour
-# Use glob pattern to match hourly files
-glob_minimum_cooldown_ms = 1000
-# Maximum line length for JSON logs
-max_line_bytes = 65536
-
-
-[transforms.parse_and_process]
-type = "remap"
-inputs = ["connection_logs"]
-source = '''
-parts = split!(.message, " ")
-
-if length(parts) >= 6 {
-  .timestamp = parts[0] + " " + parts[1]
-  .user = parts[2]
-  .process_path = parts[3]
-  
-  # Extract connection endpoints from remaining parts
-  remaining_parts = slice!(parts, 6, length(parts))
-  
-  # Deduplicate the endpoints within this single log line
-  unique_endpoints = []
-  for_each(remaining_parts) -> |_index, part| {
-    if contains(part, ":") {
-      if !includes(unique_endpoints, part) {
-        unique_endpoints = push(unique_endpoints, part)
-      }
-    }
-  }
-  
-  # Create multiple records, one for each unique endpoint
-  .records = []
-  for_each(unique_endpoints) -> |_index, endpoint| {
-    record = {
-      "timestamp": .timestamp,
-      "user": .user,
-      "process_path": .process_path,
-      "endpoint": endpoint,
-      "dedup_key": .user + "|" + .process_path + "|" + endpoint,
-      "host": get_hostname!()
-    }
-    .records = push(.records, record)
-  }
-  
-  # Emit each record as a separate event
-  for_each(.records) -> |_index, record| {
-    emit(record)
-  }
-  
-  # Abort the original event since we've emitted individual records
-  abort
-  
-  .host = get_hostname!()
-} else {
-  abort
-}
-'''
-
-[transforms.deduplicate]
-type = "dedupe"
-inputs = ["parse_and_process"]
-# Use our custom dedup key
-fields.match = ["dedup_key"]
-
-[transforms.reduce_connections]
-type = "reduce"
-inputs = ["deduplicate"]
-# Group by user and process_path
-group_by = ["user", "process_path"]
-# Merge connection endpoints and remove duplicates
-merge_strategies.endpoint = "array"
-merge_strategies.timestamp = "max"
-merge_strategies.user = "retain"
-merge_strategies.process_path = "retain"
-# Reduce window - process every hour
-window_ms = 3600000  # 1 hour in milliseconds
-
-[transforms.format_output]
-type = "remap"
-inputs = ["reduce_connections"]
-source = '''
-# Flatten all endpoint arrays and create a final unique list
-all_endpoints = []
-for_each(.unique_endpoints_for_expansion) -> |_index, endpoint_array| {
-  if is_array(endpoint_array) {
-    for_each(endpoint_array) -> |_idx, endpoint| {
-      if !includes(all_endpoints, endpoint) {
-        all_endpoints = push(all_endpoints, endpoint)
-      }
-    }
-  }
-}
-
-# Sort for consistent output
-unique_connections = sort(all_endpoints)
-
-# Create final output structure
-. = {
-  "timestamp": .timestamp,
-  "user": .user,
-  "process_path": .process_path,
-  "unique_connections": unique_connections,
-  "connection_count": length(unique_connections),
-  "host": .host,
-  "pid": .pid,
-  "ppid": .ppid
-}
-'''
-
-[sinks.hourly_output]
-type = "file"
-inputs = ["format_output"]
-# Output to hourly files
-path = "/tmp/vector/processed_connections_%Y%m%d_%H.log"
-# Use JSON format for structured output
-encoding.codec = "json"
-# Rotate files hourly
-rotation.strategy = "time"
-rotation.time_format = "%Y%m%d_%H"
-# Buffer settings for performance
-buffer.type = "disk"
-buffer.max_size = 268435488  # 256MB
-buffer.when_full = "block"

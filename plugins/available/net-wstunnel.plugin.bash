@@ -62,15 +62,16 @@ function __net-wstunnel_install {
     mkdir -p ${tmpdir} 1>/dev/null 2>&1
 
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-wstunnel_download
-    tar -zxvf ${filepat} -C ${tmpdir} 2>/dev/null 2>&1
+    tar -zxvf ${filepat} -C ${tmpdir} 1>/dev/null 2>&1
     if [[ ! -f /tmp/wstunnel/wstunnel ]]; then
         log_error "wstunnel binary not found in package."
         return 1
     fi
     mv /tmp/wstunnel/wstunnel /usr/sbin/wstunnel
-    chmod 600 /sbin/wstunnel
+    chmod 755 /sbin/wstunnel
     rm -rf ${tmpdir} 1>/dev/null 2>&1
 
+    # wstunnel no need configurations
     # if ! __net-wstunnel_configgen; then # if gen config is different do apply
     #     __net-wstunnel_configapply
     #     rm -rf ${tmpdir}
@@ -102,7 +103,7 @@ function __net-wstunnel_configapply {
 
 function __net-wstunnel_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_github_pkgs erebe/wstunnel wstunnel_*.tar.gz
+    _download_github_pkgs erebe/wstunnel wstunnel_*.tar.gz || log_error "${DMNNAME} download failed."
     return 0
 }
 
@@ -139,17 +140,35 @@ function __net-wstunnel_check { # running_status: 0 running, 1 installed, runnin
 
 function __net-wstunnel_run { # run socks proxy $NET
     log_debug "Running ${DMNNAME}..."
-
-    local ip_addr
-    ip_addr=$(ipcalc-ng "$1" 2>/dev/null|grep Address:)
-    if [[ -n ${ip_addr} ]]; then
-        # ws proxy only
-        systemd-run -r wstunnel server "wss://${ip_addr}:38080"
-        # socks proxy on top
-        # wstunnel client -L socks5://${ip_addr}:38888 --connection-min-idle 5 wss://${ip_addr}:38080  &
+    local waninf=$(_trim_string ${JB_WANINF}) laninf=$(_trim_string ${JB_LANINF}) wlaninf=$(_trim_string ${JB_WLANINF})
+    local listenip="127.0.0.1"
+    if [[ -z ${laninf} && -z ${wlaninf} ]]; then
+        listenip="127.0.0.1"
+    elif [[ -n ${laninf} && -n ${wlaninf} ]]; then
+        listenip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
+        [[ -z ${listenip} ]] && listenip="127.0.0.1"
+    elif [[ -n ${laninf} ]]; then
+        listenip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
+        [[ -z ${listenip} ]] && listenip="127.0.0.1"
+    elif [[ -n ${wlaninf} ]]; then
+        listenip=$(cat "/proc/net/arp"|grep "${wlaninf}"|awk '{print $1}')
+        [[ -z ${listenip} ]] && listenip="127.0.0.1"
+    else
+        listenip="127.0.0.1"
     fi
 
-    return 0
+    pidof wstunnel | xargs kill &>/dev/null
+    echo "systemd-run -r wstunnel server wss://${listenip}:38080"
+    log_debug "systemd-run -r wstunnel server wss://${listenip}:38080"
+
+    log_debug "Starting wstunnel" 
+    # ws proxy only
+    systemd-run -r wstunnel server wss://"${listenip}":38080
+    # socks proxy on top
+    # wstunnel client -L socks5://${ip_addr}:38888 --connection-min-idle 5 wss://${ip_addr}:38080  &
+
+    pidof wstunnel && return 0 || \
+        log_error "wstunnel failed to run." && return 1
 }
 
 complete -F _blank net-wstunnel

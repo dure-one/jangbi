@@ -126,7 +126,7 @@
 # Real security lies in locking down and hardening all services, not by hiding.
 -A INPUT -p icmp --icmp-type 0  -m conntrack --ctstate NEW -j ACCEPT
 -A INPUT -p icmp --icmp-type 3  -m conntrack --ctstate NEW -j ACCEPT
--A INPUT -p icmp --icmp-type 8  -m conntrack --ctstate NEW -j ICMPFLOOD
+# -A INPUT -p icmp --icmp-type 8  -m conntrack --ctstate NEW -j ICMPFLOOD
 -A INPUT -p icmp --icmp-type 11 -m conntrack --ctstate NEW -j ACCEPT
 
 # Do not log packets that are going to ports used by SMB 

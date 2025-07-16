@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-JANGBI_IT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+test_directory=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 bats_executable="./bats/bats-core/bin/bats"
 
 # Locate ourselves for easy reference.
-export MAIN_JANGBI_IT_DIR="${JANGBI_IT%/*}"
+export MAIN_JANGBI_IT_DIR="${test_directory%/*}"
 export MAIN_JANGBI_IT_GITDIR="../.git"
 
 # Warn user that tests run from the current git HEAD

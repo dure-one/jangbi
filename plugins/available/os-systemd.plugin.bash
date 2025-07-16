@@ -149,7 +149,7 @@ function __os-systemd_uninstall {
 
 function __os-systemd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Starting os-systemd Check"
+    log_debug "Checking ${DMNNAME}..."
 
     # check package file exists
     

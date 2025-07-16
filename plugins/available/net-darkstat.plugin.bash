@@ -107,7 +107,7 @@ function __net-darkstat_configapply {
 
 function __net-darkstat_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs darkstat
+    _download_apt_pkgs darkstat || log_error "${DMNNAME} download failed."
     return 0
 }
 
@@ -146,6 +146,7 @@ function __net-darkstat_run {
     log_debug "Running ${DMNNAME}..."
     
     pidof darkstat|xargs kill &>/dev/null
+    # darkstat binary does killed right after its run. for make sure, running it twice. 
     # shellcheck disable=SC1091
     source /etc/darkstat/init.conf && \
         systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \

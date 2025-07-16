@@ -1053,7 +1053,7 @@ run_ok () {
     if [ -n "$pidcheck" ]; then
       echo "$log_pref Made it here...why?" >> ${RUN_LOG}
       kill $spinpid 2>/dev/null
-      rm -rf ${SPINNER_DONEFILE} 2>/dev/null 2>&1
+      rm -rf ${SPINNER_DONEFILE} 1>/dev/null 2>&1
       tput rc
       restore_cursor
     fi
@@ -2773,23 +2773,34 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   local arch2=$(arch)
   [[ $(echo $1|grep -c "/") != 1 ]] && log_debug "please set only githubid/repoid." && return 1
   local pkgurl="https://api.github.com/repos/$(_trim_string $1)/releases/latest"
+  # log_debug "DownloadURL : ${pkgurl}"
   IFS=$'\*' read -rd '' -a pkgfilefix <<<"$(_trim_string $2)"
+  [[ $(find ./pkgs/$2 2>/dev/null|wc -l) -gt 0 ]] && rm ./pkgs/$2
   pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
   pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
   local possible_list=$(curl -sSL "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
+  # log_debug "List : ${possible_list}"
   IFS=$'\n' read -rd '' -a durls <<<"$possible_list"
   for((k=0;k<${#durls[@]};k++)){
     durl=$(_trim_string ${durls[k],,});
-    if [[ ${#durls[@]} -gt 1 ]]; then
-      if [[ ${durl} == *"linux"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+    if [[ ${#durls[@]} -gt 1 ]]; then # https://github.com/draios/sysdig/releases/download/0.40.1/sysdig-0.40.1-x86_64.deb
+      if [[ ${durl} == *"linux"* && ${durl} == *"${pkgfilepostfix}" ]]; then # https://github.com/vectordotdev/vector/releases/download/v0.48.0/vector_0.48.0-1_amd64.deb
         log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-        wget --directory-prefix=./pkgs "${durl}" || log_error "error downloading ${pkgfile}"; return 1
+        wget --directory-prefix=./pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        break
+      elif [[ ${durl} == *"${arch1}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+        log_debug "Downloading ${durl} to ${arch1} ${pkgfilepostfix}..."
+        wget --directory-prefix=./pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        break
+      elif [[ ${durl} == *"${arch2}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+        log_debug "Downloading ${durl} to ${arch2} ${pkgfilepostfix}..."
+        wget --directory-prefix=./pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
         break
       fi
     else
       if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
         log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-        wget --directory-prefix=./pkgs "${durl}" || log_error "error downloading ${pkgfile}"; return 1
+        wget --directory-prefix=./pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
         break
       fi
     fi
