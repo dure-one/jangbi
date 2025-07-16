@@ -47,8 +47,8 @@ function local_setup_file() {
 }
 
 @test 'plugins base: lsgrep()' {
-	for i in 1 2 3; do mkdir -p "${BASH_IT}/${i}"; done
-	cd "${BASH_IT?}"
+	for i in 1 2 3; do mkdir -p "${JANGBI_IT}/${i}"; done
+	cd "${JANGBI_IT?}"
 	run lsgrep 2
 	assert_success
 	assert_equal "$output" 2

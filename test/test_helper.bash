@@ -18,8 +18,8 @@ function common_setup_file() {
 	load "${TEST_DEPS_DIR}/bats-file/load.bash"
 
 	# shellcheck disable=SC2034 # Clear any inherited environment:
-	XDG_DUMMY="" BASH_IT_DUMMY=""    # avoid possible invalid reference:
-	unset "${!XDG_@}" "${!BASH_IT@}" # unset all BASH_IT* and XDG_* variables
+	XDG_DUMMY="" JANGBI_IT_DUMMY=""    # avoid possible invalid reference:
+	unset "${!XDG_@}" "${!JANGBI_IT@}" # unset all JANGBI_IT* and XDG_* variables
 	unset GIT_HOSTING NGINX_PATH IRC_CLIENT TODO SCM_CHECK
 
 	# Some tools, e.g. `git` use configuration files from the $HOME directory,
@@ -38,12 +38,12 @@ function common_setup_file() {
 	git config --global init.defaultBranch "master"
 
 	# Locate the temporary folder, avoid double-slash.
-	BASH_IT="${BATS_FILE_TMPDIR//\/\///}/.bash_it"
+	JANGBI_IT="${BATS_FILE_TMPDIR//\/\///}/.jangbi_it"
 
 	# This sets up a local test fixture, i.e. a completely fresh and isolated Bash-it directory. This is done to avoid messing with your own Bash-it source directory.
 	git --git-dir="${MAIN_JANGBI_IT_GITDIR?}" worktree add --detach "${JANGBI_IT}"
 
-	load "${JANGBI_IT?}/functions.sh"
+	load "${MAIN_JANGBI_IT_DIR?}/functions.sh"
 	# support 'plumbing' metadata
 	cite _about _param _example _group _author _version
 	cite about-alias about-plugin about-completion
@@ -55,13 +55,7 @@ function common_setup_file() {
 
 # Load standard _Bash It_ libraries
 function setup_libs() {
-	local lib
-	# Use a loop to allow convenient short-circuiting for some test files
-	for lib in "log" "utilities" "helpers" "search" "colors" "preview" "preexec" "history" "command_duration"; do
-		load "${BASH_IT?}/lib/${lib}.bash" || return
-		# shellcheck disable=SC2015 # short-circuit if we've reached the requested library
-		[[ "${lib}" == "${1:-}" ]] && return 0 || true
-	done
+	
 	return 0
 }
 
@@ -78,27 +72,23 @@ function local_teardown() {
 }
 
 function clean_test_fixture() {
-	rm -rf "${BASH_IT_CONFIG?}/enabled"
-	rm -rf "${BASH_IT_CONFIG?}/aliases/enabled"
-	rm -rf "${BASH_IT_CONFIG?}/completion/enabled"
-	rm -rf "${BASH_IT_CONFIG?}/plugins/enabled"
+	rm -rf "${JANGBI_IT_CONFIG?}/enabled"
+	rm -rf "${JANGBI_IT_CONFIG?}/plugins/enabled"
 
-	rm -rf "${BASH_IT_CONFIG?}/tmp/cache"
-	rm -rf "${BASH_IT_CONFIG?}/profiles"/test*.bash_it
+	rm -rf "${JANGBI_IT_CONFIG?}/tmp/cache"
+	rm -rf "${JANGBI_IT_CONFIG?}/profiles"/test*.JANGBI_IT
 }
 
 function setup_test_fixture() {
-	mkdir -p "${BASH_IT_CONFIG?}/enabled"
-	mkdir -p "${BASH_IT_CONFIG?}/aliases/enabled"
-	mkdir -p "${BASH_IT_CONFIG?}/completion/enabled"
-	mkdir -p "${BASH_IT_CONFIG?}/plugins/enabled"
+	mkdir -p "${JANGBI_IT_CONFIG?}/enabled"
+	mkdir -p "${JANGBI_IT_CONFIG?}/plugins/enabled"
 }
 
 function setup() {
 	# be independent of git's system configuration
 	export GIT_CONFIG_NOSYSTEM
 	# Locate the temporary folder:
-	BASH_IT_CONFIG="${BASH_IT?}" #"${BATS_TEST_TMPDIR//\/\///}"
+	JANGBI_IT_CONFIG="${JANGBI_IT?}" #"${BATS_TEST_TMPDIR//\/\///}"
 	export XDG_CACHE_HOME="${BATS_TEST_TMPDIR?}"
 
 	setup_test_fixture
@@ -113,5 +103,5 @@ function teardown() {
 
 function teardown_file() {
 	# This only serves to clean metadata from the real git repo.
-	git --git-dir="${MAIN_JANGBI_IT_GITDIR?}" worktree remove -f "${BASH_IT?}"
+	git --git-dir="${MAIN_JANGBI_IT_GITDIR?}" worktree remove -f "${JANGBI_IT?}"
 }
