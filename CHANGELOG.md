@@ -12,10 +12,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([71bc469](https://github.com/dure-one/jangbi/commit/71bc469295c029073609a501c3ef6bbcbc1cb610) by nikescar).
+- Add changelog automatically ([6ab297d](https://github.com/dure-one/jangbi/commit/6ab297dd841239bdc6b6203b5077037109433f00) by nikescar).
 
 ### Fixed
 
+- fix. git tree command not working. replace to rm .git/worktress/-bash_it* ([cf3f6c8](https://github.com/dure-one/jangbi/commit/cf3f6c85aafb2cb561e838021e693c2221ba04f5) by Woojae, Park).
+- fix. tests. ([7a61a84](https://github.com/dure-one/jangbi/commit/7a61a8491aaef120b90d2df3a7f2c8a68ccd09da) by Woojae, Park).
+- fix. add tests ([2e35b32](https://github.com/dure-one/jangbi/commit/2e35b322b6e11078c1dd1390fadf6cb1441c7a0a) by Woojae, Park).
+- fix. remove unused tests ([5cebfe0](https://github.com/dure-one/jangbi/commit/5cebfe06f6ee2a2ae1304fe1aab9381226904fb4) by Woojae, Park).
 - fix. remove unused test ([41449da](https://github.com/dure-one/jangbi/commit/41449da8c15b9da7023af0c9f98811fef5527813) by Woojae, Park).
 - fix: add stopspinng to .gitignore ([731e0b3](https://github.com/dure-one/jangbi/commit/731e0b3691d42860488a130916b137d4eec0a962) by Woojae, Park).
 - fix: add msg to load_config, add iptables watch cmd ([4289fa2](https://github.com/dure-one/jangbi/commit/4289fa2cdcadd39a04c56ae1127019a3f0920e17) by Woojae, Park).
