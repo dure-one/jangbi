@@ -1,11 +1,10 @@
 # shellcheck shell=bats
 
-load "${MAIN_JANGBI_IT_DIR?}/test/test_helper.bash"
+load "${MAIN_BASH_IT_DIR?}/test/test_helper.bash"
 
 function local_setup_file() {
 	setup_libs "helpers"
-	load "${MAIN_JANGBI_IT_DIR?}/plugins/available/base.plugin.bash"
-	echo "loaded"
+	load "${BASH_IT?}/plugins/available/base.plugin.bash"
 }
 
 @test 'plugins base: ips()' {
@@ -48,8 +47,8 @@ function local_setup_file() {
 }
 
 @test 'plugins base: lsgrep()' {
-	for i in 1 2 3; do mkdir -p "${JANGBI_IT}/${i}"; done
-	cd "${JANGBI_IT?}"
+	for i in 1 2 3; do mkdir -p "${BASH_IT}/${i}"; done
+	cd "${BASH_IT?}"
 	run lsgrep 2
 	assert_success
 	assert_equal "$output" 2

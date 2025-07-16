@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
-SCRIPT_FILENAME=$(basename "$self")
 cd $(dirname $0)
-source functions.sh
+source jangbi_it.sh
 echo -e "${ORANGE}" # https://patorjk.com/software/taag/#p=display&f=3D-ASCII&t=JANGBI
 echo '    ___  ________  ________   ________  ________  ___     ';
 echo '   |\  \|\   __  \|\   ___  \|\   ____\|\   __  \|\  \    ';
@@ -17,7 +16,7 @@ echo -e '                                           ' "${NORMAL}"
 usage() {
   #header
   ## shellcheck disable=SC2046
-  printf "Usage: %s %s [options]" "${CYAN}" "${SCRIPT_FILENAME}${NORMAL}"
+  printf "Usage: %s %s [options]" "${CYAN}" "$(basename "${BASH_SOURCE[0]}")${NORMAL}"
   echo
   echo "  bootstraping scripts for jangbi system"
   echo

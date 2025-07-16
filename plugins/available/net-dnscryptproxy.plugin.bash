@@ -101,7 +101,7 @@ function __net-dnscryptproxy_configapply {
 
 function __net-dnscryptproxy_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz || log_error "${DMNNAME} download failed."
+    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux_*.tar.gz || log_error "${DMNNAME} download failed."
     return 0
 }
 

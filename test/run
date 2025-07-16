@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
-test_directory=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-bats_executable="./bats/bats-core/bin/bats"
+test_directory="$(cd "$(dirname "$0")" && pwd)"
+bats_executable="${test_directory}/../vendor/bash-it/test_lib/bats-core/bin/bats"
 
 # Locate ourselves for easy reference.
-export MAIN_JANGBI_IT_DIR="${test_directory%/*}"
-export MAIN_JANGBI_IT_GITDIR="../.git"
+export MAIN_BASH_IT_DIR="${test_directory%/*}"
+export MAIN_BASH_IT_GITDIR="${MAIN_BASH_IT_DIR}/.git"
+
+# Make sure BATS is available:
+pushd ../vendor/bash-it
+git submodule init && git submodule update
+popd
 
 # Warn user that tests run from the current git HEAD
 if ! git diff --quiet; then
