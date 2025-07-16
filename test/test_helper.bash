@@ -43,7 +43,7 @@ function common_setup_file() {
 	# This sets up a local test fixture, i.e. a completely fresh and isolated Bash-it directory. This is done to avoid messing with your own Bash-it source directory.
 	git --git-dir="${MAIN_BASH_IT_GITDIR?}" worktree add --detach "${BASH_IT}"
 
-	load "${BASH_IT?}/vendor/bash-it/vendor/github.com/erichs/composure/composure.sh"
+	load "${PWD}/../vendor/bash-it/vendor/github.com/erichs/composure/composure.sh"
 	# support 'plumbing' metadata
 	cite _about _param _example _group _author _version
 	cite about-alias about-plugin about-completion
@@ -57,11 +57,14 @@ function common_setup_file() {
 function setup_libs() {
 	local lib
 	# Use a loop to allow convenient short-circuiting for some test files
-	for lib in "log" "utilities" "helpers" "search" "colors" "preview" "preexec" "history" "command_duration"; do
-		load "${BASH_IT?}/lib/${lib}.bash" || return
+	tmpit=${BASH_IT}
+	BASH_IT="${PWD}/../vendor/bash-it"
+	for lib in "log" "utilities" "helpers" "search" "colors" "preview" "preexec" "history" "command_duration"; do # 
+		load "${BASH_IT}/lib/${lib}.bash" || return
 		# shellcheck disable=SC2015 # short-circuit if we've reached the requested library
 		[[ "${lib}" == "${1:-}" ]] && return 0 || true
 	done
+	BASH_IT="${tmpit}"
 	return 0
 }
 
