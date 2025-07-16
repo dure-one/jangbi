@@ -116,5 +116,6 @@ function teardown() {
 
 function teardown_file() {
 	# This only serves to clean metadata from the real git repo.
-	git --git-dir="${MAIN_BASH_IT_GITDIR?}" worktree remove -f "${BASH_IT?}"
+	# git --git-dir="${MAIN_BASH_IT_GITDIR?}" worktree remove -f "${BASH_IT?}"
+	rm -rf /opt/jangbi/.git/worktrees/-bash_it*
 }
