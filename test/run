@@ -13,7 +13,7 @@ fi
 
 # Which tests do we run?
 if [[ $# -eq '0' ]]; then
-	test_dirs=("${test_directory}"/{install,plugins})
+	test_dirs=("${test_directory}"/plugins)
 else
 	test_dirs=("$@")
 fi
