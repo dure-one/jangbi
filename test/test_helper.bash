@@ -7,7 +7,7 @@ function setup_file() {
 function common_setup_file() {
 	# export *everything* to subshells, needed to support tests
 	set -a
-
+	
 	# Locate ourselves for easy reference.
 	TEST_MAIN_DIR="${MAIN_JANGBI_IT_DIR:-/opt/jangbi}/test"
 	TEST_DEPS_DIR="${MAIN_JANGBI_IT_DIR:-${TEST_MAIN_DIR}}/bats"
