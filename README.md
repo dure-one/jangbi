@@ -53,11 +53,20 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 - additional package download(dure.pkgs.list)
 
 ## Installation
-- any bookworm distributions
+- on any bookworm distributions
 
 ```bash
+# clone repository
 $ git clone https://github.com/dure-one/jangbi.git
-$ git submodule init && git submodule update --depth 1
+
+# copy .config.gateway.sample to .config file
+$ cp .config.gateway .config
+
+# edit on/of settings
+$ nano .config
+
+# run configurator
+$ ./init.sh
 ```
 
 ### Default Network Settings

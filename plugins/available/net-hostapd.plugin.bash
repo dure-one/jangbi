@@ -150,6 +150,12 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
 
 function __net-hostapd_run {
     log_debug "Running ${DMNNAME}..."
+
+    # detect enabled/available wlan interface
+    if [[ -z ${JB_WLANINF} ]]; then
+        log_error "JB_WLANINF variable is not set. Please set it to your wlan interface."
+        return 0
+    fi
     pidof hostapd | xargs kill -9 2>/dev/null
     systemd-run -r hostapd /etc/hostapd/hostapd.conf -f /var/log/hostapd.log
     pidof hostapd && return 0 || return 1

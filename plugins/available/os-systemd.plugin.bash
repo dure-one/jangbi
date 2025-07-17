@@ -67,7 +67,7 @@ function __os-systemd_install { # 0 - disable completely, 1 - full systemd, 2 - 
 function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1 - full systemd(netplan), 2 - only journald(ifupdown)
     log_debug "Starting os-systemd disable completely(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
     if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
-        apt purge -yq alsa-utils figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
+        apt purge -yq alsa-utils v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
     # disable systemd services
@@ -86,7 +86,7 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && apt install -qy isc-dhcp-client ifupdown iproute2
+    apt install -qy isc-dhcp-client ifupdown iproute2
 
     systemctl enable networking.service
 }
@@ -94,7 +94,7 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
 function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd, 2 - only journald
     log_debug "Starting os-systemd only journald(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
     if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
-        apt purge -yq alsa-utils figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
+        apt purge -yq alsa-utilsv v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
     # disable systemd services
@@ -111,14 +111,14 @@ function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && apt install -qy isc-dhcp-client ifupdown iproute2
+    apt install -qy isc-dhcp-client ifupdown iproute2
     systemctl enable networking.service
 }
 
 function __os-systemd_full_systemd { # 0 - disable completely, 1 - full systemd, 2 - only journald
     log_debug "Starting os-systemd full systemd(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
     if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
-        apt purge -yq figlet toilet toilet-fonts v4l-utils v4l2loopback-dkms v4l2loopback-utils
+        apt purge -yq v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
     __os-systemd_uninstall
@@ -143,8 +143,7 @@ function __os-systemd_uninstall {
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-timesyncd") -lt 1 ]] && apt install -qy systemd-timesyncd systemd-resolved rsyslog netplan.io iproute2
-
+    apt install -qy systemd-timesyncd systemd-resolved rsyslog netplan.io iproute2
 }
 
 function __os-systemd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
