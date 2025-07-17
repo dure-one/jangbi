@@ -723,18 +723,21 @@ poor firewalla alternatives with iptables and dnsmasq on top of armbian/dietpi/d
 <li>client : being selected on a single network interface.</li>
 </ul>
 <h4 id="gateway-modeblacklist-mode">Gateway Mode(Blacklist Mode)<a class="headerlink" href="#gateway-modeblacklist-mode" title="Permanent link">¤</a></h4>
-<p>traditional nat gateway with iptables(nft).
-* dns/dhcp/dnsblock : dnsmasq
-* block ip : ipsum -&gt; iptables, darkstat -&gt; cutcdn -&gt; iptables
-* block dns : steven blacklist -&gt; dnsmasq
-* (todo) remote gateway management app : buha app
-* (todo) cumulate logs in timeseries db : suzip app</p>
+<p>traditional nat gateway with iptables(nft).</p>
+<ul>
+<li>dns/dhcp/dnsblock : dnsmasq</li>
+<li>block ip : ipset -&gt; iptables, darkstat -&gt; cutcdn -&gt; iptables</li>
+<li>block dns : steven blacklist -&gt; dnsmasq</li>
+<li>(todo) remote gateway management app : buha app</li>
+</ul>
 <h4 id="wstunnel-modewhitelist-mode">WStunnel Mode(Whitelist Mode)<a class="headerlink" href="#wstunnel-modewhitelist-mode" title="Permanent link">¤</a></h4>
-<p>without nat routing, client only connect to wstunnel to outside. normal internet disconnected for client.
-* dhcp, dns service with dnsmasq
-* firewall with iptables
-* block dns with dnsmasq
-* socks5 proxy with wstunnel</p>
+<p>without nat routing, client only connect to wstunnel to outside. normal internet disconnected for client.</p>
+<ul>
+<li>dhcp, dns service with dnsmasq</li>
+<li>firewall with iptables</li>
+<li>block dns with dnsmasq</li>
+<li>socks5 proxy with wstunnel</li>
+</ul>
 <h2 id="prerequisite">Prerequisite<a class="headerlink" href="#prerequisite" title="Permanent link">¤</a></h2>
 <ul>
 <li>armbian/debian/dietpi compatible host</li>
@@ -744,10 +747,23 @@ poor firewalla alternatives with iptables and dnsmasq on top of armbian/dietpi/d
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
 <ul>
-<li>any bookworm distributions</li>
+<li>on any bookworm distributions</li>
 </ul>
-<div class="language-bash highlight"><pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git
-$<span class="w"> </span>git<span class="w"> </span>submodule<span class="w"> </span>init<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># clone repository</span>
+$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git
+
+<span class="c1"># copy .config.gateway.sample to .config file</span>
+$<span class="w"> </span>cp<span class="w"> </span>.config.gateway<span class="w"> </span>.config
+
+<span class="c1"># check interface name</span>
+<span class="c1"># consider which interface is for WAN, LAN, WLAN</span>
+$<span class="w"> </span>ip<span class="w"> </span>a
+
+<span class="c1"># edit settings, add interface name on WAN, LAN, WLAN</span>
+$<span class="w"> </span>nano<span class="w"> </span>.config
+
+<span class="c1"># run configurator</span>
+$<span class="w"> </span>./init.sh
 </code></pre></div>
 <h3 id="default-network-settings">Default Network Settings<a class="headerlink" href="#default-network-settings" title="Permanent link">¤</a></h3>
 <ul>
