@@ -1,6 +1,0 @@
-[submodule "vendor/bash-it"]
-	path = vendor/bash-it
-	url = https://github.com/Bash-it/bash-it.git
-[submodule "vendor/slib"]
-	path = vendor/slib
-	url = https://github.com/virtualmin/slib.git

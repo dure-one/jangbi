@@ -53,10 +53,12 @@ without nat routing, client only connect to wstunnel to outside. normal internet
 - additional package download(dure.pkgs.list)
 
 ## Installation
-- Writing .config : boot live iso and planning by writing .config file
-- Img Writing : write OS img to sdcard
-- Patch : run embed.sh to embed init script to sdcard(build.sh output to image file)
-- Use
+- any bookworm distributions
+
+```bash
+$ git clone https://github.com/dure-one/jangbi.git
+$ git submodule init && git submodule update --depth 1
+```
 
 ### Default Network Settings
 * single ethernet or wifi interface : client mode
