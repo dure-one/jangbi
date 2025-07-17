@@ -145,13 +145,13 @@ function __net-wstunnel_run { # run socks proxy $NET
     if [[ -z ${laninf} && -z ${wlaninf} ]]; then
         listenip="127.0.0.1"
     elif [[ -n ${laninf} && -n ${wlaninf} ]]; then
-        listenip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
+        listenip=$(_get_ip_of_infmark "LAN")
         [[ -z ${listenip} ]] && listenip="127.0.0.1"
     elif [[ -n ${laninf} ]]; then
-        listenip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
+        listenip=$(_get_ip_of_infmark "LAN")
         [[ -z ${listenip} ]] && listenip="127.0.0.1"
     elif [[ -n ${wlaninf} ]]; then
-        listenip=$(cat "/proc/net/arp"|grep "${wlaninf}"|awk '{print $1}')
+        listenip=$(_get_ip_of_infmark "WLAN")
         [[ -z ${listenip} ]] && listenip="127.0.0.1"
     else
         listenip="127.0.0.1"
@@ -165,7 +165,7 @@ function __net-wstunnel_run { # run socks proxy $NET
     # ws proxy only
     systemd-run -r wstunnel server wss://"${listenip}":38080
     # socks proxy on top
-    # wstunnel client -L socks5://${ip_addr}:38888 --connection-min-idle 5 wss://${ip_addr}:38080  &
+    [[ ${RUN_SOCKS5PROXY} = 1 ]] && systemd-run -r wstunnel client -L socks5://${listenip}:38888 --connection-min-idle 5 wss://${listenip}:38080
 
     pidof wstunnel && return 0 || \
         log_error "wstunnel failed to run." && return 1

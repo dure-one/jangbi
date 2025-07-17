@@ -220,15 +220,12 @@ function __net-iptables_build {
     nft flush ruleset
 
     # GET VARs
-    local waninf laninf wlaninf wanip lanip wlanip
-    waninf=$(_trim_string ${JB_WANINF})
-    laninf=$(_trim_string ${JB_LANINF})
-    wlaninf=$(_trim_string ${JB_WLANINF})
-    wanip=$(cat "/proc/net/arp"|grep "${waninf}"|awk '{print $1}')
+    local wanip lanip wlanip
+    wanip=$(_get_ip_of_infmark "WAN")
     [[ -z ${wanip} ]] && wanip="127.0.0.1"
-    lanip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
+    lanip=$(_get_ip_of_infmark "LAN")
     [[ -z ${lanip} ]] && lanip="127.0.0.1"
-    wlanip=$(cat "/proc/net/arp"|grep "${wlaninf}"|awk '{print $1}')
+    wlanip=$(_get_ip_of_infmark "WLAN")
     [[ -z ${wlanip} ]] && wlanip="127.0.0.1"
     
     #
@@ -244,15 +241,15 @@ function __net-iptables_build {
     [[ ${IPTABLES_ARPALLINFS} -gt 0 ]] && __net-iptables_mangle_all_both_arpallinfs
 
     # Base Rules
-    if [[ -n ${NFTABLES_OVERRIDE} ]]; then # NFTABLES_OVERRIDE ON
-        echo "${NFTABLES_OVERRIDE}" > /tmp/nftables_override.conf
-        if ! nft -c -f /tmp/nftables_override.conf; then # on error
-            echo "ERROR: \$NFTABLES_OVERRIDE has error."
+    if [[ -n ${IPTABLES_OVERRIDE} ]]; then # IPTABLES_OVERRIDE ON
+        echo "${IPTABLES_OVERRIDE}" > /tmp/iptables_override.conf
+        if ! iptables-restore /tmp/iptables_override.conf; then # on error
+            echo "ERROR: \$IPTABLES_OVERRIDE has error."
             return 1
         else # on success
-            nft -f /tmp/nftables_override.conf
+            iptables-restore /tmp/iptables_override.conf
         fi
-        rm /tmp/nftables_override.conf
+        rm /tmp/iptables_override.conf
     else # NFTABLES_OVERRIDE OFF
         if [[ ${DISABLE_IPV6} -gt 0 ]]; then # disable ipv6
             iptables-restore /etc/iptables/rules-ipv4.iptables
@@ -290,28 +287,17 @@ function __net-iptables_build {
 
     # PORT FORWARDING WAN->LAN
     # IPTABLES_PORTFORWARD="8090:192.168.0.1:8090,8010:192.168.0.1:8010"
-    if [[ ${#IPTABLES_PORTFORWARD} -gt 0 ]]; then
-        IFS=$',' read -d "" -ra forwardsinfo <<< "${IPTABLES_PORTFORWARD}" # split
-        for((j=0;j<${#forwardsinfo[@]};j++)){
-            IFS=$':' read -d "" -ra forwardinfo <<< "${forwardsinfo[j]}" # split
-            if [[ ${#forwardinfo[@]} -eq 3 ]]; then
-                local wanport=${forwardinfo[0]}
-                local lanip=${forwardinfo[1]}
-                local lanport=${forwardinfo[2]}
-                log_debug "iptables_nat_ext_both_portforward"
-                __net-iptables_nat_ext_both_portforward "${waninf}" "${wanport}" "${lanip}" "${lanport}"  # waninf wanport lanip lanport
-            fi
-        }
-    fi
+    log_debug "iptables_nat_ext_both_portforward"
+    [[ ${#IPTABLES_PORTFORWARD[@]} -gt 0 ]] && __net-iptables_nat_ext_both_portforward
 
     # DMZ SETTINGS WAN->HOST
     # IPTABLES_DMZ="192.168.0.1" IPTABLES_SUPERDMZ=1
     log_debug "iptables_nat_ext_both_dmzsdmz"
-    [[ ${IPTABLES_DMZ} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz "${waninf}" "${laninf}" "${DMZIP}" # waninf laninf dmzip sdmz
+    [[ ${#IPTABLES_DMZ[@]} -gt 0 ]] && __net-iptables_nat_ext_both_dmzsdmz
 
     # MASQUERADE WAN->NET
     # IPTABLES_MASQ="LAN<WAN,LAN1<WAN"
-    if [[ -n ${IPTABLES_MASQ} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
+    if [[ -n ${IPTABLES_MASQ} ]]; then
         IFS=$',' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
             local frominf="" toinf="" fromnet="" tonet=""
@@ -375,8 +361,10 @@ function __net-iptables_build {
     # nft --check --file /tmp/iptables/nftables.conf
     # IPTABLES_SNAT="LAN<WAN,LAN1<WAN"
     # [[ ${IPTABLES_SNAT} -gt 0 ]] && __net-iptables_filternat_all_both_snat # laninf lannet waninf wanip
-    [[ -f "/tmp/iptables/nftables.conf" ]] && nft list ruleset > /tmp/iptables/nftables.conf
-    [[ ! -f "/tmp/iptables/nftables.conf" ]] && nft list ruleset > /tmp/nftables.conf
+    iptables-save > /tmp/iptables/iptables.iptables
+    nft list ruleset > /tmp/iptables/nftables.conf
+
+    log_debug "iptables build done."
     return 0
 }
 
@@ -528,7 +516,7 @@ function __net-iptables_mangle_all_both_limitmss {
     local mss="536:65535" # port range
 
     IPTABLE="PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss "${mss}" -m comment --comment ${funcname} -j DROP"
-    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I $IPTABLE
+    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
 }
 
 # Filter/NAT Forward/Postrouting Masqurade
@@ -573,14 +561,14 @@ function __net-iptables_filternat_all_both_masquerade {
 #}
 
 # DMZ - after portforward, SDMZ - prior to portforward
-# IPTABLES_DMZ="DMZ" IPTABLES_SUPERDMZ=1
+# IPTABLES_DMZ="192.68.79.10" IPTABLES_SUPERDMZ=1
 function __net-iptables_nat_ext_both_dmzsdmz {
     local funcname waninf laninf dmzip sdmz
-    funcname="neb_portforward"
-    waninf=$(_trim_string "$1")
-    laninf=$(_trim_string "$2")
-    dmzip=$(_trim_string "$3")
-    sdmz=$(_trim_string "${4:0}")
+    funcname="neb_dmzsdmz"
+    waninf=$(_get_inf_of_infmark "WAN")
+    laninf=$(_get_inf_of_infmark "LAN")
+    dmzip=$(_trim_string "${IPTABLES_DMZ}")
+    sdmz=$(_trim_string "${IPTABLES_SUPERDMZ}")
 
     [[ ${#waninf} -lt 1 ]] && log_error "${funcname}: waninf is not set" && return 1
     [[ ${#laninf} -lt 1 ]] && log_error "${funcname}: laninf is not set" && return 1
@@ -590,40 +578,55 @@ function __net-iptables_nat_ext_both_dmzsdmz {
     local ruleaddoverinsert="-A"
     [[ ${sdmz} -eq "1" ]] && ruleaddoverinsert="-I"
     # dmz input rule1
-    IPTABLE="INPUT -p ALL -i ${laninf} -d ${dmzip} -j ACCEPT -m comment -comment ${funcname}_dmzinput"
-    iptables -t filter -S | grep "${funcname}_dmzinput" || iptables -t filter ${ruleaddoverinsert} $IPTABLE
+    IPTABLE="INPUT -p ALL -i ${laninf} -d ${dmzip} -j ACCEPT -m comment --comment ${funcname}_dmzinput"
+    log_debug "${IPTABLE}"
+    iptables -t filter -S | grep "${funcname}_dmzinput" || iptables -t filter ${ruleaddoverinsert} ${IPTABLE}
     # dmz filter forward network
-    IPTABLE="FORWARD -i ${laninf} -o ${waninf} -j ACCEPT -m comment -comment ${funcname}_dmznetforward1"
-    iptables -t filter -S | grep "${funcname}_dmznetforward1" || iptables -t filter ${ruleaddoverinsert} $IPTABLE
-    IPTABLE="FORWARD -i ${waninf} -o ${laninf} -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment -comment ${funcname}_dmznetforward2"
-    iptables -t filter -S | grep "${funcname}_dmznetforward2" || iptables -t filter ${ruleaddoverinsert} $IPTABLE
+    IPTABLE="FORWARD -i ${laninf} -o ${waninf} -j ACCEPT -m comment --comment ${funcname}_dmznetforward1"
+    log_debug "${IPTABLE}"
+    iptables -t filter -S | grep "${funcname}_dmznetforward1" || iptables -t filter ${ruleaddoverinsert} ${IPTABLE}
+    log_debug "${IPTABLE}"
+    IPTABLE="FORWARD -i ${waninf} -o ${laninf} -m state --state ESTABLISHED,RELATED -j ACCEPT -m comment --comment ${funcname}_dmznetforward2"
+    iptables -t filter -S | grep "${funcname}_dmznetforward2" || iptables -t filter ${ruleaddoverinsert} ${IPTABLE}
     # dmz filter forward host
-    IPTABLE="FORWARD -p ALL -i ${waninf} -o ${laninf} -d ${dmzip} -j allowed -m comment -comment ${funcname}_dmzhostforward"
-    iptables -t filter -S | grep "${funcname}_dmzhostforward" || iptables -t filter ${ruleaddoverinsert} $IPTABLE
+    IPTABLE="FORWARD -p ALL -i ${waninf} -o ${laninf} -d ${dmzip} -j ACCEPT -m comment --comment ${funcname}_dmzhostforward"
+    log_debug "${IPTABLE}"
+    iptables -t filter -S | grep "${funcname}_dmzhostforward" || iptables -t filter ${ruleaddoverinsert} ${IPTABLE}
     # nat rule
-    IPTABLE="PREROUTING -p ALL -i ${waninf} -j DNAT --to-destination ${dmzip} -m comment -comment ${funcname}_dmznat"
-    iptables -t nat -S | grep "${funcname}_dmznat" || iptables -t nat ${ruleaddoverinsert} $IPTABLE
+    IPTABLE="PREROUTING -p ALL -i ${waninf} -j DNAT --to-destination ${dmzip} -m comment --comment ${funcname}_dmznat"
+    log_debug "${IPTABLE}"
+    iptables -t nat -S | grep "${funcname}_dmznat" || iptables -t nat ${ruleaddoverinsert} ${IPTABLE}
 }
 
 # NAT Prerouting/Postrouting Port forward
-# IPTABLES_PORTFORWARD="" waninf wanport lanip lanport
+# IPTABLES_PORTFORWARD="8090:192.168.79.11:8090,8010:192.168.79.12:8010"
 function __net-iptables_nat_ext_both_portforward {
-    local funcname waninf wanport lanip lanport
-    local funcname="neb_portforward"
-    waninf=$(_trim_string "$1")
-    wanport=$(_trim_string "$2")
-    lanip=$(_trim_string "$3")
-    lanport=$(_trim_string "$4")
+    local pforwards funcname wanip wanport lanip lanport
+    funcname="neb_portforward"
+    pforwards=${IPTABLES_PORTFORWARD}
+    wanip=$(_get_ip_of_infmark "WAN")
+    
+    [[ ${#pforwards} -lt 1 ]] && log_error "${funcname}: \"${pforwards}\" is not set" && return 1
+    log_debug "${pforwards}"
 
-    [[ ${#waninf} -lt 1 ]] && log_error "${funcname}: waninf is not set" && return 1
-    [[ ${#wanport} -lt 1 ]] && log_error "${funcname}: wanport is not set" && return 1
-    [[ ${#lanip} -lt 1 ]] && log_error "${funcname}: lanip is not set" && return 1
-    [[ ${#lanport} -lt 1 ]] && log_error "${funcname}: lanport is not set" && return 1
+    IFS=$',' read -d "" -ra pforw <<< "${pforwards}" # split
+    for((j=0;j<${#pforw[@]};j++)){
+        IFS=$':' read -d "" -ra target <<< "${pforw[j]}" # split
+        wanport=${target[0]}
+        lanip=${target[1]}
+        lanport=${target[2]}
 
-    IPTABLE="PREROUTING -p tcp --dst ${waninf} --dport ${wanport} -j DNAT --to-destination ${lanip}:${lanport} -m comment -comment ${funcname}_pre"
-    iptables -t nat -S | grep "${funcname}_pre" || iptables -t nat -A $IPTABLE
-    IPTABLE="POSTROUTING -p tcp --dst ${lanip} --dport ${lanport} -j SNAT --to ${wanip} -m comment -comment ${funcname}_post"
-    iptables -t nat -S | grep "${funcname}_post" || iptables -t nat -I $IPTABLE
+        [[ ${#wanip} -lt 1 ]] && log_error "${funcname}: wanip is not set" && return 1
+        [[ ${#wanport} -lt 1 ]] && log_error "${funcname}: wanport is not set" && return 1
+        [[ ${#lanip} -lt 1 ]] && log_error "${funcname}: lanip is not set" && return 1
+        [[ ${#lanport} -lt 1 ]] && log_error "${funcname}: lanport is not set" && return 1
+        IPTABLE="PREROUTING -p tcp --dst ${wanip} --dport ${wanport} -j DNAT --to-destination ${lanip}:${lanport} -m comment --comment ${funcname}_pre"
+        log_debug "${IPTABLE}"
+        iptables -t nat -S | grep "${funcname}_pre" || iptables -t nat -A ${IPTABLE}
+        IPTABLE="POSTROUTING -p tcp --dst ${lanip} --dport ${lanport} -j SNAT --to ${wanip} -m comment --comment ${funcname}_post"
+        log_debug "${IPTABLE}"
+        iptables -t nat -S | grep "${funcname}_post" || iptables -t nat -I ${IPTABLE}
+    }
     # iptables -t nat -F customipchain > /dev/null || iptables -t nat -N customipchain
     # iptables -t nat -A PREROUTING -i eth1 -j customipchain
     # iptables -t nat -A customipchain -p tcp -m multiport --dports 27015:27030 -j DNAT --to-destination 192.168.0.5
@@ -646,13 +649,13 @@ function __net-iptables_raw_all_both_dropinvtcpflag {
     IPTABLE6="PREROUTING -p tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -m comment --comment ${funcname}6 -j "$ITFPA
     IPTABLE7="PREROUTING -p tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,PSH,ACK,URG -m comment --comment ${funcname}7 -j "$ITFPA
 
-    iptables -t raw -S | grep "${funcname}1" || iptables -t raw -A $IPTABLE1
-    iptables -t raw -S | grep "${funcname}2" || iptables -t raw -A $IPTABLE2
-    iptables -t raw -S | grep "${funcname}3" || iptables -t raw -A $IPTABLE3
-    iptables -t raw -S | grep "${funcname}4" || iptables -t raw -A $IPTABLE4
-    iptables -t raw -S | grep "${funcname}5" || iptables -t raw -A $IPTABLE5
-    iptables -t raw -S | grep "${funcname}6" || iptables -t raw -A $IPTABLE6
-    iptables -t raw -S | grep "${funcname}7" || iptables -t raw -A $IPTABLE7
+    iptables -t raw -S | grep "${funcname}1" || iptables -t raw -A ${IPTABLE1}
+    iptables -t raw -S | grep "${funcname}2" || iptables -t raw -A ${IPTABLE2}
+    iptables -t raw -S | grep "${funcname}3" || iptables -t raw -A ${IPTABLE3}
+    iptables -t raw -S | grep "${funcname}4" || iptables -t raw -A ${IPTABLE4}
+    iptables -t raw -S | grep "${funcname}5" || iptables -t raw -A ${IPTABLE5}
+    iptables -t raw -S | grep "${funcname}6" || iptables -t raw -A ${IPTABLE6}
+    iptables -t raw -S | grep "${funcname}7" || iptables -t raw -A ${IPTABLE7}
 }
 
 # Filter Input : Drop IPs from blacklist

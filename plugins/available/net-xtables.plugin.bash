@@ -1,3 +1,362 @@
+# shellcheck shell=bash
+cite about-plugin a
+about-plugin 'xtables install configurations.'
+
+function net-xtables {
+    about 'xtables install configurations'
+    group 'postnet'
+    runtype 'systemd'
+    deps  'net-iptables'
+    param '1: command'
+    param '2: params'
+    example '$ net-xtables subcommand'
+    local PKGNAME="xtables"
+    local DMNNAME="net-xtables"
+    BASH_IT_LOG_PREFIX="net-xtables: "
+
+    if [[ -z ${JB_VARS} ]]; then
+        _load_config
+        _root_only
+        _distname_check
+    fi
+
+    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+        __net-xtables_install "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
+        __net-xtables_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-xtables_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __net-xtables_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __net-xtables_configapply "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-xtables_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-xtables_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
+        __net-xtables_build "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "watch" ]]; then
+        __net-xtables_watch "$2"
+    else
+        __net-xtables_help
+    fi
+}  
+
+function __net-xtables_help {
+    echo -e "Usage: net-xtables [COMMAND] [profile]\n"
+    echo -e "Helper to xtables install configurations.\n"
+    echo -e "Commands:\n"
+    echo "   help                       Show this help message"
+    echo "   install                    Install os xtables"
+    echo "   uninstall                  Uninstall installed xtables"
+    echo "   configgen                  Generates xtables configs"
+    echo "   configapply                Apply Configs"
+    echo "   download                   download pkg files to pkg dir"
+    echo "   check                      Check vars available"
+    echo "   run                        do task at bootup"
+    echo "   build                      rebuild xtables by configs"
+    echo "   watch                      watch nftables"
+}
+
+function __net-xtables_install {
+    log_debug "Installing ${DMNNAME}..."
+    export DEBIAN_FRONTEND=noninteractive
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+        apt install -qy xtables-addon-common || log_error "${DMNNAME} online install failed."
+    else
+        local filepat="./pkgs/${PKGNAME}*.deb"
+        local pkglist="./pkgs/${PKGNAME}.pkgs"
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
+        pkgslist_down=()
+        while read -r pkg; do
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+        done < "${pkglist}"
+        # shellcheck disable=SC2068
+        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
+    fi
+    if ! __net-xtables_configgen; then # if gen config is different do apply
+        __net-xtables_configapply
+        rm -rf /tmp/xtables
+    fi
+}
+
+function __net-xtables_configgen { # config generator and diff
+    log_debug "Generating config for ${DMNNAME}..."
+    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
+    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
+    # cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
+    
+    # generate rulesfile without putting in iptables.
+    touch "/tmp/${PKGNAME}/rulesfile.conf"
+    __net-xtables_build "/tmp/${PKGNAME}/rulesfile.conf"
+
+    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
+    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
+}
+
+function __net-xtables_configapply {
+    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
+    log_debug "Applying config ${DMNNAME}..."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
+    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
+    patch -i /tmp/${PKGNAME}.diff
+    popd 1>/dev/null 2>&1
+    rm /tmp/${PKGNAME}.diff
+    return 0
+}
+
+function __net-xtables_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs "xtables-addon-common" || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __net-xtables_uninstall { 
+    log_debug "Uninstalling ${DMNNAME}..."
+}
+
+function __net-xtables_disable { 
+    log_debug "Disabling ${DMNNAME}..."
+}
+
+function __net-xtables_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+    running_status=0
+    log_debug "Checking ${DMNNAME}..."
+    # check cmd exists
+    [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
+        log_error "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
+    # check global variable
+    [[ -z ${RUN_NET_XTABLES} ]] && \
+        log_error "RUN_NET_XTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_XTABLES} != 1 ]] && \
+        log_error "RUN_NET_XTABLES is not enabled." && __net-xtables_disable && [[ $running_status -lt 20 ]] && running_status=20
+    # check package xtables
+    [[ $(dpkg -l|awk '{print $2}'|grep -c xtables-addons-common) -lt 1 ]] && \
+        log_info "xtables-addons-common is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(systemctl status nftables 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+        log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
+
+    return 0
+}
+
+function __net-xtables_run {
+    # this will insert rules to iptables xtables
+    __net-xtables_build
+}
+
+function __net-xtables_watch {
+    watch -n 1 'nft list ruleset |grep -v 0\ drop|grep -v }'
+}
+
+function __net-xtables_build {
+    local RULESFILE
+    RULESFILE=$(_trim_string $1)
+    [[ -z ${RULESFILE} ]] && log_debug "no rulesfile specified. direct insert mode"
+
+    # GET VARs
+    local wanip lanip wlanip
+    wanip=$(_get_ip_of_infmark "WAN")
+    [[ -z ${wanip} ]] && wanip="127.0.0.1"
+    lanip=$(_get_ip_of_infmark "LAN")
+    [[ -z ${lanip} ]] && lanip="127.0.0.1"
+    wlanip=$(_get_ip_of_infmark "WLAN")
+    [[ -z ${wlanip} ]] && wlanip="127.0.0.1"
+
+    #
+    # NET RULES
+    #
+    # XTABLES_CONNLIMIT_PER_IP=100
+    log_debug "xtables_mangle_all_both_conlimitperip"
+    [[ ${XTABLES_CONNLIMIT_PER_IP} -gt 0 ]] && __net-xtables_mangle_all_both_conlimitperip
+    # XTABLES_DROP_INVALID_STATE
+    log_debug "xtables_mangle_all_both_dropinvalidstate"
+    [[ ${XTABLES_DROP_INVALID_STATE} -gt 0 ]] && __net-xtables_mangle_all_both_dropinvalidstate
+    # XTABLES_DROP_NON_SYN
+    log_debug "xtables_mangle_all_both_dropnonsyn"
+    [[ ${XTABLES_DROP_NON_SYN} -gt 0 ]] && __net-xtables_mangle_all_both_dropnonsyn
+    # XTABLES_LIMIT_MSS
+    log_debug "xtables_mangle_all_both_limitmss"
+    [[ ${XTABLES_LIMIT_MSS} -gt 0 ]] && __net-xtables_mangle_all_both_limitmss
+    # XTABLES_GUARD_OVERLOAD
+    log_debug "xtables_raw_all_both_limitudppps"
+    [[ ${XTABLES_GUARD_OVERLOAD} -gt 0 ]] && __net-xtables_raw_all_both_limitudppps
+    # XTABLES_INVALID_TCPFLAG
+    log_debug "xtables_raw_all_both_dropinvtcpflag"
+    [[ ${XTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-xtables_raw_all_both_dropinvtcpflag
+    # XTABLES_GUARD_PORT_SCANNER
+    log_debug "xtables_raw_all_both_portscanner"
+    [[ ${XTABLES_GUARD_PORT_SCANNER} -gt 0 ]] && __net-xtables_raw_all_both_portscanner
+    # XTABLES_CHAOS_PORTS
+    log_debug "xtables_filter_all_both_chaos"
+    [[ ${XTABLES_CHAOS_PORTS} -gt 0 ]] && __net-xtables_filter_all_both_chaos
+    # XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"
+    log_debug "xtables_filter_all_both_delude"
+    [[ ${XTABLES_DELUDE_PORTS} -gt 0 ]] && __net-xtables_filter_all_both_delude
+
+    # XTABLES_SNAT="LAN<WAN|LAN1<WAN"
+    # [[ ${XTABLES_SNAT} -gt 0 ]] && __net-xtables_filternat_all_both_snat # laninf lannet waninf wanip
+    # nft list ruleset > /tmp/xtables/nftables.conf
+    return 0
+}
+
+# MODES : Gateway, Wstunnel, Client
+# TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
+# PREFIX : int/ext/all inc/oug/both contents
+
+# Mangle Prerouting : Ip Connection Limit per IP
+# XTABLES_CONNLIMIT_PER_IP=100
+function __net-xtables_mangle_all_both_conlimitperip {
+    local funcname="xtmab_conlimitperip"
+    local conlimitperip
+    conlimitperip=$(_trim_string "$XTABLES_CONNLIMIT_PER_IP")
+    [[ ${conlimitperip} -lt 1 ]] && log_error "${funcname}: conlimitperip is not set" && return 1
+    [[ -z $conlimitperip ]] && conlimitperip=50
+    
+    IPTABLE="PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP"
+    [[ -z ${RULESFILE} ]] && ( iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -A ${IPTABLE} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-A ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -A ${IPTABLE}" >> "${RULESFILE}" )
+}
+
+# Mangle Prerouting : Drop Invalid State
+# XTABLES_DROP_INVALID_STATE=1
+function __net-xtables_mangle_all_both_dropinvalidstate {
+    local funcname="xtmab_dropinvalidstate"
+
+    IPTABLE="PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP"
+    [[ -z ${RULESFILE} ]] && ( iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-I ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -I ${IPTABLE}" >> "${RULESFILE}" )
+}
+
+# Mangle Prerouting : Drop new non-SYN TCP Packets
+# XTABLES_DROP_NON_SYN=1
+function __net-xtables_mangle_all_both_dropnonsyn {
+    local funcname="xtmab_dropnonsyn"
+
+    IPTABLE="PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP"
+    [[ -z ${RULESFILE} ]] && ( iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-I ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -I ${IPTABLE}" >> "${RULESFILE}" )
+}
+
+# Mangle Prerouting : Limit MSS
+# XTABLES_LIMIT_MSS=1
+function __net-xtables_mangle_all_both_limitmss {
+    local funcname="xtmab_limitmss"
+    local mss="536:65535" # port range
+
+    IPTABLE="PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss "${mss}" -m comment --comment ${funcname} -j DROP"
+    [[ -z ${RULESFILE} ]] && ( iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-I ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -I ${IPTABLE}" >> "${RULESFILE}" )
+}
+
+# Raw Prerouting : Guard Overload Limit UDP PPS
+# XTABLES_GUARD_OVERLOAD=1
+function __net-xtables_raw_all_both_limitudppps {
+    local funcname="xtrab_limitudppps"
+    # Safeguard against CPU overload during amplificated DDoS attacks by limiting DNS/NTP packets per second rate (PPS).
+    # Limited UDP source ports (against amplification
+    local lusp="19,53,123,111,123,137,389,1900,3702,5353"
+
+    IPTABLE="PREROUTING -p udp -m multiport --sports "${lusp}" -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name ${funcname} --hashlimit-above 256/m -m comment --comment ${funcname} -j DROP"
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}" || iptables -t raw -A ${IPTABLE} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE}" >> "${RULESFILE}" )
+}
+
+# Raw Prerouting : Drop Invalid Tcp Flag
+# XTABLES_INVALID_TCPFLAG=1
+function __net-xtables_raw_all_both_dropinvtcpflag {
+    local funcname="xtrab_dropinvtcpflag"
+    # Invalid TCP Flag packet action
+    # Default: DROP
+    local ITFPA="DROP"
+
+    IPTABLE1="PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -m comment --comment ${funcname}1 -j "$ITFPA
+    IPTABLE2="PREROUTING -p tcp --tcp-flags FIN,ACK FIN -m comment --comment ${funcname}2 -j "$ITFPA
+    IPTABLE3="PREROUTING -p tcp --tcp-flags ACK,URG URG -m comment --comment ${funcname}3 -j "$ITFPA
+    IPTABLE4="PREROUTING -p tcp --tcp-flags ACK,FIN FIN -m comment --comment ${funcname}4 -j "$ITFPA
+    IPTABLE5="PREROUTING -p tcp --tcp-flags ACK,PSH PSH -m comment --comment ${funcname}5 -j "$ITFPA
+    IPTABLE6="PREROUTING -p tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -m comment --comment ${funcname}6 -j "$ITFPA
+    IPTABLE7="PREROUTING -p tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,PSH,ACK,URG -m comment --comment ${funcname}7 -j "$ITFPA
+
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}1" || iptables -t raw -A ${IPTABLE1} )
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}2" || iptables -t raw -A ${IPTABLE2} )
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}3" || iptables -t raw -A ${IPTABLE3} )
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}4" || iptables -t raw -A ${IPTABLE4} )
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}5" || iptables -t raw -A ${IPTABLE5} )
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}6" || iptables -t raw -A ${IPTABLE6} )
+    [[ -z ${RULESFILE} ]] && ( iptables -t raw -S | grep "${funcname}7" || iptables -t raw -A ${IPTABLE7} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE1}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE1}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE2}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE2}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE3}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE3}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE4}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE4}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE5}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE5}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE6}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE6}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE7}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE7}" >> "${RULESFILE}" )
+}
+
+# Filter Input : Drop Port Scanner IP
+# XTABLES_GUARD_PORT_SCANNER=1
+function __net-xtables_raw_all_both_portscanner {
+    SETNAME=XTABLES_GUARD_PORT_SCANNER
+    ipset list | grep -q XTABLES_GUARD_PORT_SCANNER || ipset create XTABLES_GUARD_PORT_SCANNER hash:ip family inet hashsize 32768 maxelem 65536 timeout 600
+    ipset list | grep -q XTABLES_GUARD_SCANNED_PORTS || ipset create XTABLES_GUARD_SCANNED_PORTS hash:ip,port family inet hashsize 32768 maxelem 65536 timeout 60
+
+    IPTABLE1='INPUT -m state --state INVALID -m comment --comment XTABLES_GUARD_PORT_SCANNER1 -j DROP'
+    IPTABLE2='INPUT -m state --state NEW -m set ! --match-set XTABLES_GUARD_SCANNED_PORTS src,dst -m hashlimit --hashlimit-above 1/hour --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name XTABLES_GUARD_PORT_SCANNER --hashlimit-htable-expire 10000 -j SET --add-set XTABLES_GUARD_PORT_SCANNER src --exist'
+    IPTABLE3='INPUT -m state --state NEW -m set --match-set XTABLES_GUARD_PORT_SCANNER src -j DROP'
+    IPTABLE4='INPUT -m state --state NEW -j SET --add-set XTABLES_GUARD_SCANNED_PORTS src,dst'
+
+    [[ -z ${RULESFILE} ]] && ( iptables -S | grep "XTABLES_GUARD_PORT_SCANNER1" || iptables -A ${IPTABLE1} )
+    [[ -z ${RULESFILE} ]] && ( iptables -S | grep -- "-A ${IPTABLE}2" || iptables -A ${IPTABLE2} )
+    [[ -z ${RULESFILE} ]] && ( iptables -S | grep -- "-A ${IPTABLE}3" || iptables -A ${IPTABLE3} )
+    [[ -z ${RULESFILE} ]] && ( iptables -S | grep -- "-A ${IPTABLE}4" || iptables -A ${IPTABLE4} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE1}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE1}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE2}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE2}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE3}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE3}" >> "${RULESFILE}" )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE4}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE4}" >> "${RULESFILE}" )
+}
+
+# Filter Input : CHAOS responses to confuse attackers
+# XTABLES_CHAOS_PORTS="22,23,80,443"
+function __net-xtables_filter_all_both_chaos {
+    local funcname="xtfab_chaos"
+    local chaos_ports
+    chaos_ports=$(_trim_string "${XTABLES_CHAOS_PORTS}")
+    [[ ${#chaos_ports} -lt 1 ]] && log_error "${funcname}: chaos_ports is not set" && return 1
+    
+    # Apply CHAOS to specified ports
+    IFS=',' read -ra ports <<< "${chaos_ports}"
+    for port in "${ports[@]}"; do
+        IPTABLE="INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j CHAOS --tarpit" #  --delude
+        [[ -z ${RULESFILE} ]] && ( iptables -S | grep "${funcname}_${port}" || iptables -A ${IPTABLE} )
+        [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE}" >> "${RULESFILE}" )
+    done
+}
+
+# Filter Input : DELUDE responses to make closed ports appear open
+# XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"
+function __net-xtables_filter_all_both_delude {
+    local funcname="fab_delude"
+    local delude_ports
+    delude_ports=$(_trim_string "${XTABLES_DELUDE_PORTS}")
+    [[ ${#delude_ports} -lt 1 ]] && log_error "${funcname}: delude_ports is not set" && return 1
+    
+    # Apply DELUDE to specified ports
+    IFS=',' read -ra ports <<< "${delude_ports}"
+    for port in "${ports[@]}"; do
+        IPTABLE="INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j DELUDE"
+        [[ -z ${RULESFILE} ]] && ( iptables -S | grep "${funcname}_${port}" || iptables -A ${IPTABLE} )
+        [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE}" >> "${RULESFILE}" )
+    done
+}
+
+
+complete -F _blank net-xtables
+
 # https://codeberg.org/jengelh/xtables-addons
 # xtables-common - shared libs
 # xtables-dkms - kernel modules
@@ -447,322 +806,3 @@
 # # Bandwidth monitoring per application
 # >iptables -A OUTPUT -m owner --uid-owner 1001 -m quota2 --name "app1001_bandwidth" --quota 2147483648 -j ACCEPT
 # >iptables -A OUTPUT -m owner --uid-owner 1001 -m quota2 --name "app1001_bandwidth" --quota 0 -j LOG --log-prefix "APP1001_LIMIT: "
-
-# shellcheck shell=bash
-cite about-plugin a
-about-plugin 'xtables install configurations.'
-
-function net-xtables {
-    about 'xtables install configurations'
-    group 'postnet'
-    runtype 'systemd'
-    deps  'net-iptables'
-    param '1: command'
-    param '2: params'
-    example '$ net-xtables subcommand'
-    local PKGNAME="xtables"
-    local DMNNAME="net-xtables"
-
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config
-        _root_only
-        _distname_check
-    fi
-
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
-        __net-xtables_install "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
-        __net-xtables_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-xtables_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
-        __net-xtables_configgen "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
-        __net-xtables_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-xtables_download "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-xtables_run "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
-        __net-xtables_build "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "watch" ]]; then
-        __net-xtables_watch "$2"
-    else
-        __net-xtables_help
-    fi
-}  
-
-function __net-xtables_help {
-    echo -e "Usage: net-xtables [COMMAND] [profile]\n"
-    echo -e "Helper to xtables install configurations.\n"
-    echo -e "Commands:\n"
-    echo "   help                       Show this help message"
-    echo "   install                    Install os xtables"
-    echo "   uninstall                  Uninstall installed xtables"
-    echo "   configgen                  Configs Generator"
-    echo "   configapply                Apply Configs"
-    echo "   download                   download pkg files to pkg dir"
-    echo "   check                      Check vars available"
-    echo "   run                        do task at bootup"
-    echo "   build                      rebuild xtables by configs"
-    echo "   watch                      watch nftables"
-}
-
-function __net-xtables_install {
-    log_debug "Installing ${DMNNAME}..."
-    export DEBIAN_FRONTEND=noninteractive
-    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
-        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy xtables-addon-common || log_error "${DMNNAME} online install failed."
-    else
-        local filepat="./pkgs/${PKGNAME}*.deb"
-        local pkglist="./pkgs/${PKGNAME}.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
-        pkgslist_down=()
-        while read -r pkg; do
-            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
-        done < "${pkglist}"
-        # shellcheck disable=SC2068
-        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
-    fi
-    if ! __net-xtables_configgen; then # if gen config is different do apply
-        __net-xtables_configapply
-        rm -rf /tmp/xtables
-    fi
-}
-
-function __net-xtables_configgen { # config generator and diff
-    log_debug "Generating config for ${DMNNAME}..."
-    rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
-    mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
-    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
-
-    diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
-    [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
-}
-
-function __net-xtables_configapply {
-    [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
-    log_debug "Applying config ${DMNNAME}..."
-    local dtnow=$(date +%Y%m%d_%H%M%S)
-    [[ -d "/etc/${PKGNAME}" ]] && cp -rf "/etc/${PKGNAME}" "/etc/.${PKGNAME}.${dtnow}"
-    pushd /etc/${PKGNAME} 1>/dev/null 2>&1
-    patch -i /tmp/${PKGNAME}.diff
-    popd 1>/dev/null 2>&1
-    rm /tmp/${PKGNAME}.diff
-    return 0
-}
-
-function __net-xtables_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs "xtables-addon-common" || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __net-xtables_uninstall { 
-    log_debug "Uninstalling ${DMNNAME}..."
-}
-
-function __net-xtables_disable { 
-    log_debug "Disabling ${DMNNAME}..."
-    :
-}
-
-function __net-xtables_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-    running_status=0
-    log_debug "Checking ${DMNNAME}..."
-    # check cmd exists
-    [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
-        log_error "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
-    # check global variable
-    [[ -z ${RUN_NET_XTABLES} ]] && \
-        log_error "RUN_NET_XTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_NET_XTABLES} != 1 ]] && \
-        log_error "RUN_NET_XTABLES is not enabled." && __net-xtables_disable && [[ $running_status -lt 20 ]] && running_status=20
-    # check package xtables
-    [[ $(dpkg -l|awk '{print $2}'|grep -c xtables-addons-common) -lt 1 ]] && \
-        log_info "xtables-addons-common is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-    # check if running
-    [[ $(systemctl status nftables 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
-        log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
-
-    return 0
-}
-
-function __net-xtables_run {
-    __net-xtables_build
-}
-
-function __net-xtables_watch {
-    watch -n 1 'nft list ruleset |grep -v 0\ drop|grep -v }'
-}
-
-function __net-xtables_build {
-    # read config apply
-    # EMPTY RULES
-    # nft flush ruleset
-
-    # GET VARs
-    local waninf laninf wlaninf wanip lanip wlanip
-    waninf=$(_trim_string ${JB_WANINF})
-    laninf=$(_trim_string ${JB_LANINF})
-    wlaninf=$(_trim_string ${JB_WLANINF})
-    wanip=$(cat "/proc/net/arp"|grep "${waninf}"|awk '{print $1}')
-    [[ -z ${wanip} ]] && wanip="127.0.0.1"
-    lanip=$(cat "/proc/net/arp"|grep "${laninf}"|awk '{print $1}')
-    [[ -z ${lanip} ]] && lanip="127.0.0.1"
-    wlanip=$(cat "/proc/net/arp"|grep "${wlaninf}"|awk '{print $1}')
-    [[ -z ${wlanip} ]] && wlanip="127.0.0.1"
-
-    #
-    # NET RULES
-    #
-    # XTABLES_CONNLIMIT_PER_IP=100
-    log_debug "xtables_mangle_all_both_conlimitperip"
-    [[ ${XTABLES_CONNLIMIT_PER_IP} -gt 0 ]] && __net-xtables_mangle_all_both_conlimitperip
-    # XTABLES_DROP_INVALID_STATE
-    log_debug "xtables_mangle_all_both_dropinvalidstate"
-    [[ ${XTABLES_DROP_INVALID_STATE} -gt 0 ]] && __net-xtables_mangle_all_both_dropinvalidstate
-    # XTABLES_DROP_NON_SYN
-    log_debug "xtables_mangle_all_both_dropnonsyn"
-    [[ ${XTABLES_DROP_NON_SYN} -gt 0 ]] && __net-xtables_mangle_all_both_dropnonsyn
-    # XTABLES_LIMIT_MSS
-    log_debug "xtables_mangle_all_both_limitmss"
-    [[ ${XTABLES_LIMIT_MSS} -gt 0 ]] && __net-xtables_mangle_all_both_limitmss
-    # XTABLES_GUARD_OVERLOAD
-    log_debug "xtables_raw_all_both_limitudppps"
-    [[ ${XTABLES_GUARD_OVERLOAD} -gt 0 ]] && __net-xtables_raw_all_both_limitudppps
-    # XTABLES_INVALID_TCPFLAG
-    log_debug "xtables_raw_all_both_dropinvtcpflag"
-    [[ ${XTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-xtables_raw_all_both_dropinvtcpflag
-    # XTABLES_GUARD_PORT_SCANNER
-    log_debug "xtables_raw_all_both_portscanner"
-    [[ ${XTABLES_GUARD_PORT_SCANNER} -gt 0 ]] && __net-xtables_raw_all_both_portscanner
-    # XTABLES_GUARD_PORT_SCANNER
-    log_debug "xtables_filter_all_both_chaos"
-    [[ ${XTABLES_CHAOS_PORTS} -gt 0 ]] && __net-xtables_filter_all_both_chaos
-
-    # XTABLES_SNAT="LAN<WAN|LAN1<WAN"
-    # [[ ${XTABLES_SNAT} -gt 0 ]] && __net-xtables_filternat_all_both_snat # laninf lannet waninf wanip
-    nft list ruleset > /tmp/xtables/nftables.conf
-    return 0
-}
-
-# MODES : Gateway, Wstunnel, Client
-# TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
-# PREFIX : int/ext/all inc/oug/both contents
-
-# Mangle Prerouting : Ip Connection Limit per IP
-# XTABLES_CONNLIMIT_PER_IP=100
-function __net-xtables_mangle_all_both_conlimitperip {
-    local funcname="xtmab_conlimitperip"
-    local conlimitperip
-    conlimitperip=$(_trim_string "$XTABLES_CONNLIMIT_PER_IP")
-    [[ ${conlimitperip} -lt 1 ]] && log_error "${funcname}: conlimitperip is not set" && return 1
-    [[ -z $conlimitperip ]] && conlimitperip=50
-    
-    IPTABLE="PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP"
-    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -A ${IPTABLE}
-}
-
-# Mangle Prerouting : Drop Invalid State
-# XTABLES_DROP_INVALID_STATE=1
-function __net-xtables_mangle_all_both_dropinvalidstate {
-    local funcname="mab_dropinvalidstate"
-
-    IPTABLE="PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP"
-    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
-}
-
-# Mangle Prerouting : Drop new non-SYN TCP Packets
-# XTABLES_DROP_NON_SYN=1
-function __net-xtables_mangle_all_both_dropnonsyn {
-    local funcname="mab_dropnonsyn"
-
-    IPTABLE="PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP"
-    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
-}
-
-# Mangle Prerouting : Limit MSS
-# XTABLES_LIMIT_MSS=1
-function __net-xtables_mangle_all_both_limitmss {
-    local funcname="xtmab_limitmss"
-    local mss="536:65535" # port range
-
-    IPTABLE="PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss "${mss}" -m comment --comment ${funcname} -j DROP"
-    iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
-}
-
-# Raw Prerouting : Guard Overload Limit UDP PPS
-# XTABLES_GUARD_OVERLOAD=1
-function __net-xtables_raw_all_both_limitudppps {
-    local funcname="xtrab_limitudppps"
-    # Safeguard against CPU overload during amplificated DDoS attacks by limiting DNS/NTP packets per second rate (PPS).
-    # Limited UDP source ports (against amplification
-    local lusp="19,53,123,111,123,137,389,1900,3702,5353"
-
-    IPTABLE="PREROUTING -p udp -m multiport --sports "${lusp}" -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name ${funcname} --hashlimit-above 256/m -m comment --comment ${funcname} -j DROP"
-    iptables -t raw -S | grep "${funcname}" || iptables -t raw -A ${IPTABLE}
-}
-
-# Raw Prerouting : Drop Invalid Tcp Flag
-# XTABLES_INVALID_TCPFLAG=1
-function __net-xtables_raw_all_both_dropinvtcpflag {
-    local funcname="xtrab_dropinvtcpflag"
-    # Invalid TCP Flag packet action
-    # Default: DROP
-    local ITFPA="DROP"
-
-    IPTABLE1="PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -m comment --comment ${funcname}1 -j "$ITFPA
-    IPTABLE2="PREROUTING -p tcp --tcp-flags FIN,ACK FIN -m comment --comment ${funcname}2 -j "$ITFPA
-    IPTABLE3="PREROUTING -p tcp --tcp-flags ACK,URG URG -m comment --comment ${funcname}3 -j "$ITFPA
-    IPTABLE4="PREROUTING -p tcp --tcp-flags ACK,FIN FIN -m comment --comment ${funcname}4 -j "$ITFPA
-    IPTABLE5="PREROUTING -p tcp --tcp-flags ACK,PSH PSH -m comment --comment ${funcname}5 -j "$ITFPA
-    IPTABLE6="PREROUTING -p tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG NONE -m comment --comment ${funcname}6 -j "$ITFPA
-    IPTABLE7="PREROUTING -p tcp --tcp-flags FIN,SYN,RST,PSH,ACK,URG FIN,SYN,RST,PSH,ACK,URG -m comment --comment ${funcname}7 -j "$ITFPA
-
-    iptables -t raw -S | grep "${funcname}1" || iptables -t raw -A ${IPTABLE}1
-    iptables -t raw -S | grep "${funcname}2" || iptables -t raw -A ${IPTABLE}2
-    iptables -t raw -S | grep "${funcname}3" || iptables -t raw -A ${IPTABLE}3
-    iptables -t raw -S | grep "${funcname}4" || iptables -t raw -A ${IPTABLE}4
-    iptables -t raw -S | grep "${funcname}5" || iptables -t raw -A ${IPTABLE}5
-    iptables -t raw -S | grep "${funcname}6" || iptables -t raw -A ${IPTABLE}6
-    iptables -t raw -S | grep "${funcname}7" || iptables -t raw -A ${IPTABLE}7
-}
-
-# Filter Input : Drop Port Scanner IP
-# XTABLES_GUARD_PORT_SCANNER=1
-function __net-xtables_raw_all_both_portscanner {
-    SETNAME=XTABLES_GUARD_PORT_SCANNER
-    ipset list | grep -q XTABLES_GUARD_PORT_SCANNER || ipset create XTABLES_GUARD_PORT_SCANNER hash:ip family inet hashsize 32768 maxelem 65536 timeout 600
-    ipset list | grep -q XTABLES_GUARD_SCANNED_PORTS || ipset create XTABLES_GUARD_SCANNED_PORTS hash:ip,port family inet hashsize 32768 maxelem 65536 timeout 60
-
-    IPTABLE1='INPUT -m state --state INVALID -m comment --comment XTABLES_GUARD_PORT_SCANNER1 -j DROP'
-    IPTABLE2='INPUT -m state --state NEW -m set ! --match-set XTABLES_GUARD_SCANNED_PORTS src,dst -m hashlimit --hashlimit-above 1/hour --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name XTABLES_GUARD_PORT_SCANNER --hashlimit-htable-expire 10000 -j SET --add-set XTABLES_GUARD_PORT_SCANNER src --exist'
-    IPTABLE3='INPUT -m state --state NEW -m set --match-set XTABLES_GUARD_PORT_SCANNER src -j DROP'
-    IPTABLE4='INPUT -m state --state NEW -j SET --add-set XTABLES_GUARD_SCANNED_PORTS src,dst'
-
-    iptables -S | grep "XTABLES_GUARD_PORT_SCANNER1" || iptables -A ${IPTABLE}1
-    iptables -S | grep -- "-A ${IPTABLE}2" || iptables -A ${IPTABLE}2
-    iptables -S | grep -- "-A ${IPTABLE}3" || iptables -A ${IPTABLE}3
-    iptables -S | grep -- "-A ${IPTABLE}4" || iptables -A ${IPTABLE}4
-}
-
-# Filter Input : CHAOS responses to confuse attackers
-# XTABLES_CHAOS_PORTS="22,23,80,443"
-function __net-xtables_filter_all_both_chaos {
-    local funcname="xtfab_chaos"
-    local chaos_ports
-    chaos_ports=$(_trim_string "${XTABLES_CHAOS_PORTS}")
-    [[ ${#chaos_ports} -lt 1 ]] && log_error "${funcname}: chaos_ports is not set" && return 1
-    
-    # Apply CHAOS to specified ports
-    IFS=',' read -ra ports <<< "${chaos_ports}"
-    for port in "${ports[@]}"; do
-        IPTABLE="INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j CHAOS --delude --tarpit"
-        iptables -S | grep "${funcname}_${port}" || iptables -A ${IPTABLE}
-    done
-}
-
-complete -F _blank net-xtables

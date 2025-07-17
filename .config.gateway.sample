@@ -7,8 +7,6 @@ FORCE_INSTALL=0
 # device config
 DIST_DEVICE="orangepi5-plus"
 DIST_NAME="armbian_bookworm_aarch64"
-DIST_OS_IMG="Armbian_25.2.1_Orangepi5-plus_bookworm_vendor_6.1.99_minimal.img.xz"
-DIST_PKG_IMG="debian-12.9.0-arm64-DVD-1.iso"
 
 #  os config
 CONF_TIMEZONE="Asia/Seoul"
@@ -48,7 +46,7 @@ SSHD_ADDR="192.168.79.1"
 
 # iptables
 RUN_NET_IPTABLES=1
-NFTABLES_OVERRIDE=""
+IPTABLES_OVERRIDE=""
 # net rules
 IPTABLES_BLACK_NAMELIST="https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
 # host rules
@@ -58,11 +56,15 @@ IPTABLES_PORTFORWARD=""
 IPTABLES_DMZ=""
 IPTABLES_SUPERDMZ=0
 
+RUN_NET_XTABLES=0
+
 # gateway apps
 RUN_NET_HOSTAPD=1
 RUN_NET_DNSMASQ=1
 DNSMASQ_BLACKLIST_URLS="https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 RUN_NET_DNSCRYPTPROXY=1
-RUN_NET_WSTUNNEL=1
-RUN_SOCKS5PROXY=1
-
+RUN_NET_DARKSTAT=1
+RUN_OS_REDIS=1
+RUN_OS_MINMON=1
+RUN_NET_WSTUNNEL=0
+RUN_SOCKS5PROXY=0

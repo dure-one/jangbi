@@ -58,7 +58,6 @@ function __os-vector_install {
     local filepat="./pkgs/vector*.deb"
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-vector_download
     apt install -yq ./pkgs/vector*.deb ./pkgs/sysdig*.deb
-    touch /var/log/vector.log
     mkdir -p /var/log/vector 1>/dev/null 2>&1
 
     if ! __os-vector_configgen; then # if gen config is different do apply
@@ -122,8 +121,8 @@ function __os-vector_check { # running_status: 0 running, 1 installed, running_s
     [[ $(dpkg -l|awk '{print $2}'|grep -c "vector") -lt 1 ]] && \
         log_info "vector is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof vector) -lt 1 ]] && \
-        log_info "vector is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(pidof vector) -gt 0 ]] && \
+        log_info "vector is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

@@ -33,14 +33,15 @@ poor firewalla alternatives with iptables and dnsmasq on top of armbian/dietpi/d
 
 #### Gateway Mode(Blacklist Mode)
 traditional nat gateway with iptables(nft).
+
 * dns/dhcp/dnsblock : dnsmasq
-* block ip : ipsum -> iptables, darkstat -> cutcdn -> iptables
+* block ip : ipset -> iptables, darkstat -> cutcdn -> iptables
 * block dns : steven blacklist -> dnsmasq
 * (todo) remote gateway management app : buha app
-* (todo) cumulate logs in timeseries db : suzip app
 
 #### WStunnel Mode(Whitelist Mode)
 without nat routing, client only connect to wstunnel to outside. normal internet disconnected for client.
+
 * dhcp, dns service with dnsmasq
 * firewall with iptables
 * block dns with dnsmasq
@@ -62,7 +63,11 @@ $ git clone https://github.com/dure-one/jangbi.git
 # copy .config.gateway.sample to .config file
 $ cp .config.gateway .config
 
-# edit on/of settings
+# check interface name
+# consider which interface is for WAN, LAN, WLAN
+$ ip a
+
+# edit settings, add interface name on WAN, LAN, WLAN
 $ nano .config
 
 # run configurator

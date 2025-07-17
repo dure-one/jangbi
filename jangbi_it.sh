@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
+# BASH_IT_LOG_LEVEL=7
 BASH_IT_LOG_PREFIX="core: main: "
 : "${BASH_IT:=${BASH_SOURCE%/*}}"
 : "${BASH_IT_CUSTOM:=${BASH_IT}/custom}"
@@ -17,6 +18,12 @@ _bootstrap_composure() {
 }
 _bootstrap_composure
 
+# check if bash-it is loaded function
+# bashit_loaded=0
+# if _is_function "bash-it"; then
+#   bashit_loaded=1
+# fi
+
 # support 'plumbing' metadata
 cite _about _param _example _group _author _version _deps _runtype
 cite about-alias about-plugin about-completion
@@ -30,7 +37,11 @@ source vendor/slib/slib.sh
 # We need to load logging module early in order to be able to log
 source vendor/bash-it/lib/log.bash
 unset log
-log_info()      { printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}"; }
+
+log_and_tee() {
+  echo "$@"| tee -a "${BASH_IT_LOG_FILE}"
+} # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+log_info()      { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}"; }
 log_success()   { printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}"; }
 log_fatal()     { printf '%b%s%b\n' "${echo_background_red:-}" "$@" "${echo_normal:-}"; }
 log_error()     { _log_error "$@"; }
@@ -42,7 +53,40 @@ BASH_IT="${PWD}/vendor/bash-it"
 # libraries, but skip appearance (themes) for now
 source vendor/bash-it/lib/command_duration.bash
 source vendor/bash-it/lib/helpers.bash
-unset bash-it reload_completion reload_aliases
+
+function _help-plugins() {
+	_about 'summarize all functions defined by enabled jangbi-it plugins'
+	_group 'lib'
+
+	local grouplist func group about gfile defn
+	# display a brief progress message...
+	printf '%s' 'please wait, building help...'
+	grouplist="$(mktemp -t grouplist.XXXXXX)"
+	while read -ra func; do
+		defn="$(declare -f "${func[2]}")"
+		group="$(metafor group <<< "$defn")"
+		if [[ -z "$group" ]]; then
+			group='misc'
+		fi
+		about="$(metafor about <<< "$defn")"
+		_letterpress "$about" "${func[2]}" >> "$grouplist.$group"
+		echo "$grouplist.$group" >> "$grouplist"
+	done < <(declare -F)
+	# clear progress message
+	printf '\r%s\n' '                              '
+	while IFS= read -r gfile; do
+		printf '%s\n' "${gfile##*.}:"
+		cat "$gfile"
+		printf '\n'
+		rm "$gfile" 2> /dev/null
+	done < <(sort -u "$grouplist") | less
+	rm "$grouplist" 2> /dev/null
+}
+
+unset bash-it reload_completion reload_aliases # [[ ${bashit_loaded} = 0 ]] && 
+# shellcheck disable=SC2139
+alias reload_plugins="$(_make_reload_alias plugin plugins)"
+
 function jangbi-it() {
 	about 'Jangbi-it help and maintenance'
 	param '1: verb [one of: help | show | enable | disable | doctor | restart | reload ] '
@@ -141,6 +185,112 @@ _get_rip(){
   else
     echo "127.0.0.1"
   fi
+}
+
+_get_inf_of_infmark(){
+  local inf=$1 tarinf
+  if [[ ${inf,,} =~ ^(wan|lan|wlan|lan[0-9])$ ]]; then
+    :
+  else
+    log_error "Interface ${inf} is not valid. Please set correct interface name in config."
+    return 1
+  fi
+  if [[ ${inf,,} == "wan" ]]; then
+    echo "${JB_WANINF}"
+  elif [[ ${inf,,} == "lan" ]]; then
+    echo "${JB_LANINF}"
+  elif [[ ${inf,,} == "wlan" ]]; then
+    echo "${JB_WLANINF}"
+  elif [[ ${inf,,} == "lan0" ]]; then
+    echo "${JB_LAN0INF}"
+  elif [[ ${inf,,} == "lan1" ]]; then
+    echo "${JB_LAN1INF}"
+  elif [[ ${inf,,} == "lan2" ]]; then
+    echo "${JB_LAN2INF}"
+  elif [[ ${inf,,} == "lan3" ]]; then
+    echo "${JB_LAN3INF}"
+  elif [[ ${inf,,} == "lan4" ]]; then
+    echo "${JB_LAN4INF}"
+  elif [[ ${inf,,} == "lan5" ]]; then
+    echo "${JB_LAN5INF}"
+  elif [[ ${inf,,} == "lan6" ]]; then
+    echo "${JB_LAN6INF}"
+  elif [[ ${inf,,} == "lan7" ]]; then
+    echo "${JB_LAN7INF}"
+  elif [[ ${inf,,} == "lan8" ]]; then
+    echo "${JB_LAN8INF}"
+  else
+    echo "${JB_LAN9INF}"
+  fi
+  return 0
+}
+
+_get_ip_of_infmark(){
+  local inf=$1 tarinf
+  if [[ ${inf,,} =~ ^(wan|lan|wlan|lan[0-9])$ ]]; then
+    :
+  else
+    log_error "Interface ${inf} is not valid. Please set correct interface name in config."
+    return 1
+  fi
+
+  if [[ ${inf,,} == "wan" ]]; then
+    tarinf=${JB_WANINF}
+  elif [[ ${inf,,} == "lan" ]]; then
+    tarinf=${JB_LANINF}
+  elif [[ ${inf,,} == "wlan" ]]; then
+    tarinf=${JB_WLANINF}
+  elif [[ ${inf,,} == "lan0" ]]; then
+    tarinf=${JB_LAN0INF}
+  elif [[ ${inf,,} == "lan1" ]]; then
+    tarinf=${JB_LAN1INF}
+  elif [[ ${inf,,} == "lan2" ]]; then
+    tarinf=${JB_LAN2INF}
+  elif [[ ${inf,,} == "lan3" ]]; then
+    tarinf=${JB_LAN3INF}
+  elif [[ ${inf,,} == "lan4" ]]; then
+    tarinf=${JB_LAN4INF}
+  elif [[ ${inf,,} == "lan5" ]]; then
+    tarinf=${JB_LAN5INF}
+  elif [[ ${inf,,} == "lan6" ]]; then
+    tarinf=${JB_LAN6INF}
+  elif [[ ${inf,,} == "lan7" ]]; then
+    tarinf=${JB_LAN7INF}
+  elif [[ ${inf,,} == "lan8" ]]; then
+    tarinf=${JB_LAN8INF}
+  else
+    tarinf=${JB_LAN9INF}
+  fi
+  if [[ ! ${tarinf} ]]; then
+    log_error "Interface ${inf}/${tarinf} is not set. Please set correct interface name in config."
+    return 1
+  fi
+  _get_ip_of_inf "${tarinf}"
+  return 0
+}
+
+_get_ip_of_inf(){
+  local tarinf
+  tarinf=${1,,}
+  if [[ -n ${!tarinf} ]]; then
+    log_error "Interface ${tarinf} is not set. Please set correct interface name in config."
+    return 1
+  fi
+  if [[ $(ip link show "${tarinf}" 2>/dev/null|grep -c "state UP") -lt 1 ]]; then
+    log_error "Interface ${tarinf} is not up."
+    return 1
+  fi
+  if [[ $(ip addr show "${tarinf}" 2>/dev/null|grep -c "inet ") -lt 1 ]]; then
+    log_error "Interface ${tarinf} has no IP address."
+    return 1
+  fi
+  local infip=$(ip addr show "${tarinf}" |grep inet |grep -v inet6 |awk '{print $2}'|cut -d'/' -f1)
+  if [[ -z ${infip} ]]; then
+    log_error "Interface ${tarinf} has no IP address."
+    return 1
+  fi
+  echo "${infip}"
+  return 0
 }
 
 _trim_string() { # Usage: _trim_string "   example   string    "

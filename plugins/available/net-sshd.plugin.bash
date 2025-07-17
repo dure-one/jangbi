@@ -90,11 +90,12 @@ function __net-sshd_configgen { # config generator and diff
     if [[ $(grep -c "JB_SSHD_CONFIG" < "/tmp/sshd/sshd_config") -lt 1 ]]; then
         [[ ${SSHD_PORT} -gt 0 ]] && ssh_config="${ssh_config}\nPort ${SSHD_PORT} # JB_SSHD_PORT" && sed -i "s|Port=.*||g" /tmp/sshd/sshd_config
         if [[ ${#SSHD_INFS[@]} -gt 0 ]]; then
-            IFS=$'|' read -d "" -ra ssh_infs <<< "${SSHD_INFS}" # split
+            IFS=$',' read -d "" -ra ssh_infs <<< "${SSHD_INFS}" # split
             for((j=0;j<${#ssh_infs[@]};j++)){
                 __bp_trim_whitespace tinf "${ssh_infs[j]}"
+                infip=$(_get_ip_of_infmark "${tinf}")
+                [[ -z ${tip} ]] && log_error "Interface ${tinf} is not valid. Please set correct interface name in config." && continue
                 echo "Setting ListenAddress for ${tinf}"
-                infip=$(ipcalc-ng "$(_get_rip "${tinf}")"|grep Address:|cut -f2)
                 ssh_config="${ssh_config}\nListenAddress ${infip} # JB_SSHD_INFS" && sed -i "s|ListenAddress=.*||g" /tmp/sshd/sshd_config
             }
         fi

@@ -70,12 +70,8 @@ done
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 # setup slog
-LOGFILE=${LOGFILE:="jangbi.log"}
-LOG_PATH="$LOGFILE"
-RUN_LOG="$LOGFILE"
-RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
-LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
-LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
+BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+BASH_IT_LOG_FILE="jangbi.log"
 
 if [[ -z ${JB_VARS} ]]; then
     _load_config

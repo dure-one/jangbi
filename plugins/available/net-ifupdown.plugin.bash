@@ -503,8 +503,8 @@ function __net-ifupdown_check { # running_status: 0 running, 1 installed, runnin
         log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     log_debug "check networking is running"
-    [[ $(systemctl status networking 2>/dev/null|grep -c "Active") -lt 1 ]] && \
-        log_info "networking(ifupdown) is not running." && [[ $running_status -lt 1 ]] && running_status=1
+    [[ $(systemctl status networking 2>/dev/null|grep -c "active") -gt 0 ]] && \
+        log_info "networking(ifupdown) is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
