@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([6ab297d](https://github.com/dure-one/jangbi/commit/6ab297dd841239bdc6b6203b5077037109433f00) by nikescar).
+- Add changelog automatically ([4ec2b62](https://github.com/dure-one/jangbi/commit/4ec2b626e89459f771e31f6e30e1e6e3c9a5c96b) by nikescar).
 
 ### Fixed
 
+- fix. typos ([aa278b3](https://github.com/dure-one/jangbi/commit/aa278b366d87150946e9a4820c7047665f6ba510) by Woojae, Park).
 - fix. git tree command not working. replace to rm .git/worktress/-bash_it* ([cf3f6c8](https://github.com/dure-one/jangbi/commit/cf3f6c85aafb2cb561e838021e693c2221ba04f5) by Woojae, Park).
 - fix. tests. ([7a61a84](https://github.com/dure-one/jangbi/commit/7a61a8491aaef120b90d2df3a7f2c8a68ccd09da) by Woojae, Park).
 - fix. add tests ([2e35b32](https://github.com/dure-one/jangbi/commit/2e35b322b6e11078c1dd1390fadf6cb1441c7a0a) by Woojae, Park).
