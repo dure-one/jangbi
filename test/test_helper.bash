@@ -82,8 +82,8 @@ function local_teardown() {
 
 function clean_test_fixture() {
 	rm -rf "${BASH_IT_CONFIG?}/enabled"
-	rm -rf "${BASH_IT_CONFIG?}/aliases/enabled"
-	rm -rf "${BASH_IT_CONFIG?}/completion/enabled"
+	# rm -rf "${BASH_IT_CONFIG?}/aliases/enabled"
+	# rm -rf "${BASH_IT_CONFIG?}/completion/enabled"
 	rm -rf "${BASH_IT_CONFIG?}/plugins/enabled"
 
 	rm -rf "${BASH_IT_CONFIG?}/tmp/cache"
@@ -92,8 +92,8 @@ function clean_test_fixture() {
 
 function setup_test_fixture() {
 	mkdir -p "${BASH_IT_CONFIG?}/enabled"
-	mkdir -p "${BASH_IT_CONFIG?}/aliases/enabled"
-	mkdir -p "${BASH_IT_CONFIG?}/completion/enabled"
+	# mkdir -p "${BASH_IT_CONFIG?}/aliases/enabled"
+	# mkdir -p "${BASH_IT_CONFIG?}/completion/enabled"
 	mkdir -p "${BASH_IT_CONFIG?}/plugins/enabled"
 }
 
