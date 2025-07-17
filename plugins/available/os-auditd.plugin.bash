@@ -62,7 +62,7 @@ function __os-auditd_install {
     else
         local filepat="./pkgs/auditd*.deb"
         local pkglist="./pkgs/auditd.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __net-auditd_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __os-auditd_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
@@ -71,24 +71,24 @@ function __os-auditd_install {
         apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
 
-    if ! __net-auditd_configgen; then # if gen config is different do apply
-        __net-auditd_configapply
+    if ! __os-auditd_configgen; then # if gen config is different do apply
+        __os-auditd_configapply
         rm -rf /tmp/${PKGNAME}
     fi
     mkdir -p /var/log/audit
 }
 
-function __net-auditd_configgen { # config generator and diff
+function __os-auditd_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
     mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
     cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
-    __net-auditd_generate_config
+    __os-auditd_generate_config
     diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
     [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
 }
 
-function __net-auditd_generate_config {
+function __os-auditd_generate_config {
     mkdir -p /tmp/auditd
     cp -rf ./configs/auditd/audit.rules  /tmp/auditd/audit.rules
     # auditctl -R /tmp/auditd/audit.rules
@@ -109,7 +109,7 @@ function __net-auditd_generate_config {
     return 0
 }
 
-function __net-auditd_configapply {
+function __os-auditd_configapply {
     [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
@@ -121,9 +121,9 @@ function __net-auditd_configapply {
     return 0
 }
 
-function __net-auditd_download {
+function __os-auditd_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs aide
+    _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
     return 0
 }
 

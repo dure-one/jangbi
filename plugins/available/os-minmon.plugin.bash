@@ -99,8 +99,8 @@ function __os-minmon_configapply {
 }
 
 function __os-minmon_download {
-    log_debug "Downloading ${DMNNAME}..." || log_error "${DMNNAME} download failed."
-    _download_apt_pkgs hostapd 
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
     return 0
 }
 

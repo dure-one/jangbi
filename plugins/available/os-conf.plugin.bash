@@ -93,7 +93,7 @@ function __os-conf_install {
     else
         local filepat="./pkgs/cron*.deb"
         local pkglist="./pkgs/cron.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __net-conf_download
+        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __os-conf_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
@@ -117,7 +117,7 @@ function __os-conf_install {
 
 function __os-conf_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs cron
+    _download_apt_pkgs cron || log_error "${DMNNAME} download failed."
     return 0
 }
 

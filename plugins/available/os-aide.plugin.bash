@@ -30,11 +30,11 @@ function os-aide {
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-aide_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
-        __net-aide_configgen "$2"
+        __os-aide_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
-        __net-aide_configapply "$2"
+        __os-aide_configapply "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-aide_download "$2"
+        __os-aide_download "$2"
     else
         __os-aide_help
     fi
@@ -75,8 +75,8 @@ function __os-aide_install {
         apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
 
-    if ! __net-aide_configgen; then # if gen config is different do apply
-        __net-aide_configapply
+    if ! __os-aide_configgen; then # if gen config is different do apply
+        __os-aide_configapply
         rm -rf /tmp/${PKGNAME}
     fi
 
@@ -84,7 +84,7 @@ function __os-aide_install {
         cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
 }
 
-function __net-aide_configgen { # config generator and diff
+function __os-aide_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
     mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
@@ -93,7 +93,7 @@ function __net-aide_configgen { # config generator and diff
     [[ $(stat -c %s /tmp/${PKGNAME}.diff) = 0 ]] && return 0 || return 1
 }
 
-function __net-aide_configapply {
+function __os-aide_configapply {
     [[ ! -f /tmp/${PKGNAME}.diff ]] && log_error "/tmp/${PKGNAME}.diff file doesnt exist. please run configgen."
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
@@ -105,7 +105,7 @@ function __net-aide_configapply {
     return 0
 }
 
-function __net-aide_download {
+function __os-aide_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
     return 0
@@ -116,11 +116,10 @@ function __os-aide_uninstall {
     apt purge -yq aide
 }
 
-function __net-disable_disable {
+function __os-aide_disable {
     log_debug "Disabling ${DMNNAME}..."
     :
 }
-
 
 function __os-aide_checkpoint {
     log_debug "Make new checkpoint for os-aide."
