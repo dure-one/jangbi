@@ -165,7 +165,11 @@ plugins:
           "Programs": "프로그램"
           "Changelog": "변경 로그"
           "Credits": "크레딧"
-
+          "Contributing": "기여하기"
+          "Code of Conduct": "행동 강령"
+          "License": "라이선스"
+          "Getting Started": "시작하기"
+          
 nav:
   # Korean Tree
   - index.ko.md
