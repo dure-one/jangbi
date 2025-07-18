@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-# BASH_IT_LOG_LEVEL=7
+BASH_IT_LOG_LEVEL=7
 BASH_IT_LOG_PREFIX="core: main: "
-: "${BASH_IT:=${BASH_SOURCE%/*}}"
+: "${BASH_IT:=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 : "${BASH_IT_CUSTOM:=${BASH_IT}/custom}"
 : "${BASH_IT_BASHRC:=${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]}}"
-source vendor/bash-it/vendor/github.com/erichs/composure/composure.sh
+JANGBI_IT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+[[ ${BASH_IT} != ${JANGBI_IT} ]] && BASH_IT_=${BASH_IT}
+BASH_IT="${JANGBI_IT}/vendor/bash-it"
+
+source "${BASH_IT}/vendor/github.com/erichs/composure/composure.sh"
 # regenerate composure keywords
 _composure_keywords ()
 {
@@ -18,12 +22,6 @@ _bootstrap_composure() {
 }
 _bootstrap_composure
 
-# check if bash-it is loaded function
-# bashit_loaded=0
-# if _is_function "bash-it"; then
-#   bashit_loaded=1
-# fi
-
 # support 'plumbing' metadata
 cite _about _param _example _group _author _version _deps _runtype
 cite about-alias about-plugin about-completion
@@ -31,11 +29,11 @@ cite about-alias about-plugin about-completion
 # Declare our end-of-main finishing hook, but don't use `declare`/`typeset`
 _bash_it_library_finalize_hook=()
 
-source vendor/bash-it/lib/colors.bash
+source "${BASH_IT}/lib/colors.bash"
 # convert slib logsystem to bash-it logsystem 
-source vendor/slib/slib.sh
+source "${JANGBI_IT}/vendor/slib/slib.sh"
 # We need to load logging module early in order to be able to log
-source vendor/bash-it/lib/log.bash
+source "${BASH_IT}/lib/log.bash"
 unset log
 
 log_and_tee() {
@@ -48,11 +46,9 @@ log_error()     { _log_error "$@"; }
 log_warning()   { _log_warning "$@"; }
 log_debug()     { _log_debug "$@"; }
 
-# temporaliry change path to vendor path for lib loading
-BASH_IT="${PWD}/vendor/bash-it"
 # libraries, but skip appearance (themes) for now
-source vendor/bash-it/lib/command_duration.bash
-source vendor/bash-it/lib/helpers.bash
+source "${BASH_IT}/lib/command_duration.bash"
+source "${BASH_IT}/lib/helpers.bash"
 
 function _help-plugins() {
 	_about 'summarize all functions defined by enabled jangbi-it plugins'
@@ -83,7 +79,8 @@ function _help-plugins() {
 	rm "$grouplist" 2> /dev/null
 }
 
-unset bash-it reload_completion reload_aliases # [[ ${bashit_loaded} = 0 ]] && 
+# no bash-it env, remove bash-it
+[[ ! ${BASH_IT_} ]] && unset bash-it reload_completion reload_aliases
 # shellcheck disable=SC2139
 alias reload_plugins="$(_make_reload_alias plugin plugins)"
 
@@ -95,6 +92,7 @@ function jangbi-it() {
 	example '$ jangbi-it show plugins'
 	example '$ jangbi-it enable plugin git [tmux]...'
 	example '$ jangbi-it doctor errors|warnings|all'
+  BASH_IT="${JANGBI_IT}"
 	local verb=${1:-}
 	shift
 	local component=${1:-}
@@ -159,18 +157,16 @@ function jangbi-it() {
 		"$func" "$@"
 	fi
 }
-source vendor/bash-it/lib/preexec.bash
-source vendor/bash-it/lib/utilities.bash
 
-# switching to current directory
-BASH_IT="${PWD}"
+source "${BASH_IT}/lib/preexec.bash"
+source "${BASH_IT}/lib/utilities.bash"
 
 # Load the global "enabled" directory, then enabled aliases, completion, plugins
 # "_bash_it_main_file_type" param is empty so that files get sourced in glob order
 for _bash_it_main_file_type in "" "plugins"; do
 	BASH_IT_LOG_PREFIX="core: reloader: "
 	# shellcheck disable=SC2140
-	source "${BASH_IT}/reloader.bash" ${_bash_it_main_file_type:+"skip" "$_bash_it_main_file_type"}
+	source "${JANGBI_IT}/reloader.bash" ${_bash_it_main_file_type:+"skip" "$_bash_it_main_file_type"}
 	BASH_IT_LOG_PREFIX="core: main: "
 done
 
@@ -178,6 +174,9 @@ for _bash_it_library_finalize_f in "${_bash_it_library_finalize_hook[@]:-}"; do
 	eval "${_bash_it_library_finalize_f?}" # Use `eval` to achieve the same behavior as `$PROMPT_COMMAND`.
 done
 unset "${!_bash_it_library_finalize_@}" "${!_bash_it_main_file_@}"
+
+# recover bash_it var
+[[ ${BASH_IT_} ]] && BASH_IT=${BASH_IT_}
 
 _get_rip(){
   if [[ $(ip addr show dev "${1}" |grep inet|wc -l) -gt 1 ]]; then
@@ -302,17 +301,17 @@ _trim_string() { # Usage: _trim_string "   example   string    "
 _load_config() { # Load config including parent config ex) _load_config .config
   local conf=".config"
   JB_VARS=""
-  echo "${BASH_IT}/${conf}" 
-  log_debug "${BASH_IT}/${conf}" 
-  [[ ! -f "${BASH_IT}/${conf}" ]] && log_fatal "config file ${BASH_IT}/${conf} not exist." && exit 1
+  echo "${JANGBI_IT}/${conf}" 
+  log_debug "${JANGBI_IT}/${conf}" 
+  [[ ! -f "${JANGBI_IT}/${conf}" ]] && log_fatal "config file ${JANGBI_IT}/${conf} not exist." && _safe_exit 1
   stack=()
   pushstk() { stack+=("$@"); }
   # track config to top
   while [[ -n ${conf} ]] ;
   do
     pushstk ${conf//\"/}
-    if [[ $(cat ${BASH_IT}/${conf//\"/}|grep -c ^PARENT_CONFIG) -gt 0 ]]; then
-      conf=$(cat ${BASH_IT}/${conf//\"/}|grep PARENT_CONFIG|cut -d= -f2)
+    if [[ $(cat ${JANGBI_IT}/${conf//\"/}|grep -c ^PARENT_CONFIG) -gt 0 ]]; then
+      conf=$(cat ${JANGBI_IT}/${conf//\"/}|grep PARENT_CONFIG|cut -d= -f2)
     else
       conf=
     fi
@@ -322,8 +321,8 @@ _load_config() { # Load config including parent config ex) _load_config .config
   for((j=${#stack[@]};j>0;j--)){
     conf=${stack[j-1]}
     # echo "config file(${conf}) is loading..."
-    [[ -f ${BASH_IT}/${conf} ]] && source ${BASH_IT}/${conf}
-    JB_VARS="${JB_VARS} $(cat ${BASH_IT}/${conf}|grep -v '^#'|grep .|cut -d= -f1)"
+    [[ -f ${JANGBI_IT}/${conf} ]] && source ${JANGBI_IT}/${conf}
+    JB_VARS="${JB_VARS} $(cat ${JANGBI_IT}/${conf}|grep -v '^#'|grep .|cut -d= -f1)"
     JB_CFILES="${JB_CFILES} ${conf}"
   }
   JB_VARS="${JB_VARS} JB_CFILES"
@@ -344,10 +343,21 @@ _checkbin() {
   fi
 }
 
+_safe_exit() {
+  local exit_code=${1:-1}
+  if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # Script is executed directly
+    exit "$exit_code"
+  else
+    # Script is sourced
+    return "$exit_code"
+  fi
+}
+
 _root_only() {
   if [[ $EUID -ne 0 ]]; then
     log_fatal "This script must be run as root"
-    exit 1
+    _safe_exit 1
   fi
 }
 
@@ -356,7 +366,7 @@ _distname_check() {
 
   if [[ ${DIST_NAME,,} != ${sysosinfo,,} ]]; then
     log_fatal "DIST_NAME=${DIST_NAME} on  config is different system value(${sysosinfo})"
-    exit 1
+    _safe_exit 1
   else
   log_debug "Running system(${sysosinfo}) match DIST_NAME config(${DIST_NAME})."
   fi
