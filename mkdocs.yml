@@ -169,7 +169,9 @@ plugins:
           "Code of Conduct": "행동 강령"
           "License": "라이선스"
           "Getting Started": "시작하기"
+          "Gettingstarted": "시작하기"
           "Plugins": "플러그인"
+          "jangbi": "장비"
           
 nav:
   # Korean Tree

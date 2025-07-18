@@ -6,4 +6,5 @@ title: License
 
 ```
 --8<-- "LICENSE-MIT"
+--8<-- "LICENSE-APACHE2.0"
 ```
