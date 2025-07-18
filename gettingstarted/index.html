@@ -1441,8 +1441,7 @@ nano<span class="w"> </span>.config
 <h3 id="4-network-interface-configuration">4. Network Interface Configuration<a class="headerlink" href="#4-network-interface-configuration" title="Permanent link">¤</a></h3>
 <p>Identify your network interfaces and update the configuration:</p>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># List available interfaces</span>
-ip<span class="w"> </span>link<span class="w"> </span>show
-<span class="o">(</span>jangbi<span class="o">)</span><span class="w"> </span>root@lap:/opt/jangbi#<span class="w"> </span>ip<span class="w"> </span>link<span class="w"> </span>show
+$<span class="w"> </span>ip<span class="w"> </span>link<span class="w"> </span>show
 <span class="m">1</span>:<span class="w"> </span>lo:<span class="w"> </span>&lt;LOOPBACK,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">65536</span><span class="w"> </span>qdisc<span class="w"> </span>noqueue<span class="w"> </span>state<span class="w"> </span>UNKNOWN<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
 <span class="w">    </span>link/loopback<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span><span class="m">00</span>:00:00:00:00:00
 <span class="m">2</span>:<span class="w"> </span>eth0:<span class="w"> </span>&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>fq_codel<span class="w"> </span>state<span class="w"> </span>UP<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
@@ -1452,6 +1451,7 @@ ip<span class="w"> </span>link<span class="w"> </span>show
 <span class="m">4</span>:<span class="w"> </span>wlan0:<span class="w"> </span>&lt;BROADCAST,MULTICAST&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>noop<span class="w"> </span>state<span class="w"> </span>DOWN<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
 <span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
 
+$<span class="w"> </span>nano<span class="w"> </span>.config
 <span class="c1"># Example interface assignments for gateway mode:</span>
 <span class="nv">JB_WANINF</span><span class="o">=</span>eth0<span class="w">      </span><span class="c1"># WAN interface (internet connection)</span>
 <span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
