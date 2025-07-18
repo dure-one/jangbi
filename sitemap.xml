@@ -61,23 +61,95 @@
          <lastmod>2025-07-18</lastmod>
     </url>
     <url>
-         <loc>https://dure.one/jangbi/packages/anydnsdqy/</loc>
-         <lastmod>2025-07-18</lastmod>
-    </url>
-    <url>
-         <loc>https://dure.one/jangbi/packages/auditd/</loc>
-         <lastmod>2025-07-18</lastmod>
-    </url>
-    <url>
-         <loc>https://dure.one/jangbi/packages/dnsmasq/</loc>
-         <lastmod>2025-07-18</lastmod>
-    </url>
-    <url>
          <loc>https://dure.one/jangbi/packages/index.ko/</loc>
          <lastmod>2025-07-18</lastmod>
     </url>
     <url>
-         <loc>https://dure.one/jangbi/packages/systemd/</loc>
+         <loc>https://dure.one/jangbi/packages/net-darkstat/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-dnscryptproxy/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-dnsmasq/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-hostapd/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-ifupdown/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-iptables/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-knockd/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-netplan/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-sshd/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-wstunnel/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/net-xtables/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-aide/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-auditd/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-conf/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-disablebins/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-firmware/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-kparams/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-minmon/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-redis/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-sysctl/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-systemd/</loc>
+         <lastmod>2025-07-18</lastmod>
+    </url>
+    <url>
+         <loc>https://dure.one/jangbi/packages/os-vector/</loc>
          <lastmod>2025-07-18</lastmod>
     </url>
 </urlset>
