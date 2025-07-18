@@ -49,8 +49,7 @@ Identify your network interfaces and update the configuration:
 
 ```bash
 # List available interfaces
-ip link show
-(jangbi) root@lap:/opt/jangbi# ip link show
+$ ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
@@ -59,7 +58,8 @@ ip link show
     link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
 4: wlan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
-
+    
+$ nano .config
 # Example interface assignments for gateway mode:
 JB_WANINF=eth0      # WAN interface (internet connection)
 JB_WAN="dhcp"

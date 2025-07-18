@@ -49,8 +49,7 @@ nano .config
 
 ```bash
 # 사용 가능한 인터페이스 목록
-ip link show
-(jangbi) root@lap:/opt/jangbi# ip link show
+$ ip link show
 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN mode DEFAULT group default qlen 1000
     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
 2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP mode DEFAULT group default qlen 1000
@@ -60,6 +59,7 @@ ip link show
 4: wlan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
 
+$ nano .config
 # 게이트웨이 모드를 위한 인터페이스 할당 예시:
 JB_WANINF=eth0      # WAN 인터페이스 (인터넷 연결)
 JB_WAN="dhcp"
