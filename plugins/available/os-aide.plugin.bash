@@ -1,4 +1,4 @@
-## \author Timothée Mazzucotelli / @pawamoy <dev@pawamoy.fr>
+## \author Dure One <dev@dure>
 
 ## \brief Save file paths in a buffer to move them somewhere else.
 ## \desc This tool lets you save file paths into a buffer before moving or copying
