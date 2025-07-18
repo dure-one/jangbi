@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([d1e60d9](https://github.com/dure-one/jangbi/commit/d1e60d9eabda0a64194d0ed2bf60012a14b11bc4) by nikescar).
+- Add changelog automatically ([e071844](https://github.com/dure-one/jangbi/commit/e071844c1ea91b21326ed803d45e1274618a45f7) by nikescar).
 
 ### Fixed
 
+- fix. iptables, xtables. config values. log system. ([cf45beb](https://github.com/dure-one/jangbi/commit/cf45beb88f7adc79bd09f8fb428757c5395d0616) by Woojae, Park).
+- fix. systemd install on call. remove some pkgs ([863c942](https://github.com/dure-one/jangbi/commit/863c9429ffad09e8678699b7da0cbcc1f3d517ff) by Woojae, Park).
 - fix. replace submodule to direct files ([328d179](https://github.com/dure-one/jangbi/commit/328d179bf6375c92bb9ca06d606c96caf83cf362) by Woojae, Park).
 - fix. add vendor submodules ([8a730c6](https://github.com/dure-one/jangbi/commit/8a730c63817b141617436ff686756dfff58bc5e6) by Woojae, Park).
 - fix. typos ([aa278b3](https://github.com/dure-one/jangbi/commit/aa278b366d87150946e9a4820c7047665f6ba510) by Woojae, Park).
