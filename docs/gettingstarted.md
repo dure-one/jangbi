@@ -1,7 +1,5 @@
 ---
 title: Gettingstarted
-hide:
-- toc
 ---
 
 # Getting Started with Jangbi
@@ -58,7 +56,7 @@ $ ip link show
     link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
 4: wlan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
     link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
-    
+
 $ nano .config
 # Example interface assignments for gateway mode:
 JB_WANINF=eth0      # WAN interface (internet connection)

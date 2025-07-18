@@ -173,7 +173,7 @@ nav:
   - Packages:
     - packages/index.ko.md
   # - recipes.ko.md
-  - troubleshooting.ko.md
+  # - troubleshooting.ko.md
   - changelog.ko.md
   - code_of_conduct.ko.md
   - contributing.ko.md

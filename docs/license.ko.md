@@ -1,7 +1,5 @@
 ---
 title: MIT 라이선스
-hide:
-- toc
 ---
 
 MIT 라이선스

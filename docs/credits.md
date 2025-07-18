@@ -1,7 +1,5 @@
 ---
 title: Credits
-hide:
-- toc
 ---
 
 # Credits

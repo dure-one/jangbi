@@ -1,7 +1,5 @@
 ---
-title: Jangbi 시작하기
-hide:
-- toc
+title: Gettingstarted
 ---
 
 # Jangbi 시작하기
