@@ -1,3 +1,36 @@
+## \author Timothée Mazzucotelli / @pawamoy <dev@pawamoy.fr>
+
+## \brief Save file paths in a buffer to move them somewhere else.
+## \desc This tool lets you save file paths into a buffer before moving or copying
+## them somewhere else. It acts like a drag-and-drop utility but for the command-line.
+## It can be useful when you don't want to type the entire destination path and
+## proceed in three or more steps instead, using shortcut commands to move around your
+## filesystem, dragging files from multiple directories.
+
+## \example Drag files from multiple directories, drop them in another:
+## \example-code bash
+##   cd ~/Documents
+##   drag ThisPlaylist.s3u
+##   cd ../Downloads
+##   drag ThisTrack.ogg AndThisVideo.mp4
+##   drag --drop ../project
+## \example-description
+## In this example, we simply move around in the filesystem, picking files in
+## each of these directories. At the end, we drop them all in a specific
+## directory.
+
+## \example Define a convenient `drop` alias:
+## \example-code bash
+##   alias drop='drag -d'
+##   drag file.txt
+##   cd /somewhere/else
+##   drop
+## \example-description
+## In this example, we define a `drop` alias that allows us to actually
+## run `drag` then `drop` (instead of `drag --drop`).
+
+## \exit 1 No arguments provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'aide install configurations.'
@@ -40,6 +73,9 @@ function os-aide {
     fi
 }
 
+## \usage os-aide FILES
+## \usage os-aide -d|-p [DIR]
+## \usage os-aide -c|-l
 function __os-aide_help {
     echo -e "Usage: os-aide [COMMAND] [profile]\n"
     echo -e "Helper to aide install configurations.\n"
