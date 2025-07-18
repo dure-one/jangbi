@@ -12,7 +12,7 @@ function os-conf {
     example '$ os-conf subcommand'
     local PKGNAME="conf"
     local DMNNAME="os-conf"
-
+    BASH_IT_LOG_PREFIX="os-conf: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

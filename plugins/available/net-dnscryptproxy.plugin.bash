@@ -12,7 +12,7 @@ function net-dnscryptproxy {
     example '$ net-dnscryptproxy subcommand'
     local PKGNAME="dnscryptproxy"
     local DMNNAME="net-dnscryptproxy"
-
+    BASH_IT_LOG_PREFIX="net-dnscryptproxy: "
     if [[ -z ${DURE_DEPLOY_PATH} ]]; then
         _load_config
         _root_only

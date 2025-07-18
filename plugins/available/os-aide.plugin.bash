@@ -11,8 +11,8 @@ function os-aide {
     param '2: params'
     example '$ os-aide subcommand'
     local PKGNAME="aide"
-    local DMNNAME="net-aide"
-
+    local DMNNAME="os-aide"
+    BASH_IT_LOG_PREFIX="os-aide: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

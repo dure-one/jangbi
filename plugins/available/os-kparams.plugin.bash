@@ -12,7 +12,7 @@ function os-kparams {
     example '$ os-kparams subcommand'
     local PKGNAME="kparams"
     local DMNNAME="os-kparams"
-
+    BASH_IT_LOG_PREFIX="os-kparams: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

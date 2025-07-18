@@ -12,7 +12,7 @@ function os-vector {
     example '$ os-vector subcommand'
     local PKGNAME="vector"
     local DMNNAME="os-vector"
-
+    BASH_IT_LOG_PREFIX="os-vector: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

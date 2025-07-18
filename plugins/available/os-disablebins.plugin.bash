@@ -12,7 +12,7 @@ function os-disablebins {
     example '$ os-disablebins subcommand'
     local PKGNAME="disablebins"
     local DMNNAME="os-disablebins"
-
+    BASH_IT_LOG_PREFIX="os-disablebins: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

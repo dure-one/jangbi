@@ -12,7 +12,7 @@ function net-ifupdown {
     example '$ net-ifupdown subcommand'
     local PKGNAME="ifupdown"
     local DMNNAME="net-ifupdown"
-
+    BASH_IT_LOG_PREFIX="net-ifupdown: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

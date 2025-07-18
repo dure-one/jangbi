@@ -12,7 +12,7 @@ function net-hostapd {
     example '$ net-hostapd subcommand'
     local PKGNAME="hostapd"
     local DMNNAME="net-hostapd"
-
+    BASH_IT_LOG_PREFIX="net-hostapd: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

@@ -13,7 +13,7 @@ function os-systemd {
     example '$ os-systemd subcommand'
     local PKGNAME="systemd"
     local DMNNAME="os-systemd"
-
+    BASH_IT_LOG_PREFIX="os-systemd: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

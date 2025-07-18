@@ -12,7 +12,7 @@ function os-auditd {
     example '$ os-auditd subcommand'
     local PKGNAME="auditd"
     local DMNNAME="os-auditd"
-
+    BASH_IT_LOG_PREFIX="os-auditd: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

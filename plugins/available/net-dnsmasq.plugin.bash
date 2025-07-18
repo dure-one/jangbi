@@ -12,7 +12,7 @@ function net-dnsmasq {
     example '$ net-dnsmasq subcommand'
     local PKGNAME="dnsmasq"
     local DMNNAME="net-dnsmasq"
-
+    BASH_IT_LOG_PREFIX="net-dnsmasq: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

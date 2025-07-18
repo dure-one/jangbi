@@ -12,7 +12,7 @@ function net-sshd {
     example '$ net-sshd subcommand'
     local PKGNAME="sshd"
     local DMNNAME="net-sshd"
-
+    BASH_IT_LOG_PREFIX="net-sshd: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

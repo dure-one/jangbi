@@ -12,7 +12,7 @@ function net-darkstat {
     example '$ net-darkstat subcommand'
     local PKGNAME="darkstat"
     local DMNNAME="net-darkstat"
-
+    BASH_IT_LOG_PREFIX="net-darkstat: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

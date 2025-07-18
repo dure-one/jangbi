@@ -12,7 +12,7 @@ function os-redis {
     example '$ os-redis subcommand'
     local PKGNAME="redis"
     local DMNNAME="os-redis"
-
+    BASH_IT_LOG_PREFIX="os-redis: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

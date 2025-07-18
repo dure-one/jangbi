@@ -12,7 +12,7 @@ function net-knockd {
     example '$ net-knockd subcommand'
     local PKGNAME="knockd"
     local DMNNAME="net-knockd"
-
+    BASH_IT_LOG_PREFIX="net-knockd: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

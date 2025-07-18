@@ -12,7 +12,7 @@ function net-netplan {
   example '$ net-netplan subcommand'
   local PKGNAME="netplan"
   local DMNNAME="net-netplan"
-
+  BASH_IT_LOG_PREFIX="net-netplan: "
   if [[ -z ${JB_VARS} ]]; then
       _load_config
       _root_only

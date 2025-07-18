@@ -12,7 +12,7 @@ function os-minmon {
     example '$ os-minmon subcommand'
     local PKGNAME="minmon"
     local DMNNAME="os-minmon"
-
+    BASH_IT_LOG_PREFIX="os-minmon: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

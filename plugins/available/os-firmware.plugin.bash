@@ -12,7 +12,7 @@ function os-firmware {
     example '$ os-firmware subcommand'
     local PKGNAME="firmware"
     local DMNNAME="os-firmware"
-
+    BASH_IT_LOG_PREFIX="os-firmware: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

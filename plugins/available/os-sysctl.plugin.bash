@@ -12,7 +12,7 @@ function os-sysctl {
     example '$ os-sysctl subcommand'
     local PKGNAME="sysctl"
     local DMNNAME="os-sysctl"
-
+    BASH_IT_LOG_PREFIX="os-sysctl: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

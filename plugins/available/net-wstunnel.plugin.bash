@@ -12,7 +12,7 @@ function net-wstunnel {
     example '$ net-wstunnel subcommand'
     local PKGNAME="wstunnel"
     local DMNNAME="net-wstunnel"
-
+    BASH_IT_LOG_PREFIX="net-wstunnel: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only

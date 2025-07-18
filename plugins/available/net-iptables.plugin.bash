@@ -74,7 +74,7 @@ function net-iptables {
     example '$ net-iptables subcommand'
     local PKGNAME="iptables"
     local DMNNAME="net-iptables"
-
+    BASH_IT_LOG_PREFIX="net-iptables: "
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
