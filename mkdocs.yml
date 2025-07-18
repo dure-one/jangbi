@@ -169,13 +169,14 @@ plugins:
           "Code of Conduct": "행동 강령"
           "License": "라이선스"
           "Getting Started": "시작하기"
+          "Plugins": "플러그인"
           
 nav:
   # Korean Tree
   - index.ko.md
   - gettingstarted.ko.md
-  - Packages:
-    - packages/index.ko.md
+  - Plugins:
+    - plugins/index.ko.md
   # - recipes.ko.md
   # - troubleshooting.ko.md
   - changelog.ko.md
@@ -187,30 +188,30 @@ nav:
   # English Tree
   - index.md
   - gettingstarted.md
-  - Packages:
-    - packages/index.md
-    - packages/net-darkstat.md
-    - packages/net-dnscryptproxy.md
-    - packages/net-dnsmasq.md
-    - packages/net-hostapd.md
-    - packages/net-ifupdown.md
-    - packages/net-iptables.md
-    - packages/net-knockd.md
-    - packages/net-netplan.md
-    - packages/net-sshd.md
-    - packages/net-wstunnel.md
-    - packages/net-xtables.md
-    - packages/os-aide.md
-    - packages/os-auditd.md
-    - packages/os-conf.md
-    - packages/os-disablebins.md
-    - packages/os-firmware.md
-    - packages/os-kparams.md
-    - packages/os-minmon.md
-    - packages/os-redis.md
-    - packages/os-sysctl.md
-    - packages/os-systemd.md
-    - packages/os-vector.md
+  - Plugins:
+    - plugins/index.md
+    - plugins/net-darkstat.md
+    - plugins/net-dnscryptproxy.md
+    - plugins/net-dnsmasq.md
+    - plugins/net-hostapd.md
+    - plugins/net-ifupdown.md
+    - plugins/net-iptables.md
+    - plugins/net-knockd.md
+    - plugins/net-netplan.md
+    - plugins/net-sshd.md
+    - plugins/net-wstunnel.md
+    - plugins/net-xtables.md
+    - plugins/os-aide.md
+    - plugins/os-auditd.md
+    - plugins/os-conf.md
+    - plugins/os-disablebins.md
+    - plugins/os-firmware.md
+    - plugins/os-kparams.md
+    - plugins/os-minmon.md
+    - plugins/os-redis.md
+    - plugins/os-sysctl.md
+    - plugins/os-systemd.md
+    - plugins/os-vector.md
   # - recipes.md
   - troubleshooting.md
   - changelog.md
