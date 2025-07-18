@@ -10,26 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://dure.one/jangbi/">
+        <link rel="canonical" href="https://dure.one/jangbi/plugins/os-auditd/">
       
       
+        <link rel="prev" href="../os-aide/">
       
-        <link rel="next" href="gettingstarted/">
+      
+        <link rel="next" href="../os-conf/">
       
       
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Overview - jangbi</title>
+        <title>Os auditd - jangbi</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -48,13 +50,13 @@
       
     
     
-      <link rel="stylesheet" href="assets/_markdown_exec_pyodide.css">
+      <link rel="stylesheet" href="../../assets/_markdown_exec_pyodide.css">
     
-      <link rel="stylesheet" href="assets/_markdown_exec_ansi.css">
+      <link rel="stylesheet" href="../../assets/_markdown_exec_ansi.css">
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -63,7 +65,7 @@
     
     
     
-   <link href="assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -72,7 +74,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -91,7 +93,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#jangbidevice" class="md-skip">
+        <a href="#os-auditd.plugin.bash" class="md-skip">
           Skip to content
         </a>
       
@@ -107,9 +109,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="jangbi" class="md-header__button md-logo" aria-label="jangbi" data-md-component="logo">
+    <a href="../.." title="jangbi" class="md-header__button md-logo" aria-label="jangbi" data-md-component="logo">
       
-  <img src="images/logo.png" alt="logo">
+  <img src="../../images/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -126,7 +128,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              Os auditd
             
           </span>
         </div>
@@ -183,13 +185,13 @@
       <ul class="md-select__list">
         
           <li class="md-select__item">
-            <a href="." hreflang="en" class="md-select__link">
+            <a href="./" hreflang="en" class="md-select__link">
               English
             </a>
           </li>
         
           <li class="md-select__item">
-            <a href="index.ko/" hreflang="ko" class="md-select__link">
+            <a href="../../index.ko/" hreflang="ko" class="md-select__link">
               Korean
             </a>
           </li>
@@ -282,9 +284,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="jangbi" class="md-nav__button md-logo" aria-label="jangbi" data-md-component="logo">
+    <a href="../.." title="jangbi" class="md-nav__button md-logo" aria-label="jangbi" data-md-component="logo">
       
-  <img src="images/logo.png" alt="logo">
+  <img src="../../images/logo.png" alt="logo">
 
     </a>
     jangbi
@@ -308,30 +310,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Overview
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -342,207 +324,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#jangbidevice" class="md-nav__link">
-    <span class="md-ellipsis">
-      JANGBI(Device)
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Features
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Features">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#core-security-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Core Security Features
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#supported-services" class="md-nav__link">
-    <span class="md-ellipsis">
-      Supported Services
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#device-operating-modes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Device Operating Modes
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Device Operating Modes">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-gateway-mode-traditional-router" class="md-nav__link">
-    <span class="md-ellipsis">
-      1. Gateway Mode (Traditional Router)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-wstunnel-mode-proxy-only" class="md-nav__link">
-    <span class="md-ellipsis">
-      2. WSTunnel Mode (Proxy-Only)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-client-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      3. Client Mode
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      Prerequisites
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Prerequisites">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#gateway-modeblacklist-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gateway Mode(Blacklist Mode)
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#wstunnel-modewhitelist-mode" class="md-nav__link">
-    <span class="md-ellipsis">
-      WStunnel Mode(Whitelist Mode)
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisite" class="md-nav__link">
-    <span class="md-ellipsis">
-      Prerequisite
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#default-network-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Default Network Settings
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#todo" class="md-nav__link">
-    <span class="md-ellipsis">
-      Todo
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Todo">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#before-next-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      Before Next Release
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#later" class="md-nav__link">
-    <span class="md-ellipsis">
-      Later
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -554,7 +335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="gettingstarted/" class="md-nav__link">
+      <a href="../../gettingstarted/" class="md-nav__link">
         
   
   
@@ -573,8 +354,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -626,15 +409,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="plugins/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -653,7 +436,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Plugins
@@ -667,7 +450,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-darkstat/" class="md-nav__link">
+      <a href="../net-darkstat/" class="md-nav__link">
         
   
   
@@ -690,7 +473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-dnscryptproxy/" class="md-nav__link">
+      <a href="../net-dnscryptproxy/" class="md-nav__link">
         
   
   
@@ -713,7 +496,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-dnsmasq/" class="md-nav__link">
+      <a href="../net-dnsmasq/" class="md-nav__link">
         
   
   
@@ -736,7 +519,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-hostapd/" class="md-nav__link">
+      <a href="../net-hostapd/" class="md-nav__link">
         
   
   
@@ -759,7 +542,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-ifupdown/" class="md-nav__link">
+      <a href="../net-ifupdown/" class="md-nav__link">
         
   
   
@@ -782,7 +565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-iptables/" class="md-nav__link">
+      <a href="../net-iptables/" class="md-nav__link">
         
   
   
@@ -805,7 +588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-knockd/" class="md-nav__link">
+      <a href="../net-knockd/" class="md-nav__link">
         
   
   
@@ -828,7 +611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-netplan/" class="md-nav__link">
+      <a href="../net-netplan/" class="md-nav__link">
         
   
   
@@ -851,7 +634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-sshd/" class="md-nav__link">
+      <a href="../net-sshd/" class="md-nav__link">
         
   
   
@@ -874,7 +657,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-wstunnel/" class="md-nav__link">
+      <a href="../net-wstunnel/" class="md-nav__link">
         
   
   
@@ -897,7 +680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-xtables/" class="md-nav__link">
+      <a href="../net-xtables/" class="md-nav__link">
         
   
   
@@ -920,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-aide/" class="md-nav__link">
+      <a href="../os-aide/" class="md-nav__link">
         
   
   
@@ -940,10 +723,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="plugins/os-auditd/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os auditd
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -954,6 +757,33 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-auditd.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      os-auditd.plugin.bash
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -966,7 +796,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-conf/" class="md-nav__link">
+      <a href="../os-conf/" class="md-nav__link">
         
   
   
@@ -989,7 +819,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-disablebins/" class="md-nav__link">
+      <a href="../os-disablebins/" class="md-nav__link">
         
   
   
@@ -1012,7 +842,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-firmware/" class="md-nav__link">
+      <a href="../os-firmware/" class="md-nav__link">
         
   
   
@@ -1035,7 +865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-kparams/" class="md-nav__link">
+      <a href="../os-kparams/" class="md-nav__link">
         
   
   
@@ -1058,7 +888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-minmon/" class="md-nav__link">
+      <a href="../os-minmon/" class="md-nav__link">
         
   
   
@@ -1081,7 +911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-redis/" class="md-nav__link">
+      <a href="../os-redis/" class="md-nav__link">
         
   
   
@@ -1104,7 +934,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-sysctl/" class="md-nav__link">
+      <a href="../os-sysctl/" class="md-nav__link">
         
   
   
@@ -1127,7 +957,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-systemd/" class="md-nav__link">
+      <a href="../os-systemd/" class="md-nav__link">
         
   
   
@@ -1150,7 +980,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/os-vector/" class="md-nav__link">
+      <a href="../os-vector/" class="md-nav__link">
         
   
   
@@ -1180,7 +1010,7 @@
   
   
     <li class="md-nav__item">
-      <a href="troubleshooting/" class="md-nav__link">
+      <a href="../../troubleshooting/" class="md-nav__link">
         
   
   
@@ -1202,7 +1032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="changelog/" class="md-nav__link">
+      <a href="../../changelog/" class="md-nav__link">
         
   
   
@@ -1224,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="code_of_conduct/" class="md-nav__link">
+      <a href="../../code_of_conduct/" class="md-nav__link">
         
   
   
@@ -1246,7 +1076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="contributing/" class="md-nav__link">
+      <a href="../../contributing/" class="md-nav__link">
         
   
   
@@ -1268,7 +1098,7 @@
   
   
     <li class="md-nav__item">
-      <a href="license/" class="md-nav__link">
+      <a href="../../license/" class="md-nav__link">
         
   
   
@@ -1290,7 +1120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="credits/" class="md-nav__link">
+      <a href="../../credits/" class="md-nav__link">
         
   
   
@@ -1343,7 +1173,7 @@
 
 
   
-    <a href="https://github.com/dure-one/jangbi/edit/main/docs/index.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/dure-one/jangbi/edit/main/docs/plugins/os-auditd.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1352,195 +1182,104 @@
     
       
     
-    <a href="https://github.com/dure-one/jangbi/raw/main/docs/index.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/dure-one/jangbi/raw/main/docs/plugins/os-auditd.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-  <h1>Overview</h1>
+  <h1>Os auditd</h1>
 
 <ul>
-<li>
-<p class="i18n-link i18n-link-found i18n-link-ko"><a href="index.ko/">Korean</a></p>
-</li>
-<li>
-<p><strong>WORK IN PROGRES</strong></p>
-</li>
-<li>running this script might break your system.</li>
-<li>written in pure bash, works only <strong>bookworm</strong> dist.</li>
+<li class="i18n-link i18n-link-not-found i18n-link-ko">Korean: 이 페이지는 아직 한글로 번역되지 않았습니다.</li>
 </ul>
-<h2 id="jangbidevice">JANGBI(Device)<a class="headerlink" href="#jangbidevice" title="Permanent link">¤</a></h2>
-<p>Jangbi is a comprehensive security-focused network appliance framework designed as a poor man's Firewalla alternative. It combines iptables, dnsmasq, and various security tools on top of Armbian/DietPi/Debian to create a powerful network security device. The framework is part of the Dure ecosystem and provides enterprise-grade security features for home and small business networks.<br/>
-similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://technitium.com/dns/">technitium</a>, <a href="https://github.com/AdguardTeam/AdGuardHome">adguardhome</a>, <a href="https://github.com/0xERR0R/blocky">blocky</a>, <a href="https://github.com/safing/portmaster?tab=readme-ov-file">portmaster</a></p>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">¤</a></h2>
-<h3 id="core-security-features">Core Security Features<a class="headerlink" href="#core-security-features" title="Permanent link">¤</a></h3>
-<ul>
-<li><strong>OS Hardening</strong>: Disable kernel modules, sysctl hardening, disable dangerous binaries</li>
-<li><strong>Network Security</strong>: Pre-configured iptables rules, port forwarding, MAC whitelisting</li>
-<li><strong>Intrusion Detection</strong>: AIDE (file integrity), auditd (system auditing)</li>
-<li><strong>DNS Security</strong>: DNS blocking with blacklists, DNSCrypt-proxy support</li>
-<li><strong>Traffic Analysis</strong>: Network monitoring with darkstat, log analysis with Vector</li>
-<li><strong>Access Control</strong>: Port knocking with knockd, SSH hardening</li>
-</ul>
-<h3 id="supported-services">Supported Services<a class="headerlink" href="#supported-services" title="Permanent link">¤</a></h3>
-<ul>
-<li><strong>Firewall</strong>: iptables/nftables with advanced rules</li>
-<li><strong>DNS/DHCP</strong>: dnsmasq with ad-blocking capabilities  </li>
-<li><strong>WiFi Access Point</strong>: hostapd for wireless networking</li>
-<li><strong>VPN/Proxy</strong>: WSTunnel for secure remote access</li>
-<li><strong>Monitoring</strong>: darkstat, auditd, AIDE, Vector, Redis</li>
-<li><strong>Remote Access</strong>: OpenSSH with security hardening</li>
-</ul>
-<h2 id="device-operating-modes">Device Operating Modes<a class="headerlink" href="#device-operating-modes" title="Permanent link">¤</a></h2>
-<h3 id="1-gateway-mode-traditional-router">1. Gateway Mode (Traditional Router)<a class="headerlink" href="#1-gateway-mode-traditional-router" title="Permanent link">¤</a></h3>
-<p>Acts as a traditional NAT router with WAN-LAN separation:
-- DNS/DHCP/DNS blocking via dnsmasq
-- IP blocking via ipset and iptables
-- DNS blacklist filtering
-- NAT masquerading for LAN clients</p>
-<h3 id="2-wstunnel-mode-proxy-only">2. WSTunnel Mode (Proxy-Only)<a class="headerlink" href="#2-wstunnel-mode-proxy-only" title="Permanent link">¤</a></h3>
-<p>Secure proxy mode without NAT routing:
-- Clients connect only through WSTunnel proxy
-- No direct internet routing
-- Enhanced security through proxy filtering
-- DNS/DHCP without masquerading</p>
-<h3 id="3-client-mode">3. Client Mode<a class="headerlink" href="#3-client-mode" title="Permanent link">¤</a></h3>
-<p>Single interface mode for endpoint protection:
-- Host-based firewall rules
-- Local security hardening
-- Monitoring and intrusion detection</p>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
-<p>Before installing Jangbi-IT, ensure your system meets these requirements:</p>
-<ul>
-<li><strong>Operating System</strong>: Armbian, Debian Bookworm, or DietPi</li>
-<li><strong>Hardware</strong>: Minimum 1GB RAM, 8GB storage</li>
-<li><strong>Network</strong>: At least one network interface</li>
-<li><strong>Tools</strong>: <code>ipcalc-ng</code> package installed</li>
-<li><strong>Access</strong>: Root or sudo privileges</li>
-</ul>
-<h4 id="gateway-modeblacklist-mode">Gateway Mode(Blacklist Mode)<a class="headerlink" href="#gateway-modeblacklist-mode" title="Permanent link">¤</a></h4>
-<p>traditional nat gateway with iptables(nft).</p>
-<ul>
-<li>dns/dhcp/dnsblock : dnsmasq</li>
-<li>block ip : ipset -&gt; iptables, darkstat -&gt; cutcdn/cdncheck -&gt; iptables, vector(sysdig) -&gt; iptables</li>
-<li>block dns : steven blacklist -&gt; dnsmasq/dnscrypt-proxy</li>
-<li>(todo) remote gateway management app : buha app</li>
-</ul>
-<h4 id="wstunnel-modewhitelist-mode">WStunnel Mode(Whitelist Mode)<a class="headerlink" href="#wstunnel-modewhitelist-mode" title="Permanent link">¤</a></h4>
-<p>without nat routing, client only connect to wstunnel to outside. no route. only through wstunnel.</p>
-<ul>
-<li>dns/dhcp : dnsmasq(no masquerade)</li>
-<li>block ip : iptables</li>
-<li>block dns : dnsmasq</li>
-<li>(todo) remote gateway management app : buha app</li>
-</ul>
-<h2 id="prerequisite">Prerequisite<a class="headerlink" href="#prerequisite" title="Permanent link">¤</a></h2>
-<ul>
-<li>armbian/debian/dietpi compatible host with <strong>bookworm</strong> distribution</li>
-<li>ipcalc-ng installed</li>
-</ul>
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
-<ul>
-<li>on any <strong>bookworm</strong> distributions</li>
-</ul>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># install ipcalc-ng</span>
-$<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ipcalc-ng
 
-<span class="c1"># clone repository</span>
-$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git
 
-<span class="c1"># copy .config.gateway.sample to .config file</span>
-$<span class="w"> </span>cp<span class="w"> </span>.config.gateway<span class="w"> </span>.config
 
-<span class="c1"># check interface name</span>
-<span class="c1"># consider which interface is for WAN, LAN, WLAN</span>
-$<span class="w"> </span>ip<span class="w"> </span>a
+<h2 id="os-auditd.plugin.bash">os-auditd.plugin.bash<a href="#os-auditd.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+  <p>auditd install configurations.</p>
 
-<span class="c1"># edit settings, add interface name on WAN, LAN, WLAN</span>
-$<span class="w"> </span>nano<span class="w"> </span>.config
+  <strong>Usage</strong>
+    <pre><code>net-auditd [COMMAND] [profile]</code></pre>
+    <pre><code>net-auditd install|uninstall|configgen|configapply</code></pre>
+    <pre><code>net-auditd check|run|download</code></pre>
 
-<span class="c1"># run configurator</span>
-$<span class="w"> </span>./init.sh
+  <strong>Description</strong>
+      <p>This tool helps install, configure, and manage auditd (Linux Audit Daemon)
+for system security monitoring and compliance. It provides automated installation,
+configuration management, and audit log monitoring capabilities. Auditd tracks
+system calls, file access, user activities, and security events for forensics and compliance.</p>
+
+
+
+
+
+  <strong>Exit Status</strong>
+    <ul>
+      <li>
+        <code>1</code>:
+        <div class="doc doc-md-description">
+          <p>Invalid command or parameters provided.</p>
+        </div>
+      </li>
+  </ul>
+
+
+
+
+
+
+  <strong>Examples</strong>
+    <em><p>Install and configure auditd:</p></em>
+<div class="language-bash highlight"><pre><span></span><code>os-auditd<span class="w"> </span>install
+os-auditd<span class="w"> </span>configgen
+os-auditd<span class="w"> </span>configapply
+</code></pre></div>      <p>In this example, we install auditd, generate security audit configurations,
+and apply them to enable comprehensive system monitoring.</p>
+    <em><p>Start auditing and check status:</p></em>
+<div class="language-bash highlight"><pre><span></span><code>os-auditd<span class="w"> </span>run
+os-auditd<span class="w"> </span>check
+</code></pre></div>      <p>In this example, we start the audit daemon to begin security monitoring
+and verify that the auditing service is functioning properly.</p>
+
+
+
+
+
+
+
+
+
+<div class="language-text highlight"><pre><span></span><code># # https://rninche01.tistory.com/entry/Linux-system-call-table-%EC%A0%95%EB%A6%ACx86-x64
+# type=SYSCALL msg=audit(1749094648.996:73664): arch=c000003e syscall=41 success=yes exit=188 a0=2 a1=80802 a2=0 a3=0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_socket_created&quot;ARCH=x86_64 SYSCALL=socket AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=PROCTITLE msg=audit(1749094648.996:73664): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094648.996:73665): arch=c000003e syscall=42 success=yes exit=0 a0=bc a1=7f8a65d41d8c a2=10 a3=7f8a65d3e8d4 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_connect_4&quot;ARCH=x86_64 SYSCALL=connect AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=SOCKADDR msg=audit(1749094648.996:73665): saddr=02000035C0A84F01E5E5E5E5E5E5E5E5SADDR={ saddr_fam=inet laddr=192.168.79.1 lport=53 }
+# type=PROCTITLE msg=audit(1749094648.996:73665): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094649.032:73666): arch=c000003e syscall=41 success=yes exit=188 a0=2 a1=80002 a2=0 a3=7f8a65d3fdc0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_socket_created&quot;ARCH=x86_64 SYSCALL=socket AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=PROCTITLE msg=audit(1749094649.032:73666): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094649.032:73667): arch=c000003e syscall=42 success=yes exit=0 a0=bc a1=7f8a4fc12a30 a2=10 a3=7f8a65d3fdc0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_connect_4&quot;ARCH=x86_64 SYSCALL=connect AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=SOCKADDR msg=audit(1749094649.032:73667): saddr=02000000681226E90000000000000000SADDR={ saddr_fam=inet laddr=104.18.38.233 lport=0 }
+# type=PROCTITLE msg=audit(1749094649.032:73667): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094649.032:73668): arch=c000003e syscall=42 success=yes exit=0 a0=bc a1=7f8a65d40070 a2=10 a3=7f8a65d3fdc0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_connect_4&quot;ARCH=x86_64 SYSCALL=connect AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=SOCKADDR msg=audit(1749094649.032:73668): saddr=00000000000000000000000000000000SADDR=unknown-family(0)
+# type=PROCTITLE msg=audit(1749094649.032:73668): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094649.032:73669): arch=c000003e syscall=42 success=yes exit=0 a0=bc a1=7f8a5030d070 a2=10 a3=7f8a65d3fdc0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_connect_4&quot;ARCH=x86_64 SYSCALL=connect AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=SOCKADDR msg=audit(1749094649.032:73669): saddr=02000000AC4095170000000000000000SADDR={ saddr_fam=inet laddr=172.64.149.23 lport=0 }
+# type=PROCTITLE msg=audit(1749094649.032:73669): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094649.032:73670): arch=c000003e syscall=41 success=yes exit=188 a0=2 a1=1 a2=0 a3=0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=536F636B657420546872656164 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_socket_created&quot;ARCH=x86_64 SYSCALL=socket AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=PROCTITLE msg=audit(1749094649.032:73670): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094650.060:73671): arch=c000003e syscall=41 success=yes exit=190 a0=2 a1=1 a2=0 a3=36bebdec9285 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=536F636B657420546872656164 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_socket_created&quot;ARCH=x86_64 SYSCALL=socket AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
+# type=PROCTITLE msg=audit(1749094650.060:73671): proctitle=&quot;/usr/lib/firefox-esr/firefox-esr&quot;
+# type=SYSCALL msg=audit(1749094650.708:73672): arch=c000003e syscall=41 success=yes exit=215 a0=2 a1=1 a2=0 a3=627c24bfe383 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=536F636B657420546872656164 exe=&quot;/usr/lib/firefox-esr/firefox-esr&quot; subj=unconfined key=&quot;network_socket_created&quot;ARCH=x86_64 SYSCALL=socket AUID=&quot;wj&quot; UID=&quot;wj&quot; GID=&quot;wj&quot; EUID=&quot;wj&quot; SUID=&quot;wj&quot; FSUID=&quot;wj&quot; EGID=&quot;wj&quot; SGID=&quot;wj&quot; FSGID=&quot;wj&quot;
 </code></pre></div>
-<h3 id="default-network-settings">Default Network Settings<a class="headerlink" href="#default-network-settings" title="Permanent link">¤</a></h3>
-<ul>
-<li>single ethernet or wifi interface : client mode</li>
-<li>two ethernet or single ethernet and wifi : gateway mode(1wan, 1gateway or 1ap)</li>
-</ul>
-<h2 id="todo">Todo<a class="headerlink" href="#todo" title="Permanent link">¤</a></h2>
-<h3 id="before-next-release">Before Next Release<a class="headerlink" href="#before-next-release" title="Permanent link">¤</a></h3>
-<ul>
-<li>(done)Sets numerous hardening kernel arguments (Inspired by Madaidan's Hardening Guide) details</li>
-<li>(done)SSHd configuration with knockd</li>
-<li>(done)Wifi AP mode tests</li>
-<li>(done)dhcp client replace for systemd-networkd</li>
-<li>(done)license listing</li>
-<li>(done)time settings with script based ntp client</li>
-<li>(done)dmz or twin ip(super dmz)</li>
-<li>(done)keep process running &amp; working : wstunnel hostapd dnsmasq anydnsdqy darkstat</li>
-<li>(done)iptables : all occurence by modes cases</li>
-<li>(done)Reduce the sudo timeout to 1 minute</li>
-<li>change mac address(random) on wan interface - macchanger</li>
-<li>(done)network monitoring(darkstat)</li>
-<li>tcp syn flood <a href="https://superuser.com/a/1852992">https://superuser.com/a/1852992</a></li>
-<li>(done)ip spoofing</li>
-<li>(done)block incoming,outgoing icmp IPTABLES_DROP_ICMP</li>
-<li>wol settings</li>
-<li>(done)new dns client : anydnsdqy</li>
-<li>(done)bugs on ifupdown network interfaces for WLAN, dnsmasq network for WLAN</li>
-<li>dns blacklist <a href="https://urlhaus.abuse.ch/api/#hostfile">https://urlhaus.abuse.ch/api/#hostfile</a></li>
-</ul>
-<h3 id="later">Later<a class="headerlink" href="#later" title="Permanent link">¤</a></h3>
-<ul>
-<li>(feat)</li>
-<li>qos speed limit by ip, mac, hostname</li>
-<li>host search by mac address network tools</li>
-<li>Stress Tests(iperf)</li>
-<li>automatic wan interface selecting</li>
-<li>smurf when icmp on</li>
-<li>arp snooping no way <a href="https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables">https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables</a></li>
-<li>ddns settings - <a href="https://github.com/ddclient/ddclient">https://github.com/ddclient/ddclient</a></li>
-<li>ip source static routing</li>
-<li>Installing usbguard and providing ujust commands to automatically configure it</li>
-<li>Automatic Functional Tests</li>
-<li>totp to knockd integration(later yubikey/tokenkey integration)</li>
-<li>change aide for malware hash check</li>
-<li>multicast forward igmp</li>
-<li>static routing table</li>
-<li>vpn server settings</li>
-<li>tcp, udp, icmp connection control timeout setting tcp syn, tcp estab,</li>
-<li>config backup/ restore</li>
-<li>lkrg &amp; kernel patches or kernel-installer.sh integration</li>
-<li>malware hash check online api <a href="https://hash.cymru.com/">https://hash.cymru.com/</a> <a href="https://www.team-cymru.com/mhr">https://www.team-cymru.com/mhr</a></li>
-<li>option to disable gui logind and replace it to tty autologin and startx automatically and vlock</li>
-<li>hiding sensitive information on confiuration logs.</li>
-<li>pstrap <a href="https://github.com/shishouyuan/pstrap.git">https://github.com/shishouyuan/pstrap.git</a></li>
-<li>dns over tor</li>
-<li>dns over cloudflared</li>
-<li>(rsyslog)</li>
-<li>syslog, auditd, aide, auth, dpkg, daemon, syslog, kern, cron, user, boot, dnsmasq, redis logs</li>
-<li>remote log/debug log submit</li>
-<li>(buha)</li>
-<li>buha application(jangbi client) for android vpn, windows simplewall mgmt</li>
-<li>windows setup builder on .github workflow. =&gt; buha</li>
-<li>network connections status flag <a href="https://github.com/Lissy93/AdGuardian-Term/tree/main">https://github.com/Lissy93/AdGuardian-Term/tree/main</a></li>
-<li>system monitor data collect with rsyslog</li>
-<li>link status connection monitoring tui</li>
-<li>Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)</li>
-<li>wstunnel client</li>
-<li>knockd client</li>
-</ul>
 
 
 
 
 
 
-
-  
-  
 
 
 
@@ -1679,15 +1418,31 @@ $<span class="w"> </span>./init.sh
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../os-aide/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Os aide">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Os aide
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="gettingstarted/" class="md-footer__link md-footer__link--next" aria-label="Next: Gettingstarted">
+          <a href="../os-conf/" class="md-footer__link md-footer__link--next" aria-label="Next: Os conf">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Gettingstarted
+                Os conf
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1737,12 +1492,12 @@ $<span class="w"> </span>./init.sh
     
     
       
-      <script id="__config" type="application/json">{"base": ".", "features": ["toc.integrate", "toc.follow", "navigation.top", "navigation.footer", "navigation.indexes", "content.tabs.link", "announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "search.highlight", "search.suggest"], "search": "assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["toc.integrate", "toc.follow", "navigation.top", "navigation.footer", "navigation.indexes", "content.tabs.link", "announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
-        <script src="assets/_markdown_exec_pyodide.js"></script>
+        <script src="../../assets/_markdown_exec_pyodide.js"></script>
       
     
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
