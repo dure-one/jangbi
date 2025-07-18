@@ -94,7 +94,7 @@ function __net-xtables_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy xtables-addon-common || log_error "${DMNNAME} online install failed."
+        apt install -qy xtables-addon-common xtables-addons-dkms || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/${PKGNAME}*.deb"
         local pkglist="./pkgs/${PKGNAME}.pkgs"
@@ -140,7 +140,7 @@ function __net-xtables_configapply {
 
 function __net-xtables_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs "xtables-addon-common" || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs "xtables-addon-common xtables-addons-dkms" || log_error "${DMNNAME} download failed."
     return 0
 }
 
@@ -156,8 +156,8 @@ function __net-xtables_check { # running_status: 0 running, 1 installed, running
     running_status=0
     log_debug "Checking ${DMNNAME}..."
     # check cmd exists
-    [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
-        log_error "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ $(which nft|wc -l) -lt 1 ]] && \
+        log_error "nft command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10
     # check global variable
     [[ -z ${RUN_NET_XTABLES} ]] && \
         log_error "RUN_NET_XTABLES variable is not set." && [[ $running_status -lt 10 ]] && running_status=10

@@ -27,6 +27,9 @@ usage() {
   printf "%s\\n" "  ${YELLOW}--download enabled/net-darkstat |-s${NORMAL}   download pkg file for offline installation"
   echo
 }
+# setup slog
+BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 
 POSITIONAL_ARGS=()
 SYNC_AND_BREAK=0
@@ -37,16 +40,22 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     --check | -c)
+      BASH_IT_LOG_LEVEL=0
+      RUN_LOG="/dev/null"
       TRPROC=$2
       ${TRPROC} check
       exit ${running_status}
       ;;
     --launch | -l)
+      BASH_IT_LOG_LEVEL=0
+      RUN_LOG="/dev/null"
       TRPROC=$2
       ${TRPROC} run
       exit 0
       ;;
     --sync | -s)
+      BASH_IT_LOG_LEVEL=0
+      RUN_LOG="/dev/null"
       SYNC_AND_BREAK=1
       shift
       ;;
@@ -68,10 +77,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
-
-# setup slog
-BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
-BASH_IT_LOG_FILE="jangbi.log"
 
 if [[ -z ${JB_VARS} ]]; then
     _load_config

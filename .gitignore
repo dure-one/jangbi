@@ -9,6 +9,8 @@ enabled/*
 .config
 jangbi_aide.log
 jangbi.log
+output.log
+run.log
 swapfile
 plugins/testing
 nohup.out

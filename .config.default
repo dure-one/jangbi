@@ -2,11 +2,10 @@
 ## ** do not edit/delete this file **
 FORCE_INSTALL=0
 
-## slog settings
-LOGFILE="jangbi.log"
-RUN_ERRORS_FATAL=1
-LOG_LEVEL_STDOUT="INFO"
-LOG_LEVEL_LOG="DEBUG"
+## bash-it log settings
+BASH_IT_LOG_FILE="output.log"
+# 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+BASH_IT_LOG_LEVEL=7
 
 ## device config
 DIST_DEVICE="orangepi5-plus"

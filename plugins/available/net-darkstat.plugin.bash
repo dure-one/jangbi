@@ -104,6 +104,7 @@ function __net-darkstat_install {
         __net-darkstat_configapply
         rm -rf /tmp/darkstat
     fi
+    mkdir -p /var/log/darkstat
 }
 
 function __net-darkstat_configgen { # config generator and diff

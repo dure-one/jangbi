@@ -1,5 +1,5 @@
-## \brief miscellaneous tools and utilities.
-## \desc This plugin provides a collection of miscellaneous utility functions
+## \brief base tools and utilities.
+## \desc This plugin provides a collection of base utility functions
 ## for network diagnostics, file operations, and system information gathering.
 ## It includes tools for IP address detection, website availability checking,
 ## random file operations, and various system utilities for daily administration tasks.
@@ -24,7 +24,7 @@
 
 # shellcheck shell=bash
 cite about-plugin
-about-plugin 'miscellaneous tools'
+about-plugin 'base tools'
 
 function ips() {
     about 'display all ip addresses for this host'

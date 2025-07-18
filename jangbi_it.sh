@@ -8,6 +8,7 @@ BASH_IT_LOG_PREFIX="core: main: "
 JANGBI_IT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 [[ ${BASH_IT} != ${JANGBI_IT} ]] && BASH_IT_=${BASH_IT}
 BASH_IT="${JANGBI_IT}/vendor/bash-it"
+BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 
 source "${BASH_IT}/vendor/github.com/erichs/composure/composure.sh"
 # regenerate composure keywords
@@ -37,14 +38,15 @@ source "${BASH_IT}/lib/log.bash"
 unset log
 
 log_and_tee() {
-  echo "$@"| tee -a "${BASH_IT_LOG_FILE}"
+  printf '%s%s\n' "[$(date +"%Y-%m-%d %H:%M:%S %Z")] " "$@" | tee -a "${BASH_IT_LOG_FILE}"
+  # echo "$@"| tee -a "${BASH_IT_LOG_FILE}"
 } # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
-log_info()      { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}"; }
-log_success()   { printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}"; }
-log_fatal()     { printf '%b%s%b\n' "${echo_background_red:-}" "$@" "${echo_normal:-}"; }
-log_error()     { _log_error "$@"; }
-log_warning()   { _log_warning "$@"; }
-log_debug()     { _log_debug "$@"; }
+log_info()   { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; }
+log_success(){ printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 6 - info
+log_fatal()  { printf '%b%s%b\n' "${echo_background_red:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 1 - fatal
+log_error()  { _log_error "$@" && log_and_tee "$@"; } # 3 - error
+log_warning(){ _log_warning "$@" && log_and_tee "$@"; } # 4 - warning
+log_debug()  { _log_debug "$@" && log_and_tee "$@"; } # 5 - debug
 
 # libraries, but skip appearance (themes) for now
 source "${BASH_IT}/lib/command_duration.bash"
@@ -331,12 +333,13 @@ _load_config() { # Load config including parent config ex) _load_config .config
   JB_VARS="${JB_VARS} JB_CFILES"
 
   # setup slog
-  LOGFILE=${LOGFILE:="jangbi.log"}
+  LOGFILE=${LOGFILE:="output.log"}
   LOG_PATH="$LOGFILE"
   RUN_LOG="$LOGFILE"
   RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
   LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
   LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
+  # RUN_LOG="/dev/null"
 }
 
 _checkbin() {
