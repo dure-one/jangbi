@@ -1,3 +1,9 @@
+---
+title: Jangbi 시작하기
+hide:
+- toc
+---
+
 # Jangbi 시작하기
 
 ## 경고

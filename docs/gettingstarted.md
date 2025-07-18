@@ -1,3 +1,9 @@
+---
+title: Gettingstarted
+hide:
+- toc
+---
+
 # Getting Started with Jangbi
 
 ## Warning
