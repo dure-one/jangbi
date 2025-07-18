@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([66ec6b6](https://github.com/dure-one/jangbi/commit/66ec6b63714cff905a28ff6ffd0cb5b4b90f5944) by nikescar).
+- Add changelog automatically ([d2979d2](https://github.com/dure-one/jangbi/commit/d2979d22430577a5954a40b549870e738faef707) by nikescar).
 
 ### Fixed
 
+- fix. bash-it log prefix for each apps. ([f59d8e9](https://github.com/dure-one/jangbi/commit/f59d8e98eccdeaf6df010c7e1c051e1b6132a2fb) by Woojae, Park).
+- fix. bugs with bash-it. ([96eb95f](https://github.com/dure-one/jangbi/commit/96eb95f6abc54c7b742e84b3a9f155ba9b76239e) by Woojae, Park).
 - fix. run with bash_it. remove pkgs dl module. ([72b6c7a](https://github.com/dure-one/jangbi/commit/72b6c7a14d98b64f9ed551d93726eac09fb6ea4f) by Woojae, Park).
 - fix. iptables, xtables. config values. log system. ([cf45beb](https://github.com/dure-one/jangbi/commit/cf45beb88f7adc79bd09f8fb428757c5395d0616) by Woojae, Park).
 - fix. systemd install on call. remove some pkgs ([863c942](https://github.com/dure-one/jangbi/commit/863c9429ffad09e8678699b7da0cbcc1f3d517ff) by Woojae, Park).
