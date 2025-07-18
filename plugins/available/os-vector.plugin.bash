@@ -1,3 +1,29 @@
+## \brief vector log management configurations.
+## \desc This tool helps install, configure, and manage Vector log management system
+## for high-performance log collection, transformation, and routing. It provides automated installation,
+## configuration management, and Vector service control capabilities. Vector is a lightweight
+## and ultra-fast tool for building observability pipelines, collecting and transforming
+## logs, metrics, and traces from various sources to multiple destinations.
+
+## \example Install and configure Vector:
+## \example-code bash
+##   os-vector install
+##   os-vector configgen
+##   os-vector configapply
+## \example-description
+## In this example, we install Vector, generate log pipeline configurations,
+## and apply them to establish efficient log management.
+
+## \example Start Vector service and verify status:
+## \example-code bash
+##   os-vector run
+##   os-vector check
+## \example-description
+## In this example, we start the Vector service and verify
+## that log collection and processing is working properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'vector install configurations.'
@@ -38,6 +64,9 @@ function os-vector {
     fi
 }
 
+## \usage os-vector [COMMAND] [profile]
+## \usage os-vector install|uninstall|configgen|configapply
+## \usage os-vector check|run|download
 function __os-vector_help {
     echo -e "Usage: os-vector [COMMAND] [profile]\n"
     echo -e "Helper to vector install configurations.\n"

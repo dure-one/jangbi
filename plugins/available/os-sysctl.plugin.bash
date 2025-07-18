@@ -1,3 +1,26 @@
+## \brief sysctl install configurations.
+## \desc This tool helps install and manage sysctl (kernel runtime parameters) configurations
+## for system optimization and security hardening. It provides automated configuration management
+## for kernel parameters, allowing fine-tuning of system behavior including network settings,
+## memory management, and security parameters.
+
+## \example Install and configure sysctl parameters:
+## \example-code bash
+##   os-sysctl install
+##   os-sysctl run
+## \example-description
+## In this example, we install custom sysctl configurations
+## and apply them to optimize system performance and security.
+
+## \example Check sysctl status:
+## \example-code bash
+##   os-sysctl check
+## \example-description
+## In this example, we verify the current sysctl configuration status
+## and ensure the parameters are properly applied.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'sysctl install configurations.'
@@ -32,6 +55,8 @@ function os-sysctl {
     fi
 }
 
+## \usage os-sysctl [COMMAND] [profile]
+## \usage os-sysctl install|uninstall|check|run
 function __os-sysctl_help {
     echo -e "Usage: os-sysctl [COMMAND] [profile]\n"
     echo -e "Helper to sysctl install configurations.\n"

@@ -1,3 +1,27 @@
+## \brief miscellaneous tools and utilities.
+## \desc This plugin provides a collection of miscellaneous utility functions
+## for network diagnostics, file operations, and system information gathering.
+## It includes tools for IP address detection, website availability checking,
+## random file operations, and various system utilities for daily administration tasks.
+
+## \example Check your public IP and network information:
+## \example-code bash
+##   myip
+##   ips
+## \example-description
+## In this example, we check the public IP address as seen from the internet
+## and list all local IP addresses on the system.
+
+## \example Test website availability and pick random content:
+## \example-code bash
+##   down4me http://example.com
+##   pickfrom /path/to/file.txt
+## \example-description
+## In this example, we check if a website is down and pick a random line
+## from a specified file for various utility purposes.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'miscellaneous tools'

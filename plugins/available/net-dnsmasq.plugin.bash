@@ -1,3 +1,29 @@
+## \brief dnsmasq install configurations.
+## \desc This tool helps install, configure, and manage dnsmasq (DNS forwarder and DHCP server)
+## for network services. It provides automated installation, configuration management,
+## DNS blacklist updates, and service control capabilities. Dnsmasq serves as a lightweight
+## DNS forwarder, DHCP server, and network boot server for small networks.
+
+## \example Install and configure dnsmasq:
+## \example-code bash
+##   net-dnsmasq install
+##   net-dnsmasq configgen
+##   net-dnsmasq configapply
+## \example-description
+## In this example, we install dnsmasq, generate the configuration files,
+## and apply them to the system for DNS and DHCP services.
+
+## \example Update blacklist and run service:
+## \example-code bash
+##   net-dnsmasq updateblist
+##   net-dnsmasq run
+##   net-dnsmasq check
+## \example-description
+## In this example, we update the DNS blacklist for ad-blocking,
+## start the dnsmasq service, and verify that it's running properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'dnsmasq install configurations.'
@@ -40,6 +66,9 @@ function net-dnsmasq {
     fi
 }
 
+## \usage net-dnsmasq [COMMAND] [profile]
+## \usage net-dnsmasq install|uninstall|configgen|configapply
+## \usage net-dnsmasq check|run|download|updateblist
 function __net-dnsmasq_help {
     echo -e "Usage: net-dnsmasq [COMMAND] [profile]\n"
     echo -e "Helper to dnsmasq install configurations.\n"

@@ -157,7 +157,7 @@ plugins:
         en: "English"
       default_language: 'en'
       no_translation:
-        ko: "이 페이지는 아직 영어로 번역되지 않았습니다."
+        ko: "이 페이지는 아직 한글로 번역되지 않았습니다."
         en: "This page isn't translated to English yet."
       translate_nav:
         ko:
@@ -183,6 +183,28 @@ nav:
   - index.md
   - Packages:
     - packages/index.md
+    - packages/net-darkstat.md
+    - packages/net-dnscryptproxy.md
+    - packages/net-dnsmasq.md
+    - packages/net-hostapd.md
+    - packages/net-ifupdown.md
+    - packages/net-iptables.md
+    - packages/net-knockd.md
+    - packages/net-netplan.md
+    - packages/net-sshd.md
+    - packages/net-wstunnel.md
+    - packages/net-xtables.md
+    - packages/os-aide.md
+    - packages/os-auditd.md
+    - packages/os-conf.md
+    - packages/os-disablebins.md
+    - packages/os-firmware.md
+    - packages/os-kparams.md
+    - packages/os-minmon.md
+    - packages/os-redis.md
+    - packages/os-sysctl.md
+    - packages/os-systemd.md
+    - packages/os-vector.md
   # - recipes.md
   # - troubleshooting.md
   - changelog.md

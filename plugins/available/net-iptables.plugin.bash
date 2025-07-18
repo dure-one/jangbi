@@ -1,3 +1,29 @@
+## \brief iptables firewall configurations.
+## \desc This tool helps install, configure, and manage iptables firewall rules
+## for network security and traffic filtering. It provides automated installation,
+## configuration management, and firewall rule control capabilities. The tool manages
+## packet filtering, NAT, port forwarding, and network security policies using iptables
+## and netfilter framework with support for IPv4 and IPv6.
+
+## \example Install and configure firewall rules:
+## \example-code bash
+##   net-iptables install
+##   net-iptables configgen
+##   net-iptables configapply
+## \example-description
+## In this example, we install iptables, generate firewall configurations,
+## and apply them to secure the network with proper filtering rules.
+
+## \example Apply rules and check firewall status:
+## \example-code bash
+##   net-iptables run
+##   net-iptables check
+## \example-description
+## In this example, we activate the firewall rules and verify
+## that the iptables configuration is working properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin a
 about-plugin 'iptables install configurations.'
@@ -543,8 +569,8 @@ function __net-iptables_filternat_all_both_masquerade {
     # iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to-source 192.0.2.123
 }
 
-## Filter/NAT Forward/Postrouting SNAT
-## IPTABLES_SNAT?="WLAN<WAN,LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) # laninf lannet waninf wanip
+# Filter/NAT Forward/Postrouting SNAT
+# IPTABLES_SNAT?="WLAN<WAN,LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) # laninf lannet waninf wanip
 #function __net-iptables_filternat_all_both_snat {
 #    local funcname="fnab_masquerade"
 #    local frominf="$1" # internal network

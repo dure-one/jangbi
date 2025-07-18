@@ -1,3 +1,29 @@
+## \brief sshd install configurations.
+## \desc This tool helps install, configure, and manage SSH daemon (sshd)
+## for secure remote access and administration. It provides automated installation,
+## configuration management, and SSH service control capabilities. The tool manages
+## SSH security settings, authentication methods, access controls, and service hardening
+## for secure remote system administration.
+
+## \example Install and configure SSH daemon:
+## \example-code bash
+##   net-sshd install
+##   net-sshd configgen
+##   net-sshd configapply
+## \example-description
+## In this example, we install SSH daemon, generate secure configurations,
+## and apply them to enable secure remote access.
+
+## \example Start SSH service and verify status:
+## \example-code bash
+##   net-sshd run
+##   net-sshd check
+## \example-description
+## In this example, we start the SSH daemon and verify
+## that the service is running and accessible.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'sshd install configurations.'
@@ -38,6 +64,9 @@ function net-sshd {
     fi
 }
 
+## \usage net-sshd [COMMAND] [profile]
+## \usage net-sshd install|uninstall|configgen|configapply
+## \usage net-sshd check|run|download
 function __net-sshd_help {
     echo -e "Usage: net-sshd [COMMAND] [profile]\n"
     echo -e "Helper to sshd install configurations.\n"

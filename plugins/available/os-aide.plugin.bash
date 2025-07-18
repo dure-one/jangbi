@@ -1,35 +1,28 @@
-## \author Dure One <dev@dure>
+## \brief aide install configurations.
+## \desc This tool helps install, configure, and manage AIDE (Advanced Intrusion Detection Environment)
+## for file integrity monitoring. It provides automated installation, configuration management,
+## checkpoint creation, and integrity checking capabilities. AIDE monitors file system changes
+## and can detect unauthorized modifications to critical system files.
 
-## \brief Save file paths in a buffer to move them somewhere else.
-## \desc This tool lets you save file paths into a buffer before moving or copying
-## them somewhere else. It acts like a drag-and-drop utility but for the command-line.
-## It can be useful when you don't want to type the entire destination path and
-## proceed in three or more steps instead, using shortcut commands to move around your
-## filesystem, dragging files from multiple directories.
-
-## \example Drag files from multiple directories, drop them in another:
+## \example Install and configure AIDE:
 ## \example-code bash
-##   cd ~/Documents
-##   drag ThisPlaylist.s3u
-##   cd ../Downloads
-##   drag ThisTrack.ogg AndThisVideo.mp4
-##   drag --drop ../project
+##   os-aide install
+##   os-aide configgen
+##   os-aide configapply
 ## \example-description
-## In this example, we simply move around in the filesystem, picking files in
-## each of these directories. At the end, we drop them all in a specific
-## directory.
+## In this example, we install AIDE, generate the configuration files,
+## and apply them to the system for file integrity monitoring.
 
-## \example Define a convenient `drop` alias:
+## \example Create checkpoint and run integrity check:
 ## \example-code bash
-##   alias drop='drag -d'
-##   drag file.txt
-##   cd /somewhere/else
-##   drop
+##   os-aide checkpoint
+##   os-aide run
+##   os-aide check
 ## \example-description
-## In this example, we define a `drop` alias that allows us to actually
-## run `drag` then `drop` (instead of `drag --drop`).
+## In this example, we create a new baseline checkpoint of the file system,
+## run an integrity check against it, and verify the AIDE service status.
 
-## \exit 1 No arguments provided.
+## \exit 1 Invalid command or parameters provided.
 
 # shellcheck shell=bash
 cite about-plugin
@@ -73,9 +66,9 @@ function os-aide {
     fi
 }
 
-## \usage os-aide FILES
-## \usage os-aide -d|-p [DIR]
-## \usage os-aide -c|-l
+## \usage os-aide [COMMAND] [profile]
+## \usage os-aide install|uninstall|configgen|configapply
+## \usage os-aide checkpoint|check|run|download
 function __os-aide_help {
     echo -e "Usage: os-aide [COMMAND] [profile]\n"
     echo -e "Helper to aide install configurations.\n"
@@ -188,7 +181,7 @@ function __os-aide_check { # running_status: 0 running, 1 installed, running_sta
 }
 
 function __os-aide_run {
-    ## aide minimal check for first run
+    # aide minimal check for first run
     systemd-run -r aide --check --config=/etc/aide/aide.minimal.conf
     return 0
 }

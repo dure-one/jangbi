@@ -1,3 +1,29 @@
+## \brief netplan network configurations.
+## \desc This tool helps install, configure, and manage Netplan network configurations
+## for modern Ubuntu/Debian network management. It provides automated installation,
+## configuration management, and network service control capabilities. Netplan uses
+## YAML configuration files to define network interfaces, bridges, bonds, and VLANs
+## with backend support for NetworkManager and systemd-networkd.
+
+## \example Install and configure Netplan:
+## \example-code bash
+##   net-netplan install
+##   net-netplan configgen
+##   net-netplan configapply
+## \example-description
+## In this example, we install Netplan, generate network configurations,
+## and apply them to manage network interfaces with modern tooling.
+
+## \example Apply network changes and verify status:
+## \example-code bash
+##   net-netplan run
+##   net-netplan check
+## \example-description
+## In this example, we apply the Netplan configuration and verify
+## that the network settings are active and working properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'netplan install configurations.'

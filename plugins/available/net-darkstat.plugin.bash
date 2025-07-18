@@ -1,3 +1,28 @@
+## \brief darkstat install configurations.
+## \desc This tool helps install, configure, and manage darkstat (network traffic analyzer)
+## for network monitoring. It provides automated installation, configuration management,
+## and service control capabilities. Darkstat captures network packets on a specified
+## interface and provides web-based statistics about network usage and traffic patterns.
+
+## \example Install and configure darkstat:
+## \example-code bash
+##   net-darkstat install
+##   net-darkstat configgen
+##   net-darkstat configapply
+## \example-description
+## In this example, we install darkstat, generate the configuration files,
+## and apply them to the system for network traffic monitoring.
+
+## \example Run darkstat and check status:
+## \example-code bash
+##   net-darkstat run
+##   net-darkstat check
+## \example-description
+## In this example, we start the darkstat service to begin network monitoring
+## and verify that the service is running properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'darkstat install configurations.'
@@ -38,6 +63,9 @@ function net-darkstat {
     fi
 }
 
+## \usage net-darkstat [COMMAND] [profile]
+## \usage net-darkstat install|uninstall|configgen|configapply
+## \usage net-darkstat check|run|download
 function __net-darkstat_help {
     echo -e "Usage: net-darkstat [COMMAND] [profile]\n"
     echo -e "Helper to darkstat install configurations.\n"

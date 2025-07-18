@@ -1,3 +1,28 @@
+## \brief auditd install configurations.
+## \desc This tool helps install, configure, and manage auditd (Linux Audit Daemon)
+## for system security monitoring and compliance. It provides automated installation,
+## configuration management, and audit log monitoring capabilities. Auditd tracks
+## system calls, file access, user activities, and security events for forensics and compliance.
+
+## \example Install and configure auditd:
+## \example-code bash
+##   os-auditd install
+##   os-auditd configgen
+##   os-auditd configapply
+## \example-description
+## In this example, we install auditd, generate security audit configurations,
+## and apply them to enable comprehensive system monitoring.
+
+## \example Start auditing and check status:
+## \example-code bash
+##   os-auditd run
+##   os-auditd check
+## \example-description
+## In this example, we start the audit daemon to begin security monitoring
+## and verify that the auditing service is functioning properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'auditd install configurations.'
@@ -38,6 +63,9 @@ function os-auditd {
     fi
 }
 
+## \usage net-auditd [COMMAND] [profile]
+## \usage net-auditd install|uninstall|configgen|configapply
+## \usage net-auditd check|run|download
 function __os-auditd_help {
     echo -e "Usage: os-auditd [COMMAND] [profile]\n"
     echo -e "Helper to auditd install configurations.\n"

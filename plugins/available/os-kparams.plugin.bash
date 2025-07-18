@@ -1,3 +1,27 @@
+## \brief custom kernel parameters in cmdline.
+## \desc This tool helps install, configure, and manage custom kernel parameters
+## in the kernel command line for system optimization and hardware control. It provides
+## automated installation, configuration management, and kernel parameter modification
+## capabilities. The tool manages boot parameters, kernel options, and system-level
+## settings that are applied at boot time for enhanced performance and functionality.
+
+## \example Install and configure kernel parameters:
+## \example-code bash
+##   os-kparams install
+##   os-kparams run
+## \example-description
+## In this example, we install custom kernel parameters and apply them
+## to optimize system performance and hardware behavior.
+
+## \example Check kernel parameter status:
+## \example-code bash
+##   os-kparams check
+## \example-description
+## In this example, we verify the current kernel parameter configuration
+## and ensure all custom settings are properly applied.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'custom kernel params in cmdline.'
@@ -32,6 +56,8 @@ function os-kparams {
     fi
 }
 
+## \usage os-kparams [COMMAND] [profile]
+## \usage os-kparams install|uninstall|check|run
 function __os-kparams_help {
     echo -e "Usage: os-kparams [COMMAND] [profile]\n"
     echo -e "Helper to kernel params installation.\n"

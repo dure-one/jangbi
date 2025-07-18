@@ -1,3 +1,27 @@
+## \brief custom OS firmware install in kernel.
+## \desc This tool helps install, configure, and manage custom firmware
+## in the Linux kernel for hardware support and optimization. It provides automated installation,
+## configuration management, and firmware update capabilities. The tool manages
+## kernel firmware files, driver modules, and hardware-specific configurations
+## to ensure proper hardware functionality and performance.
+
+## \example Install and configure firmware:
+## \example-code bash
+##   os-firmware install
+##   os-firmware run
+## \example-description
+## In this example, we install custom firmware and apply it
+## to enable proper hardware support and driver functionality.
+
+## \example Check firmware status:
+## \example-code bash
+##   os-firmware check
+## \example-description
+## In this example, we verify the current firmware installation status
+## and ensure all hardware components are properly supported.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'custom os firmware install in kernel.'
@@ -32,6 +56,8 @@ function os-firmware {
     fi
 }
 
+## \usage os-firmware [COMMAND] [profile]
+## \usage os-firmware install|uninstall|check|run
 function __os-firmware_help {
     echo -e "Usage: os-firmware [COMMAND] [profile]\n"
     echo -e "Helper to os firmware installation.\n"

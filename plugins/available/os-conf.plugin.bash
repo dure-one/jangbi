@@ -1,3 +1,27 @@
+## \brief custom OS configurations.
+## \desc This tool helps install, configure, and manage custom operating system
+## configurations for system hardening and optimization. It provides automated installation,
+## configuration management, and system customization capabilities. The tool manages
+## user accounts, file permissions, system settings, and various OS-level configurations
+## to establish a secure and optimized system baseline.
+
+## \example Install and configure custom OS settings:
+## \example-code bash
+##   os-conf install
+##   os-conf run
+## \example-description
+## In this example, we install custom OS configurations and apply them
+## to establish proper system settings and security baselines.
+
+## \example Check configuration status:
+## \example-code bash
+##   os-conf check
+## \example-description
+## In this example, we verify the current configuration status
+## and ensure all custom settings are properly applied.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'custom os configurations'
@@ -34,6 +58,8 @@ function os-conf {
     fi
 }
 
+## \usage os-conf [COMMAND] [profile]
+## \usage os-conf install|uninstall|check|run|download
 function __os-conf_help {
     echo -e "Usage: os-conf [COMMAND] [profile]\n"
     echo -e "Helper to os configuration installation.\n"

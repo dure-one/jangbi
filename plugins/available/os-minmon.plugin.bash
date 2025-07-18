@@ -1,3 +1,29 @@
+## \brief minimal monitoring system configurations.
+## \desc This tool helps install, configure, and manage a minimal monitoring system
+## for basic system health and performance tracking. It provides automated installation,
+## configuration management, and monitoring service control capabilities. The tool sets up
+## lightweight monitoring scripts, cron-based checks, and basic alerting for system resources,
+## services, and network connectivity.
+
+## \example Install and configure minimal monitoring:
+## \example-code bash
+##   os-minmon install
+##   os-minmon configgen
+##   os-minmon configapply
+## \example-description
+## In this example, we install the minimal monitoring system, generate configurations,
+## and apply them to enable basic system monitoring.
+
+## \example Start monitoring and check status:
+## \example-code bash
+##   os-minmon run
+##   os-minmon check
+## \example-description
+## In this example, we start the monitoring system and verify
+## that the monitoring services are functioning properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'minmon install configurations.'
@@ -38,6 +64,9 @@ function os-minmon {
     fi
 }
 
+## \usage os-minmon [COMMAND] [profile]
+## \usage os-minmon install|uninstall|configgen|configapply
+## \usage os-minmon check|run|download
 function __os-minmon_help {
     echo -e "Usage: os-minmon [COMMAND] [profile]\n"
     echo -e "Helper to minmon install configurations.\n"

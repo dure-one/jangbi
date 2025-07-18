@@ -1,3 +1,29 @@
+## \brief knockd port knocking daemon configurations.
+## \desc This tool helps install, configure, and manage knockd (port knocking daemon)
+## for enhanced network security through stealth port access. It provides automated installation,
+## configuration management, and port knocking service control capabilities. Knockd enables
+## secure remote access by requiring specific port knock sequences before opening firewall ports,
+## adding an extra layer of security to network services.
+
+## \example Install and configure port knocking:
+## \example-code bash
+##   net-knockd install
+##   net-knockd configgen
+##   net-knockd configapply
+## \example-description
+## In this example, we install knockd, generate port knocking configurations,
+## and apply them to enable stealth network access controls.
+
+## \example Start knockd service and verify status:
+## \example-code bash
+##   net-knockd run
+##   net-knockd check
+## \example-description
+## In this example, we start the port knocking daemon and verify
+## that the service is monitoring for knock sequences.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'knockd install configurations.'

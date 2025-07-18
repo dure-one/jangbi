@@ -1,4 +1,9 @@
+::: plugins/available/os-auditd.plugin.bash
+    handler: shell
+    options:
+      heading_level: 2
 
+```
 # # https://rninche01.tistory.com/entry/Linux-system-call-table-%EC%A0%95%EB%A6%ACx86-x64
 # type=SYSCALL msg=audit(1749094648.996:73664): arch=c000003e syscall=41 success=yes exit=188 a0=2 a1=80802 a2=0 a3=0 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=444E53205265737E76657220233239 exe="/usr/lib/firefox-esr/firefox-esr" subj=unconfined key="network_socket_created"ARCH=x86_64 SYSCALL=socket AUID="wj" UID="wj" GID="wj" EUID="wj" SUID="wj" FSUID="wj" EGID="wj" SGID="wj" FSGID="wj"
 # type=PROCTITLE msg=audit(1749094648.996:73664): proctitle="/usr/lib/firefox-esr/firefox-esr"
@@ -21,3 +26,4 @@
 # type=SYSCALL msg=audit(1749094650.060:73671): arch=c000003e syscall=41 success=yes exit=190 a0=2 a1=1 a2=0 a3=36bebdec9285 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=536F636B657420546872656164 exe="/usr/lib/firefox-esr/firefox-esr" subj=unconfined key="network_socket_created"ARCH=x86_64 SYSCALL=socket AUID="wj" UID="wj" GID="wj" EUID="wj" SUID="wj" FSUID="wj" EGID="wj" SGID="wj" FSGID="wj"
 # type=PROCTITLE msg=audit(1749094650.060:73671): proctitle="/usr/lib/firefox-esr/firefox-esr"
 # type=SYSCALL msg=audit(1749094650.708:73672): arch=c000003e syscall=41 success=yes exit=215 a0=2 a1=1 a2=0 a3=627c24bfe383 items=0 ppid=1238 pid=1831 auid=1000 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=tty1 ses=1 comm=536F636B657420546872656164 exe="/usr/lib/firefox-esr/firefox-esr" subj=unconfined key="network_socket_created"ARCH=x86_64 SYSCALL=socket AUID="wj" UID="wj" GID="wj" EUID="wj" SUID="wj" FSUID="wj" EGID="wj" SGID="wj" FSGID="wj"
+```

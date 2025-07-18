@@ -1,3 +1,29 @@
+## \brief redis server install configurations.
+## \desc This tool helps install, configure, and manage Redis server
+## for high-performance data storage and caching. It provides automated installation,
+## configuration management, and Redis service control capabilities. Redis is an
+## in-memory data structure store used as a database, cache, and message broker,
+## supporting various data types and advanced features for modern applications.
+
+## \example Install and configure Redis server:
+## \example-code bash
+##   os-redis install
+##   os-redis configgen
+##   os-redis configapply
+## \example-description
+## In this example, we install Redis server, generate configurations,
+## and apply them to establish a high-performance data store.
+
+## \example Start Redis service and verify status:
+## \example-code bash
+##   os-redis run
+##   os-redis check
+## \example-description
+## In this example, we start the Redis service and verify
+## that the server is running and accepting connections.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'redis install configurations.'
@@ -38,6 +64,9 @@ function os-redis {
     fi
 }
 
+## \usage os-redis [COMMAND] [profile]
+## \usage os-redis install|uninstall|configgen|configapply
+## \usage os-redis check|run|download
 function __os-redis_help {
     echo -e "Usage: os-redis [COMMAND] [profile]\n"
     echo -e "Helper to redis install configurations.\n"

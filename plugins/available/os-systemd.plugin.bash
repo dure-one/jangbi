@@ -1,3 +1,27 @@
+## \brief systemd service management configurations.
+## \desc This tool helps install, configure, and manage systemd service management
+## for modern Linux system initialization and service control. It provides automated installation,
+## configuration management, and systemd optimization capabilities. The tool manages
+## systemd services, timers, targets, and system initialization components while
+## providing options for minimal systemd deployments and service customization.
+
+## \example Install and configure systemd:
+## \example-code bash
+##   os-systemd install
+##   os-systemd run
+## \example-description
+## In this example, we install systemd configurations and apply them
+## to optimize system initialization and service management.
+
+## \example Check systemd status:
+## \example-code bash
+##   os-systemd check
+## \example-description
+## In this example, we verify the current systemd configuration
+## and ensure all services are properly managed.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'setup systemd.'
@@ -33,6 +57,8 @@ function os-systemd {
     fi
 }
 
+## \usage os-systemd [COMMAND] [profile]
+## \usage os-systemd install|uninstall|check|run
 function __os-systemd_help {
     echo -e "Usage: os-systemd [COMMAND] [profile]\n"
     echo -e "Helper to local packgage repository.\n"

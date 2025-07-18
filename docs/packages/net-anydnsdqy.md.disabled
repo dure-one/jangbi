@@ -1,6 +1,9 @@
-# anydnsdqy
+::: plugins/available/net-anydnsdqy.plugin.bash
+    handler: shell
+    options:
+      heading_level: 2
 
-
+```
 quic://dns.adguard-dns.com
 quic://family.adguard-dns.com
 quic://unfiltered.adguard-dns.com
@@ -19,3 +22,4 @@ quic://rx.techomespace.com
 quic://dnsguard.pub
 
 https://adguard-dns.io/kb/general/dns-providers/
+```

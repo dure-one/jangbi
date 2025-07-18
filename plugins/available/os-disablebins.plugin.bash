@@ -1,3 +1,27 @@
+## \brief disable system binaries for security.
+## \desc This tool helps disable potentially dangerous system binaries
+## for enhanced security hardening. It provides automated installation,
+## configuration management, and binary restriction capabilities. The tool safely
+## disables or replaces system binaries that could be used maliciously while
+## maintaining system functionality through controlled access and replacement scripts.
+
+## \example Install and configure binary restrictions:
+## \example-code bash
+##   os-disablebins install
+##   os-disablebins run
+## \example-description
+## In this example, we install binary restriction configurations and apply them
+## to disable potentially dangerous system binaries for security hardening.
+
+## \example Check restriction status:
+## \example-code bash
+##   os-disablebins check
+## \example-description
+## In this example, we verify which binaries are currently disabled
+## and ensure the security restrictions are properly applied.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'disable binaries.'
@@ -32,6 +56,8 @@ function os-disablebins {
     fi
 }
 
+## \usage os-disablebins [COMMAND] [profile]
+## \usage os-disablebins install|uninstall|check|run
 function __os-disablebins_help {
     echo -e "Usage: disablebins [COMMAND] [profile]\n"
     echo -e "Helper to disable binaries.\n"

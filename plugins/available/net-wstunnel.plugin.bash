@@ -1,3 +1,29 @@
+## \brief WebSocket tunnel configurations.
+## \desc This tool helps install, configure, and manage WebSocket tunnels
+## for secure network connectivity through firewalls and proxies. It provides automated installation,
+## configuration management, and tunnel service control capabilities. WebSocket tunnels enable
+## secure communication through restrictive network environments by encapsulating traffic
+## in WebSocket connections that can traverse most firewall configurations.
+
+## \example Install and configure WebSocket tunnel:
+## \example-code bash
+##   net-wstunnel install
+##   net-wstunnel configgen
+##   net-wstunnel configapply
+## \example-description
+## In this example, we install WebSocket tunnel, generate configurations,
+## and apply them to establish secure tunneled connections.
+
+## \example Start tunnel service and verify connectivity:
+## \example-code bash
+##   net-wstunnel run
+##   net-wstunnel check
+## \example-description
+## In this example, we start the WebSocket tunnel service and verify
+## that the tunnel is established and functioning properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'wstunnel install configurations.'

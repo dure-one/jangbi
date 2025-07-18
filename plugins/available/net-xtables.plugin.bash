@@ -1,3 +1,29 @@
+## \brief xtables extended netfilter configurations.
+## \desc This tool helps install, configure, and manage xtables (extended netfilter)
+## for advanced packet filtering and network security. It provides automated installation,
+## configuration management, and extended firewall capabilities. Xtables includes support
+## for additional netfilter modules, advanced matching criteria, and enhanced packet
+## manipulation features beyond standard iptables functionality.
+
+## \example Install and configure extended netfilter:
+## \example-code bash
+##   net-xtables install
+##   net-xtables configgen
+##   net-xtables configapply
+## \example-description
+## In this example, we install xtables, generate extended firewall configurations,
+## and apply them to enable advanced packet filtering capabilities.
+
+## \example Apply advanced rules and check status:
+## \example-code bash
+##   net-xtables run
+##   net-xtables check
+## \example-description
+## In this example, we activate the extended netfilter rules and verify
+## that the advanced firewall features are working properly.
+
+## \exit 1 Invalid command or parameters provided.
+
 # shellcheck shell=bash
 cite about-plugin a
 about-plugin 'xtables install configurations.'
@@ -43,6 +69,9 @@ function net-xtables {
     fi
 }  
 
+## \usage net-xtables [COMMAND] [profile]
+## \usage net-xtables install|uninstall|configgen|configapply
+## \usage net-xtables check|run|download|build|watch
 function __net-xtables_help {
     echo -e "Usage: net-xtables [COMMAND] [profile]\n"
     echo -e "Helper to xtables install configurations.\n"

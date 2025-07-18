@@ -5,6 +5,7 @@
 # JANGBI(Device)
 this project is part of dure ecosystem.<br/>
 poor firewalla alternatives with iptables and dnsmasq on top of armbian/dietpi/debian.
+similar projects: [pi-hole](https://pi-hole.net/), [technitium](https://technitium.com/dns/), [adguardhome](https://github.com/AdguardTeam/AdGuardHome), [blocky](https://github.com/0xERR0R/blocky), [portmaster](https://github.com/safing/portmaster?tab=readme-ov-file)
 
 ## Features
 * os hardening(disable kernel modules, sysctl, disable binaries)
@@ -134,3 +135,5 @@ $ ./init.sh
 - option to disable gui logind and replace it to tty autologin and startx automatically and vlock
 - hiding sensitive information on confiuration logs.
 - pstrap https://github.com/shishouyuan/pstrap.git
+- dns over tor
+- dns over 
