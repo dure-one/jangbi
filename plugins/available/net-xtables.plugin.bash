@@ -226,7 +226,10 @@ function __net-xtables_build {
     # XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"
     log_debug "xtables_filter_all_both_delude"
     [[ ${XTABLES_DELUDE_PORTS} -gt 0 ]] && __net-xtables_filter_all_both_delude
-
+    # XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPEN_PORT="3306" XTABLES_PKNOCK_TIMEOUT="20"
+    log_debug "xtables_filter_all_inc_pknock_db"
+    [[ ${#XTABLES_PKNOCK_PORTS[@]} -gt 0 ]] && __net-xtables_filter_all_inc_pknock_db
+    
     # XTABLES_SNAT="LAN<WAN|LAN1<WAN"
     # [[ ${XTABLES_SNAT} -gt 0 ]] && __net-xtables_filternat_all_both_snat # laninf lannet waninf wanip
     # nft list ruleset > /tmp/xtables/nftables.conf
@@ -383,6 +386,38 @@ function __net-xtables_filter_all_both_delude {
     done
 }
 
+# Filter Input : Database Port Knocking with Logging
+# XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPEN_PORT="3306" XTABLES_PKNOCK_TIMEOUT="20"
+function __net-xtables_filter_all_inc_pknock_db {
+    local funcname="fai_pknock_db"
+    local knock_ports=${XTABLES_PKNOCK_PORTS}
+    local db_port=${XTABLES_PKNOCK_OPEN_PORT}
+    local timeout=${XTABLES_PKNOCK_TIMEOUT}
+    
+    # Parse knock ports
+    IFS=',' read -ra KNOCK_ARRAY <<< "$knock_ports"
+    
+    # Set up database knocking sequence with logging
+    local i=1
+    for port in "${KNOCK_ARRAY[@]}"; do
+        # Log knock attempts
+        IPTABLE_LOG="INPUT -p tcp --dport ${port} -m pknock --knockports ${knock_ports} --name db_knock --time ${timeout} -m comment --comment ${funcname}_log${i} -j LOG --log-prefix 'DB_KNOCK_${i}: '"
+        iptables -S | grep "${funcname}_log${i}" || iptables -A $IPTABLE_LOG
+        
+        # Accept knock
+        IPTABLE="INPUT -p tcp --dport ${port} -m pknock --knockports ${knock_ports} --name db_knock --time ${timeout} -m comment --comment ${funcname}${i} -j ACCEPT"
+        iptables -S | grep "${funcname}${i}" || iptables -A $IPTABLE
+        ((i++))
+    done
+    
+    # Log successful database access
+    IPTABLE_DB_LOG="INPUT -p tcp --dport ${db_port} -m pknock --checkknock db_knock -m comment --comment ${funcname}_db_log -j LOG --log-prefix 'DB_ACCESS_GRANTED: '"
+    iptables -S | grep "${funcname}_db_log" || iptables -A $IPTABLE_DB_LOG
+    
+    # Allow database access after successful knock
+    IPTABLE_DB="INPUT -p tcp --dport ${db_port} -m pknock --checkknock db_knock -m comment --comment ${funcname}_db -j ACCEPT"
+    iptables -S | grep "${funcname}_db" || iptables -A $IPTABLE_DB
+}
 
 complete -F _blank net-xtables
 

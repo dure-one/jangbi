@@ -39,7 +39,6 @@ unset log
 
 log_and_tee() {
   printf '%s%s\n' "[$(date +"%Y-%m-%d %H:%M:%S %Z")] " "$@" | tee -a "${BASH_IT_LOG_FILE}"
-  # echo "$@"| tee -a "${BASH_IT_LOG_FILE}"
 } # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
 log_info()   { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; }
 log_success(){ printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 6 - info

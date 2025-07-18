@@ -169,10 +169,11 @@ plugins:
 nav:
   # Korean Tree
   - index.ko.md
+  - gettingstarted.ko.md
   - Packages:
     - packages/index.ko.md
   # - recipes.ko.md
-  # - troubleshooting.ko.md
+  - troubleshooting.ko.md
   - changelog.ko.md
   - code_of_conduct.ko.md
   - contributing.ko.md
@@ -181,6 +182,7 @@ nav:
 
   # English Tree
   - index.md
+  - gettingstarted.md
   - Packages:
     - packages/index.md
     - packages/net-darkstat.md
@@ -206,7 +208,7 @@ nav:
     - packages/os-systemd.md
     - packages/os-vector.md
   # - recipes.md
-  # - troubleshooting.md
+  - troubleshooting.md
   - changelog.md
   - code_of_conduct.md
   - contributing.md
