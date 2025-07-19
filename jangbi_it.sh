@@ -305,8 +305,7 @@ _trim_string() { # Usage: _trim_string "   example   string    "
 _load_config() { # Load config including parent config ex) _load_config .config
   local conf=".config"
   JB_VARS=""
-  echo "${JANGBI_IT}/${conf}" 
-  log_debug "${JANGBI_IT}/${conf}" 
+  # log_debug "Load config from ${JANGBI_IT}/${conf}" 
   [[ ! -f "${JANGBI_IT}/${conf}" ]] && log_fatal "config file ${JANGBI_IT}/${conf} not exist." && _safe_exit 1
   stack=()
   pushstk() { stack+=("$@"); }
@@ -332,12 +331,13 @@ _load_config() { # Load config including parent config ex) _load_config .config
   JB_VARS="${JB_VARS} JB_CFILES"
 
   # setup slog
+  log_debug "LOGFILE: $LOGFILE LOG_PATH: $LOG_PATH RUN_LOG: $RUN_LOG"
   LOGFILE=${LOGFILE:="output.log"}
   LOG_PATH=${LOG_PATH:="output.log"}
   RUN_LOG=${RUN_LOG:="output.log"}
-  RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
-  LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
-  LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
+  # RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
+  # LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
+  # LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
   # RUN_LOG="/dev/null"
 }
 

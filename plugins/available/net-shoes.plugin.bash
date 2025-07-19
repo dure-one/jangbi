@@ -41,9 +41,9 @@ function net-shoes {
     BASH_IT_LOG_PREFIX="net-shoes: "
     SHOES_PORTS="${SHOES_PORTS:-"LO:8080"}"
     if [[ -z ${DURE_DEPLOY_PATH} ]]; then
-        _load_config
-        _root_only
-        _distname_check
+        _load_config || exit 1
+        _root_only || exit 1
+        _distname_check || exit 1
     fi
 
     if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then

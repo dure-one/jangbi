@@ -41,9 +41,9 @@ function os-vector {
     BASH_IT_LOG_PREFIX="os-vector: "
     # VECTOR_PORTS="${VECTOR_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
-        _load_config
-        _root_only
-        _distname_check
+        _load_config || exit 1
+        _root_only || exit 1
+        _distname_check || exit 1
     fi
 
     if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then

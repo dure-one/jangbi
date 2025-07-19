@@ -32,9 +32,9 @@ BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 
 BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 
 if [[ -z ${JB_VARS} ]]; then
-    _load_config
-    _root_only
-    _distname_check
+    _load_config || exit 1
+    _root_only || exit 1
+    _distname_check || exit 1
 else
     log_fatal "JB_DEPLOY_PATH configure is not set. please make .config file."
     return 1
@@ -55,6 +55,7 @@ while [[ $# -gt 0 ]]; do
       BASH_IT_LOG_LEVEL=0
       RUN_LOG="/dev/null"
       BASH_IT_LOG_FILE="/dev/null"
+      LOG_PATH="/dev/null"
       TRPROC=$2
       ${TRPROC} check
       exit ${running_status}
@@ -63,6 +64,7 @@ while [[ $# -gt 0 ]]; do
       BASH_IT_LOG_LEVEL=0
       RUN_LOG="/dev/null"
       BASH_IT_LOG_FILE="/dev/null"
+      LOG_PATH="/dev/null"
       TRPROC=$2
       ${TRPROC} run
       exit 0
@@ -71,6 +73,7 @@ while [[ $# -gt 0 ]]; do
       BASH_IT_LOG_LEVEL=0
       RUN_LOG="/dev/null"
       BASH_IT_LOG_FILE="/dev/null"
+      LOG_PATH="/dev/null"
       SYNC_AND_BREAK=1
       shift
       ;;
@@ -224,6 +227,7 @@ process_each_step() {
             log_debug "$!"
             ;;
     esac
+    BASH_IT_LOG_PREFIX="core: main: "
 }
 INTERNET_AVAIL=0
 
