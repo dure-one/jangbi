@@ -431,60 +431,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-network-interface-configuration" class="md-nav__link">
+  <a href="#4-configure-plugins-to-run" class="md-nav__link">
     <span class="md-ellipsis">
-      4. Network Interface Configuration
+      4. Configure Plugins to run
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-run-installation" class="md-nav__link">
+  <a href="#4-run-installation" class="md-nav__link">
     <span class="md-ellipsis">
-      5. Run Installation
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration-file-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      Configuration File Reference
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Configuration File Reference">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#basic-settings" class="md-nav__link">
-    <span class="md-ellipsis">
-      Basic Settings
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#network-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Network Configuration
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#service-enablement" class="md-nav__link">
-    <span class="md-ellipsis">
-      Service Enablement
+      4. Run Installation
     </span>
   </a>
   
@@ -558,6 +516,15 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-file-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File Reference
+    </span>
+  </a>
   
 </li>
       
@@ -1369,16 +1336,15 @@
 </ul>
 <h2 id="quick-installation">Quick Installation<a class="headerlink" href="#quick-installation" title="Permanent link">¤</a></h2>
 <h3 id="1-install-prerequisites">1. Install Prerequisites<a class="headerlink" href="#1-install-prerequisites" title="Permanent link">¤</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Update system packages</span>
-sudo<span class="w"> </span>apt<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>sudo<span class="w"> </span>apt<span class="w"> </span>upgrade<span class="w"> </span>-y
-
-<span class="c1"># Install required tools</span>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Install required tools</span>
 sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ipcalc-ng<span class="w"> </span>git
 </code></pre></div>
 <h3 id="2-clone-repository">2. Clone Repository<a class="headerlink" href="#2-clone-repository" title="Permanent link">¤</a></h3>
+<p>Install in /opt folder where init system can find easily.<br/>
+Use root accoutfor install and edit config files.</p>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># Clone the Jangbi repository</span>
-git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git
-<span class="nb">cd</span><span class="w"> </span>jangbi
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git<span class="w"> </span>/opt/jangbi
+<span class="nb">cd</span><span class="w"> </span>/opt/jangbi
 </code></pre></div>
 <h3 id="3-configure-your-device">3. Configure Your Device<a class="headerlink" href="#3-configure-your-device" title="Permanent link">¤</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># Copy gateway configuration template</span>
@@ -1386,24 +1352,21 @@ cp<span class="w"> </span>.config.default<span class="w"> </span>.config
 
 <span class="c1"># Check your network interfaces</span>
 ip<span class="w"> </span>a
+<span class="m">1</span>:<span class="w"> </span>lo:<span class="w"> </span>&lt;LOOPBACK,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">65536</span><span class="w"> </span>qdisc<span class="w"> </span>noqueue<span class="w"> </span>state<span class="w"> </span>UNKNOWN<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+<span class="w">    </span>link/loopback<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span><span class="m">00</span>:00:00:00:00:00
+<span class="w">    </span>inet<span class="w"> </span><span class="m">127</span>.0.0.1/8<span class="w"> </span>scope<span class="w"> </span>host<span class="w"> </span>lo
+<span class="w">       </span>valid_lft<span class="w"> </span>forever<span class="w"> </span>preferred_lft<span class="w"> </span>forever
+<span class="m">2</span>:<span class="w"> </span>eth0:<span class="w"> </span>&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>fq_codel<span class="w"> </span>state<span class="w"> </span>UP<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+<span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
+<span class="w">    </span>inet<span class="w"> </span><span class="m">192</span>.168.79.186/24<span class="w"> </span>brd<span class="w"> </span><span class="m">192</span>.168.79.255<span class="w"> </span>scope<span class="w"> </span>global<span class="w"> </span>dynamic<span class="w"> </span>enx00e04c680686
+<span class="w">       </span>valid_lft<span class="w"> </span>37293sec<span class="w"> </span>preferred_lft<span class="w"> </span>37293sec
+<span class="m">3</span>:<span class="w"> </span>eth1:<span class="w"> </span>&lt;BROADCAST,MULTICAST&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>noop<span class="w"> </span>state<span class="w"> </span>DOWN<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+<span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
+<span class="m">4</span>:<span class="w"> </span>wlan0:<span class="w"> </span>&lt;BROADCAST,MULTICAST&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>noop<span class="w"> </span>state<span class="w"> </span>DOWN<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
+<span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
 
 <span class="c1"># Edit configuration file</span>
 nano<span class="w"> </span>.config
-</code></pre></div>
-<h3 id="4-network-interface-configuration">4. Network Interface Configuration<a class="headerlink" href="#4-network-interface-configuration" title="Permanent link">¤</a></h3>
-<p>Identify your network interfaces and update the configuration:</p>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># List available interfaces</span>
-$<span class="w"> </span>ip<span class="w"> </span>link<span class="w"> </span>show
-<span class="m">1</span>:<span class="w"> </span>lo:<span class="w"> </span>&lt;LOOPBACK,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">65536</span><span class="w"> </span>qdisc<span class="w"> </span>noqueue<span class="w"> </span>state<span class="w"> </span>UNKNOWN<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
-<span class="w">    </span>link/loopback<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span><span class="m">00</span>:00:00:00:00:00
-<span class="m">2</span>:<span class="w"> </span>eth0:<span class="w"> </span>&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>fq_codel<span class="w"> </span>state<span class="w"> </span>UP<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
-<span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
-<span class="m">3</span>:<span class="w"> </span>eth1:<span class="w"> </span>&lt;BROADCAST,MULTICAST&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>noop<span class="w"> </span>state<span class="w"> </span>DOWN<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
-<span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
-<span class="m">4</span>:<span class="w"> </span>wlan0:<span class="w"> </span>&lt;BROADCAST,MULTICAST&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>noop<span class="w"> </span>state<span class="w"> </span>DOWN<span class="w"> </span>mode<span class="w"> </span>DEFAULT<span class="w"> </span>group<span class="w"> </span>default<span class="w"> </span>qlen<span class="w"> </span><span class="m">1000</span>
-<span class="w">    </span>link/ether<span class="w"> </span><span class="m">00</span>:00:00:00:00:00<span class="w"> </span>brd<span class="w"> </span>ff:ff:ff:ff:ff:ff
-
-$<span class="w"> </span>nano<span class="w"> </span>.config
 <span class="c1"># Example interface assignments for gateway mode:</span>
 <span class="nv">JB_WANINF</span><span class="o">=</span>eth0<span class="w">      </span><span class="c1"># WAN interface (internet connection)</span>
 <span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
@@ -1412,62 +1375,46 @@ $<span class="w"> </span>nano<span class="w"> </span>.config
 <span class="nv">JB_WLANINF</span><span class="o">=</span>wlan0<span class="w">    </span><span class="c1"># WLAN interface (WiFi AP)</span>
 <span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">&quot;192.168.89.1/24&quot;</span>
 </code></pre></div>
-<h3 id="5-run-installation">5. Run Installation<a class="headerlink" href="#5-run-installation" title="Permanent link">¤</a></h3>
+<h3 id="4-configure-plugins-to-run">4. Configure Plugins to run<a class="headerlink" href="#4-configure-plugins-to-run" title="Permanent link">¤</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Edit configuration file</span>
+$<span class="w"> </span>nano<span class="w"> </span>.config
+<span class="c1"># gateway apps</span>
+<span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts&quot;</span>
+<span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_WSTUNNEL</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">RUN_SOCKS5PROXY</span><span class="o">=</span><span class="m">0</span>
+</code></pre></div>
+<h3 id="4-run-installation">4. Run Installation<a class="headerlink" href="#4-run-installation" title="Permanent link">¤</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># Initialize and configure the system</span>
-sudo<span class="w"> </span>./init.sh
-</code></pre></div>
-<h2 id="configuration-file-reference">Configuration File Reference<a class="headerlink" href="#configuration-file-reference" title="Permanent link">¤</a></h2>
-<h3 id="basic-settings">Basic Settings<a class="headerlink" href="#basic-settings" title="Permanent link">¤</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Device identification</span>
-<span class="nv">DIST_DEVICE</span><span class="o">=</span><span class="s2">&quot;orangepi5-plus&quot;</span>
-<span class="nv">DIST_NAME</span><span class="o">=</span><span class="s2">&quot;armbian_bookworm_aarch64&quot;</span>
-
-<span class="c1"># System configuration</span>
-<span class="nv">CONF_TIMEZONE</span><span class="o">=</span><span class="s2">&quot;Asia/Seoul&quot;</span>
-<span class="nv">JB_USERID</span><span class="o">=</span>admin
-<span class="nv">JB_SSHPUBKEY</span><span class="o">=</span><span class="s2">&quot;your-ssh-public-key-here&quot;</span>
-</code></pre></div>
-<h3 id="network-configuration">Network Configuration<a class="headerlink" href="#network-configuration" title="Permanent link">¤</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># WAN Interface (Internet)</span>
-<span class="nv">JB_WANINF</span><span class="o">=</span>eth0
-<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span><span class="w">  </span><span class="c1"># or static IP like &quot;192.168.1.100/24&quot;</span>
-
-<span class="c1"># LAN Interface (Local Network)</span>
-<span class="nv">JB_LANINF</span><span class="o">=</span>eth1
-<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">&quot;192.168.79.1/24&quot;</span>
-
-<span class="c1"># WiFi Interface (Access Point)</span>
-<span class="nv">JB_WLANINF</span><span class="o">=</span>wlan0
-<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">&quot;192.168.100.1/24&quot;</span>
-<span class="nv">JB_WLAN_APMODE</span><span class="o">=</span><span class="m">1</span>
-</code></pre></div>
-<h3 id="service-enablement">Service Enablement<a class="headerlink" href="#service-enablement" title="Permanent link">¤</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Enable specific services (1=enabled, 0=disabled)</span>
-<span class="nv">RUN_NET_IPTABLES</span><span class="o">=</span><span class="m">1</span><span class="w">      </span><span class="c1"># Firewall</span>
-<span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span><span class="w">       </span><span class="c1"># DNS/DHCP</span>
-<span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span><span class="w">       </span><span class="c1"># WiFi AP</span>
-<span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span><span class="w">      </span><span class="c1"># Network monitoring</span>
-<span class="nv">RUN_OS_AUDITD</span><span class="o">=</span><span class="m">1</span><span class="w">         </span><span class="c1"># System auditing</span>
-<span class="nv">RUN_OS_AIDE</span><span class="o">=</span><span class="m">1</span><span class="w">           </span><span class="c1"># File integrity</span>
+$<span class="w"> </span>./init.sh
 </code></pre></div>
 <h2 id="using-jangbi-it">Using Jangbi-IT<a class="headerlink" href="#using-jangbi-it" title="Permanent link">¤</a></h2>
 <h3 id="managing-services">Managing Services<a class="headerlink" href="#managing-services" title="Permanent link">¤</a></h3>
 <p>Use the plugin system to control individual services:</p>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Check service status</span>
-./jangbi_it.sh<span class="w"> </span>net-iptables<span class="w"> </span>check
-./jangbi_it.sh<span class="w"> </span>net-dnsmasq<span class="w"> </span>check
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># load jangbi-it</span>
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/opt/jangbi
+$<span class="w"> </span><span class="nb">source</span><span class="w"> </span>jangbi_it.sh
+
+<span class="c1"># Check service status</span>
+$<span class="w"> </span>net-iptables<span class="w"> </span>check
+$<span class="w"> </span>net-dnsmasq<span class="w"> </span>check
 
 <span class="c1"># Install and configure services</span>
-./jangbi_it.sh<span class="w"> </span>net-iptables<span class="w"> </span>install
-./jangbi_it.sh<span class="w"> </span>net-iptables<span class="w"> </span>configgen
-./jangbi_it.sh<span class="w"> </span>net-iptables<span class="w"> </span>configapply
+$<span class="w"> </span>net-iptables<span class="w"> </span>install
+$<span class="w"> </span>net-iptables<span class="w"> </span>configgen
+$<span class="w"> </span>net-iptables<span class="w"> </span>configapply
 
 <span class="c1"># Start services</span>
-./jangbi_it.sh<span class="w"> </span>net-iptables<span class="w"> </span>run
-./jangbi_it.sh<span class="w"> </span>net-dnsmasq<span class="w"> </span>run
+$<span class="w"> </span>net-iptables<span class="w"> </span>run
+$<span class="w"> </span>net-dnsmasq<span class="w"> </span>run
 
 <span class="c1"># Monitor services</span>
-./jangbi_it.sh<span class="w"> </span>net-darkstat<span class="w"> </span>run<span class="w">  </span><span class="c1"># Web interface at http://device-ip:666</span>
+$<span class="w"> </span>net-darkstat<span class="w"> </span>run<span class="w">  </span><span class="c1"># Web interface at http://device-ip:666</span>
 </code></pre></div>
 <h3 id="available-plugins">Available Plugins<a class="headerlink" href="#available-plugins" title="Permanent link">¤</a></h3>
 <h4 id="network-plugins">Network Plugins<a class="headerlink" href="#network-plugins" title="Permanent link">¤</a></h4>
@@ -1491,7 +1438,7 @@ sudo<span class="w"> </span>./init.sh
 </ul>
 <h3 id="plugin-usage-pattern">Plugin Usage Pattern<a class="headerlink" href="#plugin-usage-pattern" title="Permanent link">¤</a></h3>
 <p>All plugins follow a consistent command structure:</p>
-<div class="language-bash highlight"><pre><span></span><code>./jangbi_it.sh<span class="w"> </span>&lt;plugin-name&gt;<span class="w"> </span>&lt;command&gt;
+<div class="language-bash highlight"><pre><span></span><code>&lt;plugin-name&gt;<span class="w"> </span>&lt;command&gt;
 
 <span class="c1"># Common commands:</span>
 install<span class="w">      </span><span class="c1"># Install the service</span>
@@ -1501,6 +1448,139 @@ configapply<span class="w">  </span><span class="c1"># Apply configuration chang
 check<span class="w">        </span><span class="c1"># Check service status</span>
 run<span class="w">          </span><span class="c1"># Start/restart the service</span>
 download<span class="w">     </span><span class="c1"># Download required packages</span>
+</code></pre></div>
+<h2 id="configuration-file-reference">Configuration File Reference<a class="headerlink" href="#configuration-file-reference" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><pre><span></span><code>$<span class="w"> </span>cat<span class="w"> </span>.config.default<span class="w"> </span>
+<span class="c1">#!/usr/bin/env bash</span>
+<span class="c1">## ** do not edit/delete this file **</span>
+<span class="nv">FORCE_INSTALL</span><span class="o">=</span><span class="m">0</span>
+
+<span class="c1">## bash-it log settings</span>
+<span class="nv">BASH_IT_LOG_FILE</span><span class="o">=</span><span class="s2">&quot;output.log&quot;</span>
+<span class="c1"># 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, </span>
+<span class="nv">BASH_IT_LOG_LEVEL</span><span class="o">=</span><span class="m">7</span>
+
+<span class="c1">## device config</span>
+<span class="nv">DIST_DEVICE</span><span class="o">=</span><span class="s2">&quot;orangepi5-plus&quot;</span>
+<span class="nv">DIST_NAME</span><span class="o">=</span><span class="s2">&quot;armbian_bookworm_aarch64&quot;</span>
+
+<span class="c1">##  os config</span>
+<span class="nv">RUN_OS_CONF</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">CONF_TIMEZONE</span><span class="o">=</span><span class="s2">&quot;Asia/Seoul&quot;</span>
+<span class="c1">## if os system existing swap size is bigger than 1Gb, not replace existing one</span>
+<span class="nv">CONF_SWAPSIZE</span><span class="o">=</span><span class="s2">&quot;1G&quot;</span>
+<span class="nv">CONF_TIMESYNC</span><span class="o">=</span><span class="s2">&quot;ntp&quot;</span><span class="w"> </span><span class="c1"># ntp or http</span>
+<span class="nv">DNS_UPSTREAM</span><span class="o">=</span><span class="s2">&quot;1.1.1.1&quot;</span>
+
+<span class="c1">## host specific configurations</span>
+<span class="nv">JB_DEPLOY_PATH</span><span class="o">=</span><span class="s2">&quot;/opt/jangbi&quot;</span>
+<span class="nv">JB_USERID</span><span class="o">=</span><span class="nb">test</span>
+<span class="nv">JB_SSHPUBKEY</span><span class="o">=</span><span class="s2">&quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXueL1iMLhGA8N5Fv1va1sUFfcC+U+6pl8uxI8kQr/m/Du9sMZD/bU1hmcy10sQmMx12vdyImJC8BEwwf/1HxZ/o/qD5N6ggiGji+t8sHE9rZX6OBYQnNUJdRmCpBNXaUyFMZdyJi8iKtuVuALLzRospczw93qed7a2nk1Fe8sLHwrOhmIqwebpQQg0sd1V8et/OvTlUoXlA26F2/+dfgsXqbp48jECJOxog1WlRkgViYB1oGRvpV5MWDXbKd9Ny2L+cRbD1H83XsawOvMz9RqT06zhQ2DwF+raCHWRJBDXWqyGL7rc7kBalMNIESc9b/5HdENG4kTUpF/3AUpNaUHHDk8TABcK9PxnOUsV17gT9+uMN8/8HLxzDfpfRzzX/HXv2crF41WNO1Dra9EOgn2q5CvalscwJK/5lKeKeyY06LNZwOn2HdlJDemTOut+6jPe4fr8Pej2107vzTWYmAEa2kQT1PBEetLqGhVJ9Us= root@com&quot;</span>
+
+<span class="c1">## 1 - enable systemd+netplan / 0 - disable completely(no syslog)+ifupdown / 2 - disable systemd except journald+ifupdown</span>
+<span class="c1">## 0 - none+ifupdown</span>
+<span class="nv">RUN_OS_SYSTEMD</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">SYSTEMD_REMOVERAREPKGS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">JB_IFUPDOWN</span><span class="o">=</span>
+
+<span class="c1">## 1- systemd+netplan</span>
+<span class="c1">#RUN_OS_SYSTEMD=1</span>
+<span class="c1">#SYSTEMD_REMOVERAREPKGS=1</span>
+<span class="c1">#JB_NETPLAN=</span>
+
+<span class="c1">## network interfaces</span>
+<span class="nv">JB_WANINF</span><span class="o">=</span><span class="s2">&quot;enP3p49s0&quot;</span>
+<span class="c1">## dhcp, 192.168.5.1/24(first ip of subnet become gateway)</span>
+<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
+<span class="nv">JB_WANGW</span><span class="o">=</span>
+
+<span class="nv">JB_LANINF</span><span class="o">=</span>
+<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">&quot;192.168.79.1/24&quot;</span>
+
+<span class="c1">## LAN0-LAN9 : </span>
+<span class="nv">JB_LAN1INF</span><span class="o">=</span>
+<span class="nv">JB_LAN1</span><span class="o">=</span><span class="s2">&quot;192.168.89.1/24&quot;</span>
+
+<span class="nv">JB_WLANINF</span><span class="o">=</span>
+<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">&quot;192.168.100.1/24&quot;</span>
+<span class="c1">## 1 - ap, 2 - client </span>
+<span class="nv">JB_WLAN_APMODE</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">&quot;durejangbi&quot;</span>
+<span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">&quot;durejangbi&quot;</span>
+
+<span class="c1"># gateway/ client/  wstunnel</span>
+<span class="nv">JB_ROLE</span><span class="o">=</span><span class="s2">&quot;gateway&quot;</span>
+
+<span class="c1"># os security</span>
+<span class="nv">RUN_OS_SYSCTL</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_KPARAMS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">DISABLE_IPV6</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">ADDTO_RCLOCAL</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># only kernel firmware tar.gz link allowed</span>
+<span class="nv">RUN_OS_FIRMWARE</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">FIRMWARE_URL</span><span class="o">=</span><span class="s2">&quot;https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz&quot;</span>
+<span class="nv">SYSTEMD_REMOVERAREPKGS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_DISABLEBINS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">OSLOCAL_SETTING</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_REPOS</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">RUN_OS_AUDITD</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_AIDE</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># network apps</span>
+<span class="nv">RUN_NET_KNOCKD</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">KNOCKD_STATIC_SSH</span><span class="o">=</span><span class="s2">&quot;12345,54321,24680,13579&quot;</span>
+
+<span class="nv">RUN_NET_SSHD</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">SSHD_PORT</span><span class="o">=</span><span class="s2">&quot;22&quot;</span>
+<span class="nv">SSHD_INFS</span><span class="o">=</span><span class="s2">&quot;LAN,WLAN&quot;</span>
+
+<span class="c1"># iptables</span>
+<span class="nv">RUN_NET_IPTABLES</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_OVERRIDE</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="c1"># arp rules</span>
+<span class="nv">IPTABLES_WHITELISTED_MACADDRESSES</span><span class="o">=</span><span class="s2">&quot;LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1&quot;</span>
+<span class="nv">IPTABLES_GWMACONLY</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_ARPALLINFS</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># net rules</span>
+<span class="nv">IPTABLES_DROP_ICMP</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_DROP_NON_SYN</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_DROP_SPOOFING</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_DROP_SPOOFING_TARINF</span><span class="o">=</span>WAN
+<span class="nv">IPTABLES_DROP_SPOOFING_NET</span><span class="o">=</span><span class="s2">&quot;224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8&quot;</span>
+<span class="nv">IPTABLES_BLACK_NAMELIST</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt&quot;</span>
+<span class="c1"># host rules</span>
+<span class="c1"># masquerade inside to outside ex) LAN&lt;WAN|WLAN&lt;WAN</span>
+<span class="nv">IPTABLES_MASQ</span><span class="o">=</span><span class="s2">&quot;LAN&lt;WAN,LAN1&lt;WAN&quot;</span>
+<span class="nv">IPTABLES_PORTFORWARD</span><span class="o">=</span><span class="s2">&quot;8090:192.168.79.11:8090,8010:192.168.79.12:8010&quot;</span>
+<span class="nv">IPTABLES_DMZ</span><span class="o">=</span><span class="s2">&quot;192.168.79.10&quot;</span>
+<span class="nv">IPTABLES_SUPERDMZ</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># xtables</span>
+<span class="nv">RUN_NET_XTABLES</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_OVERRIDE</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">XTABLES_CONNLIMIT_PER_IP</span><span class="o">=</span><span class="s2">&quot;100&quot;</span>
+<span class="nv">XTABLES_DROP_INVALID_STATE</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_DROP_NON_SYN</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_LIMIT_MSS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_GUARD_OVERLOAD</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_INVALID_TCPFLAG</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_GUARD_PORT_SCANNER</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">XTABLES_CHAOS_PORTS</span><span class="o">=</span><span class="s2">&quot;22,23,80,443&quot;</span>
+<span class="nv">XTABLES_DELUDE_PORTS</span><span class="o">=</span><span class="s2">&quot;22,23,80,443,21,25,53,110,143,993,995&quot;</span>
+<span class="nv">XTABLES_PKNOCK_PORTS</span><span class="o">=</span><span class="s2">&quot;3001,3002,3003&quot;</span><span class="w"> </span>
+<span class="nv">XTABLES_PKNOCK_OPEN_PORT</span><span class="o">=</span><span class="s2">&quot;53&quot;</span><span class="w"> </span>
+<span class="nv">XTABLES_PKNOCK_TIMEOUT</span><span class="o">=</span><span class="s2">&quot;20&quot;</span>
+
+<span class="c1"># gateway apps</span>
+<span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts&quot;</span>
+<span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_WSTUNNEL</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">RUN_SOCKS5PROXY</span><span class="o">=</span><span class="m">0</span>
 </code></pre></div>
 <hr />
 <p><strong>Warning</strong>: This software is still in development. Use with caution in production environments and always test in a lab environment first.</p>

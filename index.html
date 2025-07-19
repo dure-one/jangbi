@@ -1380,7 +1380,7 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 <li><strong>OS Hardening</strong>: Disable kernel modules, sysctl hardening, disable dangerous binaries</li>
 <li><strong>Network Security</strong>: Pre-configured iptables rules, port forwarding, MAC whitelisting</li>
 <li><strong>Intrusion Detection</strong>: AIDE (file integrity), auditd (system auditing)</li>
-<li><strong>DNS Security</strong>: DNS blocking with blacklists, DNSCrypt-proxy support</li>
+<li><strong>DNS Security</strong>: DNS blocking with Dnsmasq, Dnscrypt-proxy support</li>
 <li><strong>Traffic Analysis</strong>: Network monitoring with darkstat, log analysis with Vector</li>
 <li><strong>Access Control</strong>: Port knocking with knockd, SSH hardening</li>
 </ul>
@@ -1449,7 +1449,7 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 $<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ipcalc-ng
 
 <span class="c1"># clone repository</span>
-$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git
+$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/dure-one/jangbi.git<span class="w"> </span>/opt/jangbi
 
 <span class="c1"># copy .config.gateway.sample to .config file</span>
 $<span class="w"> </span>cp<span class="w"> </span>.config.gateway<span class="w"> </span>.config
