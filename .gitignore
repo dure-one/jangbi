@@ -20,7 +20,7 @@ stopspinning
 # pyvenv
 venv
 bin
-lib
+lib/python*
 lib64
 share
 site

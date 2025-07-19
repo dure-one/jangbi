@@ -1,0 +1,15 @@
+FROM archlinux/archlinux:base-devel
+
+RUN pacman -Sy --noconfirm archlinux-keyring
+RUN pacman -Syyu --noconfirm
+RUN pacman -S --noconfirm util-linux bash-completion git curl ipcalc-ng
+
+# Setup language environment
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+# Add source directory
+ADD . /root/code/
+WORKDIR /root/code/
+
+CMD cd test && ./run

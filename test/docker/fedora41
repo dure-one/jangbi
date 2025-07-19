@@ -1,0 +1,15 @@
+FROM fedora:41
+
+RUN dnf update -y
+RUN dnf install python3 git gcc gcc-c++ cmake make libuuid-devel libfaketime glibc-langpack-en curl -y
+
+# Setup language environment
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+# Add source directory
+ADD . /root/code/
+WORKDIR /root/code/
+
+CMD cd test && ./run

@@ -1,9 +1,9 @@
 ## \brief vector log management configurations.
 ## \desc This tool helps install, configure, and manage Vector log management system
-## for high-performance log collection, transformation, and routing. It provides automated installation,
-## configuration management, and Vector service control capabilities. Vector is a lightweight
-## and ultra-fast tool for building observability pipelines, collecting and transforming
-## logs, metrics, and traces from various sources to multiple destinations.
+## for high-performance log collection, transformation, and routing.
+## In Janbi's security context, it will collect contacted ipaddresses by application
+## with sysdig and put them in /var/log/vector folder. so that the user could block
+## ips whether it is on cdn or not.
 
 ## \example Install and configure Vector:
 ## \example-code bash

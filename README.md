@@ -13,7 +13,7 @@ similar projects: [pi-hole](https://pi-hole.net/), [technitium](https://techniti
 - **OS Hardening**: Disable kernel modules, sysctl hardening, disable dangerous binaries
 - **Network Security**: Pre-configured iptables rules, port forwarding, MAC whitelisting
 - **Intrusion Detection**: AIDE (file integrity), auditd (system auditing)
-- **DNS Security**: DNS blocking with blacklists, DNSCrypt-proxy support
+- **DNS Security**: DNS blocking with Dnsmasq, Dnscrypt-proxy support
 - **Traffic Analysis**: Network monitoring with darkstat, log analysis with Vector
 - **Access Control**: Port knocking with knockd, SSH hardening
 
@@ -85,7 +85,7 @@ without nat routing, client only connect to wstunnel to outside. no route. only 
 $ apt install ipcalc-ng
 
 # clone repository
-$ git clone https://github.com/dure-one/jangbi.git
+$ git clone https://github.com/dure-one/jangbi.git /opt/jangbi
 
 # copy .config.gateway.sample to .config file
 $ cp .config.gateway .config

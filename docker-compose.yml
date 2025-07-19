@@ -1,0 +1,66 @@
+version: '3'
+services:
+  # test-fedora40:
+  #   build:
+  #       context: .
+  #       dockerfile: test/docker/fedora40
+  #   network_mode: "host"
+  #   security_opt:
+  #     - label=type:container_runtime_t
+  #   tty: true
+  # test-fedora41:
+  #   build:
+  #       context: .
+  #       dockerfile: test/docker/fedora41
+  #   network_mode: "host"
+  #   security_opt:
+  #     - label=type:container_runtime_t
+  #   tty: true
+  # test-ubuntu2004:
+  #   build:
+  #       context: .
+  #       dockerfile: test/docker/ubuntu2004
+  #   network_mode: "host"
+  #   security_opt:
+  #     - label=type:container_runtime_t
+  #   tty: true
+  # test-ubuntu2204:
+  #   build:
+  #       context: .
+  #       dockerfile: test/docker/ubuntu2204
+  #   network_mode: "host"
+  #   security_opt:
+  #     - label=type:container_runtime_t
+  #   tty: true
+  test-debianstable:
+    build:
+        context: .
+        dockerfile: test/docker/debianstable
+    network_mode: "host"
+    security_opt:
+      - label=type:container_runtime_t
+    tty: true
+  test-debiantesting:
+    build:
+        context: .
+        dockerfile: test/docker/debiantesting
+    network_mode: "host"
+    security_opt:
+      - label=type:container_runtime_t
+    tty: true
+  # test-opensuse:
+  #   build:
+  #       context: .
+  #       dockerfile: test/docker/opensuse
+  #   network_mode: "host"
+  #   security_opt:
+  #     - label=type:container_runtime_t
+  #   tty: true
+  # test-arch:
+  #   build:
+  #       context: .
+  #       dockerfile: test/docker/arch
+  #   network_mode: "host"
+  #   security_opt:
+  #     - label=type:container_runtime_t
+  #   tty: true

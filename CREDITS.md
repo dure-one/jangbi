@@ -23,6 +23,11 @@ http://github.com/swelljoe/run_ok
 ntpclient.pl | Unlicensed |
 http://www.abnormal.com/~thogard/ntp/
 
+# docker, ci libs
+
+taskwarrior | MIT |
+https://github.com/GothenburgBitFactory/taskwarrior
+
 # docs
 
 mkdocs | BSD2 |
@@ -33,6 +38,9 @@ https://squidfunk.github.io/mkdocs-material/
 
 mkdocstrings | ISC |
 https://github.com/mkdocstrings/mkdocstrings
+
+mkdocstrings-shell | ISC |
+https://mkdocstrings.github.io/shell/
 
 jekyll-theme-rtd | BSD2 |
 https://github.com/carlosperate/jekyll-theme-rtd
@@ -65,7 +73,7 @@ https://github.com/MichaIng/DietPi
 raspberrypi OS | GPL |
 https://github.com/raspberrypi/linux
 
-# used 'as-is' in os pkgs
+# used 'as-is' in os plugins
 
 dnsmasq | GPL2 or GPL3 |
 https://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=tree
@@ -107,7 +115,7 @@ https://github.com/systemd/systemd
 syslog-ng | LGPL |
 https://github.com/syslog-ng/syslog-ng
 
-# non os-provided pkgs
+# non os-provided plugins
 
 step-cli | APACHE2 |
 https://github.com/smallstep/cli

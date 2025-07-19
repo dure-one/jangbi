@@ -37,7 +37,7 @@ JB_ROLE="client"
 
 # network apps
 RUN_NET_KNOCKD=0
-RUN_NET_SSHD=1
+RUN_NET_SSHD=0
 
 # iptables
 RUN_NET_IPTABLES=1

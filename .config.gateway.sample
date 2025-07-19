@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # base configuration
-# armbian_bookworm / debian_bookworm
 PARENT_CONFIG=".config.default"
 FORCE_INSTALL=0
 
@@ -37,12 +36,9 @@ JB_ROLE="gateway"
 # network apps
 RUN_NET_KNOCKD=1
 KNOCKD_STATIC_SSH="12345,54321,24680,13579"
-# > step crypto otp generate --issuer dure.jangbi --account router_hostname --period=300 --length=10 --alg=SHA512 --qr dure.png > dure.totp
-KNOCKD_WITH_STEPTOTP=1
-KNOCKD_TOTPKEY="CIF3R2GPV6TLK4PJ3JZFLBMOCBYXSBP3"
 RUN_NET_SSHD=1
 SSHD_PORT="22"
-SSHD_ADDR="192.168.79.1"
+SSHD_INFS="LAN"
 
 # iptables
 RUN_NET_IPTABLES=1

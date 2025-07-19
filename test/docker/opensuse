@@ -1,0 +1,14 @@
+FROM opensuse/tumbleweed
+
+RUN zypper install -y python3 awk coreutils git ipcalc-ng
+
+# Setup language environment
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+
+# Add source directory
+ADD . /root/code/
+WORKDIR /root/code/
+
+CMD cd test && ./run

@@ -32,3 +32,19 @@ if _command_exists mkisofs; then
         fi
     }
 fi
+
+function wol() {
+    local macaddr bcast port tmac mpack
+    macaddr="$1"
+    bcast="$2"
+    port="${3:-9}"
+    tmac=$(echo "$macaddr" | sed 's/[ :-]//g')
+    mpack=$(
+        printf 'f%.0s' {1..12}
+        printf "${tmac}%.0s" {1..16}
+    )
+    mpack=$(
+        echo "$mpack" | sed -e 's/../\\x&/g'
+    )
+    echo -e "$mpack" | nc -w1 -u "$bcast" "$port"
+}
