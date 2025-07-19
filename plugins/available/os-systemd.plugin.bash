@@ -38,6 +38,7 @@ function os-systemd {
     local PKGNAME="systemd"
     local DMNNAME="os-systemd"
     BASH_IT_LOG_PREFIX="os-systemd: "
+    # OS_SYSTEMD_PORTS="${OS_SYSTEMD_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -57,10 +58,10 @@ function os-systemd {
     fi
 }
 
-## \usage os-systemd [COMMAND] [profile]
+## \usage os-systemd [COMMAND]
 ## \usage os-systemd install|uninstall|check|run
 function __os-systemd_help {
-    echo -e "Usage: os-systemd [COMMAND] [profile]\n"
+    echo -e "Usage: os-systemd [COMMAND]\n"
     echo -e "Helper to local packgage repository.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

@@ -39,6 +39,7 @@ function net-netplan {
   local PKGNAME="netplan"
   local DMNNAME="net-netplan"
   BASH_IT_LOG_PREFIX="net-netplan: "
+  # NETPLAN_PORTS="${NETPLAN_PORTS:-""}"
   if [[ -z ${JB_VARS} ]]; then
       _load_config
       _root_only
@@ -65,7 +66,7 @@ function net-netplan {
 }
 
 function __net-netplan_help {
-  echo -e "Usage: net-netplan [COMMAND] [profile]\n"
+  echo -e "Usage: net-netplan [COMMAND]\n"
   echo -e "Helper to netplan install configurations.\n"
   echo -e "Commands:\n"
   echo "   help                       Show this help message"

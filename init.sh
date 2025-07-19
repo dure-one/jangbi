@@ -27,7 +27,7 @@ usage() {
   printf "%s\\n" "  ${YELLOW}--download enabled/net-darkstat |-s${NORMAL}   download pkg file for offline installation"
   echo
 }
-# setup slog
+# setup log
 BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
 BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 

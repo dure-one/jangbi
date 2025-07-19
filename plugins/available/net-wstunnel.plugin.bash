@@ -39,6 +39,7 @@ function net-wstunnel {
     local PKGNAME="wstunnel"
     local DMNNAME="net-wstunnel"
     BASH_IT_LOG_PREFIX="net-wstunnel: "
+    WSTUNNEL_PORTS="${WSTUNNEL_PORTS:-"LO:38080"}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -65,7 +66,7 @@ function net-wstunnel {
 }
 
 function __net-wstunnel_help {
-    echo -e "Usage: net-wstunnel [COMMAND] [profile]\n"
+    echo -e "Usage: net-wstunnel [COMMAND]\n"
     echo -e "Helper to wstunnel install configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"

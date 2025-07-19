@@ -39,6 +39,7 @@ function os-vector {
     local PKGNAME="vector"
     local DMNNAME="os-vector"
     BASH_IT_LOG_PREFIX="os-vector: "
+    # VECTOR_PORTS="${VECTOR_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -64,11 +65,11 @@ function os-vector {
     fi
 }
 
-## \usage os-vector [COMMAND] [profile]
+## \usage os-vector [COMMAND]
 ## \usage os-vector install|uninstall|configgen|configapply
 ## \usage os-vector check|run|download
 function __os-vector_help {
-    echo -e "Usage: os-vector [COMMAND] [profile]\n"
+    echo -e "Usage: os-vector [COMMAND]\n"
     echo -e "Helper to vector install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

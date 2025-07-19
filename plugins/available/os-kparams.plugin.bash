@@ -37,6 +37,7 @@ function os-kparams {
     local PKGNAME="kparams"
     local DMNNAME="os-kparams"
     BASH_IT_LOG_PREFIX="os-kparams: "
+    # OS_KPARAMS_PORTS="${OS_KPARAMS_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -56,10 +57,10 @@ function os-kparams {
     fi
 }
 
-## \usage os-kparams [COMMAND] [profile]
+## \usage os-kparams [COMMAND]
 ## \usage os-kparams install|uninstall|check|run
 function __os-kparams_help {
-    echo -e "Usage: os-kparams [COMMAND] [profile]\n"
+    echo -e "Usage: os-kparams [COMMAND]\n"
     echo -e "Helper to kernel params installation.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

@@ -37,6 +37,7 @@ function os-firmware {
     local PKGNAME="firmware"
     local DMNNAME="os-firmware"
     BASH_IT_LOG_PREFIX="os-firmware: "
+    # OS_FIRMWARE_PORTS="${OS_FIRMWARE_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -56,10 +57,10 @@ function os-firmware {
     fi
 }
 
-## \usage os-firmware [COMMAND] [profile]
+## \usage os-firmware [COMMAND]
 ## \usage os-firmware install|uninstall|check|run
 function __os-firmware_help {
-    echo -e "Usage: os-firmware [COMMAND] [profile]\n"
+    echo -e "Usage: os-firmware [COMMAND]\n"
     echo -e "Helper to os firmware installation.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

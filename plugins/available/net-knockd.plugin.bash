@@ -39,6 +39,7 @@ function net-knockd {
     local PKGNAME="knockd"
     local DMNNAME="net-knockd"
     BASH_IT_LOG_PREFIX="net-knockd: "
+    # KNOCKD_PORTS="${KNOCKD_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -65,7 +66,7 @@ function net-knockd {
 }
 
 function __net-knockd_help {
-    echo -e "Usage: net-knockd [COMMAND] [profile]\n"
+    echo -e "Usage: net-knockd [COMMAND]\n"
     echo -e "Helper to knockd install configurations.\n"
     echo -e "Commands:\n"
     echo "   help          Show this help message"

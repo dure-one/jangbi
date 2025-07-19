@@ -38,6 +38,7 @@ function os-auditd {
     local PKGNAME="auditd"
     local DMNNAME="os-auditd"
     BASH_IT_LOG_PREFIX="os-auditd: "
+    # AUIDITD_PORTS="${AUIDITD_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -63,11 +64,11 @@ function os-auditd {
     fi
 }
 
-## \usage net-auditd [COMMAND] [profile]
+## \usage net-auditd [COMMAND]
 ## \usage net-auditd install|uninstall|configgen|configapply
 ## \usage net-auditd check|run|download
 function __os-auditd_help {
-    echo -e "Usage: os-auditd [COMMAND] [profile]\n"
+    echo -e "Usage: os-auditd [COMMAND]\n"
     echo -e "Helper to auditd install configurations.\n"
     echo -e "Commands:\n"
     echo "   help         Show this help message"

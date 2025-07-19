@@ -16,7 +16,7 @@ RUN_OS_SYSTEMD=1
 # systemd=1 > netplan, systemd=0 > ifupdown
 JB_NETPLAN=
 JB_WANINF=
-## dhcp or 192.168.5.2(first ip of subnet become gateway)
+## dhcp or 192.168.5.2(first ip of subnet become gw ip, 192.168.5.1)
 JB_WAN="dhcp"
 JB_WANGW=
 JB_LANINF=

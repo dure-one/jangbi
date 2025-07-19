@@ -14,7 +14,7 @@ title: Gettingstarted
 
 ```bash
 # Install required tools
-sudo apt install -y ipcalc-ng git
+sudo apt install -y ipcalc-ng git patch
 ```
 
 ### 2. Clone Repository

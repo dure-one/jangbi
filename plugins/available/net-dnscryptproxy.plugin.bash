@@ -24,7 +24,6 @@
 
 ## \exit 1 Invalid command or parameters provided.
 
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'dnscryptproxy install configurations.'
@@ -40,6 +39,7 @@ function net-dnscryptproxy {
     local PKGNAME="dnscryptproxy"
     local DMNNAME="net-dnscryptproxy"
     BASH_IT_LOG_PREFIX="net-dnscryptproxy: "
+    DNSCRYPTPROXY_PORTS="${DNSCRYPTPROXY_PORTS:-"LO:53"}"
     if [[ -z ${DURE_DEPLOY_PATH} ]]; then
         _load_config
         _root_only
@@ -65,11 +65,10 @@ function net-dnscryptproxy {
     fi
 }
 
-## \usage net-dnscryptproxy [COMMAND] [profile]
-## \usage net-dnscryptproxy install|uninstall|configgen|configapply
-## \usage net-dnscryptproxy check|run|download
+## \usage net-dnscryptproxy [COMMAND]
+## \usage net-dnscryptproxy install|uninstall|configgen|configapply|check|run|download
 function __net-dnscryptproxy_help {
-    echo -e "Usage: net-dnscryptproxy [COMMAND] [profile]\n"
+    echo -e "Usage: net-dnscryptproxy [COMMAND]\n"
     echo -e "Helper to dnscryptproxy install configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"
@@ -92,7 +91,7 @@ function __net-dnscryptproxy_install {
 
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-dnscryptproxy_download 
     tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 1>/dev/null 2>&1
-    if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy ]]; then
+    if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy.toml ]]; then
         log_error "dnscrypt-proxy binary not found in package."
         return 1
     fi

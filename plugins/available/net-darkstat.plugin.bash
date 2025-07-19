@@ -38,6 +38,7 @@ function net-darkstat {
     local PKGNAME="darkstat"
     local DMNNAME="net-darkstat"
     BASH_IT_LOG_PREFIX="net-darkstat: "
+    DARKSTAT_PORTS="${DARKSTAT_PORTS:-"LO:19283"}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -63,11 +64,10 @@ function net-darkstat {
     fi
 }
 
-## \usage net-darkstat [COMMAND] [profile]
-## \usage net-darkstat install|uninstall|configgen|configapply
-## \usage net-darkstat check|run|download
+## \usage net-darkstat [COMMAND]
+## \usage net-darkstat install|uninstall|configgen|configapply|check|run|download
 function __net-darkstat_help {
-    echo -e "Usage: net-darkstat [COMMAND] [profile]\n"
+    echo -e "Usage: net-darkstat [COMMAND]\n"
     echo -e "Helper to darkstat install configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"

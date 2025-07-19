@@ -101,6 +101,7 @@ function net-iptables {
     local PKGNAME="iptables"
     local DMNNAME="net-iptables"
     BASH_IT_LOG_PREFIX="net-iptables: "
+    # IPTABLES_PORTS="${IPTABLES_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -131,7 +132,7 @@ function net-iptables {
 }  
 
 function __net-iptables_help {
-    echo -e "Usage: net-iptables [COMMAND] [profile]\n"
+    echo -e "Usage: net-iptables [COMMAND]\n"
     echo -e "Helper to iptables install configurations.\n"
     echo -e "Commands:\n"
     echo "   help                       Show this help message"

@@ -387,7 +387,7 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
   # [[ ! -f .task-ssh-server ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-ssh-server| grep "^\w" > .task-ssh-server
   apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends $1| grep "^\w" > /tmp/compare_pkg
   grep -Fxv -f .task-desktop /tmp/compare_pkg > /tmp/unique_pkg
-  pushd "${BASH_IT}/pkgs" 1>/dev/null 2>&1
+  pushd "${JANGBI_IT}/pkgs" 1>/dev/null 2>&1
   cp /tmp/unique_pkg "${pkgname}.pkgs"
   apt download $(</tmp/unique_pkg)
   popd 1>/dev/null 2>&1
@@ -400,7 +400,7 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   local pkgurl="https://api.github.com/repos/$(_trim_string $1)/releases/latest"
   # log_debug "DownloadURL : ${pkgurl}"
   IFS=$'\*' read -rd '' -a pkgfilefix <<<"$(_trim_string $2)"
-  [[ $(find ${BASH_IT}/pkgs/$2 2>/dev/null|wc -l) -gt 0 ]] && rm ${BASH_IT}/pkgs/$2
+  [[ $(find ${JANGBI_IT}/pkgs/$2 2>/dev/null|wc -l) -gt 0 ]] && rm ${JANGBI_IT}/pkgs/$2
   pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
   pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
   local possible_list=$(curl -sSL "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
@@ -411,21 +411,21 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
     if [[ ${#durls[@]} -gt 1 ]]; then # https://github.com/draios/sysdig/releases/download/0.40.1/sysdig-0.40.1-x86_64.deb
       if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then # https://github.com/vectordotdev/vector/releases/download/v0.48.0/vector_0.48.0-1_amd64.deb
         log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-        wget --directory-prefix=${BASH_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
         break
       elif [[ ${durl} == *"${arch1}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
         log_debug "Downloading ${durl} to ${arch1} ${pkgfilepostfix}..."
-        wget --directory-prefix=${BASH_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
         break
       elif [[ ${durl} == *"${arch2}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
         log_debug "Downloading ${durl} to ${arch2} ${pkgfilepostfix}..."
-        wget --directory-prefix=${BASH_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
         break
       fi
     else
       if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
         log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
-        wget --directory-prefix=${BASH_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
       fi
     fi
   }

@@ -104,6 +104,7 @@ function net-darkstat {
     local DMNNAME="net-darkstat"
     BASH_IT_LOG_PREFIX="net-darkstat: "
 ...
+}
 ```
 
 ### plugin's group

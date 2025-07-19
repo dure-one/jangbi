@@ -39,7 +39,7 @@ function net-xtables {
     local PKGNAME="xtables"
     local DMNNAME="net-xtables"
     BASH_IT_LOG_PREFIX="net-xtables: "
-
+    # XTABLES_PORTS="${XTABLES_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -69,11 +69,11 @@ function net-xtables {
     fi
 }  
 
-## \usage net-xtables [COMMAND] [profile]
+## \usage net-xtables [COMMAND]
 ## \usage net-xtables install|uninstall|configgen|configapply
 ## \usage net-xtables check|run|download|build|watch
 function __net-xtables_help {
-    echo -e "Usage: net-xtables [COMMAND] [profile]\n"
+    echo -e "Usage: net-xtables [COMMAND]\n"
     echo -e "Helper to xtables install configurations.\n"
     echo -e "Commands:\n"
     echo "   help                       Show this help message"

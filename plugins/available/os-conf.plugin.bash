@@ -37,6 +37,7 @@ function os-conf {
     local PKGNAME="conf"
     local DMNNAME="os-conf"
     BASH_IT_LOG_PREFIX="os-conf: "
+    # OS_CONF_PORTS="${OS_CONF_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -58,10 +59,10 @@ function os-conf {
     fi
 }
 
-## \usage os-conf [COMMAND] [profile]
+## \usage os-conf [COMMAND]
 ## \usage os-conf install|uninstall|check|run|download
 function __os-conf_help {
-    echo -e "Usage: os-conf [COMMAND] [profile]\n"
+    echo -e "Usage: os-conf [COMMAND]\n"
     echo -e "Helper to os configuration installation.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

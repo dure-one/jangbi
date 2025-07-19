@@ -39,6 +39,7 @@ function os-redis {
     local PKGNAME="redis"
     local DMNNAME="os-redis"
     BASH_IT_LOG_PREFIX="os-redis: "
+    REDIS_PORTS="${REDIS_PORTS:-"LO:6379"}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -64,11 +65,11 @@ function os-redis {
     fi
 }
 
-## \usage os-redis [COMMAND] [profile]
+## \usage os-redis [COMMAND]
 ## \usage os-redis install|uninstall|configgen|configapply
 ## \usage os-redis check|run|download
 function __os-redis_help {
-    echo -e "Usage: os-redis [COMMAND] [profile]\n"
+    echo -e "Usage: os-redis [COMMAND]\n"
     echo -e "Helper to redis install configurations.\n"
     echo -e "Commands:\n"
     echo "   help         Show this help message"

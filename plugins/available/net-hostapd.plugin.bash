@@ -38,6 +38,7 @@ function net-hostapd {
     local PKGNAME="hostapd"
     local DMNNAME="net-hostapd"
     BASH_IT_LOG_PREFIX="net-hostapd: "
+    # HOSTAPD_PORTS="${HOSTAPD_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -63,11 +64,11 @@ function net-hostapd {
     fi
 }
 
-## \usage net-hostapd [COMMAND] [profile]
+## \usage net-hostapd [COMMAND]
 ## \usage net-hostapd install|uninstall|configgen|configapply
 ## \usage net-hostapd check|run|download
 function __net-hostapd_help {
-    echo -e "Usage: net-hostapd [COMMAND] [profile]\n"
+    echo -e "Usage: net-hostapd [COMMAND]\n"
     echo -e "Helper to hostapd install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

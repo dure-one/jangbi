@@ -37,6 +37,7 @@ function os-disablebins {
     local PKGNAME="disablebins"
     local DMNNAME="os-disablebins"
     BASH_IT_LOG_PREFIX="os-disablebins: "
+    # DISABLEBINS_PORTS="${DISABLEBINS_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -56,10 +57,10 @@ function os-disablebins {
     fi
 }
 
-## \usage os-disablebins [COMMAND] [profile]
+## \usage os-disablebins [COMMAND]
 ## \usage os-disablebins install|uninstall|check|run
 function __os-disablebins_help {
-    echo -e "Usage: disablebins [COMMAND] [profile]\n"
+    echo -e "Usage: disablebins [COMMAND]\n"
     echo -e "Helper to disable binaries.\n"
     echo -e "Commands:\n"
     echo "   help	  	Show this help message"

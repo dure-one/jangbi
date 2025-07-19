@@ -39,6 +39,7 @@ function net-sshd {
     local PKGNAME="sshd"
     local DMNNAME="net-sshd"
     BASH_IT_LOG_PREFIX="net-sshd: "
+    SSHD_PORTS="${SSHD_PORTS:-"LO:22"}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -64,11 +65,11 @@ function net-sshd {
     fi
 }
 
-## \usage net-sshd [COMMAND] [profile]
+## \usage net-sshd [COMMAND]
 ## \usage net-sshd install|uninstall|configgen|configapply
 ## \usage net-sshd check|run|download
 function __net-sshd_help {
-    echo -e "Usage: net-sshd [COMMAND] [profile]\n"
+    echo -e "Usage: net-sshd [COMMAND]\n"
     echo -e "Helper to sshd install configurations.\n"
     echo -e "Commands:\n"
     echo "   help         Show this help message"

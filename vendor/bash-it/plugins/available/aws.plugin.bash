@@ -28,7 +28,7 @@ function awskeys {
 }
 
 function __awskeys_help {
-	echo -e "Usage: awskeys [COMMAND] [profile]\n"
+	echo -e "Usage: awskeys [COMMAND]\n"
 	echo -e "Helper to AWS credentials file.\n"
 	echo -e "Commands:\n"
 	echo "   help    Show this help message"

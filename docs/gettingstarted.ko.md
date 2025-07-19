@@ -14,7 +14,7 @@ title: 시작하기
 
 ```bash
 # 필요한 도구 설치
-sudo apt install -y ipcalc-ng git
+sudo apt install -y ipcalc-ng git patch
 ```
 
 ### 2. 저장소 복제

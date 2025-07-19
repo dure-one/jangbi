@@ -37,6 +37,7 @@ function net-ifupdown {
     local PKGNAME="ifupdown"
     local DMNNAME="net-ifupdown"
     BASH_IT_LOG_PREFIX="net-ifupdown: "
+    # IFUPDOWN_PORTS="${IFUPDOWN_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -62,11 +63,11 @@ function net-ifupdown {
     fi
 }
 
-## \usage net-ifupdown [COMMAND] [profile]
+## \usage net-ifupdown [COMMAND]
 ## \usage net-ifupdown install|uninstall|configgen|configapply
 ## \usage net-ifupdown check|run|download
 function __net-ifupdown_help {
-    echo -e "Usage: net-ifupdown [COMMAND] [profile]\n"
+    echo -e "Usage: net-ifupdown [COMMAND]\n"
     echo -e "Helper to network configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"

@@ -39,6 +39,7 @@ function os-aide {
     local PKGNAME="aide"
     local DMNNAME="os-aide"
     BASH_IT_LOG_PREFIX="os-aide: "
+    # AIDE_PORTS="${AIDE_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -66,11 +67,11 @@ function os-aide {
     fi
 }
 
-## \usage os-aide [COMMAND] [profile]
+## \usage os-aide [COMMAND]
 ## \usage os-aide install|uninstall|configgen|configapply
 ## \usage os-aide checkpoint|check|run|download
 function __os-aide_help {
-    echo -e "Usage: os-aide [COMMAND] [profile]\n"
+    echo -e "Usage: os-aide [COMMAND]\n"
     echo -e "Helper to aide install configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"

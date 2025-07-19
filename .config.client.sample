@@ -18,7 +18,7 @@ RUN_OS_VECTOR=1
 # network settings
 RUN_OS_SYSTEMD=0
 JB_NETPLAN=
-## dhcp or 192.168.5.2(first ip of subnet become gateway)
+## dhcp or 192.168.5.2/24(first ip of subnet become gw ip, 192.168.5.1)
 JB_WAN="dhcp"
 JB_WANGW=
 JB_LANINF=

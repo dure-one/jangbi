@@ -39,6 +39,7 @@ function os-minmon {
     local PKGNAME="minmon"
     local DMNNAME="os-minmon"
     BASH_IT_LOG_PREFIX="os-minmon: "
+    # MINMON_PORTS="${MINMON_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -64,11 +65,11 @@ function os-minmon {
     fi
 }
 
-## \usage os-minmon [COMMAND] [profile]
+## \usage os-minmon [COMMAND]
 ## \usage os-minmon install|uninstall|configgen|configapply
 ## \usage os-minmon check|run|download
 function __os-minmon_help {
-    echo -e "Usage: os-minmon [COMMAND] [profile]\n"
+    echo -e "Usage: os-minmon [COMMAND]\n"
     echo -e "Helper to minmon install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

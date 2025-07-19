@@ -36,6 +36,7 @@ function os-sysctl {
     local PKGNAME="sysctl"
     local DMNNAME="os-sysctl"
     BASH_IT_LOG_PREFIX="os-sysctl: "
+    # SYSCTL_PORTS="${SYSCTL_PORTS:-""}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -55,10 +56,10 @@ function os-sysctl {
     fi
 }
 
-## \usage os-sysctl [COMMAND] [profile]
+## \usage os-sysctl [COMMAND]
 ## \usage os-sysctl install|uninstall|check|run
 function __os-sysctl_help {
-    echo -e "Usage: os-sysctl [COMMAND] [profile]\n"
+    echo -e "Usage: os-sysctl [COMMAND]\n"
     echo -e "Helper to sysctl install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"

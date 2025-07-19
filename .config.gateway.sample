@@ -16,7 +16,7 @@ JB_SSHPUBKEY="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXueL
 RUN_OS_SYSTEMD=0
 JB_IFUPDOWN=
 JB_WANINF=
-## dhcp or 192.168.5.2(first ip of subnet become gateway)
+## dhcp or 192.168.5.2(first ip of subnet become gw ip, 192.168.5.1)
 JB_WAN="dhcp"
 JB_WANGW=
 JB_LANINF=

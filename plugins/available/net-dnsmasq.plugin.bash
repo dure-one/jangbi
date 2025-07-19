@@ -39,6 +39,7 @@ function net-dnsmasq {
     local PKGNAME="dnsmasq"
     local DMNNAME="net-dnsmasq"
     BASH_IT_LOG_PREFIX="net-dnsmasq: "
+    DNSMASQ_PORTS="${DNSMASQ_PORTS:-"LO:53"}"
     if [[ -z ${JB_VARS} ]]; then
         _load_config
         _root_only
@@ -66,11 +67,11 @@ function net-dnsmasq {
     fi
 }
 
-## \usage net-dnsmasq [COMMAND] [profile]
+## \usage net-dnsmasq [COMMAND]
 ## \usage net-dnsmasq install|uninstall|configgen|configapply
 ## \usage net-dnsmasq check|run|download|updateblist
 function __net-dnsmasq_help {
-    echo -e "Usage: net-dnsmasq [COMMAND] [profile]\n"
+    echo -e "Usage: net-dnsmasq [COMMAND]\n"
     echo -e "Helper to dnsmasq install configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"
