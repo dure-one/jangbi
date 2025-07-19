@@ -387,7 +387,7 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
   # [[ ! -f .task-ssh-server ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-ssh-server| grep "^\w" > .task-ssh-server
   apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends $1| grep "^\w" > /tmp/compare_pkg
   grep -Fxv -f .task-desktop /tmp/compare_pkg > /tmp/unique_pkg
-  pushd ${BASH_IT}/pkgs 1>/dev/null 2>&1
+  pushd "${BASH_IT}/pkgs" 1>/dev/null 2>&1
   cp /tmp/unique_pkg "${pkgname}.pkgs"
   apt download $(</tmp/unique_pkg)
   popd 1>/dev/null 2>&1
