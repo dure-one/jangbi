@@ -186,7 +186,7 @@ function __os-minmon_check { # running_status: 0 running, 1 installed, running_s
 function __os-minmon_run {
     log_debug "Running ${DMNNAME}..."
     pidof minmon | xargs kill -9 2>/dev/null
-    systemd-run -r minmon /etc/minmon/minmon.toml 2>&1 1>/var/log/minmon.log
+    minmon /etc/minmon/minmon.toml 1>>/var/log/minmon.log 2>&1 &
     pidof minmon && return 0 || return 1
 }
 

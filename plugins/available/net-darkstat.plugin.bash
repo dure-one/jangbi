@@ -178,8 +178,8 @@ function __net-darkstat_run {
     # darkstat binary does killed right after its run. for make sure, running it twice. 
     # shellcheck disable=SC1091
     source /etc/darkstat/init.conf && \
-        systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
-        systemd-run -r darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
+        darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
+        darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
     pidof darkstat && return 0 || return 1
 }
 

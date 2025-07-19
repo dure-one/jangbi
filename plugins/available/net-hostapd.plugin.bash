@@ -65,8 +65,7 @@ function net-hostapd {
 }
 
 ## \usage net-hostapd [COMMAND]
-## \usage net-hostapd install|uninstall|configgen|configapply
-## \usage net-hostapd check|run|download
+## \usage net-hostapd install|uninstall|configgen|configapply|check|run|download
 function __net-hostapd_help {
     echo -e "Usage: net-hostapd [COMMAND]\n"
     echo -e "Helper to hostapd install configurations.\n"
@@ -186,7 +185,8 @@ function __net-hostapd_run {
         return 0
     fi
     pidof hostapd | xargs kill -9 2>/dev/null
-    systemd-run -r hostapd /etc/hostapd/hostapd.conf -f /var/log/hostapd.log
+    echo "Initiated on $(date +%Y%m%d_%H%M%S)" >> /var/log/hostapd.log
+    hostapd /etc/hostapd/hostapd.conf -f /var/log/hostapd.log -B
     pidof hostapd && return 0 || return 1
 }
 

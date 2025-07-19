@@ -333,8 +333,8 @@ _load_config() { # Load config including parent config ex) _load_config .config
 
   # setup slog
   LOGFILE=${LOGFILE:="output.log"}
-  LOG_PATH="$LOGFILE"
-  RUN_LOG="$LOGFILE"
+  LOG_PATH=${LOG_PATH:="output.log"}
+  RUN_LOG=${RUN_LOG:="output.log"}
   RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
   LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
   LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}

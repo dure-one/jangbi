@@ -24,7 +24,7 @@ init 시스템이 쉽게 찾을 수 있도록 /opt 폴더에 설치하세요.<br
 
 ```bash
 # Jangbi 저장소 복제
-git clone https://github.com/dure-one/jangbi.git /opt/jangbi
+git clone https://github.com/dure-one/jangbi.git /opt/jangbi --depth 1
 cd /opt/jangbi
 ```
 

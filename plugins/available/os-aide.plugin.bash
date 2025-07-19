@@ -183,7 +183,7 @@ function __os-aide_check { # running_status: 0 running, 1 installed, running_sta
 
 function __os-aide_run {
     # aide minimal check for first run
-    systemd-run -r aide --check --config=/etc/aide/aide.minimal.conf
+    aide --check --config=/etc/aide/aide.minimal.conf
     return 0
 }
 

@@ -167,4 +167,5 @@ $ ./init.sh
 - Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
 - wstunnel client
 - knockd client
+- replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip
 

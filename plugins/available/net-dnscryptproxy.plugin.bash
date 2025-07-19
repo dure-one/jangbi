@@ -174,7 +174,7 @@ function __net-dnscryptproxy_run {
     pidof dnscrypt-proxy | xargs kill &>/dev/null
     
     log_debug "Starting dnscrypt-proxy" 
-    systemd-run -r dnscrypt-proxy -config /etc/dnscryptproxy/dnscrypt-proxy.toml -logfile /var/log/dnscryptproxy.log
+    dnscrypt-proxy -config /etc/dnscryptproxy/dnscrypt-proxy.toml -logfile /var/log/dnscryptproxy.log &
     
     # if dnsmasq is disabled set default dns resolver to dnscrypt-proxy.
     if [[ ${RUN_NET_DNSMASQ} -lt 1 ]]; then
