@@ -190,7 +190,7 @@ function __net-dnscryptproxy_run {
     fi
 
     pidof dnscrypt-proxy && return 0 || \
-        log_error "dnscryptproxy failed to run." && return 1
+        log_error "dnscryptproxy failed to run." && return 0
 }
 
 complete -F _blank net-dnscryptproxy

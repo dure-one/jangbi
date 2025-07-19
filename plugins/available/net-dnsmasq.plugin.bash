@@ -431,7 +431,8 @@ function __net-dnsmasq_run {
 
     _time_sync "${DNS_UPSTREAM}"
 
-    pidof dnsmasq && return 0 || return 1
+    pidof dnsmasq && return 0 || \
+        log_error "dnsmasq failed to run." && return 0
 }
 
 complete -F _blank net-dnsmasq

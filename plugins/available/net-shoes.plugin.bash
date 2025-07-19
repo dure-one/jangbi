@@ -178,7 +178,7 @@ function __net-shoes_run {
     shoes -t 2 /etc/shoes/config.yaml 1>>/var/log/shoes.log 2>&1 &
     
     pidof shoes && return 0 || \
-        log_error "shoes failed to run." && return 1
+        log_error "shoes failed to run." && return 0
 }
 
 complete -F _blank net-shoes

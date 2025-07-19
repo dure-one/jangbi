@@ -189,7 +189,8 @@ function __net-sshd_check { # running_status: 0 running, 1 installed, running_st
 
 function __net-sshd_run {
     systemctl restart ssh
-    pidof sshd && return 0 || return 1
+    pidof sshd && return 0 || \
+        log_error "sshd failed to run." && return 0
 }
 
 complete -F _blank net-sshd

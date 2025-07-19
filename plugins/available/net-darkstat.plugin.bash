@@ -180,7 +180,8 @@ function __net-darkstat_run {
     source /etc/darkstat/init.conf && \
         darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS && \
         darkstat -i $INTERFACE $PORT --chroot $DIR --pidfile $PIDFILE $BINDIP $LOCAL $FIP $DNS $DAYLOG $DB $OPTIONS
-    pidof darkstat && return 0 || return 1
+    pidof darkstat && return 0 || \
+        log_error "darkstat failed to run." && return 0
 }
 
 complete -F _blank net-darkstat

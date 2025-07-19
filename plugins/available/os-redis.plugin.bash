@@ -172,7 +172,9 @@ function __os-redis_check { # running_status: 0 running, 1 installed, running_st
 
 function __os-redis_run {
     log_debug "Running ${DMNNAME}..."
-    systemctl status redis-server 2>/dev/null
+    systemctl restart redis-server
+    pidof redis-server && return 0 || \
+        log_error "redis-server failed to run." && return 0
 }
 
 complete -F _blank os-redis

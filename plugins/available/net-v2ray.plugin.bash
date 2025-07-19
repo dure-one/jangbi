@@ -191,7 +191,7 @@ function __net-v2ray_run {
     v2ray run --config=/etc/v2ray/config.json &
     
     pidof v2ray && return 0 || \
-        log_error "v2ray failed to run." && return 1
+        log_error "v2ray failed to run." && return 0
 }
 
 complete -F _blank net-v2ray

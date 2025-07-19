@@ -232,7 +232,8 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
 
 function __os-systemd_run {
     systemctl restart systemd-udevd
-    systemctl status systemd-udevd && return 0 || return 1
+    systemctl status systemd-udevd && return 0 || \
+        log_error "os-systemd failed to run." && return 1
 }
 
 complete -F _blank os-systemd

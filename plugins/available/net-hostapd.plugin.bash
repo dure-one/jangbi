@@ -187,7 +187,8 @@ function __net-hostapd_run {
     pidof hostapd | xargs kill -9 2>/dev/null
     echo "Initiated on $(date +%Y%m%d_%H%M%S)" >> /var/log/hostapd.log
     hostapd /etc/hostapd/hostapd.conf -f /var/log/hostapd.log -B
-    pidof hostapd && return 0 || return 1
+    pidof hostapd && return 0 || \
+        log_error "hostapd failed to run." && return 0
 }
 
 complete -F _blank net-hostapd

@@ -478,7 +478,8 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
 function __net-netplan_run {
   # Cannot call openvswitch: ovsdb-server.service is not running. msg is not relevant.
   netplan apply
-  systemctl status systemd-networkd && return 0 || return 1
+  systemctl status systemd-networkd && return 0 || \
+        log_error "net-netplan failed to run." && return 1
   return 0
 }
 

@@ -174,7 +174,7 @@ function __net-hysteria_run {
     hysteria -c /etc/hysteria/config.yaml &
     
     pidof hysteria && return 0 || \
-        log_error "hysteria failed to run." && return 1
+        log_error "hysteria failed to run." && return 0
 }
 
 complete -F _blank net-hysteria

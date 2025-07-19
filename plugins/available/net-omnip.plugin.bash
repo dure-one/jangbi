@@ -178,7 +178,7 @@ function __net-omnip_run {
     # omnip -a socks5+quic://DOMAIN:8000 -p passward123 -c CERT_FILE -k KEY_FILE
     
     pidof omnip && return 0 || \
-        log_error "omnip failed to run." && return 1
+        log_error "omnip failed to run." && return 0
 }
 
 complete -F _blank net-omnip

@@ -187,7 +187,8 @@ function __os-minmon_run {
     log_debug "Running ${DMNNAME}..."
     pidof minmon | xargs kill -9 2>/dev/null
     systemd-run --unit minmon -r minmon /etc/minmon/minmon.toml 1>>/var/log/minmon.log 2>&1
-    pidof minmon && return 0 || return 1
+    pidof minmon && return 0 || \
+        log_error "minmon failed to run." && return 1
 }
 
 complete -F _blank os-minmon

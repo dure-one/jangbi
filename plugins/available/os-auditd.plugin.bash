@@ -191,6 +191,8 @@ function __os-auditd_check {  # running_status: 0 running, 1 installed, running_
 function __os-auditd_run {
     log_debug "Running ${DMNNAME}..."
     systemctl restart auditd
+    systemctl status auditd && return 0 || \
+        log_error "auditd failed to run." && return 1
     return 0
 }
 

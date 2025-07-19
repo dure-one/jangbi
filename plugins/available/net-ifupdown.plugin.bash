@@ -549,7 +549,8 @@ function __net-ifupdown_run {
     #     fi
     # }
     systemctl restart networking
-    systemctl status networking && return 0 || return 1
+    systemctl status networking && return 0 || \
+        log_error "ifupdown failed to run." && return 1
 }
 
 complete -F _blank net-ifupdown

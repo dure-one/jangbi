@@ -196,7 +196,8 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
 function __net-knockd_run {
     log_debug "Running ${DMNNAME}..."
     systemctl restart knockd
-    systemctl status knockd && return 0 || return 1
+    systemctl status knockd && return 0 || \
+        log_error "knockd failed to run." && return 0
 }
 
 complete -F _blank net-knockd

@@ -236,7 +236,8 @@ function __net-iptables_check { # running_status: 0 running, 1 installed, runnin
 function __net-iptables_run {
     # echo ""> /etc/nftables.conf # prevent not running because of xttables for nftables
     systemctl restart nftables
-    systemctl status nftables && return 0 || return 1
+    systemctl status nftables && return 0 || \
+        log_error "nftables failed to run." && return 1
 }
 
 function __net-iptables_watch {
