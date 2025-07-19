@@ -92,6 +92,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#_1" class="md-skip">
+          콘텐츠로 이동
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -358,6 +363,21 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    플러그인
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -370,6 +390,103 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="목차">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      목차
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      터널 플러그인 비교
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      기본 동작
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="기본 동작">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#install" class="md-nav__link">
+    <span class="md-ellipsis">
+      install
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uninstall" class="md-nav__link">
+    <span class="md-ellipsis">
+      uninstall
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configgen" class="md-nav__link">
+    <span class="md-ellipsis">
+      configgen
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configapply" class="md-nav__link">
+    <span class="md-ellipsis">
+      configapply
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check" class="md-nav__link">
+    <span class="md-ellipsis">
+      check
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#download" class="md-nav__link">
+    <span class="md-ellipsis">
+      download
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -561,12 +678,213 @@
   
 
 
-  <h1>플러그인</h1>
-
 <ul>
 <li class="i18n-link i18n-link-found i18n-link-en"><a href="../../plugins/">English</a></li>
 </ul>
-<p>아직 번역되지 않았습니다. 영문페이지를 참고해주세요.</p>
+<h1 id="_1">플러그인<a class="headerlink" href="#_1" title="Permanent link">¤</a></h1>
+<p>jangbi-it 플러그인은 jangbi를 위한 특정 앱의 구성, 설치, 상태 확인을 위한 도구 모음입니다.</p>
+<h2 id="_2">터널 플러그인 비교<a class="headerlink" href="#_2" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>기능</th>
+<th>omnip</th>
+<th>shoes</th>
+<th>v2ray</th>
+<th>hysteria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Rust</td>
+<td>Rust</td>
+<td>Go</td>
+<td>Go</td>
+</tr>
+<tr>
+<td><strong>주요 초점</strong></td>
+<td>올인원 QUIC 프록시</td>
+<td>멀티 프로토콜 프록시 서버</td>
+<td>풀 기능 프록시 플랫폼</td>
+<td>고성능 QUIC 프록시</td>
+</tr>
+<tr>
+<td><strong>HTTP 프록시</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>SOCKS5</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>SOCKS4/4a</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>VMess</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>VLess</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Shadowsocks</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Trojan</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>QUIC 지원</strong></td>
+<td>✅ (핵심 기능)</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅ (핵심 기능)</td>
+</tr>
+<tr>
+<td><strong>HTTP/3 위장</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>TLS 지원</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>TCP 포워딩</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>UDP 포워딩</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>프록시 체이닝</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>스마트 라우팅/규칙</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>DNS over TLS</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>웹 UI</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>TUN 모드</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Linux TProxy</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>성능 중점도</strong></td>
+<td>중간</td>
+<td>중간</td>
+<td>중간</td>
+<td>높음</td>
+</tr>
+<tr>
+<td><strong>검열 저항성</strong></td>
+<td>중간</td>
+<td>높음</td>
+<td>높음</td>
+<td>매우 높음</td>
+</tr>
+<tr>
+<td><strong>구성 형식</strong></td>
+<td>CLI 인수</td>
+<td>YAML</td>
+<td>JSON</td>
+<td>YAML</td>
+</tr>
+<tr>
+<td><strong>사용 사례</strong></td>
+<td>QUIC 터널링, 스마트 프록시</td>
+<td>멀티 프로토콜 서버</td>
+<td>종합 플랫폼</td>
+<td>고속, 검열 저항</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">기본 동작<a class="headerlink" href="#_3" title="Permanent link">¤</a></h2>
+<h3 id="install">install<a class="headerlink" href="#install" title="Permanent link">¤</a></h3>
+<p>애플리케이션을 설치하고 /etc/{plugin_name}에 구성을 생성합니다.</p>
+<h3 id="uninstall">uninstall<a class="headerlink" href="#uninstall" title="Permanent link">¤</a></h3>
+<p>애플리케이션을 제거하고 구성을 삭제합니다.</p>
+<h3 id="configgen">configgen<a class="headerlink" href="#configgen" title="Permanent link">¤</a></h3>
+<p>/tmp/{plugin_name}에 미리 구성된 설정을 생성하고 /etc/{plugin_name}의 현재 구성과 차이점을 비교합니다.</p>
+<h3 id="configapply">configapply<a class="headerlink" href="#configapply" title="Permanent link">¤</a></h3>
+<p>마지막 작업에서 생성된 /tmp/{plugin_name}.diff의 차이점 패치를 /etc/{plugin_name}에 적용합니다.</p>
+<h3 id="check">check<a class="headerlink" href="#check" title="Permanent link">¤</a></h3>
+<p>.configs에 플러그인 변수가 존재하는지, 애플리케이션이 설치되었는지, 애플리케이션이 실행 중인지 확인합니다.</p>
+<h3 id="download">download<a class="headerlink" href="#download" title="Permanent link">¤</a></h3>
+<p>설치에 필요한 패키지 파일을 ./pkgs 디렉토리에 다운로드합니다.</p>
 
 
 

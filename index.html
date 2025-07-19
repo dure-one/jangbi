@@ -418,9 +418,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-wstunnel-mode-proxy-only" class="md-nav__link">
+  <a href="#2-tunnel-only-mode-proxy-only" class="md-nav__link">
     <span class="md-ellipsis">
-      2. WSTunnel Mode (Proxy-Only)
+      2. Tunnel Only Mode (Proxy-Only)
     </span>
   </a>
   
@@ -460,9 +460,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#wstunnel-modewhitelist-mode" class="md-nav__link">
+  <a href="#tunnel-only-modewhitelist-mode" class="md-nav__link">
     <span class="md-ellipsis">
-      WStunnel Mode(Whitelist Mode)
+      Tunnel Only Mode(Whitelist Mode)
     </span>
   </a>
   
@@ -577,6 +577,12 @@
   
     
     
+      
+        
+      
+        
+      
+        
       
         
       
@@ -759,6 +765,29 @@
   
   
     <li class="md-nav__item">
+      <a href="plugins/net-hysteria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net hysteria
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="plugins/net-ifupdown/" class="md-nav__link">
         
   
@@ -851,6 +880,52 @@
   
   
     <li class="md-nav__item">
+      <a href="plugins/net-omnip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net omnip
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="plugins/net-shoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net shoes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="plugins/net-sshd/" class="md-nav__link">
         
   
@@ -874,12 +949,12 @@
   
   
     <li class="md-nav__item">
-      <a href="plugins/net-wstunnel/" class="md-nav__link">
+      <a href="plugins/net-v2ray/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Net wstunnel
+    Net v2ray
     
   </span>
   
@@ -1369,7 +1444,7 @@
 <p><strong>WORK IN PROGRES</strong></p>
 </li>
 <li>running this script might break your system.</li>
-<li>written in pure bash, works only <strong>bookworm</strong> dist.</li>
+<li>written in pure bash, works only <strong>(Armbian, Debian, DietPi, Raspian) Bookworm</strong> dist.</li>
 </ul>
 <h2 id="jangbidevice">JANGBI(Device)<a class="headerlink" href="#jangbidevice" title="Permanent link">¤</a></h2>
 <p>Jangbi is a comprehensive security-focused network appliance framework designed as a poor man's Firewalla alternative. It combines iptables, dnsmasq, and various security tools on top of Armbian/DietPi/Debian to create a powerful network security device. The framework is part of the Dure ecosystem and provides enterprise-grade security features for home and small business networks.<br/>
@@ -1389,7 +1464,7 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 <li><strong>Firewall</strong>: iptables/nftables with advanced rules</li>
 <li><strong>DNS/DHCP</strong>: dnsmasq with ad-blocking capabilities  </li>
 <li><strong>WiFi Access Point</strong>: hostapd for wireless networking</li>
-<li><strong>VPN/Proxy</strong>: WSTunnel for secure remote access</li>
+<li><strong>VPN/Proxy</strong>: Tunnel(Hysteria, Omnip, Shoes, V2ray) for secure remote access</li>
 <li><strong>Monitoring</strong>: darkstat, auditd, AIDE, Vector, Redis</li>
 <li><strong>Remote Access</strong>: OpenSSH with security hardening</li>
 </ul>
@@ -1400,9 +1475,9 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 - IP blocking via ipset and iptables
 - DNS blacklist filtering
 - NAT masquerading for LAN clients</p>
-<h3 id="2-wstunnel-mode-proxy-only">2. WSTunnel Mode (Proxy-Only)<a class="headerlink" href="#2-wstunnel-mode-proxy-only" title="Permanent link">¤</a></h3>
+<h3 id="2-tunnel-only-mode-proxy-only">2. Tunnel Only Mode (Proxy-Only)<a class="headerlink" href="#2-tunnel-only-mode-proxy-only" title="Permanent link">¤</a></h3>
 <p>Secure proxy mode without NAT routing:
-- Clients connect only through WSTunnel proxy
+- Clients connect only through tunnel proxy
 - No direct internet routing
 - Enhanced security through proxy filtering
 - DNS/DHCP without masquerading</p>
@@ -1414,7 +1489,7 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
 <p>Before installing Jangbi-IT, ensure your system meets these requirements:</p>
 <ul>
-<li><strong>Operating System</strong>: Armbian, Debian Bookworm, or DietPi</li>
+<li><strong>Operating System</strong>: (Armbian, Debian, DietPi, Raspian) Bookworm</li>
 <li><strong>Hardware</strong>: Minimum 1GB RAM, 8GB storage</li>
 <li><strong>Network</strong>: At least one network interface</li>
 <li><strong>Tools</strong>: <code>ipcalc-ng</code> package installed</li>
@@ -1428,8 +1503,8 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 <li>block dns : steven blacklist -&gt; dnsmasq/dnscrypt-proxy</li>
 <li>(todo) remote gateway management app : buha app</li>
 </ul>
-<h4 id="wstunnel-modewhitelist-mode">WStunnel Mode(Whitelist Mode)<a class="headerlink" href="#wstunnel-modewhitelist-mode" title="Permanent link">¤</a></h4>
-<p>without nat routing, client only connect to wstunnel to outside. no route. only through wstunnel.</p>
+<h4 id="tunnel-only-modewhitelist-mode">Tunnel Only Mode(Whitelist Mode)<a class="headerlink" href="#tunnel-only-modewhitelist-mode" title="Permanent link">¤</a></h4>
+<p>without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray) to outside. no route. only through tunnel app.</p>
 <ul>
 <li>dns/dhcp : dnsmasq(no masquerade)</li>
 <li>block ip : iptables</li>
@@ -1490,7 +1565,6 @@ $<span class="w"> </span>./init.sh
 <li>wol settings</li>
 <li>(done)new dns client : anydnsdqy</li>
 <li>(done)bugs on ifupdown network interfaces for WLAN, dnsmasq network for WLAN</li>
-<li>dns blacklist <a href="https://urlhaus.abuse.ch/api/#hostfile">https://urlhaus.abuse.ch/api/#hostfile</a></li>
 </ul>
 <h3 id="later">Later<a class="headerlink" href="#later" title="Permanent link">¤</a></h3>
 <ul>
@@ -1519,6 +1593,7 @@ $<span class="w"> </span>./init.sh
 <li>pstrap <a href="https://github.com/shishouyuan/pstrap.git">https://github.com/shishouyuan/pstrap.git</a></li>
 <li>dns over tor</li>
 <li>dns over cloudflared</li>
+<li>dns blacklist <a href="https://urlhaus.abuse.ch/api/#hostfile">https://urlhaus.abuse.ch/api/#hostfile</a></li>
 <li>(rsyslog)</li>
 <li>syslog, auditd, aide, auth, dpkg, daemon, syslog, kern, cron, user, boot, dnsmasq, redis logs</li>
 <li>remote log/debug log submit</li>
@@ -1529,8 +1604,8 @@ $<span class="w"> </span>./init.sh
 <li>system monitor data collect with rsyslog</li>
 <li>link status connection monitoring tui</li>
 <li>Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)</li>
-<li>wstunnel client</li>
-<li>knockd client</li>
+<li>replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip</li>
+<li>hysteria server configurations with/without domain name?</li>
 </ul>
 
 

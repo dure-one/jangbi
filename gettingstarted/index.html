@@ -589,6 +589,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -726,6 +732,29 @@
   
   
     <li class="md-nav__item">
+      <a href="../plugins/net-hysteria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net hysteria
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/net-ifupdown/" class="md-nav__link">
         
   
@@ -818,6 +847,52 @@
   
   
     <li class="md-nav__item">
+      <a href="../plugins/net-omnip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net omnip
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plugins/net-shoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net shoes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../plugins/net-sshd/" class="md-nav__link">
         
   
@@ -841,12 +916,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../plugins/net-wstunnel/" class="md-nav__link">
+      <a href="../plugins/net-v2ray/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Net wstunnel
+    Net v2ray
     
   </span>
   
@@ -1386,8 +1461,6 @@ $<span class="w"> </span>nano<span class="w"> </span>.config
 <span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">RUN_NET_WSTUNNEL</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">RUN_SOCKS5PROXY</span><span class="o">=</span><span class="m">0</span>
 </code></pre></div>
 <h3 id="4-run-installation">4. Run Installation<a class="headerlink" href="#4-run-installation" title="Permanent link">¤</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># Initialize and configure the system</span>
@@ -1419,13 +1492,17 @@ $<span class="w"> </span>net-darkstat<span class="w"> </span>run<span class="w">
 <h3 id="available-plugins">Available Plugins<a class="headerlink" href="#available-plugins" title="Permanent link">¤</a></h3>
 <h4 id="network-plugins">Network Plugins<a class="headerlink" href="#network-plugins" title="Permanent link">¤</a></h4>
 <ul>
-<li><code>net-iptables</code> - Firewall management</li>
-<li><code>net-dnsmasq</code> - DNS/DHCP server</li>
-<li><code>net-hostapd</code> - WiFi access point</li>
-<li><code>net-sshd</code> - SSH daemon hardening</li>
 <li><code>net-darkstat</code> - Network traffic monitoring</li>
+<li><code>net-dnsmasq</code> - DNS/DHCP server</li>
+<li><code>net-dnscryptproxy</code> - Encrypted DNS proxy</li>
+<li><code>net-hostapd</code> - WiFi access point</li>
+<li><code>net-hysteria</code> - Hysteria high-performance QUIC proxy</li>
+<li><code>net-iptables</code> - Firewall management</li>
 <li><code>net-knockd</code> - Port knocking daemon</li>
-<li><code>net-wstunnel</code> - WebSocket tunnel proxy</li>
+<li><code>net-omnip</code> - Omnip all-in-one QUIC proxy</li>
+<li><code>net-shoes</code> - Shoes multi-protocol proxy server</li>
+<li><code>net-sshd</code> - SSH daemon hardening</li>
+<li><code>net-v2ray</code> - V2Ray comprehensive proxy platform</li>
 </ul>
 <h4 id="os-plugins">OS Plugins<a class="headerlink" href="#os-plugins" title="Permanent link">¤</a></h4>
 <ul>
@@ -1508,7 +1585,7 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">&quot;durejangbi&quot;</span>
 <span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">&quot;durejangbi&quot;</span>
 
-<span class="c1"># gateway/ client/  wstunnel</span>
+<span class="c1"># gateway/ client/  tunnelonly</span>
 <span class="nv">JB_ROLE</span><span class="o">=</span><span class="s2">&quot;gateway&quot;</span>
 
 <span class="c1"># os security</span>
@@ -1583,8 +1660,11 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">0</span>
 <span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:6379&quot;</span>
 <span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">RUN_NET_WSTUNNEL</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">RUN_SOCKS5PROXY</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">RUN_NET_HYSTERIA</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_V2RAY</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_OMNIP</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">OMNIP_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span>
+<span class="nv">RUN_NET_SHOES</span><span class="o">=</span><span class="m">1</span>
 </code></pre></div>
 <hr />
 <p><strong>Warning</strong>: This software is still in development. Use with caution in production environments and always test in a lab environment first.</p>

@@ -405,6 +405,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -542,6 +548,29 @@
   
   
     <li class="md-nav__item">
+      <a href="net-hysteria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net hysteria
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="net-ifupdown/" class="md-nav__link">
         
   
@@ -634,6 +663,52 @@
   
   
     <li class="md-nav__item">
+      <a href="net-omnip/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net omnip
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="net-shoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Net shoes
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="net-sshd/" class="md-nav__link">
         
   
@@ -657,12 +732,12 @@
   
   
     <li class="md-nav__item">
-      <a href="net-wstunnel/" class="md-nav__link">
+      <a href="net-v2ray/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    Net wstunnel
+    Net v2ray
     
   </span>
   
@@ -1147,6 +1222,195 @@
 </ul>
 <h1 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">¤</a></h1>
 <p>jangbi-it plugins is a set of configure, install, check status of certain app for jangbi.</p>
+<h2 id="tunnel-plugins-comparison">Tunnel plugins comparison<a class="headerlink" href="#tunnel-plugins-comparison" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>omnip</th>
+<th>shoes</th>
+<th>v2ray</th>
+<th>hysteria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Language</strong></td>
+<td>Rust</td>
+<td>Rust</td>
+<td>Go</td>
+<td>Go</td>
+</tr>
+<tr>
+<td><strong>Primary Focus</strong></td>
+<td>All-in-one QUIC proxy</td>
+<td>Multi-protocol proxy server</td>
+<td>Full-featured proxy platform</td>
+<td>High-performance QUIC proxy</td>
+</tr>
+<tr>
+<td><strong>HTTP Proxy</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>SOCKS5</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>SOCKS4/4a</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>VMess</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>VLess</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Shadowsocks</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Trojan</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>QUIC Support</strong></td>
+<td>✅ (Core feature)</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅ (Core feature)</td>
+</tr>
+<tr>
+<td><strong>HTTP/3 Masquerading</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>TLS Support</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>WebSocket</strong></td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>TCP Forwarding</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>UDP Forwarding</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Proxy Chaining</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Smart Routing/Rules</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>DNS over TLS</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>Web UI</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>TUN Mode</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Linux TProxy</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><strong>Performance Focus</strong></td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>Censorship Resistance</strong></td>
+<td>Medium</td>
+<td>High</td>
+<td>High</td>
+<td>Very High</td>
+</tr>
+<tr>
+<td><strong>Configuration Format</strong></td>
+<td>CLI args</td>
+<td>YAML</td>
+<td>JSON</td>
+<td>YAML</td>
+</tr>
+<tr>
+<td><strong>Use Case</strong></td>
+<td>QUIC tunneling, Smart proxy</td>
+<td>Multi-protocol server</td>
+<td>Comprehensive platform</td>
+<td>High-speed, censorship-resistant</td>
+</tr>
+</tbody>
+</table>
 <h2 id="default-behavior">Default Behavior<a class="headerlink" href="#default-behavior" title="Permanent link">¤</a></h2>
 <h3 id="install">install<a class="headerlink" href="#install" title="Permanent link">¤</a></h3>
 <p>install application and generate configuratiosn at /etc/{plugin_name}.</p>
