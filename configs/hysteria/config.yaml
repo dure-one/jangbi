@@ -1,0 +1,58 @@
+# https://v2.hysteria.network/docs/getting-started/Server/#__tabbed_1_1
+listen: :443
+
+obfs:
+  type: salamander 
+  salamander:
+    password: 123password
+
+server: localhost
+
+# openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out some.crt -keyout some.key -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost"
+tls: 
+  cert: some.crt
+  key: some.key
+  sniGuard: strict
+
+# acme:
+#   domains:
+#     - your.domain.net 
+#   email: your@email.com 
+
+auth: password
+
+# trafficStats:
+#   listen: :9999 
+#   secret: some_secret 
+
+# resolver: # otherwise, system resolver will be used
+#   type: udp | tcp | tls | https 
+#   tcp:
+#     addr: 8.8.8.8:53 
+#     timeout: 4s 
+#   udp:
+#     addr: 8.8.4.4:53 
+#     timeout: 4s
+#   tls:
+#     addr: 1.1.1.1:853 
+#     timeout: 10s
+#     sni: cloudflare-dns.com 
+#     insecure: false 
+#   https:
+#     addr: 1.1.1.1:443 
+#     timeout: 10s
+#     sni: cloudflare-dns.com
+#     insecure: false
+
+# sniff:
+#   enable: true 
+#   timeout: 2s 
+#   rewriteDomain: false 
+#   tcpPorts: 80,443,8000-9000 
+#   udpPorts: all 
+
+# masquerade: 
+#   type: proxy
+#   proxy:
+#     url: https://news.ycombinator.com/ 
+#     rewriteHost: true

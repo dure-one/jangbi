@@ -34,6 +34,33 @@ if _command_exists mkisofs; then
 fi
 
 function wol() {
+    about 'sends wake-on-lan magic packet'
+    group 'base'
+    param '1: MAC address'
+    param '2: broadcast address'
+    param '3: port (default: 9)'
+    example 'wol 00:11:22:33:44:55 192.168.1.255 9'
+    example 'wol 00:11:22:33:44:55 192.168.1.255'
+    example 'wol 00:11:22:33:44:55' # uses default broadcast and port
+    if [[ $# -lt 1 ]]; then
+        echo "Usage: wol <mac-address> [<broadcast-address>] [<port>]"
+        return 1
+    fi
+    # Validate MAC address format
+    if ! [[ "$1" =~ ^([0-9a-fA-F]{2}[:-]){5}([0-9a-fA-F]{2})$ ]]; then
+        echo "Invalid MAC address format: $1"
+        return 1
+    fi
+    # Validate broadcast address format
+    if [[ $# -ge 2 ]] && ! [[ "$2" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+        echo "Invalid broadcast address format: $2"
+        return 1
+    fi
+    # Validate port number
+    if [[ $# -ge 3 ]] && ! [[ "$3" =~ ^[0-9]{1,5}$ ]] || [[ "$3" -lt 1 ]] || [[ "$3" -gt 65535 ]]; then
+        echo "Invalid port number: $3"
+        return 1
+    fi
     local macaddr bcast port tmac mpack
     macaddr="$1"
     bcast="$2"

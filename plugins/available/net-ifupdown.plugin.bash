@@ -64,8 +64,7 @@ function net-ifupdown {
 }
 
 ## \usage net-ifupdown [COMMAND]
-## \usage net-ifupdown install|uninstall|configgen|configapply
-## \usage net-ifupdown check|run|download
+## \usage net-ifupdown install|uninstall|configgen|configapply|check|run|download
 function __net-ifupdown_help {
     echo -e "Usage: net-ifupdown [COMMAND]\n"
     echo -e "Helper to network configurations.\n"
@@ -466,7 +465,7 @@ EOT
 auto ${wlaninf}
 iface ${wlaninf} inet dhcp
 EOT
-                else # gateway, wstunnel, ap mode, static gateway ip
+                else # gateway, tunnelonly, ap mode, static gateway ip
                     # WLANNET=$(ipcalc-ng ${JB_WLAN}|grep Network:|cut -f2)
                     # WLANIP=$(ipcalc-ng ${JB_WLAN}|grep Address:|cut -f2)
                     if [[ ! ${JB_WLANGW} ]]; then

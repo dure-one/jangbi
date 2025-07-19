@@ -26,7 +26,6 @@ net-iptables         [x]        iptables install configurations.
 net-knockd           [ ]        knockd install configurations.
 net-netplan          [ ]        netplan install configurations.
 net-sshd             [x]        sshd install configurations.
-net-wstunnel         [x]        wstunnel install configurations.
 net-xtables          [x]        xtables install configurations.
 os-aide              [x]        aide install configurations.
 os-auditd            [x]        auditd install configurations.

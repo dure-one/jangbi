@@ -131,6 +131,8 @@ function net-iptables {
     fi
 }  
 
+## \usage net-iptables [COMMAND]
+## \usage net-iptables help|install|uninstall|configgen|configapply|check|run|download|build|watch
 function __net-iptables_help {
     echo -e "Usage: net-iptables [COMMAND]\n"
     echo -e "Helper to iptables install configurations.\n"
@@ -395,7 +397,7 @@ function __net-iptables_build {
     return 0
 }
 
-# MODES : Gateway, Wstunnel, Client
+# MODES : Gateway, TunnelOnly, Client
 # TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
 # PREFIX : int/ext/all inc/oug/both contents
 

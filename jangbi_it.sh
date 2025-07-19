@@ -394,9 +394,12 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
 }
 
 _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz
-  local arch1=$(dpkg --print-architecture)
-  local arch2=$(arch)
-  [[ $(echo $1|grep -c "/") != 1 ]] && log_debug "please set only githubid/repoid." && return 1
+  local arch1 arch2 
+  arch1=$(dpkg --print-architecture)
+  arch2=$(arch)
+  [[ -n ${3} ]] && arch1=${3}
+  [[ -n ${4} ]] && arch2=${4}
+  [[ $(echo $1|grep -c "/") != 1 ]] && log_debug "please set githubid/repoid." && return 1
   local pkgurl="https://api.github.com/repos/$(_trim_string $1)/releases/latest"
   # log_debug "DownloadURL : ${pkgurl}"
   IFS=$'\*' read -rd '' -a pkgfilefix <<<"$(_trim_string $2)"
@@ -406,29 +409,43 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   local possible_list=$(curl -sSL "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
   # log_debug "List : ${possible_list}"
   IFS=$'\n' read -rd '' -a durls <<<"$possible_list"
-  for((k=0;k<${#durls[@]};k++)){
-    durl=$(_trim_string ${durls[k],,});
-    if [[ ${#durls[@]} -gt 1 ]]; then # https://github.com/draios/sysdig/releases/download/0.40.1/sysdig-0.40.1-x86_64.deb
-      if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then # https://github.com/vectordotdev/vector/releases/download/v0.48.0/vector_0.48.0-1_amd64.deb
-        log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
+
+  if [[ ${#durls[@]} -gt 1 ]]; then
+    for((k=0;k<${#durls[@]};k++)){ # sysdig-0.40.1-x86_64.deb dnscrypt-proxy-linux_x86_64-2.1.12.tar.gz
+      durl=$(_trim_string ${durls[k],,});
+      if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+        log_debug "Downloading(type1) ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
         wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
-        break
-      elif [[ ${durl} == *"${arch1}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
-        log_debug "Downloading ${durl} to ${arch1} ${pkgfilepostfix}..."
-        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
-        break
-      elif [[ ${durl} == *"${arch2}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
-        log_debug "Downloading ${durl} to ${arch2} ${pkgfilepostfix}..."
-        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
-        break
+        return 0
       fi
-    else
-      if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then 
-        log_debug "Downloading ${durl} to ${pkgfileprefix} ${pkgfilepostfix}..."
+    }
+    for((k=0;k<${#durls[@]};k++)){ # hysteria-linux-amd64 
+      durl=$(_trim_string ${durls[k],,});
+      if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"linux"* ]]; then
+        log_debug "Downloading(type2) ${durl} to ${arch1} ${pkgfilepostfix}..."
         wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        return 0
       fi
-    fi
-  }
+    }
+    for((k=0;k<${#durls[@]};k++)){ #
+      durl=$(_trim_string ${durls[k],,});
+      if [[ ${durl} == *"${arch1}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+        log_debug "Downloading(type3) ${durl} to ${arch1} ${pkgfilepostfix}..."
+        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        return 0
+      fi
+    }
+    for((k=0;k<${#durls[@]};k++)){ #
+      durl=$(_trim_string ${durls[k],,});
+      if [[ ${durl} == *"${arch2}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
+        log_debug "Downloading(type4) ${durl} to ${arch2} ${pkgfilepostfix}..."
+        wget --directory-prefix=${JANGBI_IT}/pkgs "${durl}" || (log_error "error downloading ${pkgfile}"; return 1)
+        return 0
+      fi
+    }
+  fi
+  log_error "No matching package found for ${pkgfileprefix} ${comparch} ${pkgfilepostfix} in ${possible_list}"
+  return 1
 }
 
 _blank(){

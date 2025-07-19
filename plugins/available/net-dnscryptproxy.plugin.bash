@@ -32,7 +32,7 @@ function net-dnscryptproxy {
     about 'dnscryptproxy install configurations'
     group 'postnet'
     runtype 'minmon'
-    deps ''
+    deps 'net-dnsmasq'
     param '1: command'
     param '2: params'
     example '$ net-dnscryptproxy subcommand'
@@ -91,7 +91,7 @@ function __net-dnscryptproxy_install {
 
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-dnscryptproxy_download 
     tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 1>/dev/null 2>&1
-    if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy.toml ]]; then
+    if [[ ! -f /tmp/dnscryptproxy/dnscrypt-proxy ]]; then
         log_error "dnscrypt-proxy binary not found in package."
         return 1
     fi

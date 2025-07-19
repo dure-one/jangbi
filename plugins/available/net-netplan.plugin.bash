@@ -65,6 +65,8 @@ function net-netplan {
   fi
 }
 
+## \usage net-netplan [COMMAND]
+## \usage net-netplan help|install|uninstall|configgen|configapply|check|run|download
 function __net-netplan_help {
   echo -e "Usage: net-netplan [COMMAND]\n"
   echo -e "Helper to netplan install configurations.\n"
@@ -396,7 +398,7 @@ EOT
           password: "${JB_WLAN_PASS}"
       dhcp4: yes
 EOT
-          else # gateway, wstunnel, ap mode, static gateway ip
+          else # gateway, tunnelonly, ap mode, static gateway ip
             if [[ ! ${JB_WLANGW} ]]; then
               tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
   wifis:

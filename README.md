@@ -1,6 +1,6 @@
 - **WORK IN PROGRES**
 - running this script might break your system.
-- written in pure bash, works only **bookworm** dist.
+- written in pure bash, works only **(Armbian, Debian, DietPi, Raspian) Bookworm** dist.
 
 ## JANGBI(Device)
 
@@ -21,7 +21,7 @@ similar projects: [pi-hole](https://pi-hole.net/), [technitium](https://techniti
 - **Firewall**: iptables/nftables with advanced rules
 - **DNS/DHCP**: dnsmasq with ad-blocking capabilities  
 - **WiFi Access Point**: hostapd for wireless networking
-- **VPN/Proxy**: WSTunnel for secure remote access
+- **VPN/Proxy**: Tunnel(Hysteria, Omnip, Shoes, V2ray) for secure remote access
 - **Monitoring**: darkstat, auditd, AIDE, Vector, Redis
 - **Remote Access**: OpenSSH with security hardening
 
@@ -34,9 +34,9 @@ Acts as a traditional NAT router with WAN-LAN separation:
 - DNS blacklist filtering
 - NAT masquerading for LAN clients
 
-### 2. WSTunnel Mode (Proxy-Only)
+### 2. Tunnel Only Mode (Proxy-Only)
 Secure proxy mode without NAT routing:
-- Clients connect only through WSTunnel proxy
+- Clients connect only through tunnel proxy
 - No direct internet routing
 - Enhanced security through proxy filtering
 - DNS/DHCP without masquerading
@@ -51,7 +51,7 @@ Single interface mode for endpoint protection:
 
 Before installing Jangbi-IT, ensure your system meets these requirements:
 
-- **Operating System**: Armbian, Debian Bookworm, or DietPi
+- **Operating System**: (Armbian, Debian, DietPi, Raspian) Bookworm
 - **Hardware**: Minimum 1GB RAM, 8GB storage
 - **Network**: At least one network interface
 - **Tools**: `ipcalc-ng` package installed
@@ -65,8 +65,8 @@ traditional nat gateway with iptables(nft).
 * block dns : steven blacklist -> dnsmasq/dnscrypt-proxy
 * (todo) remote gateway management app : buha app
 
-#### WStunnel Mode(Whitelist Mode)
-without nat routing, client only connect to wstunnel to outside. no route. only through wstunnel.
+#### Tunnel Only Mode(Whitelist Mode)
+without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray) to outside. no route. only through tunnel app.
 
 * dns/dhcp : dnsmasq(no masquerade)
 * block ip : iptables
@@ -126,8 +126,6 @@ $ ./init.sh
 - wol settings
 - (done)new dns client : anydnsdqy
 - (done)bugs on ifupdown network interfaces for WLAN, dnsmasq network for WLAN
-- dns blacklist https://urlhaus.abuse.ch/api/#hostfile
-
 
 ### Later
 - (feat)
@@ -155,6 +153,7 @@ $ ./init.sh
 - pstrap https://github.com/shishouyuan/pstrap.git
 - dns over tor
 - dns over cloudflared
+- dns blacklist https://urlhaus.abuse.ch/api/#hostfile
 - (rsyslog)
 - syslog, auditd, aide, auth, dpkg, daemon, syslog, kern, cron, user, boot, dnsmasq, redis logs
 - remote log/debug log submit
@@ -165,7 +164,7 @@ $ ./init.sh
 - system monitor data collect with rsyslog
 - link status connection monitoring tui
 - Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
-- wstunnel client
-- knockd client
 - replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip
+- hysteria server configurations with/without domain name?
+
 

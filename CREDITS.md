@@ -123,5 +123,16 @@ https://github.com/smallstep/cli
 sysdig | APACHE2 |
 https://github.com/draios/sysdig
 
-wstunnel | BSD3 |
-https://github.com/erebe/wstunnel
+hysteria | MIT |
+https://github.com/apernet/hysteria
+
+v2ray-core | MIT | 
+https://github.com/v2fly/v2ray-core
+
+shoes | MIT | 
+https://github.com/cfal/shoes
+
+omnip | MPL2.0 |
+https://github.com/neevek/omnip
+
+

@@ -196,12 +196,15 @@ nav:
     - plugins/net-dnscryptproxy.md
     - plugins/net-dnsmasq.md
     - plugins/net-hostapd.md
+    - plugins/net-hysteria.md
     - plugins/net-ifupdown.md
     - plugins/net-iptables.md
     - plugins/net-knockd.md
     - plugins/net-netplan.md
+    - plugins/net-omnip.md
+    - plugins/net-shoes.md
     - plugins/net-sshd.md
-    - plugins/net-wstunnel.md
+    - plugins/net-v2ray.md
     - plugins/net-xtables.md
     - plugins/os-aide.md
     - plugins/os-auditd.md

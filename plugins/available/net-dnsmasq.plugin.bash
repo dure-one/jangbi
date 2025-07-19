@@ -68,8 +68,7 @@ function net-dnsmasq {
 }
 
 ## \usage net-dnsmasq [COMMAND]
-## \usage net-dnsmasq install|uninstall|configgen|configapply
-## \usage net-dnsmasq check|run|download|updateblist
+## \usage net-dnsmasq install|uninstall|configgen|configapply|check|run|download|updateblist
 function __net-dnsmasq_help {
     echo -e "Usage: net-dnsmasq [COMMAND]\n"
     echo -e "Helper to dnsmasq install configurations.\n"
@@ -266,7 +265,7 @@ function __net-dnsmasq_generate_config {
                 [[ ${DISABLE_IPV6} -gt 0 ]] && no_dhcpv6_infs="${no_dhcpv6_infs}no-dhcpv6-interface=${lanxinf}"
             }
         fi
-    else # local->wan # client mode, wstunnel mode
+    else # local->wan # client mode, tunnelonly mode
         netinf="lo"
         netip="127.0.0.1"
         netminip="127.0.0.1"

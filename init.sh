@@ -115,7 +115,7 @@ durl="http://ftp.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
 rm ./enabled/* 2>/dev/null # remove all enabled plugins
-prenet=("os-systemd") postnet=()
+prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=()
 ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
 source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
@@ -148,8 +148,11 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 
                 source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
-                [[ ${group_txt// /} == "postnet" ]] && postnet+=(${load_plugin})
-                [[ ${group_txt// /} == "prenet" ]] && prenet+=(${load_plugin})
+                deps_txt=$(typeset -f -- "${load_plugin}"|metafor deps)
+                [[ ${group_txt// /} == "postnet" && ${#deps_txt[@]} -eq 0 ]] && postnet+=(${load_plugin})
+                [[ ${group_txt// /} == "postnet" && ${#deps_txt[@]} -gt 0 ]] && postnetdeps+=(${load_plugin})
+                [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -eq 0 ]] && prenet+=(${load_plugin})
+                [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -gt 0 ]] && prenetdeps+=(${load_plugin})
             fi
             log_debug "${lvars[k]} $group_txt" # log loaded vars
             unset group_txt
@@ -159,7 +162,9 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 }
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
-
+# append deps array to orig array
+prenet+=("${prenetdeps[@]}") 
+postnet+=("${postnetdeps[@]}")
 # download
 if [[ ${DN_OPTION} = "enabled" || $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
     for plugin in "./enabled"/*".plugin.bash"; do

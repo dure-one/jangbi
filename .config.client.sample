@@ -32,7 +32,7 @@ JB_WLAN_APMODE=0
 JB_WLAN_SSID="durejangbi"
 JB_WLAN_PASS="durejangbi"
 
-# role: gateway / client / wstunnel
+# role: gateway / client / tunnelonly
 JB_ROLE="client"
 
 # network apps
@@ -61,6 +61,4 @@ RUN_NET_XTABLES=0
 RUN_NET_HOSTAPD=0
 RUN_NET_DNSMASQ=0
 RUN_NET_DNSCRYPTPROXY=0
-RUN_NET_WSTUNNEL=0
-RUN_SOCKS5PROXY=0
 

@@ -85,9 +85,9 @@ function __os-vector_help {
 function __os-vector_install {
     log_debug "Installing ${DMNNAME}..."
 
-    local filepat="./pkgs/vector*.deb"
+    local filepat="./pkgs/vector_*.deb"
     [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-vector_download
-    apt install -yq ./pkgs/vector*.deb ./pkgs/sysdig*.deb
+    apt install -yq ./pkgs/vector_*.deb ./pkgs/sysdig-*.deb
     mkdir -p /var/log/vector 1>/dev/null 2>&1
 
     if ! __os-vector_configgen; then # if gen config is different do apply
@@ -122,8 +122,8 @@ function __os-vector_configapply {
 }
 
 function __os-vector_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_github_pkgs vectordotdev/vector vector_*.deb || log_error "${DMNNAME} download failed."
+    log_debug "Downloading ${DMNNAME}..." 
+    _download_github_pkgs vectordotdev/vector vector_*.deb  || log_error "${DMNNAME} download failed."
     _download_github_pkgs draios/sysdig sysdig-*.deb || log_error "${DMNNAME} download failed."
     return 0
 }

@@ -73,8 +73,6 @@ RUN_NET_DNSCRYPTPROXY=1
 RUN_NET_DARKSTAT=1
 RUN_OS_REDIS=1
 RUN_OS_MINMON=1
-RUN_NET_WSTUNNEL=0
-RUN_SOCKS5PROXY=0
 ```
 
 ### 4. Run Installation
@@ -115,13 +113,18 @@ $ net-darkstat run  # Web interface at http://device-ip:666
 ### Available Plugins
 
 #### Network Plugins
-- `net-iptables` - Firewall management
-- `net-dnsmasq` - DNS/DHCP server
-- `net-hostapd` - WiFi access point
-- `net-sshd` - SSH daemon hardening
 - `net-darkstat` - Network traffic monitoring
+- `net-dnsmasq` - DNS/DHCP server
+- `net-dnscryptproxy` - Encrypted DNS proxy
+- `net-hostapd` - WiFi access point
+- `net-hysteria` - Hysteria high-performance QUIC proxy
+- `net-iptables` - Firewall management
 - `net-knockd` - Port knocking daemon
-- `net-wstunnel` - WebSocket tunnel proxy
+- `net-omnip` - Omnip all-in-one QUIC proxy
+- `net-shoes` - Shoes multi-protocol proxy server
+- `net-sshd` - SSH daemon hardening
+- `net-v2ray` - V2Ray comprehensive proxy platform
+
 
 #### OS Plugins
 - `os-auditd` - System auditing

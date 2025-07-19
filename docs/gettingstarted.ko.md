@@ -73,8 +73,6 @@ RUN_NET_DNSCRYPTPROXY=1
 RUN_NET_DARKSTAT=1
 RUN_OS_REDIS=1
 RUN_OS_MINMON=1
-RUN_NET_WSTUNNEL=0
-RUN_SOCKS5PROXY=0
 ```
 
 ### 5. 설치 실행
@@ -115,13 +113,17 @@ $ net-darkstat run  # 웹 인터페이스: http://device-ip:666
 ### 사용 가능한 플러그인
 
 #### 네트워크 플러그인
-- `net-iptables` - 방화벽 관리
-- `net-dnsmasq` - DNS/DHCP 서버
-- `net-hostapd` - WiFi 액세스 포인트
-- `net-sshd` - SSH 데몬 강화
 - `net-darkstat` - 네트워크 트래픽 모니터링
+- `net-dnsmasq` - DNS/DHCP 서버
+- `net-dnscryptproxy` - 암호화된 DNS 프록시
+- `net-hostapd` - WiFi 액세스 포인트
+- `net-hysteria` - Hysteria 고성능 QUIC 프록시
+- `net-iptables` - 방화벽 관리
 - `net-knockd` - 포트 노킹 데몬
-- `net-wstunnel` - WebSocket 터널 프록시
+- `net-omnip` - Omnip 올인원 QUIC 프록시
+- `net-shoes` - Shoes 멀티 프로토콜 프록시 서버
+- `net-sshd` - SSH 데몬 강화
+- `net-v2ray` - V2Ray 종합 프록시 플랫폼
 
 #### OS 플러그인
 - `os-auditd` - 시스템 감사

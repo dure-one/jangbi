@@ -21,7 +21,7 @@ Jangbi는 가난한 자의 Firewalla 대안으로 설계된 포괄적인 보안 
 - **방화벽**: 고급 규칙이 포함된 iptables/nftables
 - **DNS/DHCP**: 광고 차단 기능이 포함된 dnsmasq
 - **WiFi 액세스 포인트**: 무선 네트워킹을 위한 hostapd
-- **VPN/프록시**: 보안 원격 접속을 위한 WSTunnel
+- **VPN/프록시**: 보안 원격 접속을 위한 hysteria, v2ray, omnip, shoes
 - **모니터링**: darkstat, auditd, AIDE, Vector, Redis
 - **원격 접속**: 보안 강화된 OpenSSH
 
@@ -34,9 +34,9 @@ WAN-LAN 분리가 있는 전통적인 NAT 라우터로 작동:
 - DNS 블랙리스트 필터링
 - LAN 클라이언트를 위한 NAT 마스커레이딩
 
-### 2. WSTunnel 모드 (프록시 전용)
+### 2. TunnelOnly 모드 (프록시 전용)
 NAT 라우팅 없는 보안 프록시 모드:
-- 클라이언트는 WSTunnel 프록시를 통해서만 연결
+- 클라이언트는 tunnel(hysteria, omnip, shoes, v2ray) 프록시를 통해서만 연결
 - 직접 인터넷 라우팅 없음
 - 프록시 필터링을 통한 향상된 보안
 - 마스커레이딩 없는 DNS/DHCP
@@ -65,8 +65,8 @@ iptables(nft)를 사용한 전통적인 nat 게이트웨이입니다.
 * dns 차단 : steven blacklist -> dnsmasq/dnscrypt-proxy
 * (할 일) 원격 게이트웨이 관리 앱 : buha 앱
 
-#### WStunnel 모드(화이트리스트 모드)
-nat 라우팅 없이, 클라이언트는 오직 wstunnel을 통해서만 외부에 연결됩니다. 라우트 없음. 오직 wstunnel을 통해서만.
+#### TunnelOnly 모드(화이트리스트 모드)
+nat 라우팅 없이, 클라이언트는 오직 tunnel app을 통해서만 외부에 연결됩니다. 라우트 없음. 오직 tunnel앱을 통해서만.
 
 * dns/dhcp : dnsmasq(마스커레이드 없음)
 * ip 차단 : iptables

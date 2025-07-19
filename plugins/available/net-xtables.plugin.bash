@@ -236,7 +236,7 @@ function __net-xtables_build {
     return 0
 }
 
-# MODES : Gateway, Wstunnel, Client
+# MODES : Gateway, Tunnelonly, Client
 # TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
 # PREFIX : int/ext/all inc/oug/both contents
 

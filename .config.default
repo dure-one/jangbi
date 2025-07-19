@@ -55,7 +55,7 @@ JB_WLAN_APMODE=1
 JB_WLAN_SSID="durejangbi"
 JB_WLAN_PASS="durejangbi"
 
-# gateway/ client/  wstunnel
+# gateway/ client/  tunnelonly
 JB_ROLE="gateway"
 
 # os security
@@ -130,5 +130,8 @@ DARKSTAT_PORTS="LAN:19283,WLAN:19283"
 RUN_OS_REDIS=0
 REDIS_PORTS="LO:6379"
 RUN_OS_MINMON=1
-RUN_NET_WSTUNNEL=0
-RUN_SOCKS5PROXY=0
+RUN_NET_HYSTERIA=1
+RUN_NET_V2RAY=1
+RUN_NET_OMNIP=1
+OMNIP_PORTS="LO:53"
+RUN_NET_SHOES=1
