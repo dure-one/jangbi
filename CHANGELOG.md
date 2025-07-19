@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([34c57df](https://github.com/dure-one/jangbi/commit/34c57df98a16273f815cdf841ecc78843e84c0ef) by nikescar).
+- Add changelog automatically ([1ab178d](https://github.com/dure-one/jangbi/commit/1ab178d420cdd40acb0dc98c7156506176742e34) by nikescar).
 
 ### Fixed
 
+- fix. stop at error on important task. continue at important task. ([fdc4c6f](https://github.com/dure-one/jangbi/commit/fdc4c6f02b287bf5ad201567e5e57ac8471ea369) by Woojae, Park).
 - fix. remove systemd-run to daemon itself. ([11d4cbf](https://github.com/dure-one/jangbi/commit/11d4cbfcfea1572eb8baf12062c1d29e06b61991) by Woojae, Park).
 - fix. replace bash-it vars on download func. ([00abf93](https://github.com/dure-one/jangbi/commit/00abf9397b6127b35ca714f692fc7c8ba593fc74) by Woojae, Park).
 - fix. deb pkg file saved in root ([159148c](https://github.com/dure-one/jangbi/commit/159148ca58db3b0a6a68ab99ae6ff2dafc223f01) by Woojae, Park).
