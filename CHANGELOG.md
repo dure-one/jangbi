@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([b979f6d](https://github.com/dure-one/jangbi/commit/b979f6dc63e33a6f5fac6c86c5ca1bd1723b5e73) by nikescar).
+- Add changelog automatically ([3180b7f](https://github.com/dure-one/jangbi/commit/3180b7f74439672dd25900d6092ab3fcf8bc5c0b) by nikescar).
 
 ### Fixed
 
+- fix. deb pkg file saved in root ([159148c](https://github.com/dure-one/jangbi/commit/159148ca58db3b0a6a68ab99ae6ff2dafc223f01) by Woojae, Park).
 - fix. add missing libs. add docker test base. ([6f9e618](https://github.com/dure-one/jangbi/commit/6f9e6182ef5af2ef8e951365f5a039b651bce0ac) by Woojae, Park).
 - fix. log splitting. readme docs. ([2747df0](https://github.com/dure-one/jangbi/commit/2747df0e2f6da8b0f1c911ddd58568d8631ef981) by Woojae, Park).
 - fix. bash-it log prefix for each apps. ([f59d8e9](https://github.com/dure-one/jangbi/commit/f59d8e98eccdeaf6df010c7e1c051e1b6132a2fb) by Woojae, Park).
