@@ -755,7 +755,7 @@
 <h2 id="_2">빠른 설치<a class="headerlink" href="#_2" title="Permanent link">¤</a></h2>
 <h3 id="1">1. 필수 구성 요소 설치<a class="headerlink" href="#1" title="Permanent link">¤</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># 필요한 도구 설치</span>
-sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ipcalc-ng<span class="w"> </span>git
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ipcalc-ng<span class="w"> </span>git<span class="w"> </span>patch
 </code></pre></div>
 <h3 id="2">2. 저장소 복제<a class="headerlink" href="#2" title="Permanent link">¤</a></h3>
 <p>init 시스템이 쉽게 찾을 수 있도록 /opt 폴더에 설치하세요.<br/>
@@ -908,7 +908,7 @@ download<span class="w">     </span><span class="c1"># 필요한 패키지 다�
 
 <span class="c1">## network interfaces</span>
 <span class="nv">JB_WANINF</span><span class="o">=</span><span class="s2">&quot;enP3p49s0&quot;</span>
-<span class="c1">## dhcp, 192.168.5.1/24(first ip of subnet become gateway)</span>
+<span class="c1">## dhcp, 192.168.5.1/24(first ip of subnet become gw ip, 192.168.5.1)</span>
 <span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
 <span class="nv">JB_WANGW</span><span class="o">=</span>
 
@@ -950,6 +950,7 @@ download<span class="w">     </span><span class="c1"># 필요한 패키지 다�
 
 <span class="nv">RUN_NET_SSHD</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">SSHD_PORT</span><span class="o">=</span><span class="s2">&quot;22&quot;</span>
+<span class="nv">SSHD_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:22&quot;</span>
 <span class="nv">SSHD_INFS</span><span class="o">=</span><span class="s2">&quot;LAN,WLAN&quot;</span>
 
 <span class="c1"># iptables</span>
@@ -994,8 +995,11 @@ download<span class="w">     </span><span class="c1"># 필요한 패키지 다�
 <span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts&quot;</span>
 <span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">DNSCRYPTPROXY_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span>
 <span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">DARKSTAT_PORTS</span><span class="o">=</span><span class="s2">&quot;LAN:19283,WLAN:19283&quot;</span>
+<span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:6379&quot;</span>
 <span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_NET_WSTUNNEL</span><span class="o">=</span><span class="m">0</span>
 <span class="nv">RUN_SOCKS5PROXY</span><span class="o">=</span><span class="m">0</span>
