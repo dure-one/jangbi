@@ -1609,13 +1609,24 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">IPTABLES_WHITELISTED_MACADDRESSES</span><span class="o">=</span><span class="s2">&quot;LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1&quot;</span>
 <span class="nv">IPTABLES_GWMACONLY</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_ARPALLINFS</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># base rules</span>
+<span class="nv">IPTABLES_ANTISPOOFING</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_DROPCASTS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_DROPICMP</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_ALLOWED_PORTS</span><span class="o">=</span><span class="s2">&quot;10897,10898&quot;</span>
+<span class="nv">IPTABLES_NOISE_REDUCTION</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_DROP_UPNP</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_REJECT_AUTH</span><span class="o">=</span><span class="m">1</span>
 <span class="c1"># net rules</span>
 <span class="nv">IPTABLES_DROP_ICMP</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_NON_SYN</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_SPOOFING</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_SPOOFING_TARINF</span><span class="o">=</span>WAN
 <span class="nv">IPTABLES_DROP_SPOOFING_NET</span><span class="o">=</span><span class="s2">&quot;224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8&quot;</span>
+<span class="nv">IPTABLES_LIMIT_MSS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">IPTABLES_INVALID_TCPFLAG</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_BLACK_NAMELIST</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt&quot;</span>
+
 <span class="c1"># host rules</span>
 <span class="c1"># masquerade inside to outside ex) LAN&lt;WAN|WLAN&lt;WAN</span>
 <span class="nv">IPTABLES_MASQ</span><span class="o">=</span><span class="s2">&quot;LAN&lt;WAN,LAN1&lt;WAN&quot;</span>
@@ -1634,10 +1645,12 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">XTABLES_INVALID_TCPFLAG</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_GUARD_PORT_SCANNER</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_CHAOS_PORTS</span><span class="o">=</span><span class="s2">&quot;22,23,80,443&quot;</span>
-<span class="nv">XTABLES_DELUDE_PORTS</span><span class="o">=</span><span class="s2">&quot;22,23,80,443,21,25,53,110,143,993,995&quot;</span>
-<span class="nv">XTABLES_PKNOCK_PORTS</span><span class="o">=</span><span class="s2">&quot;3001,3002,3003&quot;</span><span class="w"> </span>
-<span class="nv">XTABLES_PKNOCK_OPEN_PORT</span><span class="o">=</span><span class="s2">&quot;53&quot;</span><span class="w"> </span>
-<span class="nv">XTABLES_PKNOCK_TIMEOUT</span><span class="o">=</span><span class="s2">&quot;20&quot;</span>
+<span class="nv">XTABLES_DELUDE_PORTS</span><span class="o">=</span><span class="s2">&quot;21,25,53,110,143,993,995&quot;</span>
+<span class="nv">XTABLES_PKNOCK_PORTS</span><span class="o">=</span><span class="s2">&quot;3001,3002,3003&quot;</span>
+<span class="nv">XTABLES_PKNOCK_RULENAME</span><span class="o">=</span><span class="s2">&quot;example&quot;</span>
+<span class="nv">XTABLES_PKNOCK_OPENSECRET</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span>
+<span class="nv">XTABLES_PKNOCK_CLOSESECRET</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span>
+<span class="nv">XTABLES_PKNOCK_TARGET_PORTS</span><span class="o">=</span><span class="s2">&quot;22,80,443&quot;</span>
 
 <span class="c1"># gateway apps</span>
 <span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span>
