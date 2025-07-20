@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([c37ba93](https://github.com/dure-one/jangbi/commit/c37ba930a445fd22ab70932fe1d2a526b1232647) by nikescar).
+- Add changelog automatically ([57bcb70](https://github.com/dure-one/jangbi/commit/57bcb70eaace0fc7c171a2ea41768ca4be6a0dde) by nikescar).
 
 ### Fixed
 
+- fix. concise ifdown netplan generate function. other bugs. ([7895239](https://github.com/dure-one/jangbi/commit/7895239ac4d792bb245df53ecbed67bd89d5cc40) by Woojae, Park).
 - fix. exit on initial errors. ([dd7df1b](https://github.com/dure-one/jangbi/commit/dd7df1b1d5dd45a4133375d77c0d28fae4990e18) by Woojae, Park).
 - fix. stop at error on important task. continue at important task. ([fdc4c6f](https://github.com/dure-one/jangbi/commit/fdc4c6f02b287bf5ad201567e5e57ac8471ea369) by Woojae, Park).
 - fix. remove systemd-run to daemon itself. ([11d4cbf](https://github.com/dure-one/jangbi/commit/11d4cbfcfea1572eb8baf12062c1d29e06b61991) by Woojae, Park).
