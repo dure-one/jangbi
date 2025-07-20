@@ -64,9 +64,7 @@ function os-auditd {
     fi
 }
 
-## \usage net-auditd [COMMAND]
-## \usage net-auditd install|uninstall|configgen|configapply
-## \usage net-auditd check|run|download
+## \usage net-auditd install|uninstall|configgen|configapply|check|run|download
 function __os-auditd_help {
     echo -e "Usage: os-auditd [COMMAND]\n"
     echo -e "Helper to auditd install configurations.\n"

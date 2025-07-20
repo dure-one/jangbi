@@ -57,7 +57,6 @@ function os-kparams {
     fi
 }
 
-## \usage os-kparams [COMMAND]
 ## \usage os-kparams install|uninstall|check|run
 function __os-kparams_help {
     echo -e "Usage: os-kparams [COMMAND]\n"

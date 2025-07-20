@@ -57,8 +57,7 @@ function os-disablebins {
     fi
 }
 
-## \usage os-disablebins [COMMAND]
-## \usage os-disablebins install|uninstall|check|run
+## \usage os-disablebins help|install|uninstall|check|run
 function __os-disablebins_help {
     echo -e "Usage: disablebins [COMMAND]\n"
     echo -e "Helper to disable binaries.\n"

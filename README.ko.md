@@ -7,7 +7,7 @@
 장비는 Firewalla 저렴한 대안으로 설계된 포괄적인 보안 중심의 네트워크 어플라이언스 프레임워크입니다. Armbian/DietPi/Debian 위에서 iptables, dnsmasq 및 다양한 보안 도구를 결합하여 강력한 네트워크 보안 장치를 만듭니다. 이 프레임워크는 Dure 생태계의 일부이며 가정 및 소규모 비즈니스 네트워크를 위한 엔터프라이즈급 보안 기능을 제공합니다.<br/>
 유사한 프로젝트: [pi-hole](https://pi-hole.net/), [technitium](https://technitium.com/dns/), [adguardhome](https://github.com/AdguardTeam/AdGuardHome), [blocky](https://github.com/0xERR0R/blocky), [portmaster](https://github.com/safing/portmaster?tab=readme-ov-file)
 
-<details>
+<details markdown>
 
 <summary>기능</summary>
 

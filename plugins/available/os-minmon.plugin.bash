@@ -65,9 +65,7 @@ function os-minmon {
     fi
 }
 
-## \usage os-minmon [COMMAND]
-## \usage os-minmon install|uninstall|configgen|configapply
-## \usage os-minmon check|run|download
+## \usage os-minmon install|uninstall|configgen|configapply|check|run|download
 function __os-minmon_help {
     echo -e "Usage: os-minmon [COMMAND]\n"
     echo -e "Helper to minmon install configurations.\n"

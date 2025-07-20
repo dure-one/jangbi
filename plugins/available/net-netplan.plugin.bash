@@ -65,7 +65,6 @@ function net-netplan {
   fi
 }
 
-## \usage net-netplan [COMMAND]
 ## \usage net-netplan help|install|uninstall|configgen|configapply|check|run|download
 function __net-netplan_help {
   echo -e "Usage: net-netplan [COMMAND]\n"

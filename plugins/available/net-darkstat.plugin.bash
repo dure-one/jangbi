@@ -1,27 +1,18 @@
 ## \brief darkstat install configurations.
 ## \desc This tool helps install, configure, and manage darkstat (network traffic analyzer)
-## for network monitoring. It provides automated installation, configuration management,
-## and service control capabilities. Darkstat captures network packets on a specified
-## interface and provides web-based statistics about network usage and traffic patterns.
-
-## \example Install and configure darkstat:
-## \example-code bash
-##   net-darkstat install
-##   net-darkstat configgen
-##   net-darkstat configapply
-## \example-description
-## In this example, we install darkstat, generate the configuration files,
-## and apply them to the system for network traffic monitoring.
-
-## \example Run darkstat and check status:
-## \example-code bash
-##   net-darkstat run
-##   net-darkstat check
-## \example-description
-## In this example, we start the darkstat service to begin network monitoring
-## and verify that the service is running properly.
+## for network monitoring. .
 
 ## \exit 1 Invalid command or parameters provided.
+
+## \file /etc/super_script/default_conf.rc The default configuration file for my super script.
+## \file /dev/null I think you got it.
+
+## \error Just like bugs, notes, caveats...
+## An error is something the user should not do,
+## something that is considered wrong or bad practice when using your script.
+
+## If you want to document the standard error messages, or the exit status,
+## see \stderr and \exit.
 
 # shellcheck shell=bash
 cite about-plugin
@@ -49,22 +40,23 @@ function net-darkstat {
         __net-darkstat_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-darkstat_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-darkstat_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-darkstat_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-darkstat_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-darkstat_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-darkstat_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-darkstat_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-darkstat_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-darkstat_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-darkstat_run "$2"
     else
         __net-darkstat_help
     fi
 }
 
-## \usage net-darkstat [COMMAND]
 ## \usage net-darkstat install|uninstall|configgen|configapply|check|run|download
 function __net-darkstat_help {
     echo -e "Usage: net-darkstat [COMMAND]\n"
@@ -72,11 +64,11 @@ function __net-darkstat_help {
     echo -e "Commands:\n"
     echo "   help        Show this help message"
     echo "   install     Install darkstat"
-    echo "   offinstall  Offline install darkstat"
     echo "   uninstall   Uninstall darkstat"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable plugin"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
     echo "   check       Check vars available"
     echo "   run         Run tasks"
 }
@@ -107,7 +99,25 @@ function __net-darkstat_install {
     mkdir -p /var/log/darkstat
 }
 
-function __net-darkstat_configgen { # config generator and diff
+function __net-darkstat_uninstall { 
+    log_debug "Uninstalling ${DMNNAME}..."
+    pidof darkstat | xargs kill -9 2>/dev/null
+    apt purge -qy darkstat
+}
+
+function __net-darkstat_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs darkstat || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __net-darkstat_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    pidof darkstat | xargs kill -9 2>/dev/null
+    return 0
+}
+
+function __net-darkstat_configgen {
     log_debug "Generating config for ${DMNNAME}..."
     [[ ${#JB_WANINF} -lt 1 ]] && log_error "JB_WANINF is not set" && exit 1
 
@@ -132,24 +142,6 @@ function __net-darkstat_configapply {
     popd 1>/dev/null 2>&1
     rm /tmp/${PKGNAME}.diff
     return 0
-}
-
-function __net-darkstat_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs darkstat || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __net-darkstat_disable {
-    log_debug "Disabling ${DMNNAME}..."
-    pidof darkstat | xargs kill -9 2>/dev/null
-    return 0
-}
-
-function __net-darkstat_uninstall { 
-    log_debug "Uninstalling ${DMNNAME}..."
-    pidof darkstat | xargs kill -9 2>/dev/null
-    apt purge -qy darkstat
 }
 
 function __net-darkstat_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip

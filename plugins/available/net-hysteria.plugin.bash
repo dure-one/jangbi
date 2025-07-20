@@ -65,7 +65,6 @@ function net-hysteria {
     fi
 }
 
-## \usage net-hysteria [COMMAND]
 ## \usage net-hysteria install|uninstall|configgen|configapply|check|run|download
 function __net-hysteria_help {
     echo -e "Usage: net-hysteria [COMMAND]\n"

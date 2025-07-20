@@ -63,7 +63,6 @@ function net-ifupdown {
     fi
 }
 
-## \usage net-ifupdown [COMMAND]
 ## \usage net-ifupdown install|uninstall|configgen|configapply|check|run|download
 function __net-ifupdown_help {
     echo -e "Usage: net-ifupdown [COMMAND]\n"

@@ -65,9 +65,7 @@ function net-sshd {
     fi
 }
 
-## \usage net-sshd [COMMAND]
-## \usage net-sshd install|uninstall|configgen|configapply
-## \usage net-sshd check|run|download
+## \usage net-sshd install|uninstall|configgen|configapply|check|run|download
 function __net-sshd_help {
     echo -e "Usage: net-sshd [COMMAND]\n"
     echo -e "Helper to sshd install configurations.\n"

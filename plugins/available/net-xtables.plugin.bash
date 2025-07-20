@@ -69,7 +69,6 @@ function net-xtables {
     fi
 }  
 
-## \usage net-xtables [COMMAND]
 ## \usage net-xtables install|uninstall|configgen|configapply|check|run|download|build|watch
 function __net-xtables_help {
     echo -e "Usage: net-xtables [COMMAND]\n"

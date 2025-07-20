@@ -65,9 +65,7 @@ function os-redis {
     fi
 }
 
-## \usage os-redis [COMMAND]
-## \usage os-redis install|uninstall|configgen|configapply
-## \usage os-redis check|run|download
+## \usage os-redis install|uninstall|configgen|configapply|check|run|download
 function __os-redis_help {
     echo -e "Usage: os-redis [COMMAND]\n"
     echo -e "Helper to redis install configurations.\n"

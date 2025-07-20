@@ -64,7 +64,6 @@ function net-hostapd {
     fi
 }
 
-## \usage net-hostapd [COMMAND]
 ## \usage net-hostapd install|uninstall|configgen|configapply|check|run|download
 function __net-hostapd_help {
     echo -e "Usage: net-hostapd [COMMAND]\n"

@@ -114,7 +114,7 @@ markdown_extensions:
   - pymdownx.highlight:
       pygments_lang_class: true
   - pymdownx.magiclink
-  
+  - pymdownx.extra
   - pymdownx.snippets:
       base_path: [!relative $config_dir]
       check_paths: true

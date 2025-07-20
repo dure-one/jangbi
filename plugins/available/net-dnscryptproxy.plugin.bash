@@ -65,7 +65,6 @@ function net-dnscryptproxy {
     fi
 }
 
-## \usage net-dnscryptproxy [COMMAND]
 ## \usage net-dnscryptproxy install|uninstall|configgen|configapply|check|run|download
 function __net-dnscryptproxy_help {
     echo -e "Usage: net-dnscryptproxy [COMMAND]\n"

@@ -67,7 +67,6 @@ function net-dnsmasq {
     fi
 }
 
-## \usage net-dnsmasq [COMMAND]
 ## \usage net-dnsmasq install|uninstall|configgen|configapply|check|run|download|updateblist
 function __net-dnsmasq_help {
     echo -e "Usage: net-dnsmasq [COMMAND]\n"

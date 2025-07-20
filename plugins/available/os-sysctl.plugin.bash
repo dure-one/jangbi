@@ -56,8 +56,8 @@ function os-sysctl {
     fi
 }
 
-## \usage os-sysctl [COMMAND]
-## \usage os-sysctl install|uninstall|check|run
+
+## \usage os-sysctl helpinstall|uninstall|check|run
 function __os-sysctl_help {
     echo -e "Usage: os-sysctl [COMMAND]\n"
     echo -e "Helper to sysctl install configurations.\n"

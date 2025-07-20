@@ -67,9 +67,7 @@ function os-aide {
     fi
 }
 
-## \usage os-aide [COMMAND]
-## \usage os-aide install|uninstall|configgen|configapply
-## \usage os-aide checkpoint|check|run|download
+## \usage os-aide install|uninstall|configgen|configapply|checkpoint|check|run|download
 function __os-aide_help {
     echo -e "Usage: os-aide [COMMAND]\n"
     echo -e "Helper to aide install configurations.\n"

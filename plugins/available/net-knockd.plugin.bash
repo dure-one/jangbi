@@ -65,7 +65,6 @@ function net-knockd {
     fi
 }
 
-## \usage net-knockd [COMMAND]
 ## \usage net-knockd help|install|uninstall|configgen|configapply|check|run|download
 function __net-knockd_help {
     echo -e "Usage: net-knockd [COMMAND]\n"

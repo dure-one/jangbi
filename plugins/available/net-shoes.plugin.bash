@@ -65,7 +65,6 @@ function net-shoes {
     fi
 }
 
-## \usage net-shoes [COMMAND]
 ## \usage net-shoes install|uninstall|configgen|configapply|check|run|download
 function __net-shoes_help {
     echo -e "Usage: net-shoes [COMMAND]\n"

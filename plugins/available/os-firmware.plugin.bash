@@ -57,7 +57,6 @@ function os-firmware {
     fi
 }
 
-## \usage os-firmware [COMMAND]
 ## \usage os-firmware install|uninstall|check|run
 function __os-firmware_help {
     echo -e "Usage: os-firmware [COMMAND]\n"

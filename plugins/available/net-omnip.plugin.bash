@@ -65,7 +65,6 @@ function net-omnip {
     fi
 }
 
-## \usage net-omnip [COMMAND]
 ## \usage net-omnip install|uninstall|configgen|configapply|check|run|download
 function __net-omnip_help {
     echo -e "Usage: net-omnip [COMMAND]\n"

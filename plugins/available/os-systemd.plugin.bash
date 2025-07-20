@@ -58,8 +58,7 @@ function os-systemd {
     fi
 }
 
-## \usage os-systemd [COMMAND]
-## \usage os-systemd install|uninstall|check|run
+## \usage os-systemd help|install|uninstall|check|run
 function __os-systemd_help {
     echo -e "Usage: os-systemd [COMMAND]\n"
     echo -e "Helper to local packgage repository.\n"

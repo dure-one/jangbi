@@ -59,7 +59,6 @@ function os-conf {
     fi
 }
 
-## \usage os-conf [COMMAND]
 ## \usage os-conf install|uninstall|check|run|download
 function __os-conf_help {
     echo -e "Usage: os-conf [COMMAND]\n"

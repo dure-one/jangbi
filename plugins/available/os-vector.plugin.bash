@@ -65,9 +65,7 @@ function os-vector {
     fi
 }
 
-## \usage os-vector [COMMAND]
-## \usage os-vector install|uninstall|configgen|configapply
-## \usage os-vector check|run|download
+## \usage os-vector install|uninstall|configgen|configapply|check|run|download
 function __os-vector_help {
     echo -e "Usage: os-vector [COMMAND]\n"
     echo -e "Helper to vector install configurations.\n"

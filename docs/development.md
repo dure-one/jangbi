@@ -125,3 +125,40 @@ there are three group types.
 
 * **any-text**
 * **(none)**
+
+## plugin documentation
+
+these are rendering order for mkdocstring-shell.
+
+```bash
+1.   ## \brief darkstat install configurations.
+2.   ## \usage net-darkstat [COMMAND]
+     ## \usage net-darkstat install|uninstall|configgen|configapply|check|run|download
+3.   ## \desc This tool helps install, configure, and manage darkstat (network traffic analyzer)
+     ## for network monitoring. .
+4.(options)
+5.   ## \file /etc/super_script/default_conf.rc The default configuration file for my super script.
+6.   ## \exit 1 Invalid command or parameters provided.
+7.   ## \stdin 
+8.   ## \stdout
+9.   ## \stderr
+10.  ## \function
+10-1.## \function-brief
+11.  ## \example Install and configure darkstat:
+11-1.## \example-code bash
+     ##   net-darkstat install
+     ##   net-darkstat configgen
+     ##   net-darkstat configapply
+     ## \example-description
+     ## In this example, we install darkstat, generate the configuration files,
+     ## and apply them to the system for network traffic monitoring.
+12.  ## \error Just like bugs, notes, caveats...
+     ## An error is something the user should not do,
+     ## something that is considered wrong or bad practice when using your script.
+     ## If you want to document the standard error messages, or the exit status,
+     ## see \stderr and \exit.
+13.  ## \history 2018-08-31: this example was written.
+14.  ## \note If shellman does not work as expected, please file a bug on GitHub.
+     ## Here is the URL: https://github.com/pawamoy/shellman.
+15.  ## \seealso A note about something else to look at.
+```

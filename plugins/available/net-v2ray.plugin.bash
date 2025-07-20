@@ -65,7 +65,6 @@ function net-v2ray {
     fi
 }
 
-## \usage net-v2ray [COMMAND]
 ## \usage net-v2ray install|uninstall|configgen|configapply|check|run|download
 function __net-v2ray_help {
     echo -e "Usage: net-v2ray [COMMAND]\n"

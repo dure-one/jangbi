@@ -131,7 +131,6 @@ function net-iptables {
     fi
 }  
 
-## \usage net-iptables [COMMAND]
 ## \usage net-iptables help|install|uninstall|configgen|configapply|check|run|download|build|watch
 function __net-iptables_help {
     echo -e "Usage: net-iptables [COMMAND]\n"

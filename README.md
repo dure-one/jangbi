@@ -7,7 +7,7 @@
 Jangbi is a comprehensive security-focused network appliance framework designed as a poor man's Firewalla alternative. It combines iptables, dnsmasq, and various security tools on top of Armbian/DietPi/Debian to create a powerful network security device. The framework is part of the Dure ecosystem and provides enterprise-grade security features for home and small business networks.<br/>
 similar projects: [pi-hole](https://pi-hole.net/), [technitium](https://technitium.com/dns/), [adguardhome](https://github.com/AdguardTeam/AdGuardHome), [blocky](https://github.com/0xERR0R/blocky), [portmaster](https://github.com/safing/portmaster?tab=readme-ov-file)
 
-<details>
+<details markdown>
 
 <summary>Features</summary>
 
@@ -127,7 +127,7 @@ $ ./init.sh
 
 ```
 
-<details>
+<details markdown>
 
 <summary>Todos</summary>
 
