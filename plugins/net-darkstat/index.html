@@ -462,19 +462,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Net darkstat
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         
@@ -487,32 +476,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#net-darkstat.plugin.bash" class="md-nav__link">
-    <span class="md-ellipsis">
-      net-darkstat.plugin.bash
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -1264,29 +1227,40 @@
   
 
 
-  <h1>Net darkstat</h1>
-
 <ul>
 <li class="i18n-link i18n-link-not-found i18n-link-ko">Korean: 이 페이지는 아직 한글로 번역되지 않았습니다.</li>
 </ul>
 
 
 
-<h2 id="net-darkstat.plugin.bash">net-darkstat.plugin.bash<a href="#net-darkstat.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+<h1 id="net-darkstat.plugin.bash">net-darkstat.plugin.bash<a href="#net-darkstat.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
   <p>darkstat install configurations.</p>
 
   <strong>Usage</strong>
-    <pre><code>net-darkstat [COMMAND]</code></pre>
     <pre><code>net-darkstat install|uninstall|configgen|configapply|check|run|download</code></pre>
 
   <strong>Description</strong>
       <p>This tool helps install, configure, and manage darkstat (network traffic analyzer)
-for network monitoring. It provides automated installation, configuration management,
-and service control capabilities. Darkstat captures network packets on a specified
-interface and provides web-based statistics about network usage and traffic patterns.</p>
+for network monitoring. .</p>
 
 
 
+
+  <strong>Files</strong>
+    <ul>
+      <li>
+        <code>/etc/super_script/default_conf.rc</code>:
+        <div class="doc doc-md-description">
+          <p>The default configuration file for my super script.</p>
+        </div>
+      </li>
+      <li>
+        <code>/dev/null</code>:
+        <div class="doc doc-md-description">
+          <p>I think you got it.</p>
+        </div>
+      </li>
+  </ul>
 
 
   <strong>Exit Status</strong>
@@ -1304,18 +1278,13 @@ interface and provides web-based statistics about network usage and traffic patt
 
 
 
-  <strong>Examples</strong>
-    <em><p>Install and configure darkstat:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-darkstat<span class="w"> </span>install
-net-darkstat<span class="w"> </span>configgen
-net-darkstat<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install darkstat, generate the configuration files,
-and apply them to the system for network traffic monitoring.</p>
-    <em><p>Run darkstat and check status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-darkstat<span class="w"> </span>run
-net-darkstat<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we start the darkstat service to begin network monitoring
-and verify that the service is running properly.</p>
+
+  <strong>Errors</strong>
+      <p>Just like bugs, notes, caveats...
+An error is something the user should not do,
+something that is considered wrong or bad practice when using your script.
+If you want to document the standard error messages, or the exit status,
+see \stderr and \exit.</p>
 
 
 

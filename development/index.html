@@ -1319,6 +1319,39 @@ about-plugin<span class="w"> </span><span class="s1">&#39;darkstat install confi
 <li><strong>any-text</strong></li>
 <li><strong>(none)</strong></li>
 </ul>
+<h2 id="plugin-documentation">plugin documentation<a class="headerlink" href="#plugin-documentation" title="Permanent link">¤</a></h2>
+<p>these are rendering order for mkdocstring-shell.</p>
+<div class="language-bash highlight"><pre><span></span><code><span class="m">1</span>.<span class="w">   </span><span class="c1">## \brief darkstat install configurations.</span>
+<span class="m">2</span>.<span class="w">   </span><span class="c1">## \usage net-darkstat [COMMAND]</span>
+<span class="w">     </span><span class="c1">## \usage net-darkstat install|uninstall|configgen|configapply|check|run|download</span>
+<span class="m">3</span>.<span class="w">   </span><span class="c1">## \desc This tool helps install, configure, and manage darkstat (network traffic analyzer)</span>
+<span class="w">     </span><span class="c1">## for network monitoring. .</span>
+<span class="m">4</span>.<span class="o">(</span>options<span class="o">)</span>
+<span class="m">5</span>.<span class="w">   </span><span class="c1">## \file /etc/super_script/default_conf.rc The default configuration file for my super script.</span>
+<span class="m">6</span>.<span class="w">   </span><span class="c1">## \exit 1 Invalid command or parameters provided.</span>
+<span class="m">7</span>.<span class="w">   </span><span class="c1">## \stdin </span>
+<span class="m">8</span>.<span class="w">   </span><span class="c1">## \stdout</span>
+<span class="m">9</span>.<span class="w">   </span><span class="c1">## \stderr</span>
+<span class="m">10</span>.<span class="w">  </span><span class="c1">## \function</span>
+<span class="m">10</span>-1.##<span class="w"> </span><span class="se">\f</span>unction-brief
+<span class="m">11</span>.<span class="w">  </span><span class="c1">## \example Install and configure darkstat:</span>
+<span class="m">11</span>-1.##<span class="w"> </span><span class="se">\e</span>xample-code<span class="w"> </span>bash
+<span class="w">     </span><span class="c1">##   net-darkstat install</span>
+<span class="w">     </span><span class="c1">##   net-darkstat configgen</span>
+<span class="w">     </span><span class="c1">##   net-darkstat configapply</span>
+<span class="w">     </span><span class="c1">## \example-description</span>
+<span class="w">     </span><span class="c1">## In this example, we install darkstat, generate the configuration files,</span>
+<span class="w">     </span><span class="c1">## and apply them to the system for network traffic monitoring.</span>
+<span class="m">12</span>.<span class="w">  </span><span class="c1">## \error Just like bugs, notes, caveats...</span>
+<span class="w">     </span><span class="c1">## An error is something the user should not do,</span>
+<span class="w">     </span><span class="c1">## something that is considered wrong or bad practice when using your script.</span>
+<span class="w">     </span><span class="c1">## If you want to document the standard error messages, or the exit status,</span>
+<span class="w">     </span><span class="c1">## see \stderr and \exit.</span>
+<span class="m">13</span>.<span class="w">  </span><span class="c1">## \history 2018-08-31: this example was written.</span>
+<span class="m">14</span>.<span class="w">  </span><span class="c1">## \note If shellman does not work as expected, please file a bug on GitHub.</span>
+<span class="w">     </span><span class="c1">## Here is the URL: https://github.com/pawamoy/shellman.</span>
+<span class="m">15</span>.<span class="w">  </span><span class="c1">## \seealso A note about something else to look at.</span>
+</code></pre></div>
 
 
 

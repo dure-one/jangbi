@@ -368,6 +368,114 @@
         <li class="md-nav__item">
   <a href="#_1" class="md-nav__link">
     <span class="md-ellipsis">
+      기능
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="기능">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      핵심 보안 기능
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      지원 서비스
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      장치 운영 모드
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="장치 운영 모드">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. 게이트웨이 모드 (전통적인 라우터)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-tunnelonly" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. TunnelOnly 모드 (프록시 전용)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. 클라이언트 모드
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      사전 요구사항
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="사전 요구사항">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      게이트웨이 모드(블랙리스트 모드)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunnelonly" class="md-nav__link">
+    <span class="md-ellipsis">
+      TunnelOnly 모드(화이트리스트 모드)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
       사전 요구사항
     </span>
   </a>
@@ -375,7 +483,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_2" class="md-nav__link">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       설치
     </span>
@@ -637,83 +745,76 @@
 <p>장비는 Firewalla 저렴한 대안으로 설계된 포괄적인 보안 중심의 네트워크 어플라이언스 프레임워크입니다. Armbian/DietPi/Debian 위에서 iptables, dnsmasq 및 다양한 보안 도구를 결합하여 강력한 네트워크 보안 장치를 만듭니다. 이 프레임워크는 Dure 생태계의 일부이며 가정 및 소규모 비즈니스 네트워크를 위한 엔터프라이즈급 보안 기능을 제공합니다.<br/>
 유사한 프로젝트: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://technitium.com/dns/">technitium</a>, <a href="https://github.com/AdguardTeam/AdGuardHome">adguardhome</a>, <a href="https://github.com/0xERR0R/blocky">blocky</a>, <a href="https://github.com/safing/portmaster?tab=readme-ov-file">portmaster</a></p>
 <details>
-
 <summary>기능</summary>
-
-## 기능
-
-### 핵심 보안 기능
-- **OS 강화**: 커널 모듈 비활성화, sysctl 강화, 위험한 바이너리 비활성화
-- **네트워크 보안**: 사전 구성된 iptables 규칙, 포트 포워딩, MAC 화이트리스트
-- **침입 탐지**: AIDE (파일 무결성), auditd (시스템 감사)
-- **DNS 보안**: 블랙리스트를 통한 DNS 차단, DNSCrypt-proxy 지원
-- **트래픽 분석**: darkstat를 통한 네트워크 모니터링, Vector를 통한 로그 분석
-- **접근 제어**: knockd를 통한 포트 노킹, SSH 강화
-
-### 지원 서비스
-- **방화벽**: 고급 규칙이 포함된 iptables/nftables
-- **DNS/DHCP**: 광고 차단 기능이 포함된 dnsmasq
-- **WiFi 액세스 포인트**: 무선 네트워킹을 위한 hostapd
-- **VPN/프록시**: 보안 원격 접속을 위한 hysteria, v2ray, omnip, shoes
-- **모니터링**: darkstat, auditd, AIDE, Vector, Redis
-- **원격 접속**: 보안 강화된 OpenSSH
-
-## 장치 운영 모드
-
-### 1. 게이트웨이 모드 (전통적인 라우터)
-WAN-LAN 분리가 있는 전통적인 NAT 라우터로 작동:
+<h2 id="_1">기능<a class="headerlink" href="#_1" title="Permanent link">¤</a></h2>
+<h3 id="_2">핵심 보안 기능<a class="headerlink" href="#_2" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>OS 강화</strong>: 커널 모듈 비활성화, sysctl 강화, 위험한 바이너리 비활성화</li>
+<li><strong>네트워크 보안</strong>: 사전 구성된 iptables 규칙, 포트 포워딩, MAC 화이트리스트</li>
+<li><strong>침입 탐지</strong>: AIDE (파일 무결성), auditd (시스템 감사)</li>
+<li><strong>DNS 보안</strong>: 블랙리스트를 통한 DNS 차단, DNSCrypt-proxy 지원</li>
+<li><strong>트래픽 분석</strong>: darkstat를 통한 네트워크 모니터링, Vector를 통한 로그 분석</li>
+<li><strong>접근 제어</strong>: knockd를 통한 포트 노킹, SSH 강화</li>
+</ul>
+<h3 id="_3">지원 서비스<a class="headerlink" href="#_3" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>방화벽</strong>: 고급 규칙이 포함된 iptables/nftables</li>
+<li><strong>DNS/DHCP</strong>: 광고 차단 기능이 포함된 dnsmasq</li>
+<li><strong>WiFi 액세스 포인트</strong>: 무선 네트워킹을 위한 hostapd</li>
+<li><strong>VPN/프록시</strong>: 보안 원격 접속을 위한 hysteria, v2ray, omnip, shoes</li>
+<li><strong>모니터링</strong>: darkstat, auditd, AIDE, Vector, Redis</li>
+<li><strong>원격 접속</strong>: 보안 강화된 OpenSSH</li>
+</ul>
+<h2 id="_4">장치 운영 모드<a class="headerlink" href="#_4" title="Permanent link">¤</a></h2>
+<h3 id="1">1. 게이트웨이 모드 (전통적인 라우터)<a class="headerlink" href="#1" title="Permanent link">¤</a></h3>
+<p>WAN-LAN 분리가 있는 전통적인 NAT 라우터로 작동:
 - dnsmasq를 통한 DNS/DHCP/DNS 차단
 - ipset과 iptables를 통한 IP 차단
 - DNS 블랙리스트 필터링
-- LAN 클라이언트를 위한 NAT 마스커레이딩
-
-### 2. TunnelOnly 모드 (프록시 전용)
-NAT 라우팅 없는 보안 프록시 모드:
+- LAN 클라이언트를 위한 NAT 마스커레이딩</p>
+<h3 id="2-tunnelonly">2. TunnelOnly 모드 (프록시 전용)<a class="headerlink" href="#2-tunnelonly" title="Permanent link">¤</a></h3>
+<p>NAT 라우팅 없는 보안 프록시 모드:
 - 클라이언트는 tunnel(hysteria, omnip, shoes, v2ray) 프록시를 통해서만 연결
 - 직접 인터넷 라우팅 없음
 - 프록시 필터링을 통한 향상된 보안
-- 마스커레이딩 없는 DNS/DHCP
-
-### 3. 클라이언트 모드
-엔드포인트 보호를 위한 단일 인터페이스 모드:
+- 마스커레이딩 없는 DNS/DHCP</p>
+<h3 id="3">3. 클라이언트 모드<a class="headerlink" href="#3" title="Permanent link">¤</a></h3>
+<p>엔드포인트 보호를 위한 단일 인터페이스 모드:
 - 호스트 기반 방화벽 규칙
 - 로컬 보안 강화
-- 모니터링 및 침입 탐지
-
-## 사전 요구사항
-
-Jangbi-IT를 설치하기 전에 시스템이 다음 요구사항을 만족하는지 확인하세요:
-
-- **운영 체제**: Armbian, Debian Bookworm, 또는 DietPi
-- **하드웨어**: 최소 1GB RAM, 8GB 저장공간
-- **네트워크**: 최소 하나의 네트워크 인터페이스
-- **도구**: `ipcalc-ng` 패키지 설치됨
-- **접근 권한**: root 또는 sudo 권한
-
-#### 게이트웨이 모드(블랙리스트 모드)
-iptables(nft)를 사용한 전통적인 nat 게이트웨이입니다.
-
-* dns/dhcp/dnsblock : dnsmasq
-* ip 차단 : ipset -> iptables, darkstat -> cutcdn/cdncheck -> iptables, vector(sysdig) -> iptables
-* dns 차단 : steven blacklist -> dnsmasq/dnscrypt-proxy
-* (할 일) 원격 게이트웨이 관리 앱 : buha 앱
-
-#### TunnelOnly 모드(화이트리스트 모드)
-nat 라우팅 없이, 클라이언트는 오직 tunnel app을 통해서만 외부에 연결됩니다. 라우트 없음. 오직 tunnel앱을 통해서만.
-
-* dns/dhcp : dnsmasq(마스커레이드 없음)
-* ip 차단 : iptables
-* dns 차단 : dnsmasq
-* (할 일) 원격 게이트웨이 관리 앱 : buha 앱
-
+- 모니터링 및 침입 탐지</p>
+<h2 id="_5">사전 요구사항<a class="headerlink" href="#_5" title="Permanent link">¤</a></h2>
+<p>Jangbi-IT를 설치하기 전에 시스템이 다음 요구사항을 만족하는지 확인하세요:</p>
+<ul>
+<li><strong>운영 체제</strong>: Armbian, Debian Bookworm, 또는 DietPi</li>
+<li><strong>하드웨어</strong>: 최소 1GB RAM, 8GB 저장공간</li>
+<li><strong>네트워크</strong>: 최소 하나의 네트워크 인터페이스</li>
+<li><strong>도구</strong>: <code>ipcalc-ng</code> 패키지 설치됨</li>
+<li><strong>접근 권한</strong>: root 또는 sudo 권한</li>
+</ul>
+<h4 id="_6">게이트웨이 모드(블랙리스트 모드)<a class="headerlink" href="#_6" title="Permanent link">¤</a></h4>
+<p>iptables(nft)를 사용한 전통적인 nat 게이트웨이입니다.</p>
+<ul>
+<li>dns/dhcp/dnsblock : dnsmasq</li>
+<li>ip 차단 : ipset -&gt; iptables, darkstat -&gt; cutcdn/cdncheck -&gt; iptables, vector(sysdig) -&gt; iptables</li>
+<li>dns 차단 : steven blacklist -&gt; dnsmasq/dnscrypt-proxy</li>
+<li>(할 일) 원격 게이트웨이 관리 앱 : buha 앱</li>
+</ul>
+<h4 id="tunnelonly">TunnelOnly 모드(화이트리스트 모드)<a class="headerlink" href="#tunnelonly" title="Permanent link">¤</a></h4>
+<p>nat 라우팅 없이, 클라이언트는 오직 tunnel app을 통해서만 외부에 연결됩니다. 라우트 없음. 오직 tunnel앱을 통해서만.</p>
+<ul>
+<li>dns/dhcp : dnsmasq(마스커레이드 없음)</li>
+<li>ip 차단 : iptables</li>
+<li>dns 차단 : dnsmasq</li>
+<li>(할 일) 원격 게이트웨이 관리 앱 : buha 앱</li>
+</ul>
 </details>
-
-<h2 id="_1">사전 요구사항<a class="headerlink" href="#_1" title="Permanent link">¤</a></h2>
+<h2 id="_7">사전 요구사항<a class="headerlink" href="#_7" title="Permanent link">¤</a></h2>
 <ul>
 <li><strong>bookworm</strong> 배포판과 호환되는 armbian/debian/dietpi/raspian 호스트</li>
 <li>ipcalc-ng 설치됨</li>
 </ul>
-<h2 id="_2">설치<a class="headerlink" href="#_2" title="Permanent link">¤</a></h2>
+<h2 id="_8">설치<a class="headerlink" href="#_8" title="Permanent link">¤</a></h2>
 <ul>
 <li>모든 <strong>bookworm</strong> 배포판에서</li>
 </ul>

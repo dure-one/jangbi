@@ -366,6 +366,114 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Features
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-security-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Core Security Features
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported Services
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-operating-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Device Operating Modes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Operating Modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-gateway-mode-traditional-router" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Gateway Mode (Traditional Router)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-tunnel-only-mode-proxy-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Tunnel Only Mode (Proxy-Only)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-client-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Client Mode
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gateway-modeblacklist-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gateway Mode(Blacklist Mode)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tunnel-only-modewhitelist-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tunnel Only Mode(Whitelist Mode)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#prerequisite" class="md-nav__link">
     <span class="md-ellipsis">
       Prerequisite
@@ -380,6 +488,39 @@
       Installation
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#todos" class="md-nav__link">
+    <span class="md-ellipsis">
+      Todos
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Todos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#before-next-release" class="md-nav__link">
+    <span class="md-ellipsis">
+      Before Next Release
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#later" class="md-nav__link">
+    <span class="md-ellipsis">
+      Later
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1294,77 +1435,70 @@
 <p>Jangbi is a comprehensive security-focused network appliance framework designed as a poor man's Firewalla alternative. It combines iptables, dnsmasq, and various security tools on top of Armbian/DietPi/Debian to create a powerful network security device. The framework is part of the Dure ecosystem and provides enterprise-grade security features for home and small business networks.<br/>
 similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://technitium.com/dns/">technitium</a>, <a href="https://github.com/AdguardTeam/AdGuardHome">adguardhome</a>, <a href="https://github.com/0xERR0R/blocky">blocky</a>, <a href="https://github.com/safing/portmaster?tab=readme-ov-file">portmaster</a></p>
 <details>
-
 <summary>Features</summary>
-
-## Features
-
-### Core Security Features
-- **OS Hardening**: Disable kernel modules, sysctl hardening, disable dangerous binaries
-- **Network Security**: Pre-configured iptables rules, port forwarding, MAC whitelisting
-- **Intrusion Detection**: AIDE (file integrity), auditd (system auditing)
-- **DNS Security**: DNS blocking with Dnsmasq, Dnscrypt-proxy support
-- **Traffic Analysis**: Network monitoring with darkstat, log analysis with Vector
-- **Access Control**: Port knocking with knockd, SSH hardening
-
-### Supported Services
-- **Firewall**: iptables/nftables with advanced rules
-- **DNS/DHCP**: dnsmasq with ad-blocking capabilities  
-- **WiFi Access Point**: hostapd for wireless networking
-- **VPN/Proxy**: Tunnel(Hysteria, Omnip, Shoes, V2ray) for secure remote access
-- **Monitoring**: darkstat, auditd, AIDE, Vector, Redis
-- **Remote Access**: OpenSSH with security hardening
-
-## Device Operating Modes
-
-### 1. Gateway Mode (Traditional Router)
-Acts as a traditional NAT router with WAN-LAN separation:
+<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">¤</a></h2>
+<h3 id="core-security-features">Core Security Features<a class="headerlink" href="#core-security-features" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>OS Hardening</strong>: Disable kernel modules, sysctl hardening, disable dangerous binaries</li>
+<li><strong>Network Security</strong>: Pre-configured iptables rules, port forwarding, MAC whitelisting</li>
+<li><strong>Intrusion Detection</strong>: AIDE (file integrity), auditd (system auditing)</li>
+<li><strong>DNS Security</strong>: DNS blocking with Dnsmasq, Dnscrypt-proxy support</li>
+<li><strong>Traffic Analysis</strong>: Network monitoring with darkstat, log analysis with Vector</li>
+<li><strong>Access Control</strong>: Port knocking with knockd, SSH hardening</li>
+</ul>
+<h3 id="supported-services">Supported Services<a class="headerlink" href="#supported-services" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>Firewall</strong>: iptables/nftables with advanced rules</li>
+<li><strong>DNS/DHCP</strong>: dnsmasq with ad-blocking capabilities  </li>
+<li><strong>WiFi Access Point</strong>: hostapd for wireless networking</li>
+<li><strong>VPN/Proxy</strong>: Tunnel(Hysteria, Omnip, Shoes, V2ray) for secure remote access</li>
+<li><strong>Monitoring</strong>: darkstat, auditd, AIDE, Vector, Redis</li>
+<li><strong>Remote Access</strong>: OpenSSH with security hardening</li>
+</ul>
+<h2 id="device-operating-modes">Device Operating Modes<a class="headerlink" href="#device-operating-modes" title="Permanent link">¤</a></h2>
+<h3 id="1-gateway-mode-traditional-router">1. Gateway Mode (Traditional Router)<a class="headerlink" href="#1-gateway-mode-traditional-router" title="Permanent link">¤</a></h3>
+<p>Acts as a traditional NAT router with WAN-LAN separation:
 - DNS/DHCP/DNS blocking via dnsmasq
 - IP blocking via ipset and iptables
 - DNS blacklist filtering
-- NAT masquerading for LAN clients
-
-### 2. Tunnel Only Mode (Proxy-Only)
-Secure proxy mode without NAT routing:
+- NAT masquerading for LAN clients</p>
+<h3 id="2-tunnel-only-mode-proxy-only">2. Tunnel Only Mode (Proxy-Only)<a class="headerlink" href="#2-tunnel-only-mode-proxy-only" title="Permanent link">¤</a></h3>
+<p>Secure proxy mode without NAT routing:
 - Clients connect only through tunnel proxy
 - No direct internet routing
 - Enhanced security through proxy filtering
-- DNS/DHCP without masquerading
-
-### 3. Client Mode
-Single interface mode for endpoint protection:
+- DNS/DHCP without masquerading</p>
+<h3 id="3-client-mode">3. Client Mode<a class="headerlink" href="#3-client-mode" title="Permanent link">¤</a></h3>
+<p>Single interface mode for endpoint protection:
 - Host-based firewall rules
 - Local security hardening
-- Monitoring and intrusion detection
-
-## Prerequisites
-
-Before installing Jangbi-IT, ensure your system meets these requirements:
-
-- **Operating System**: (Armbian, Debian, DietPi, Raspian) Bookworm
-- **Hardware**: Minimum 1GB RAM, 8GB storage
-- **Network**: At least one network interface
-- **Tools**: `ipcalc-ng` package installed
-- **Access**: Root or sudo privileges
-
-#### Gateway Mode(Blacklist Mode)
-traditional nat gateway with iptables(nft).
-
-* dns/dhcp/dnsblock : dnsmasq
-* block ip : ipset -> iptables, darkstat -> cutcdn/cdncheck -> iptables, vector(sysdig) -> iptables
-* block dns : steven blacklist -> dnsmasq/dnscrypt-proxy
-* (todo) remote gateway management app : buha app
-
-#### Tunnel Only Mode(Whitelist Mode)
-without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray) to outside. no route. only through tunnel app.
-
-* dns/dhcp : dnsmasq(no masquerade)
-* block ip : iptables
-* block dns : dnsmasq
-* (todo) remote gateway management app : buha app
-
+- Monitoring and intrusion detection</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
+<p>Before installing Jangbi-IT, ensure your system meets these requirements:</p>
+<ul>
+<li><strong>Operating System</strong>: (Armbian, Debian, DietPi, Raspian) Bookworm</li>
+<li><strong>Hardware</strong>: Minimum 1GB RAM, 8GB storage</li>
+<li><strong>Network</strong>: At least one network interface</li>
+<li><strong>Tools</strong>: <code>ipcalc-ng</code> package installed</li>
+<li><strong>Access</strong>: Root or sudo privileges</li>
+</ul>
+<h4 id="gateway-modeblacklist-mode">Gateway Mode(Blacklist Mode)<a class="headerlink" href="#gateway-modeblacklist-mode" title="Permanent link">¤</a></h4>
+<p>traditional nat gateway with iptables(nft).</p>
+<ul>
+<li>dns/dhcp/dnsblock : dnsmasq</li>
+<li>block ip : ipset -&gt; iptables, darkstat -&gt; cutcdn/cdncheck -&gt; iptables, vector(sysdig) -&gt; iptables</li>
+<li>block dns : steven blacklist -&gt; dnsmasq/dnscrypt-proxy</li>
+<li>(todo) remote gateway management app : buha app</li>
+</ul>
+<h4 id="tunnel-only-modewhitelist-mode">Tunnel Only Mode(Whitelist Mode)<a class="headerlink" href="#tunnel-only-modewhitelist-mode" title="Permanent link">¤</a></h4>
+<p>without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray) to outside. no route. only through tunnel app.</p>
+<ul>
+<li>dns/dhcp : dnsmasq(no masquerade)</li>
+<li>block ip : iptables</li>
+<li>block dns : dnsmasq</li>
+<li>(todo) remote gateway management app : buha app</li>
+</ul>
 </details>
-
 <h2 id="prerequisite">Prerequisite<a class="headerlink" href="#prerequisite" title="Permanent link">¤</a></h2>
 <ul>
 <li>armbian/debian/dietpi compatible host with <strong>bookworm</strong> distribution</li>
@@ -1413,71 +1547,71 @@ $<span class="w"> </span>nano<span class="w"> </span>.config
 $<span class="w"> </span>./init.sh
 </code></pre></div>
 <details>
-
 <summary>Todos</summary>
-
-## Todos
-
-### Before Next Release
-- (done)Sets numerous hardening kernel arguments (Following [Madaidan's Hardening Guide](https://madaidans-insecurities.github.io/guides/linux-hardening.html)) details
-- (done)SSHd configuration with knockd
-- (done)Wifi AP mode tests
-- (done)dhcp client replace for systemd-networkd
-- (done)license listing
-- (done)time settings with script based ntp client
-- (done)dmz or twin ip(super dmz)
-- (done)keep process running & working : wstunnel hostapd dnsmasq anydnsdqy darkstat
-- (done)iptables : all occurence by modes cases
-- (done)Reduce the sudo timeout to 1 minute
-- change mac address(random) on wan interface - macchanger
-- (done)network monitoring(darkstat)
-- tcp syn flood https://superuser.com/a/1852992
-- (done)ip spoofing
-- (done)block incoming,outgoing icmp IPTABLES_DROP_ICMP
-- wol settings
-- (done)new dns client : anydnsdqy
-- (done)bugs on ifupdown network interfaces for WLAN, dnsmasq network for WLAN
-
-### Later
-- (feat)
-- qos speed limit by ip, mac, hostname
-- host search by mac address network tools
-- Stress Tests(iperf)
-- automatic wan interface selecting
-- smurf when icmp on
-- arp snooping no way https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables
-- ddns settings - https://github.com/ddclient/ddclient
-- ip source static routing
-- Installing usbguard and providing ujust commands to automatically configure it
-- Automatic Functional Tests
-- totp to knockd integration(later yubikey/tokenkey integration)
-- change aide for malware hash check
-- multicast forward igmp
-- static routing table
-- vpn server settings
-- tcp, udp, icmp connection control timeout setting tcp syn, tcp estab,
-- config backup/ restore
-- lkrg & kernel patches or kernel-installer.sh integration
-- malware hash check online api https://hash.cymru.com/ https://www.team-cymru.com/mhr
-- option to disable gui logind and replace it to tty autologin and startx automatically and vlock
-- hiding sensitive information on confiuration logs.
-- pstrap https://github.com/shishouyuan/pstrap.git
-- dns over tor
-- dns over cloudflared
-- dns blacklist https://urlhaus.abuse.ch/api/#hostfile
-- (rsyslog)
-- syslog, auditd, aide, auth, dpkg, daemon, syslog, kern, cron, user, boot, dnsmasq, redis logs
-- remote log/debug log submit
-- (buha)
-- buha application(jangbi client) for android vpn, windows simplewall mgmt
-- windows setup builder on .github workflow. => buha
-- network connections status flag https://github.com/Lissy93/AdGuardian-Term/tree/main
-- system monitor data collect with rsyslog
-- link status connection monitoring tui
-- Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
-- replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip
-- hysteria server configurations with/without domain name?
-- last configs saved in /etc/jangbi
+<h2 id="todos">Todos<a class="headerlink" href="#todos" title="Permanent link">¤</a></h2>
+<h3 id="before-next-release">Before Next Release<a class="headerlink" href="#before-next-release" title="Permanent link">¤</a></h3>
+<ul>
+<li>(done)Sets numerous hardening kernel arguments (Following <a href="https://madaidans-insecurities.github.io/guides/linux-hardening.html">Madaidan's Hardening Guide</a>) details</li>
+<li>(done)SSHd configuration with knockd</li>
+<li>(done)Wifi AP mode tests</li>
+<li>(done)dhcp client replace for systemd-networkd</li>
+<li>(done)license listing</li>
+<li>(done)time settings with script based ntp client</li>
+<li>(done)dmz or twin ip(super dmz)</li>
+<li>(done)keep process running &amp; working : wstunnel hostapd dnsmasq anydnsdqy darkstat</li>
+<li>(done)iptables : all occurence by modes cases</li>
+<li>(done)Reduce the sudo timeout to 1 minute</li>
+<li>change mac address(random) on wan interface - macchanger</li>
+<li>(done)network monitoring(darkstat)</li>
+<li>tcp syn flood <a href="https://superuser.com/a/1852992">https://superuser.com/a/1852992</a></li>
+<li>(done)ip spoofing</li>
+<li>(done)block incoming,outgoing icmp IPTABLES_DROP_ICMP</li>
+<li>wol settings</li>
+<li>(done)new dns client : anydnsdqy</li>
+<li>(done)bugs on ifupdown network interfaces for WLAN, dnsmasq network for WLAN</li>
+</ul>
+<h3 id="later">Later<a class="headerlink" href="#later" title="Permanent link">¤</a></h3>
+<ul>
+<li>(feat)</li>
+<li>qos speed limit by ip, mac, hostname</li>
+<li>host search by mac address network tools</li>
+<li>Stress Tests(iperf)</li>
+<li>automatic wan interface selecting</li>
+<li>smurf when icmp on</li>
+<li>arp snooping no way <a href="https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables">https://superuser.com/questions/1532095/how-to-block-arp-spoofing-with-arptables</a></li>
+<li>ddns settings - <a href="https://github.com/ddclient/ddclient">https://github.com/ddclient/ddclient</a></li>
+<li>ip source static routing</li>
+<li>Installing usbguard and providing ujust commands to automatically configure it</li>
+<li>Automatic Functional Tests</li>
+<li>totp to knockd integration(later yubikey/tokenkey integration)</li>
+<li>change aide for malware hash check</li>
+<li>multicast forward igmp</li>
+<li>static routing table</li>
+<li>vpn server settings</li>
+<li>tcp, udp, icmp connection control timeout setting tcp syn, tcp estab,</li>
+<li>config backup/ restore</li>
+<li>lkrg &amp; kernel patches or kernel-installer.sh integration</li>
+<li>malware hash check online api <a href="https://hash.cymru.com/">https://hash.cymru.com/</a> <a href="https://www.team-cymru.com/mhr">https://www.team-cymru.com/mhr</a></li>
+<li>option to disable gui logind and replace it to tty autologin and startx automatically and vlock</li>
+<li>hiding sensitive information on confiuration logs.</li>
+<li>pstrap <a href="https://github.com/shishouyuan/pstrap.git">https://github.com/shishouyuan/pstrap.git</a></li>
+<li>dns over tor</li>
+<li>dns over cloudflared</li>
+<li>dns blacklist <a href="https://urlhaus.abuse.ch/api/#hostfile">https://urlhaus.abuse.ch/api/#hostfile</a></li>
+<li>(rsyslog)</li>
+<li>syslog, auditd, aide, auth, dpkg, daemon, syslog, kern, cron, user, boot, dnsmasq, redis logs</li>
+<li>remote log/debug log submit</li>
+<li>(buha)</li>
+<li>buha application(jangbi client) for android vpn, windows simplewall mgmt</li>
+<li>windows setup builder on .github workflow. =&gt; buha</li>
+<li>network connections status flag <a href="https://github.com/Lissy93/AdGuardian-Term/tree/main">https://github.com/Lissy93/AdGuardian-Term/tree/main</a></li>
+<li>system monitor data collect with rsyslog</li>
+<li>link status connection monitoring tui</li>
+<li>Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)</li>
+<li>replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip</li>
+<li>hysteria server configurations with/without domain name?</li>
+<li>last configs saved in /etc/jangbi</li>
+</ul>
 </details>
 
 
