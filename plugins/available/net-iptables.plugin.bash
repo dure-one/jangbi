@@ -171,13 +171,14 @@ function __net-iptables_install {
         __net-iptables_configapply
         rm -rf /tmp/iptables
     fi
+    rm -rf /tmp/${PKGNAME}.diff
 }
 
 function __net-iptables_configgen { # config generator and diff
     [[ -z ${PKGNAME} ]] && log_error "please run this function from ${DMNNAME} cmd." && return 1
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
     mkdir -p /tmp/${PKGNAME} /etc/${PKGNAME} 1>/dev/null 2>&1
-    cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
+    # cp ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
 
     __net-iptables_build # after build, /etc/nftables.conf /etc/iptables/nftables.conf have same contents
     diff -Naur /etc/${PKGNAME} /tmp/${PKGNAME} > /tmp/${PKGNAME}.diff
@@ -234,10 +235,16 @@ function __net-iptables_check { # running_status: 0 running, 1 installed, runnin
 }
 
 function __net-iptables_run {
-    # echo ""> /etc/nftables.conf # prevent not running because of xttables for nftables
-    systemctl restart nftables
-    systemctl status nftables && return 0 || \
-        log_error "nftables failed to run." && return 1
+    # # echo ""> /etc/nftables.conf # prevent not running because of xttables for nftables
+    # systemctl restart nftables
+    # systemctl status nftables && return 0 || \
+    #     log_error "nftables failed to run." && return 1
+    if ! __net-iptables_configgen; then # if gen config is different do apply
+        __net-iptables_configapply
+        rm -rf /tmp/iptables
+    fi
+    rm -rf /tmp/${PKGNAME}.diff
+    return 0
 }
 
 function __net-iptables_watch {
@@ -270,44 +277,53 @@ function __net-iptables_build {
     log_debug "iptables_mangle_all_both_arpallinfs"
     [[ ${IPTABLES_ARPALLINFS} -gt 0 ]] && __net-iptables_mangle_all_both_arpallinfs
 
-    # Base Rules
-    if [[ -n ${IPTABLES_OVERRIDE} ]]; then # IPTABLES_OVERRIDE ON
-        echo "${IPTABLES_OVERRIDE}" > /tmp/iptables_override.conf
-        if ! iptables-restore /tmp/iptables_override.conf; then # on error
-            echo "ERROR: \$IPTABLES_OVERRIDE has error."
-            return 1
-        else # on success
-            iptables-restore /tmp/iptables_override.conf
-        fi
-        rm /tmp/iptables_override.conf
-    else # NFTABLES_OVERRIDE OFF
-        if [[ ${DISABLE_IPV6} -gt 0 ]]; then # disable ipv6
-            iptables-restore /etc/iptables/rules-ipv4.iptables
-            ip6tables -I FORWARD -j DROP && ip6tables -I OUTPUT -j DROP && ip6tables -I INPUT -j DROP
-        else # enable ipv6
-            iptables-restore /etc/iptables/rules-both.iptables
-        fi
-    fi
+    #
+    # BASE RULES
+    #
+    # run basesetup
+    __net-iptables_filter_all_both_basesetup 
+
+    # IPTABLES_ANTISPOOFING=1 # Anti-spoofing protection
+    log_debug "iptables_filter_all_both_antispoofing"
+    [[ ${IPTABLES_ANTISPOOFING} -gt 0 ]] && __net-iptables_filter_all_both_antispoofing
+    # IPTABLES_DROPCASTS=1 # Drop broadcast/multicast/anycast packets
+    log_debug "iptables_filter_all_both_dropcasts"
+    [[ ${IPTABLES_DROPCASTS} -gt 0 ]] && __net-iptables_filter_all_both_dropcasts
+    # IPTABLES_DROPICMP=0 # Drop icmp packets
+    log_debug "iptables_filter_all_both_dropicmp"
+    [[ ${IPTABLES_DROPICMP} -gt 0 ]] && __net-iptables_filter_all_both_dropicmp
+    # IPTABLES_ALLOWED_PORTS="80,443,8080" # service-specific rules
+    log_debug "iptables_filter_all_both_servicerules"
+    [[ ${#IPTABLES_ALLOWED_PORTS[@]} -gt 0 ]] && __net-iptables_filter_all_both_servicerules
+    # IPTABLES_NOISE_REDUCTION=1 # block netbios, smb without logging
+    log_debug "iptables_filter_all_both_noisereduction"
+    [[ ${IPTABLES_NOISE_REDUCTION} -gt 0 ]] && __net-iptables_filter_all_both_noisereduction
+    # IPTABLES_DROP_UPNP=1 # Drop UPnP packets
+    log_debug "iptables_filter_all_both_dropupnp"
+    [[ ${IPTABLES_DROP_UPNP} -gt 0 ]] && __net-iptables_filter_all_both_dropupnp
+    # IPTABLES_REJECT_AUTH=1 # service-specific rules
+    log_debug "iptables_filter_all_both_rejectauth"
+    [[ ${IPTABLES_REJECT_AUTH} -gt 0 ]] && __net-iptables_filter_all_both_rejectauth
 
     #
     # NET RULES
     #
-    # IPTABLES_DROP_ICMP
+    # IPTABLES_DROP_ICMP=1
     log_debug "iptables_mangle_all_both_dropicmp"
     [[ ${IPTABLES_DROP_ICMP} -gt 0 ]] && __net-iptables_mangle_all_both_dropicmp
-    # IPTABLES_DROP_NON_SYN
+    # IPTABLES_DROP_NON_SYN=1
     log_debug "iptables_mangle_all_both_dropnonsyn"
     [[ ${IPTABLES_DROP_NON_SYN} -gt 0 ]] && __net-iptables_mangle_all_both_dropnonsyn
     # IPTABLES_DROP_SPOOFING=1
     log_debug "iptables_mangle_all_both_dropspoofing"
     [[ ${IPTABLES_DROP_SPOOFING} -gt 0 ]] && __net-iptables_mangle_all_both_dropspoofing
-    # IPTABLES_LIMIT_MSS
+    # IPTABLES_LIMIT_MSS=1
     log_debug "iptables_mangle_all_both_limitmss"
     [[ ${IPTABLES_LIMIT_MSS} -gt 0 ]] && __net-iptables_mangle_all_both_limitmss
-    # IPTABLES_INVALID_TCPFLAG
+    # IPTABLES_INVALID_TCPFLAG=1
     log_debug "iptables_raw_all_both_dropinvtcpflag"
     [[ ${IPTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-iptables_raw_all_both_dropinvtcpflag
-    # IPTABLES_BLACK_NAMELIST
+    # IPTABLES_BLACK_NAMELIST=""
     log_debug "iptables_filter_all_both_ipblacklist"
     [[ ${#IPTABLES_BLACK_NAMELIST[@]} -gt 0 ]] && __net-iptables_filter_all_both_ipblacklist
 
@@ -708,6 +724,241 @@ function __net-iptables_filter_all_both_ipblacklist {
         iptables -I INPUT -m set --match-set "${blist_name}" src -j DROP
     }
     ipset save > /etc/iptables/ipset.conf
+}
+
+# Filter Table : Base Setup (policies, loopback, established connections)
+# IPTABLES_ENABLE_BASE=1
+function __net-iptables_filter_all_both_basesetup {
+    local funcname="fab_basesetup"
+    log_debug "Setting up base filter table policies and loopback rules..."
+
+    [[ ${IPTABLES_ENABLE_BASE:-1} -ne 1 ]] && return 0
+
+    # Set base policies
+    iptables -P INPUT DROP
+    iptables -P FORWARD DROP  
+    iptables -P OUTPUT ACCEPT
+    
+    # IPv6 equivalent
+    # ip6tables -P INPUT DROP
+    # ip6tables -P FORWARD DROP
+    # ip6tables -P OUTPUT ACCEPT
+
+    # Only setup NAT table for IPv4
+    # Set NAT policies
+    iptables -t nat -P PREROUTING ACCEPT
+    iptables -t nat -P POSTROUTING ACCEPT
+    iptables -t nat -P OUTPUT ACCEPT
+
+    # Allow loopback traffic
+    IPTABLE="INPUT -i lo -m comment --comment ${funcname}_loopback_v4 -j ACCEPT"
+    iptables -t filter -S | grep "${funcname}_loopback_v4" || iptables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -i lo -m comment --comment ${funcname}_loopback_v6 -j ACCEPT"
+    # ip6tables -t filter -S | grep "${funcname}_loopback_v6" || ip6tables -t filter -A ${IPTABLE}
+
+    # Allow established and related connections
+    IPTABLE="INPUT -m conntrack --ctstate RELATED,ESTABLISHED -m comment --comment ${funcname}_established_v4 -j ACCEPT"
+    iptables -t filter -S | grep "${funcname}_established_v4" || iptables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -m conntrack --ctstate RELATED,ESTABLISHED -m comment --comment ${funcname}_established_v6 -j ACCEPT"
+    # ip6tables -t filter -S | grep "${funcname}_established_v6" || ip6tables -t filter -A ${IPTABLE}
+
+    # Drop invalid packets
+    IPTABLE="INPUT -m conntrack --ctstate INVALID -m comment --comment ${funcname}_invalid_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_invalid_v4" || iptables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -m conntrack --ctstate INVALID -m comment --comment ${funcname}_invalid_v6 -j DROP"
+    # ip6tables -t filter -S | grep "${funcname}_invalid_v6" || ip6tables -t filter -A ${IPTABLE}
+}
+
+# Filter Input : Anti-spoofing protection
+# IPTABLES_ANTISPOOFING=1
+function __net-iptables_filter_all_both_antispoofing {
+    local funcname="fab_antispoofing"
+    log_debug "Setting up anti-spoofing protection..."
+
+    # Block remote packets claiming to be from loopback
+    IPTABLE="INPUT -s 127.0.0.0/8 ! -i lo -m comment --comment ${funcname}_block_fake_loopback_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_block_fake_loopback_v4" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -s ::1/128 ! -i lo -m comment --comment ${funcname}_block_fake_loopback_v6 -j DROP"
+    ip6tables -t filter -S | grep "${funcname}_block_fake_loopback_v6" || ip6tables -t filter -A ${IPTABLE}
+}
+
+# Filter Input : Drop broadcast/multicast/anycast packets
+# IPTABLES_DROPCASTS=1
+function __net-iptables_filter_all_both_dropcasts {
+    local funcname="fab_dropcasts"
+    log_debug "Setting up drop casts rules..."
+
+    # Drop broadcast/multicast/anycast (IPv4 only)
+    IPTABLE="INPUT -m addrtype --dst-type BROADCAST -m comment --comment ${funcname}_drop_broadcast -j DROP"
+    iptables -t filter -S | grep "${funcname}_drop_broadcast" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -m addrtype --dst-type MULTICAST -m comment --comment ${funcname}_drop_multicast -j DROP"
+    iptables -t filter -S | grep "${funcname}_drop_multicast" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -m addrtype --dst-type ANYCAST -m comment --comment ${funcname}_drop_anycast -j DROP"
+    iptables -t filter -S | grep "${funcname}_drop_anycast" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -d 224.0.0.0/4 -m comment --comment ${funcname}_drop_multicast_range -j DROP"
+    iptables -t filter -S | grep "${funcname}_drop_multicast_range" || iptables -t filter -A ${IPTABLE}
+}
+
+# Filter Input : drop ICMP packets
+# IPTABLES_DROPICMP=1
+function __net-iptables_filter_all_both_dropicmp {
+    local funcname="fab_icmprules"
+    
+    log_debug "Setting up ICMP rules..."
+    # IPv4 ICMP rules
+    IPTABLE="INPUT -p icmp --icmp-type 0 -m conntrack --ctstate NEW -m comment --comment ${funcname}_echo_reply -j ACCEPT"
+    iptables -t filter -S | grep "${funcname}_echo_reply" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -p icmp --icmp-type 3 -m conntrack --ctstate NEW -m comment --comment ${funcname}_dest_unreachable -j ACCEPT"
+    iptables -t filter -S | grep "${funcname}_dest_unreachable" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -p icmp --icmp-type 8 -m conntrack --ctstate NEW -m comment --comment ${funcname}_echo_request -j ACCEPT"
+    iptables -t filter -S | grep "${funcname}_echo_request" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -p icmp --icmp-type 11 -m conntrack --ctstate NEW -m comment --comment ${funcname}_time_exceeded -j ACCEPT"
+    iptables -t filter -S | grep "${funcname}_time_exceeded" || iptables -t filter -A ${IPTABLE}
+
+    # IPv6 ICMP rules (RFC 4890 compliant)
+    # local icmpv6_types=(1 2 3 4 133 134 135 136 137 141 142 148 149)
+    # for type in "${icmpv6_types[@]}"; do
+    #     IPTABLE="INPUT -p ipv6-icmp --icmpv6-type ${type} -m comment --comment ${funcname}_icmpv6_${type} -j ACCEPT"
+    #     ip6tables -t filter -S | grep "${funcname}_icmpv6_${type}" || ip6tables -t filter -A ${IPTABLE}
+    # done
+
+    # IPv6 link-local ICMP rules
+    # local icmpv6_link_types=(130 131 132 143 151 152 153)
+    # for type in "${icmpv6_link_types[@]}"; do
+    #     IPTABLE="INPUT -s fe80::/10 -p ipv6-icmp --icmpv6-type ${type} -m comment --comment ${funcname}_icmpv6_link_${type} -j ACCEPT"
+    #     ip6tables -t filter -S | grep "${funcname}_icmpv6_link_${type}" || ip6tables -t filter -A ${IPTABLE}
+    # done
+}
+
+# Filter Input : Service-specific rules
+# IPTABLES_ALLOWED_PORTS="80,443,8080"
+function __net-iptables_filter_all_both_servicerules {
+    local funcname="fab_servicerules"
+    log_debug "Setting up service-specific rules..."
+
+    # Custom ports from IPTABLES_ALLOWED_PORTS variable
+    local allowed_ports=$(_trim_string "${IPTABLES_ALLOWED_PORTS}")
+    [[ ${#allowed_ports} -lt 1 ]] && return 0
+    
+    IFS=',' read -ra ports <<< "${allowed_ports}"
+    for port in "${ports[@]}"; do
+        port=$(echo "$port" | xargs) # trim whitespace
+        [[ $port =~ ^[0-9]+$ ]] && {
+            IPTABLE="INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v4 -j ACCEPT"
+            iptables -t filter -S | grep "${funcname}_custom_${port}_v4" || iptables -t filter -A ${IPTABLE}
+            # IPTABLE="INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v6 -j ACCEPT"
+            # ip6tables -t filter -S | grep "${funcname}_custom_${port}_v6" || ip6tables -t filter -A ${IPTABLE}
+        }
+    done
+}
+
+# Filter Input : Noise reduction rules (Drop without logging)
+# IPTABLES_NOISE_REDUCTION=1
+function __net-iptables_filter_all_both_noisereduction {
+    local funcname="fab_noisereduction"
+    log_debug "Setting up noise reduction rules..."
+
+    # Drop SMB/Windows sharing packets without logging
+    IPTABLE="INPUT -p udp -m multiport --dports 135,445 -m comment --comment ${funcname}_smb_udp_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_smb_udp_v4" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -p udp --dport 137:139 -m comment --comment ${funcname}_netbios_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_netbios_v4" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -p udp --sport 137 --dport 1024:65535 -m comment --comment ${funcname}_netbios_reply_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_netbios_reply_v4" || iptables -t filter -A ${IPTABLE}
+    IPTABLE="INPUT -p tcp -m multiport --dports 135,139,445 -m comment --comment ${funcname}_smb_tcp_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_smb_tcp_v4" || iptables -t filter -A ${IPTABLE}
+    # IPv6 equivalent
+    # IPTABLE="INPUT -p udp -m multiport --dports 135,445 -m comment --comment ${funcname}_smb_udp_v6 -j DROP"
+    # ip6tables -t filter -S | grep "${funcname}_smb_udp_v6" || ip6tables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -p udp --dport 137:139 -m comment --comment ${funcname}_netbios_v6 -j DROP"
+    # ip6tables -t filter -S | grep "${funcname}_netbios_v6" || ip6tables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -p udp --sport 137 --dport 1024:65535 -m comment --comment ${funcname}_netbios_reply_v6 -j DROP"
+    # ip6tables -t filter -S | grep "${funcname}_netbios_reply_v6" || ip6tables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -p tcp -m multiport --dports 135,139,445 -m comment --comment ${funcname}_smb_tcp_v6 -j DROP"
+    # ip6tables -t filter -S | grep "${funcname}_smb_tcp_v6" || ip6tables -t filter -A ${IPTABLE}
+}
+
+# Filter Input : Drop UPnP packets
+# IPTABLES_DROP_UPNP=1
+function __net-iptables_filter_all_both_dropupnp {
+    local funcname="fab_dropupnp"
+    log_debug "Setting up UPnP drop rules..."
+
+    # Drop UPnP packets
+    IPTABLE="INPUT -p udp --dport 1900 -m comment --comment ${funcname}_upnp_v4 -j DROP"
+    iptables -t filter -S | grep "${funcname}_upnp_v4" || iptables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -p udp --dport 1900 -m comment --comment ${funcname}_upnp_v6 -j DROP"
+    # ip6tables -t filter -S | grep "${funcname}_upnp_v6" || ip6tables -t filter -A ${IPTABLE}
+}
+
+# Filter Input : Reject AUTH traffic quickly
+# IPTABLES_REJECT_AUTH=1
+function __net-iptables_filter_all_both_rejectauth {
+    local funcname="fab_rejectauth"
+    log_debug "Setting up AUTH reject rules..."
+
+    # Reject AUTH traffic quickly
+    IPTABLE="INPUT -p tcp --dport 113 --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_auth_v4 -j REJECT --reject-with tcp-reset"
+    iptables -t filter -S | grep "${funcname}_auth_v4" || iptables -t filter -A ${IPTABLE}
+    # IPTABLE="INPUT -p tcp --dport 113 --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_auth_v6 -j REJECT --reject-with tcp-reset"
+    # ip6tables -t filter -S | grep "${funcname}_auth_v6" || ip6tables -t filter -A ${IPTABLE}
+}
+
+# NAT Prerouting : Port redirection
+# IPTABLES_PORT_REDIRECT="21:2121,8080:80" IPTABLES_REDIRECT_INTERFACE="eth0"
+function __net-iptables_nat_ext_both_portredirect {
+    local funcname="neb_portredirect"
+    local port_redirect interface
+    port_redirect=$(_trim_string "${IPTABLES_PORT_REDIRECT}")
+    interface=$(_trim_string "${IPTABLES_REDIRECT_INTERFACE:-eth0}")
+    
+    [[ ${#port_redirect} -lt 1 ]] && return 0
+    [[ ${#interface} -lt 1 ]] && log_error "${funcname}: interface is not set" && return 1
+
+    log_debug "Setting up port redirects: ${port_redirect} on ${interface}..."
+
+    IFS=',' read -ra redirects <<< "${port_redirect}"
+    for redirect in "${redirects[@]}"; do
+        redirect=$(echo "$redirect" | xargs) # trim whitespace
+        IFS=':' read -ra ports <<< "$redirect"
+        [[ ${#ports[@]} -eq 2 ]] && {
+            local from_port=${ports[0]}
+            local to_port=${ports[1]}
+            [[ $from_port =~ ^[0-9]+$ && $to_port =~ ^[0-9]+$ ]] && {
+                IPTABLE="PREROUTING -i ${interface} -p tcp --dport ${from_port} -m comment --comment ${funcname}_${from_port}_${to_port} -j REDIRECT --to-port ${to_port}"
+                iptables -t nat -S | grep "${funcname}_${from_port}_${to_port}" || iptables -t nat -A ${IPTABLE}
+            }
+        }
+    done
+}
+
+# NAT Prerouting : DNAT port forwarding
+# IPTABLES_PORT_FORWARD="8080:192.168.1.10:80,9090:192.168.1.11:90" IPTABLES_FORWARD_INTERFACE="eth0"
+function __net-iptables_nat_ext_both_portforwardsingle {
+    local funcname="neb_portforwardsingle"
+    local port_forward interface
+    port_forward=$(_trim_string "${IPTABLES_PORT_FORWARD}")
+    interface=$(_trim_string "${IPTABLES_FORWARD_INTERFACE:-eth0}")
+
+    [[ ${#port_forward} -lt 1 ]] && return 0
+    [[ ${#interface} -lt 1 ]] && log_error "${funcname}: interface is not set" && return 1
+
+    log_debug "Setting up port forwards: ${port_forward}..."
+
+    IFS=',' read -ra forwards <<< "${port_forward}"
+    for forward in "${forwards[@]}"; do
+        forward=$(echo "$forward" | xargs) # trim whitespace
+        IFS=':' read -ra parts <<< "$forward"
+        [[ ${#parts[@]} -eq 3 ]] && {
+            local external_port=${parts[0]}
+            local internal_ip=${parts[1]}
+            local internal_port=${parts[2]}
+            [[ $external_port =~ ^[0-9]+$ && $internal_port =~ ^[0-9]+$ ]] && {
+                IPTABLE="PREROUTING -i ${interface} -p tcp --dport ${external_port} -m comment --comment ${funcname}_${external_port}_${internal_ip}_${internal_port} -j DNAT --to-destination ${internal_ip}:${internal_port}"
+                iptables -t nat -S | grep "${funcname}_${external_port}_${internal_ip}_${internal_port}" || iptables -t nat -A ${IPTABLE}
+            }
+        }
+    done
 }
 
 complete -F _blank net-iptables

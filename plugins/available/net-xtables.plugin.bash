@@ -70,8 +70,7 @@ function net-xtables {
 }  
 
 ## \usage net-xtables [COMMAND]
-## \usage net-xtables install|uninstall|configgen|configapply
-## \usage net-xtables check|run|download|build|watch
+## \usage net-xtables install|uninstall|configgen|configapply|check|run|download|build|watch
 function __net-xtables_help {
     echo -e "Usage: net-xtables [COMMAND]\n"
     echo -e "Helper to xtables install configurations.\n"
@@ -94,7 +93,7 @@ function __net-xtables_install {
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy xtables-addon-common xtables-addons-dkms || log_error "${DMNNAME} online install failed."
+        apt install -qy xtables-addons-common || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/${PKGNAME}*.deb"
         local pkglist="./pkgs/${PKGNAME}.pkgs"
@@ -110,6 +109,7 @@ function __net-xtables_install {
         __net-xtables_configapply
         rm -rf /tmp/xtables
     fi
+    rm -rf "/tmp/${PKGNAME}.diff"
 }
 
 function __net-xtables_configgen { # config generator and diff
@@ -140,7 +140,7 @@ function __net-xtables_configapply {
 
 function __net-xtables_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs "xtables-addon-common xtables-addons-dkms" || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs "xtables-addons-common" || log_error "${DMNNAME} download failed."
     return 0
 }
 
@@ -174,8 +174,10 @@ function __net-xtables_check { # running_status: 0 running, 1 installed, running
 }
 
 function __net-xtables_run {
-    # this will insert rules to iptables xtables
-    __net-xtables_build
+    if ! __net-xtables_configgen; then # if gen config is different do apply
+        __net-xtables_configapply
+    fi
+    rm -rf "/tmp/${PKGNAME}.diff"
 }
 
 function __net-xtables_watch {
@@ -202,33 +204,33 @@ function __net-xtables_build {
     # XTABLES_CONNLIMIT_PER_IP=100
     log_debug "xtables_mangle_all_both_conlimitperip"
     [[ ${XTABLES_CONNLIMIT_PER_IP} -gt 0 ]] && __net-xtables_mangle_all_both_conlimitperip
-    # XTABLES_DROP_INVALID_STATE
+    # XTABLES_DROP_INVALID_STATE=1
     log_debug "xtables_mangle_all_both_dropinvalidstate"
     [[ ${XTABLES_DROP_INVALID_STATE} -gt 0 ]] && __net-xtables_mangle_all_both_dropinvalidstate
-    # XTABLES_DROP_NON_SYN
+    # XTABLES_DROP_NON_SYN=1
     log_debug "xtables_mangle_all_both_dropnonsyn"
     [[ ${XTABLES_DROP_NON_SYN} -gt 0 ]] && __net-xtables_mangle_all_both_dropnonsyn
     # XTABLES_LIMIT_MSS
     log_debug "xtables_mangle_all_both_limitmss"
     [[ ${XTABLES_LIMIT_MSS} -gt 0 ]] && __net-xtables_mangle_all_both_limitmss
-    # XTABLES_GUARD_OVERLOAD
+    # XTABLES_GUARD_OVERLOAD=1
     log_debug "xtables_raw_all_both_limitudppps"
     [[ ${XTABLES_GUARD_OVERLOAD} -gt 0 ]] && __net-xtables_raw_all_both_limitudppps
-    # XTABLES_INVALID_TCPFLAG
+    # XTABLES_INVALID_TCPFLAG=1
     log_debug "xtables_raw_all_both_dropinvtcpflag"
     [[ ${XTABLES_INVALID_TCPFLAG} -gt 0 ]] && __net-xtables_raw_all_both_dropinvtcpflag
-    # XTABLES_GUARD_PORT_SCANNER
+    # XTABLES_GUARD_PORT_SCANNER=1
     log_debug "xtables_raw_all_both_portscanner"
     [[ ${XTABLES_GUARD_PORT_SCANNER} -gt 0 ]] && __net-xtables_raw_all_both_portscanner
-    # XTABLES_CHAOS_PORTS
+    # XTABLES_CHAOS_PORTS="22,23,80,443"
     log_debug "xtables_filter_all_both_chaos"
     [[ ${XTABLES_CHAOS_PORTS} -gt 0 ]] && __net-xtables_filter_all_both_chaos
     # XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"
     log_debug "xtables_filter_all_both_delude"
     [[ ${XTABLES_DELUDE_PORTS} -gt 0 ]] && __net-xtables_filter_all_both_delude
-    # XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPEN_PORT="3306" XTABLES_PKNOCK_TIMEOUT="20"
-    log_debug "xtables_filter_all_inc_pknock_db"
-    [[ ${#XTABLES_PKNOCK_PORTS[@]} -gt 0 ]] && __net-xtables_filter_all_inc_pknock_db
+    # XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPENSECRET="foo" XTABLES_PKNOCK_CLOSESECRET="bar" XTABLES_PKNOCK_TARGET_PORTS="22,80,443"
+    log_debug "xtables_filter_all_inc_pknock"
+    [[ ${#XTABLES_PKNOCK_PORTS[@]} -gt 0 ]] && __net-xtables_filter_all_inc_pknock
     
     # XTABLES_SNAT="LAN<WAN|LAN1<WAN"
     # [[ ${XTABLES_SNAT} -gt 0 ]] && __net-xtables_filternat_all_both_snat # laninf lannet waninf wanip
@@ -386,37 +388,35 @@ function __net-xtables_filter_all_both_delude {
     done
 }
 
-# Filter Input : Database Port Knocking with Logging
-# XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPEN_PORT="3306" XTABLES_PKNOCK_TIMEOUT="20"
-function __net-xtables_filter_all_inc_pknock_db {
-    local funcname="fai_pknock_db"
-    local knock_ports=${XTABLES_PKNOCK_PORTS}
-    local db_port=${XTABLES_PKNOCK_OPEN_PORT}
-    local timeout=${XTABLES_PKNOCK_TIMEOUT}
-    
-    # Parse knock ports
-    IFS=',' read -ra KNOCK_ARRAY <<< "$knock_ports"
-    
-    # Set up database knocking sequence with logging
-    local i=1
-    for port in "${KNOCK_ARRAY[@]}"; do
-        # Log knock attempts
-        IPTABLE_LOG="INPUT -p tcp --dport ${port} -m pknock --knockports ${knock_ports} --name db_knock --time ${timeout} -m comment --comment ${funcname}_log${i} -j LOG --log-prefix 'DB_KNOCK_${i}: '"
-        iptables -S | grep "${funcname}_log${i}" || iptables -A $IPTABLE_LOG
-        
-        # Accept knock
-        IPTABLE="INPUT -p tcp --dport ${port} -m pknock --knockports ${knock_ports} --name db_knock --time ${timeout} -m comment --comment ${funcname}${i} -j ACCEPT"
-        iptables -S | grep "${funcname}${i}" || iptables -A $IPTABLE
-        ((i++))
+# Filter Input : Port Knocking with Open/Close Secrets (Example2)
+# XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPENSECRET="foo" XTABLES_PKNOCK_CLOSESECRET="bar" XTABLES_PKNOCK_TARGET_PORTS="22,80,443"
+function __net-xtables_filter_all_inc_pknock {
+    local funcname="fai_pknock"
+    local pknockports=${XTABLES_PKNOCK_PORTS}
+    local opensecret=${XTABLES_PKNOCK_OPENSECRET}
+    local closesecret=${XTABLES_PKNOCK_CLOSESECRET}
+    local targetports=${XTABLES_PKNOCK_TARGET_PORTS}
+
+    # Validation
+    [[ -z ${pknockports} ]] && log_error "${funcname}: pknockports is not set" && return 1
+    [[ -z ${opensecret} ]] && log_error "${funcname}: opensecret is not set" && return 1
+    [[ -z ${closesecret} ]] && log_error "${funcname}: closesecret is not set" && return 1
+    [[ -z ${targetports} ]] && log_error "${funcname}: targetports is not set" && return 1
+
+    pnockrulename="${funcname}_${targetports}"
+    # Set up the pknock rule for listening to knock sequence
+    IPTABLE1="INPUT -p udp -m pknock --knockports ${pknockports} --name ${pnockrulename} --opensecret ${opensecret} --closesecret ${closesecret} --autoclose 240 -m comment --comment ${funcname}_knock -j DROP"
+    [[ -z ${RULESFILE} ]] && ( iptables -S | grep "${funcname}_knock" || iptables -A ${IPTABLE1} )
+    [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE1}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE1}" >> "${RULESFILE}" )
+
+    # Parse target ports and create rules for each
+    IFS=',' read -ra TARGET_ARRAY <<< "$targetports"
+    for port in "${TARGET_ARRAY[@]}"; do
+        # Allow access to target port after successful knock
+        IPTABLE2="INPUT -p tcp -m pknock --checkip --name ${pnockrulename} --dport ${port} -m comment --comment ${funcname}_${port} -j ACCEPT"
+        [[ -z ${RULESFILE} ]] && ( iptables -S | grep "${funcname}_${port}" || iptables -A ${IPTABLE2} )
+        [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE2}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE2}" >> "${RULESFILE}" )
     done
-    
-    # Log successful database access
-    IPTABLE_DB_LOG="INPUT -p tcp --dport ${db_port} -m pknock --checkknock db_knock -m comment --comment ${funcname}_db_log -j LOG --log-prefix 'DB_ACCESS_GRANTED: '"
-    iptables -S | grep "${funcname}_db_log" || iptables -A $IPTABLE_DB_LOG
-    
-    # Allow database access after successful knock
-    IPTABLE_DB="INPUT -p tcp --dport ${db_port} -m pknock --checkknock db_knock -m comment --comment ${funcname}_db -j ACCEPT"
-    iptables -S | grep "${funcname}_db" || iptables -A $IPTABLE_DB
 }
 
 complete -F _blank net-xtables
