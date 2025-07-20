@@ -44,10 +44,20 @@ function os-firmware {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-firmware_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-firmware_install "$2"
     elif [[ $# -gt 0 ]] && [[ "$1" = "uninstall" ]]; then
         __os-firmware_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-firmware_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-firmware_disable "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __os-firmware_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __os-firmware_configapply "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
         __os-firmware_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
@@ -57,16 +67,20 @@ function os-firmware {
     fi
 }
 
-## \usage os-firmware install|uninstall|check|run
+## \usage os-firmware help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-firmware_help {
     echo -e "Usage: os-firmware [COMMAND]\n"
     echo -e "Helper to os firmware installation.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware(--force)"
-    echo "   check     Check vars available"
-    echo "   run       Run os-firmware task"
+    echo "   help        Show this help message"
+    echo "   install     Install os firmware"
+    echo "   uninstall   Uninstall installed firmware(--force)"
+    echo "   download    Download firmware files to pkg dir"
+    echo "   disable     Disable firmware installation"
+    echo "   configgen   Generate configuration files"
+    echo "   configapply Apply configuration files"
+    echo "   check       Check vars available"
+    echo "   run         Run os-firmware task"
 }
 
 function __os-firmware_install {
@@ -139,6 +153,29 @@ function __os-firmware_check { # running_status: 0 running, 1 installed, running
 
 function __os-firmware_run {
     :
+}
+
+function __os-firmware_download {
+    log_debug "Downloading ${DMNNAME}..."
+    local firmware_file
+    firmware_file="./pkgs/$(basename "${FIRMWARE_URL}")"
+    [[ ! -f ${firmware_file} ]] && wget --directory-prefix=./pkgs "${FIRMWARE_URL}"
+    return 0
+}
+
+function __os-firmware_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    return 0
+}
+
+function __os-firmware_configgen {
+    log_debug "Generating config for ${DMNNAME}..."
+    return 0
+}
+
+function __os-firmware_configapply {
+    log_debug "Applying config for ${DMNNAME}..."
+    return 0
 }
 
 complete -F _blank os-firmware

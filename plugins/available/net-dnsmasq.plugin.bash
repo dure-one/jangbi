@@ -46,20 +46,24 @@ function net-dnsmasq {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-dnsmasq_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-dnsmasq_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-dnsmasq_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-dnsmasq_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-dnsmasq_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-dnsmasq_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-dnsmasq_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-dnsmasq_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-dnsmasq_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-dnsmasq_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-dnsmasq_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-dnsmasq_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "updateblist" ]]; then
         __net-dnsmasq_update_blacklist "$2"
     else
@@ -67,20 +71,21 @@ function net-dnsmasq {
     fi
 }
 
-## \usage net-dnsmasq install|uninstall|configgen|configapply|check|run|download|updateblist
+## \usage net-dnsmasq help|install|uninstall|download|disable|configgen|configapply|check|run|updateblist
 function __net-dnsmasq_help {
     echo -e "Usage: net-dnsmasq [COMMAND]\n"
     echo -e "Helper to dnsmasq install configurations.\n"
     echo -e "Commands:\n"
     echo "   help        Show this help message"
-    echo "   install     Install os firmware"
-    echo "   uninstall   Uninstall installed firmware"
+    echo "   install     Install dnsmasq"
+    echo "   uninstall   Uninstall installed dnsmasq"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable dnsmasq"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
-    echo "   updateblist Update blacklist"
     echo "   check       Check vars available"
     echo "   run         Run tasks"
+    echo "   updateblist Update blacklist"
 }
 
 function __net-dnsmasq_install { # RUN_NET_DNSMASQ
@@ -107,6 +112,27 @@ function __net-dnsmasq_install { # RUN_NET_DNSMASQ
     fi
 }
 
+function __net-dnsmasq_uninstall { 
+    log_debug "Uninstalling ${DMNNAME}..."
+    pidof dnsmasq | xargs kill -9 2>/dev/null
+    echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
+    _time_sync "${DNS_UPSTREAM}"
+    chmod 444 /etc/resolv.conf
+}
+
+function __net-dnsmasq_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs dnsmasq-base
+    return 0
+}
+
+function __net-dnsmasq_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    pidof dnsmasq | xargs kill -9 2>/dev/null
+    echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
+    return 0
+}
+
 function __net-dnsmasq_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
@@ -130,11 +156,122 @@ function __net-dnsmasq_configapply {
     return 0
 }
 
-function __net-dnsmasq_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs dnsmasq-base
+function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+    running_status=0
+    log_debug "Checking ${DMNNAME}..."
+
+    # check package file exists
+    [[ $(find ./pkgs/dnsmasq*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
+    # check global variable
+    [[ -z ${RUN_NET_DNSMASQ} ]] && \
+        log_error "RUN_NET_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_NET_DNSMASQ} != 1 ]] && \
+        log_error "RUN_NET_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
+    # check package dnsmasq
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq") -lt 1 ]] && \
+        log_info "dnsmasq is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    [[ $(pidof dnsmasq) -gt 0 ]] && \
+        log_info "dnsmasq is running." && [[ $running_status -lt 1 ]] && running_status=1
+
     return 0
 }
+
+function __net-dnsmasq_run {
+    log_debug "Running ${DMNNAME}..."
+    # add iptables rules
+    # __bp_trim_whitespace JB_WANINF "${JB_WANINF}"
+    # __bp_trim_whitespace JB_LANINF "${JB_LANINF}"
+    # __bp_trim_whitespace JB_WLANINF "${JB_WLANINF}"
+
+    # DNSMASQ_DENY_DHCP_WAN
+    if [[ -n ${JB_WANINF} ]]; then # RUN_NET_IPTABLES=1
+        if [[ $(< /sys/class/net/${JB_WANINF}/operstate) = *"up"* ]]; then
+            log_debug "dnsmasq deny dhcp service for WAN"
+            iptables -S | grep "DMQ_DW1_${JB_WANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${JB_WANINF} -j DROP
+        fi
+    fi
+
+    # DNSMASQ_DHCPB DNSMASQ_DNSR
+    if [[ -n ${JB_LANINF} ]]; then
+        if [[ $(< /sys/class/net/${JB_LANINF}/operstate) = *"up"* ]]; then
+            log_debug "dnsmasq accept dhcp for LAN"
+            iptables -S | grep "DMQ_DLA_${JB_LANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DLA_${JB_LANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DLB_${JB_LANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DLB_${JB_LANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DLR_${JB_LANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 53 -m comment --comment DMQ_DLR_${JB_LANINF} -j ACCEPT
+        fi
+    fi
+    if [[ -n ${JB_WLANINF} ]]; then
+        if [[ $(< /sys/class/net/${JB_WLANINF}/operstate) = *"up"*  ]]; then
+            log_debug "dnsmasq accept dhcp for WLAN"
+            iptables -S | grep "DMQ_DWLA_${JB_WLANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DWLA_${JB_WLANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DWLB_${JB_WLANINF}" || \
+                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DWLB_${JB_WLANINF} -j ACCEPT
+            iptables -S | grep "DMQ_DWLR_${JB_WLANINF}" || \
+                iptables -t filter -A INPUT -i ${JB_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${JB_WLANINF} -j ACCEPT
+        fi
+    fi
+    # Additional Listening for Masqueraded Interface
+    if [[ ${RUN_NET_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
+        log_debug "dnsmasq accept dhcp for MASQ"
+        IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
+        for((j=0;j<${#MASQROUTES[@]};j++)){
+            TARINF=""
+            IFS=$'<' read -d "" -ra MASQINFS <<< "${MASQROUTES[j]}"
+            if [[ $(_trim_string "${MASQINFS[0]}") = "LAN0" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN0INF} ]]; then
+                TARINF=${JB_LAN0INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN1" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN1INF} ]]; then
+                TARINF=${JB_LAN1INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN2" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN2INF} ]]; then
+                TARINF=${JB_LAN2INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN3" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN3INF} ]]; then
+                TARINF=${JB_LAN3INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN4" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN4INF} ]]; then
+                TARINF=${JB_LAN4INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN5" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN5INF} ]]; then
+                TARINF=${JB_LAN5INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN6" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN6INF} ]]; then
+                TARINF=${JB_LAN6INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN7" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN7INF} ]]; then
+                TARINF=${JB_LAN7INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN8" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN8INF} ]]; then
+                TARINF=${JB_LAN8INF}
+            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN9" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN9INF} ]]; then
+                TARINF=${JB_LAN9INF}
+            else
+                continue
+            fi
+            iptables -S | grep "DMQ_DA_${TARINF}" || \
+                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DA_${TARINF} -j ACCEPT
+            iptables -S | grep "DMQ_DB_${TARINF}" || \
+                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DB_${TARINF} -j ACCEPT
+            iptables -S | grep "DMQ_DR_${TARINF}" || \
+                iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
+        }
+    fi
+    
+    __net-dnsmasq_update_blacklist
+    # __net-dnsmasq_generate_config
+
+    pidof dnsmasq | xargs kill -9 2>/dev/null
+    dnsmasq -d --conf-file=/etc/dnsmasq/dnsmasq.conf 1>>/var/log/dnsmasq.log 2>&1 &
+    
+    echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
+    chmod 444 /etc/resolv.conf
+
+    _time_sync "${DNS_UPSTREAM}"
+
+    pidof dnsmasq && return 0 || \
+        log_error "dnsmasq failed to run." && return 0
+}
+
+complete -F _blank net-dnsmasq
 
 function __net-dnsmasq_update_blacklist {
     log_debug "Updating blacklist ${DMNNAME}..."
@@ -305,133 +442,6 @@ dns-loop-detect
 log-queries
 log-dhcp
 EOT
-}
-
-function __net-dnsmasq_uninstall { 
-    log_debug "Uninstalling ${DMNNAME}..."
-    pidof dnsmasq | xargs kill -9 2>/dev/null
-    echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
-    _time_sync "${DNS_UPSTREAM}"
-    chmod 444 /etc/resolv.conf
-}
-
-function __net-dnsmasq_disable {
-    log_debug "Disabling ${DMNNAME}..."
-    pidof dnsmasq | xargs kill -9 2>/dev/null
-    echo "nameserver ${DNS_UPSTREAM}"|tee /etc/resolv.conf
-    return 0
-}
-
-function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-    running_status=0
-    log_debug "Checking ${DMNNAME}..."
-
-    # check global variable
-    [[ -z ${RUN_NET_DNSMASQ} ]] && \
-        log_error "RUN_NET_DNSMASQ variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_NET_DNSMASQ} != 1 ]] && \
-        log_error "RUN_NET_DNSMASQ is not enabled." && __net-dnsmasq_disable && [[ $running_status -lt 20 ]] && running_status=20
-    # check package dnsmasq
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "dnsmasq") -lt 1 ]] && \
-        log_info "dnsmasq is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-    # check if running
-    [[ $(pidof dnsmasq) -gt 0 ]] && \
-        log_info "dnsmasq is running." && [[ $running_status -lt 1 ]] && running_status=1
-
-    return 0
-}
-
-function __net-dnsmasq_run {
-    log_debug "Running ${DMNNAME}..."
-    # add iptables rules
-    # __bp_trim_whitespace JB_WANINF "${JB_WANINF}"
-    # __bp_trim_whitespace JB_LANINF "${JB_LANINF}"
-    # __bp_trim_whitespace JB_WLANINF "${JB_WLANINF}"
-
-    # DNSMASQ_DENY_DHCP_WAN
-    if [[ -n ${JB_WANINF} ]]; then # RUN_NET_IPTABLES=1
-        if [[ $(< /sys/class/net/${JB_WANINF}/operstate) = *"up"* ]]; then
-            log_debug "dnsmasq deny dhcp service for WAN"
-            iptables -S | grep "DMQ_DW1_${JB_WANINF}" || \
-                iptables -t filter -I INPUT -i ${JB_WANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DW1_${JB_WANINF} -j DROP
-        fi
-    fi
-
-    # DNSMASQ_DHCPB DNSMASQ_DNSR
-    if [[ -n ${JB_LANINF} ]]; then
-        if [[ $(< /sys/class/net/${JB_LANINF}/operstate) = *"up"* ]]; then
-            log_debug "dnsmasq accept dhcp for LAN"
-            iptables -S | grep "DMQ_DLA_${JB_LANINF}" || \
-                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DLA_${JB_LANINF} -j ACCEPT
-            iptables -S | grep "DMQ_DLB_${JB_LANINF}" || \
-                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DLB_${JB_LANINF} -j ACCEPT
-            iptables -S | grep "DMQ_DLR_${JB_LANINF}" || \
-                iptables -t filter -I INPUT -i ${JB_LANINF} -p udp --dport 53 -m comment --comment DMQ_DLR_${JB_LANINF} -j ACCEPT
-        fi
-    fi
-    if [[ -n ${JB_WLANINF} ]]; then
-        if [[ $(< /sys/class/net/${JB_WLANINF}/operstate) = *"up"*  ]]; then
-            log_debug "dnsmasq accept dhcp for WLAN"
-            iptables -S | grep "DMQ_DWLA_${JB_WLANINF}" || \
-                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DWLA_${JB_WLANINF} -j ACCEPT
-            iptables -S | grep "DMQ_DWLB_${JB_WLANINF}" || \
-                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DWLB_${JB_WLANINF} -j ACCEPT
-            iptables -S | grep "DMQ_DWLR_${JB_WLANINF}" || \
-                iptables -t filter -A INPUT -i ${JB_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${JB_WLANINF} -j ACCEPT
-        fi
-    fi
-    # Additional Listening for Masqueraded Interface
-    if [[ ${RUN_NET_IPTABLES} -gt 0 && -n ${IPTABLES_MASQ} && -z ${IPTABLES_OVERRIDE} ]]; then # RUN_NET_IPTABLES=1 IPTABLES_MASQ="WLAN2WAN"
-        log_debug "dnsmasq accept dhcp for MASQ"
-        IFS=$'|' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
-        for((j=0;j<${#MASQROUTES[@]};j++)){
-            TARINF=""
-            IFS=$'<' read -d "" -ra MASQINFS <<< "${MASQROUTES[j]}"
-            if [[ $(_trim_string "${MASQINFS[0]}") = "LAN0" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN0INF} ]]; then
-                TARINF=${JB_LAN0INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN1" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN1INF} ]]; then
-                TARINF=${JB_LAN1INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN2" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN2INF} ]]; then
-                TARINF=${JB_LAN2INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN3" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN3INF} ]]; then
-                TARINF=${JB_LAN3INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN4" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN4INF} ]]; then
-                TARINF=${JB_LAN4INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN5" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN5INF} ]]; then
-                TARINF=${JB_LAN5INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN6" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN6INF} ]]; then
-                TARINF=${JB_LAN6INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN7" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN7INF} ]]; then
-                TARINF=${JB_LAN7INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN8" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN8INF} ]]; then
-                TARINF=${JB_LAN8INF}
-            elif [[ $(_trim_string "${MASQINFS[0]}") = "LAN9" && $(_trim_string "${MASQINFS[1]}") = "WAN" && -n ${JB_LAN9INF} ]]; then
-                TARINF=${JB_LAN9INF}
-            else
-                continue
-            fi
-            iptables -S | grep "DMQ_DA_${TARINF}" || \
-                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 67 --sport 68 -m comment --comment DMQ_DA_${TARINF} -j ACCEPT
-            iptables -S | grep "DMQ_DB_${TARINF}" || \
-                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DB_${TARINF} -j ACCEPT
-            iptables -S | grep "DMQ_DR_${TARINF}" || \
-                iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
-        }
-    fi
-    
-    __net-dnsmasq_update_blacklist
-    # __net-dnsmasq_generate_config
-
-    pidof dnsmasq | xargs kill -9 2>/dev/null
-    dnsmasq -d --conf-file=/etc/dnsmasq/dnsmasq.conf 1>>/var/log/dnsmasq.log 2>&1 &
-    
-    echo "nameserver 127.0.0.1"|tee /etc/resolv.conf
-    chmod 444 /etc/resolv.conf
-
-    _time_sync "${DNS_UPSTREAM}"
-
-    pidof dnsmasq && return 0 || \
-        log_error "dnsmasq failed to run." && return 0
 }
 
 complete -F _blank net-dnsmasq

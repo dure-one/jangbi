@@ -46,26 +46,30 @@ function net-omnip {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-omnip_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-omnip_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-omnip_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-omnip_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-omnip_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-omnip_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-omnip_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-omnip_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-omnip_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-omnip_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-omnip_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-omnip_run "$2"
     else
         __net-omnip_help
     fi
 }
 
-## \usage net-omnip install|uninstall|configgen|configapply|check|run|download
+## \usage net-omnip help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-omnip_help {
     echo -e "Usage: net-omnip [COMMAND]\n"
     echo -e "Helper to omnip install configurations.\n"
@@ -73,9 +77,10 @@ function __net-omnip_help {
     echo "   help        Show this help message"
     echo "   install     Install omnip"
     echo "   uninstall   Uninstall installed omnip"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable omnip service"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
     echo "   check       Check vars available"
     echo "   run         run"
 }
@@ -148,10 +153,10 @@ function __net-omnip_uninstall {
 function __net-omnip_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
-
+    
     # check package file exists
     [[ $(find ./pkgs/omnip-linux-gnu-*|wc -l) -lt 1 ]] && \
-        log_info "omnip package file does not exist." && [[ $running_status -lt 10 ]] && running_status=10
+        log_info "omnip package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_OMNIP} ]] && \
         log_info "RUN_NET_OMNIP variable is not set." && __net-omnip_disable && [[ $running_status -lt 10 ]] && running_status=10

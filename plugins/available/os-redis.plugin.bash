@@ -46,36 +46,41 @@ function os-redis {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-redis_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-redis_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-redis_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __os-redis_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __os-redis_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-redis_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-redis_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __os-redis_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __os-redis_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __os-redis_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-redis_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-redis_run "$2"
     else
         __os-redis_help
     fi
 }
 
-## \usage os-redis install|uninstall|configgen|configapply|check|run|download
+## \usage os-redis help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-redis_help {
     echo -e "Usage: os-redis [COMMAND]\n"
     echo -e "Helper to redis install configurations.\n"
     echo -e "Commands:\n"
     echo "   help         Show this help message"
-    echo "   install      Install os firmware"
-    echo "   uninstall    Uninstall installed firmware"
+    echo "   install      Install redis server"
+    echo "   uninstall    Uninstall installed redis"
+    echo "   download     Download pkg files to pkg dir"
+    echo "   disable      Disable redis server"
     echo "   configgen    Configs Generator"
     echo "   configapply  Apply Configs"
-    echo "   download     Download pkg files to pkg dir"
     echo "   check        Check vars available"
     echo "   run          Run tasks"
 }

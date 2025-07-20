@@ -46,18 +46,22 @@ function net-xtables {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-xtables_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-xtables_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-xtables_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-xtables_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-xtables_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-xtables_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-xtables_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-xtables_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-xtables_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-xtables_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-xtables_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
@@ -69,7 +73,7 @@ function net-xtables {
     fi
 }  
 
-## \usage net-xtables install|uninstall|configgen|configapply|check|run|download|build|watch
+## \usage net-xtables help|install|uninstall|download|disable|configgen|configapply|check|run|build|watch
 function __net-xtables_help {
     echo -e "Usage: net-xtables [COMMAND]\n"
     echo -e "Helper to xtables install configurations.\n"
@@ -77,6 +81,8 @@ function __net-xtables_help {
     echo "   help                       Show this help message"
     echo "   install                    Install os xtables"
     echo "   uninstall                  Uninstall installed xtables"
+    echo "   download                   Download pkg files to pkg dir"
+    echo "   disable                    Disable xtables service"
     echo "   configgen                  Generates xtables configs"
     echo "   configapply                Apply Configs"
     echo "   download                   download pkg files to pkg dir"
@@ -149,6 +155,7 @@ function __net-xtables_uninstall {
 
 function __net-xtables_disable { 
     log_debug "Disabling ${DMNNAME}..."
+    return 0
 }
 
 function __net-xtables_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip

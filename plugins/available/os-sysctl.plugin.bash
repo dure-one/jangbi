@@ -43,10 +43,20 @@ function os-sysctl {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-sysctl_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-sysctl_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-sysctl_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-sysctl_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-sysctl_disable "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __os-sysctl_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __os-sysctl_configapply "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
         __os-sysctl_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
@@ -57,14 +67,18 @@ function os-sysctl {
 }
 
 
-## \usage os-sysctl helpinstall|uninstall|check|run
+## \usage os-sysctl help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-sysctl_help {
     echo -e "Usage: os-sysctl [COMMAND]\n"
     echo -e "Helper to sysctl install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware"
+    echo "   install   Install sysctl configurations"
+    echo "   uninstall Uninstall installed configurations"
+    echo "   download  Download required packages"
+    echo "   disable   Disable sysctl"
+    echo "   configgen Generate configuration"
+    echo "   configapply Apply configuration"
     echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
@@ -79,6 +93,31 @@ function __os-sysctl_install {
 function __os-sysctl_uninstall { 
     log_debug "Uninstalling ${DMNNAME}..."
     sysctl -e -p /etc/sysctl.orig &>/dev/null
+}
+
+function __os-sysctl_download {
+    log_debug "Downloading ${DMNNAME}..."
+    # No packages to download for sysctl
+    return 0
+}
+
+function __os-sysctl_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    # Restore original sysctl
+    [[ -f "/etc/sysctl.orig" ]] && sysctl -e -p /etc/sysctl.orig &>/dev/null
+    return 0
+}
+
+function __os-sysctl_configgen {
+    log_debug "Generating config for ${DMNNAME}..."
+    # No separate config generation needed for sysctl
+    return 0
+}
+
+function __os-sysctl_configapply {
+    log_debug "Applying config ${DMNNAME}..."
+    # No separate config apply needed for sysctl
+    return 0
 }
 
 function __os-sysctl_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip

@@ -53,28 +53,18 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     --check | -c)
-      BASH_IT_LOG_LEVEL=0
-      RUN_LOG="/dev/null"
-      BASH_IT_LOG_FILE="/dev/null"
-      LOG_PATH="/dev/null"
+      SKIP_LOG=1
       TRPROC=$2
       ${TRPROC} check
       exit ${running_status}
       ;;
     --launch | -l)
-      BASH_IT_LOG_LEVEL=0
-      RUN_LOG="/dev/null"
-      BASH_IT_LOG_FILE="/dev/null"
-      LOG_PATH="/dev/null"
+      SKIP_LOG=1
       TRPROC=$2
       ${TRPROC} run
       exit 0
       ;;
     --sync | -s)
-      BASH_IT_LOG_LEVEL=0
-      RUN_LOG="/dev/null"
-      BASH_IT_LOG_FILE="/dev/null"
-      LOG_PATH="/dev/null"
       SYNC_AND_BREAK=1
       shift
       ;;
@@ -222,15 +212,23 @@ process_each_step() {
             log_debug "$!"
             run_ok "${command} run" "${command}(${step}) Running..."
             log_debug "$!"
-            ;;
+            ;; # package is not installed, install it
         0)
             run_ok "${command} run" "${command}(${step}) Running..."
             log_debug "$!"
-            ;; # nothing to do
+            ;; # package is not running, run it
         10)
             log_fatal "Something went wrong. Exiting."
             exit 1
             ;;
+        15)
+            run_ok "${command} download" "${command}(${step}) Downloading..."
+            log_debug "$!"
+            run_ok "${command} install" "${command}(${step}) Installing..."
+            log_debug "$!"
+            run_ok "${command} run" "${command}(${step}) Running..."
+            log_debug "$!"
+            ;; # package file does not exist, download and install it
         20)
             log_info "${command}(${step}) Skiped..."
             log_debug "$!"

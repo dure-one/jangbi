@@ -46,26 +46,30 @@ function net-dnscryptproxy {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-dnscryptproxy_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-dnscryptproxy_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-dnscryptproxy_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-dnscryptproxy_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-dnscryptproxy_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-dnscryptproxy_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-dnscryptproxy_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-dnscryptproxy_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-dnscryptproxy_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-dnscryptproxy_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-dnscryptproxy_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-dnscryptproxy_run "$2"
     else
         __net-dnscryptproxy_help
     fi
 }
 
-## \usage net-dnscryptproxy install|uninstall|configgen|configapply|check|run|download
+## \usage net-dnscryptproxy help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-dnscryptproxy_help {
     echo -e "Usage: net-dnscryptproxy [COMMAND]\n"
     echo -e "Helper to dnscryptproxy install configurations.\n"
@@ -73,9 +77,10 @@ function __net-dnscryptproxy_help {
     echo "   help        Show this help message"
     echo "   install     Install dnscryptproxy"
     echo "   uninstall   Uninstall installed dnscryptproxy"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable dnscryptproxy"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
     echo "   check       Check vars available"
     echo "   run         run"
 }
@@ -105,6 +110,24 @@ function __net-dnscryptproxy_install {
     fi
 }
 
+function __net-dnscryptproxy_uninstall {
+    log_debug "Uninstalling ${DMNNAME}..."
+    pidof dnscrypt-proxy | xargs kill -9 2>/dev/null
+    rm -rf /usr/sbin/dnscrypt-proxy
+}
+
+function __net-dnscryptproxy_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux_*.tar.gz || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __net-dnscryptproxy_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    pidof dnscrypt-proxy | xargs kill -9 2>/dev/null
+    return 0
+}
+
 function __net-dnscryptproxy_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
@@ -127,31 +150,13 @@ function __net-dnscryptproxy_configapply {
     return 0
 }
 
-function __net-dnscryptproxy_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux_*.tar.gz || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __net-dnscryptproxy_disable {
-    log_debug "Disabling ${DMNNAME}..."
-    pidof dnscrypt-proxy | xargs kill -9 2>/dev/null
-    return 0
-}
-
-function __net-dnscryptproxy_uninstall {
-    log_debug "Uninstalling ${DMNNAME}..."
-    pidof dnscrypt-proxy | xargs kill -9 2>/dev/null
-    rm -rf /usr/sbin/dnscrypt-proxy
-}
-
 function __net-dnscryptproxy_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
 
     # check package file exists
     [[ $(find ./pkgs/dnscrypt-proxy-linux*|wc -l) -lt 1 ]] && \
-        log_info "dnscryptproxy package file does not exist." && [[ $running_status -lt 10 ]] && running_status=10
+        log_info "dnscryptproxy package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_DNSCRYPTPROXY} ]] && \
         log_info "RUN_NET_DNSCRYPTPROXY variable is not set." && __net-dnscryptproxy_disable && [[ $running_status -lt 10 ]] && running_status=10

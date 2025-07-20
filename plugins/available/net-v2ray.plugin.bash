@@ -46,26 +46,30 @@ function net-v2ray {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-v2ray_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-v2ray_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-v2ray_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-v2ray_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-v2ray_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-v2ray_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-v2ray_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-v2ray_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-v2ray_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-v2ray_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-v2ray_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-v2ray_run "$2"
     else
         __net-v2ray_help
     fi
 }
 
-## \usage net-v2ray install|uninstall|configgen|configapply|check|run|download
+## \usage net-v2ray help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-v2ray_help {
     echo -e "Usage: net-v2ray [COMMAND]\n"
     echo -e "Helper to v2ray install configurations.\n"
@@ -73,9 +77,10 @@ function __net-v2ray_help {
     echo "   help        Show this help message"
     echo "   install     Install v2ray"
     echo "   uninstall   Uninstall installed v2ray"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable v2ray service"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
     echo "   check       Check vars available"
     echo "   run         run"
 }
@@ -165,7 +170,7 @@ function __net-v2ray_check { # running_status 0 installed, running_status 5 can 
 
     # check package file exists
     [[ $(find ./pkgs/v2ray-linux-*.zip|wc -l) -lt 1 ]] && \
-        log_info "v2ray package file does not exist." && [[ $running_status -lt 10 ]] && running_status=10
+        log_info "v2ray package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_V2RAY} ]] && \
         log_info "RUN_NET_V2RAY variable is not set." && __net-v2ray_disable && [[ $running_status -lt 10 ]] && running_status=10

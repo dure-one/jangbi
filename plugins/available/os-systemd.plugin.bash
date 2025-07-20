@@ -45,10 +45,20 @@ function os-systemd {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-systemd_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-systemd_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-systemd_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-systemd_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-systemd_disable "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __os-systemd_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __os-systemd_configapply "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
         __os-systemd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
@@ -58,14 +68,18 @@ function os-systemd {
     fi
 }
 
-## \usage os-systemd help|install|uninstall|check|run
+## \usage os-systemd help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-systemd_help {
     echo -e "Usage: os-systemd [COMMAND]\n"
     echo -e "Helper to local packgage repository.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"
-    echo "   install   Install remove systemd pkgs"
-    echo "   uninstall Uninstall remove systemd pkgs"
+    echo "   install   Install systemd configurations"
+    echo "   uninstall Uninstall systemd configurations"
+    echo "   download  Download required packages"
+    echo "   disable   Disable systemd"
+    echo "   configgen Generate configuration"
+    echo "   configapply Apply configuration"
     echo "   check     Check installable"
     echo "   run       Run tasks"
 }
@@ -90,66 +104,6 @@ function __os-systemd_install { # 0 - disable completely, 1 - full systemd, 2 - 
     systemctl daemon-reload
 }
 
-function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1 - full systemd(netplan), 2 - only journald(ifupdown)
-    log_debug "Starting os-systemd disable completely(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
-    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
-        apt purge -yq alsa-utils v4l-utils v4l2loopback-dkms v4l2loopback-utils
-        apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
-    fi
-    # disable systemd services
-    apt purge -yq systemd-timesyncd systemd-resolved rsyslog
-    systemctl stop \
-        systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl disable \
-        systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
-    systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-
-    export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy isc-dhcp-client ifupdown iproute2
-
-    systemctl enable networking.service
-}
-
-function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd, 2 - only journald
-    log_debug "Starting os-systemd only journald(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
-    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
-        apt purge -yq alsa-utilsv v4l-utils v4l2loopback-dkms v4l2loopback-utils
-        apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
-    fi
-    # disable systemd services
-    apt purge -yq systemd-timesyncd systemd-resolved
-    systemctl stop \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl disable \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
-    systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    
-    export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy isc-dhcp-client ifupdown iproute2
-    systemctl enable networking.service
-}
-
-function __os-systemd_full_systemd { # 0 - disable completely, 1 - full systemd, 2 - only journald
-    log_debug "Starting os-systemd full systemd(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
-    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
-        apt purge -yq v4l-utils v4l2loopback-dkms v4l2loopback-utils
-        apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
-    fi
-    __os-systemd_uninstall
-}
-
 function __os-systemd_uninstall { 
     log_debug "Starting os-systemd Uninstall"
     # recover system
@@ -170,6 +124,31 @@ function __os-systemd_uninstall {
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
     apt install -qy systemd-timesyncd systemd-resolved rsyslog netplan.io iproute2
+}
+
+function __os-systemd_download {
+    log_debug "Downloading ${DMNNAME}..."
+    # No specific packages to download for systemd configuration
+    return 0
+}
+
+function __os-systemd_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    # Same as uninstall for systemd
+    __os-systemd_uninstall
+    return 0
+}
+
+function __os-systemd_configgen {
+    log_debug "Generating config for ${DMNNAME}..."
+    # No separate config generation needed for systemd
+    return 0
+}
+
+function __os-systemd_configapply {
+    log_debug "Applying config ${DMNNAME}..."
+    # No separate config apply needed for systemd
+    return 0
 }
 
 function __os-systemd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
@@ -236,3 +215,63 @@ function __os-systemd_run {
 }
 
 complete -F _blank os-systemd
+
+function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1 - full systemd(netplan), 2 - only journald(ifupdown)
+    log_debug "Starting os-systemd disable completely(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
+    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
+        apt purge -yq alsa-utils v4l-utils v4l2loopback-dkms v4l2loopback-utils
+        apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
+    fi
+    # disable systemd services
+    apt purge -yq systemd-timesyncd systemd-resolved rsyslog
+    systemctl stop \
+        systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
+        systemd-logind.service \
+        systemd-networkd systemd-networkd.socket
+    systemctl disable \
+        systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
+        systemd-logind.service \
+        systemd-networkd systemd-networkd.socket
+    systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
+    systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
+
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+    apt install -qy isc-dhcp-client ifupdown iproute2
+
+    systemctl enable networking.service
+}
+
+function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd, 2 - only journald
+    log_debug "Starting os-systemd only journald(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
+    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
+        apt purge -yq alsa-utilsv v4l-utils v4l2loopback-dkms v4l2loopback-utils
+        apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
+    fi
+    # disable systemd services
+    apt purge -yq systemd-timesyncd systemd-resolved
+    systemctl stop \
+        systemd-logind.service \
+        systemd-networkd systemd-networkd.socket
+    systemctl disable \
+        systemd-logind.service \
+        systemd-networkd systemd-networkd.socket
+    systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
+    systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
+    
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+    apt install -qy isc-dhcp-client ifupdown iproute2
+    systemctl enable networking.service
+}
+
+function __os-systemd_full_systemd { # 0 - disable completely, 1 - full systemd, 2 - only journald
+    log_debug "Starting os-systemd full systemd(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
+    if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
+        apt purge -yq v4l-utils v4l2loopback-dkms v4l2loopback-utils
+        apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
+    fi
+    __os-systemd_uninstall
+}

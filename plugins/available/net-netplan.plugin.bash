@@ -46,26 +46,30 @@ function net-netplan {
       _distname_check
   fi
 
-  if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+  if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+    __net-netplan_help "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
     __net-netplan_install "$2"
   elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
     __net-netplan_uninstall "$2"
-  elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-    __net-netplan_check "$2"
-  elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-    __net-netplan_run "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+    __net-netplan_download "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+    __net-netplan_disable "$2"
   elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
     __net-netplan_configgen "$2"
   elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
     __net-netplan_configapply "$2"
-  elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-    __net-netplan_download "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+    __net-netplan_check "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+    __net-netplan_run "$2"
   else
     __net-netplan_help
   fi
 }
 
-## \usage net-netplan help|install|uninstall|configgen|configapply|check|run|download
+## \usage net-netplan help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-netplan_help {
   echo -e "Usage: net-netplan [COMMAND]\n"
   echo -e "Helper to netplan install configurations.\n"
@@ -73,9 +77,10 @@ function __net-netplan_help {
   echo "   help                       Show this help message"
   echo "   install                    Install netplan"
   echo "   uninstall                  Uninstall installed netplan"
+  echo "   download                   Download pkg files to pkg dir"
+  echo "   disable                    Disable netplan service"
   echo "   configgen                  Configs Generator"
   echo "   configapply                Apply Configs"
-  echo "   download                   Download pkg files to pkg dir"
   echo "   check                      Check vars available"
   echo "   run                        do task at bootup"
 }
@@ -291,6 +296,8 @@ function __net-netplan_uninstall {
 
 function __net-netplan_disable {
   log_debug "Disabling ${DMNNAME}..."
+  systemctl stop systemd-networkd
+  systemctl disable systemd-networkd
   return 0
 }
 
@@ -298,6 +305,9 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
   running_status=0
   log_debug "Checking ${DMNNAME}..."
 
+  # check package file exists
+  [[ $(find ./pkgs/${PKGNAME}*.pkgs|wc -l) -lt 1 ]] && \
+      log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
   # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
   [[ -z ${RUN_OS_SYSTEMD} ]] && \
       log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10

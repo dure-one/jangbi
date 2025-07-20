@@ -45,38 +45,43 @@ function net-hostapd {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-hostapd_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-hostapd_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-hostapd_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-hostapd_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-hostapd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-hostapd_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-hostapd_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-hostapd_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-hostapd_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-hostapd_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-hostapd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-hostapd_run "$2"
     else
         __net-hostapd_help
     fi
 }
 
-## \usage net-hostapd install|uninstall|configgen|configapply|check|run|download
+## \usage net-hostapd help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-hostapd_help {
     echo -e "Usage: net-hostapd [COMMAND]\n"
     echo -e "Helper to hostapd install configurations.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware"
+    echo "   help        Show this help message"
+    echo "   install     Install hostapd"
+    echo "   uninstall   Uninstall installed hostapd"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable hostapd"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    download pkg files to pkg dir"
-    echo "   check     Check vars available"
-    echo "   run       Run tasks"
+    echo "   check       Check vars available"
+    echo "   run         Run tasks"
 }
 
 function __net-hostapd_install {
@@ -102,6 +107,24 @@ function __net-hostapd_install {
         __net-hostapd_configapply
         rm -rf /tmp/${PKGNAME}
     fi
+}
+
+function __net-hostapd_uninstall {
+    log_debug "Uninstalling ${DMNNAME}..."
+    pidof hostapd | xargs kill -9 2>/dev/null
+    apt purge -qy hostapd
+}
+
+function __net-hostapd_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __net-hostapd_disable { 
+    log_debug "Disabling ${DMNNAME}..."
+    pidof hostapd | xargs kill -9 2>/dev/null
+    return 0
 }
 
 function __net-hostapd_configgen { # config generator and diff
@@ -138,33 +161,18 @@ function __net-hostapd_configapply {
     return 0
 }
 
-function __net-hostapd_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __net-hostapd_uninstall {
-    log_debug "Uninstalling ${DMNNAME}..."
-    pidof hostapd | xargs kill -9 2>/dev/null
-    apt purge -qy hostapd
-}
-
-function __net-hostapd_disabled { 
-    log_debug "Disabling ${DMNNAME}..."
-    pidof hostapd | xargs kill -9 2>/dev/null
-    return 0
-}
-
 function __net-hostapd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
 
+    # check package file exists
+    [[ $(find ./pkgs/${PKGNAME}*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_HOSTAPD} ]] && \
         log_error "RUN_NET_HOSTAPD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_HOSTAPD} != 1 ]] && \
-        log_error "RUN_NET_HOSTAPD is not enabled." && __net-hostapd_disabled && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_NET_HOSTAPD is not enabled." && __net-hostapd_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && \
         log_info "hostapd is not installed." && [[ $running_status -lt 5 ]] && running_status=5

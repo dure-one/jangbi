@@ -44,10 +44,20 @@ function os-disablebins {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-disablebins_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-disablebins_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-disablebins_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-disablebins_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-disablebins_disable "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __os-disablebins_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __os-disablebins_configapply "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
         __os-disablebins_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
@@ -57,7 +67,7 @@ function os-disablebins {
     fi
 }
 
-## \usage os-disablebins help|install|uninstall|check|run
+## \usage os-disablebins help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-disablebins_help {
     echo -e "Usage: disablebins [COMMAND]\n"
     echo -e "Helper to disable binaries.\n"
@@ -65,6 +75,10 @@ function __os-disablebins_help {
     echo "   help	  	Show this help message"
     echo "   install   	Install disable binaries"
     echo "   uninstall 	Uninstall disable binaries"
+    echo "   download      Download pkg files to pkg dir"
+    echo "   disable       Disable binary restrictions"
+    echo "   configgen     Generate configuration files"
+    echo "   configapply   Apply configuration files"
     echo "   check	 	Check installable"
     echo "   run	 	run disable binaries"
 }
@@ -218,6 +232,26 @@ function __os-disablebins_check { # running_status: 0 running, 1 installed, runn
 
 function __os-disablebins_run {
     :
+}
+
+function __os-disablebins_download {
+    log_debug "Downloading ${DMNNAME}..."
+    return 0
+}
+
+function __os-disablebins_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    return 0
+}
+
+function __os-disablebins_configgen {
+    log_debug "Generating config for ${DMNNAME}..."
+    return 0
+}
+
+function __os-disablebins_configapply {
+    log_debug "Applying config for ${DMNNAME}..."
+    return 0
 }
 
 complete -F _blank os-disablebins

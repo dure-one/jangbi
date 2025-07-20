@@ -46,36 +46,41 @@ function net-sshd {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-sshd_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-sshd_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-sshd_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-sshd_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-sshd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-sshd_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-sshd_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-sshd_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-sshd_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-sshd_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-sshd_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-sshd_run "$2"
     else
         __net-sshd_help
     fi
 }
 
-## \usage net-sshd install|uninstall|configgen|configapply|check|run|download
+## \usage net-sshd help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-sshd_help {
     echo -e "Usage: net-sshd [COMMAND]\n"
     echo -e "Helper to sshd install configurations.\n"
     echo -e "Commands:\n"
     echo "   help         Show this help message"
-    echo "   install      Install os firmware"
-    echo "   uninstall    Uninstall installed firmware"
+    echo "   install      Install sshd"
+    echo "   uninstall    Uninstall installed sshd"
+    echo "   download     Download pkg files to pkg dir"
+    echo "   disable      Disable sshd"
     echo "   configgen    Configs Generator"
     echo "   configapply  Apply Configs"
-    echo "   download     Download pkg files to pkg dir"
     echo "   check        Check vars available"
     echo "   run          Run tasks"
 }
@@ -106,6 +111,24 @@ function __net-sshd_install {
     fi
 }
 
+function __net-sshd_uninstall { 
+    log_debug "Uninstalling ${DMNNAME}..."
+    systemctl stop ssh
+    systemctl disable ssh
+}
+
+function __net-sshd_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs openssh-server || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __net-sshd_disable { 
+    systemctl stop ssh
+    systemctl disable ssh
+    return 0
+}
+
 function __net-sshd_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
@@ -113,7 +136,7 @@ function __net-sshd_configgen { # config generator and diff
     cp -rf /etc/ssh/* /tmp/sshd/
     cp -rf ./configs/${PKGNAME}/* /tmp/${PKGNAME}/
 
-    local ssh_config="# JB_SSHD_CONFIG" infip
+    local ssh_config="# JB_SSHD_CONFIG" infip tinf
     cp ./configs/ssh/sshd_config /tmp/sshd/sshd_config
     if [[ $(grep -c "JB_SSHD_CONFIG" < "/tmp/sshd/sshd_config") -lt 1 ]]; then
         [[ ${SSHD_PORT} -gt 0 ]] && ssh_config="${ssh_config}\nPort ${SSHD_PORT} # JB_SSHD_PORT" && sed -i "s|Port=.*||g" /tmp/sshd/sshd_config
@@ -122,7 +145,7 @@ function __net-sshd_configgen { # config generator and diff
             for((j=0;j<${#ssh_infs[@]};j++)){
                 __bp_trim_whitespace tinf "${ssh_infs[j]}"
                 infip=$(_get_ip_of_infmark "${tinf}")
-                [[ -z ${tip} ]] && log_error "Interface ${tinf} is not valid. Please set correct interface name in config." && continue
+                [[ -z ${infip} ]] && log_error "Interface ${tinf} is not valid. Please set correct interface name in config." && continue
                 echo "Setting ListenAddress for ${tinf}"
                 ssh_config="${ssh_config}\nListenAddress ${infip} # JB_SSHD_INFS" && sed -i "s|ListenAddress=.*||g" /tmp/sshd/sshd_config
             }
@@ -148,28 +171,13 @@ function __net-sshd_configapply {
     return 0
 }
 
-function __net-sshd_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs openssh-server || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __net-sshd_uninstall { 
-    log_debug "Uninstalling ${DMNNAME}..."
-    systemctl stop ssh
-    systemctl disable ssh
-}
-
-function __net-sshd_disable { 
-    systemctl stop ssh
-    systemctl disable ssh
-    return 0
-}
-
 function __net-sshd_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
 
+    # check package file exists
+    [[ $(find ./pkgs/openssh-server*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "openssh-server package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_SSHD} ]] && \
         log_error "RUN_NET_SSHD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10

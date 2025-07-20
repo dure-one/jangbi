@@ -46,36 +46,41 @@ function os-vector {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-vector_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-vector_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-vector_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __os-vector_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __os-vector_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-vector_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-vector_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __os-vector_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __os-vector_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __os-vector_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-vector_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-vector_run "$2"
     else
         __os-vector_help
     fi
 }
 
-## \usage os-vector install|uninstall|configgen|configapply|check|run|download
+## \usage os-vector help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-vector_help {
     echo -e "Usage: os-vector [COMMAND]\n"
     echo -e "Helper to vector install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware"
-    echo "   configgen   Configs Generator"
+    echo "   install   Install vector"
+    echo "   uninstall Uninstall installed vector"
+    echo "   download  Download pkg files to pkg dir"
+    echo "   disable   Disable vector"
+    echo "   configgen Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
     echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
@@ -90,7 +95,7 @@ function __os-vector_install {
 
     if ! __os-vector_configgen; then # if gen config is different do apply
         __os-vector_configapply
-        rm -rf ${tmpdir}
+        rm -rf /tmp/${PKGNAME}
     fi
    
 }
@@ -131,7 +136,8 @@ function __os-vector_uninstall {
     apt purge -qy vector sysdig
 }
 
-function __os-vector_disabled { 
+function __os-vector_disable { 
+    log_debug "Disabling ${DMNNAME}..."
     pidof vector | xargs kill -9 2>/dev/null
     return 0
 }
@@ -144,7 +150,7 @@ function __os-vector_check { # running_status: 0 running, 1 installed, running_s
     [[ -z ${RUN_OS_VECTOR} ]] && \
         log_error "RUN_OS_VECTOR variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_VECTOR} != 1 ]] && \
-        log_error "RUN_OS_VECTOR is not enabled." && __os-vector_disabled && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_VECTOR is not enabled." && __os-vector_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "vector") -lt 1 ]] && \
         log_info "vector is not installed." && [[ $running_status -lt 5 ]] && running_status=5

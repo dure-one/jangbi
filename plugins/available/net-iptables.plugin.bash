@@ -48,6 +48,7 @@ about-plugin 'iptables install configurations.'
 #                                   |                               |
 #                                   |                               |
 #                                   |                               |
+#                                   |                               |
 #                                   |                               v
 #   MANGLE            +-------------+--------+
 #   FILTER            |                      |               +----------------------+    RAW
@@ -71,6 +72,7 @@ about-plugin 'iptables install configurations.'
 
 # bridge filters(ebtables)
 #                                                       +-----------> local +-----------+
+#                                                       |                               |
 #                                                       |                               |
 #                                                       |                               |
 #                                                       |                               |
@@ -108,18 +110,22 @@ function net-iptables {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-iptables_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-iptables_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-iptables_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-iptables_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-iptables_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-iptables_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-iptables_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-iptables_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-iptables_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-iptables_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-iptables_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "build" ]]; then
@@ -131,7 +137,7 @@ function net-iptables {
     fi
 }  
 
-## \usage net-iptables help|install|uninstall|configgen|configapply|check|run|download|build|watch
+## \usage net-iptables help|install|uninstall|download|disable|configgen|configapply|check|run|build|watch
 function __net-iptables_help {
     echo -e "Usage: net-iptables [COMMAND]\n"
     echo -e "Helper to iptables install configurations.\n"
@@ -139,9 +145,10 @@ function __net-iptables_help {
     echo "   help                       Show this help message"
     echo "   install                    Install os iptables"
     echo "   uninstall                  Uninstall installed iptables"
+    echo "   download                   download pkg files to pkg dir"
+    echo "   disable                    Disable iptables service"
     echo "   configgen                  Configs Generator"
     echo "   configapply                Apply Configs"
-    echo "   download                   download pkg files to pkg dir"
     echo "   check                      Check vars available"
     echo "   run                        do task at bootup"
     echo "   build                      rebuild iptables by configs"
@@ -206,7 +213,8 @@ function __net-iptables_uninstall {
     systemctl disable nftables
 }
 
-function __net-iptables_disable { 
+function __net-iptables_disable {
+    log_debug "Disabling ${DMNNAME}..."
     systemctl stop nftables
     systemctl disable nftables
     return 0
@@ -215,6 +223,10 @@ function __net-iptables_disable {
 function __net-iptables_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
+
+    # check package file exists
+    [[ $(find ./pkgs/nftables*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "nftables package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check cmd exists
     [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
         log_error "ipcacl-ng command does not exist. please install it." && [[ $running_status -lt 10 ]] && running_status=10

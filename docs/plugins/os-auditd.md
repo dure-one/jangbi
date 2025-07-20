@@ -1,7 +1,7 @@
 ::: plugins/available/os-auditd.plugin.bash
     handler: shell
     options:
-      heading_level: 2
+      heading_level: 1
 
 ```
 # # https://rninche01.tistory.com/entry/Linux-system-call-table-%EC%A0%95%EB%A6%ACx86-x64

@@ -46,28 +46,32 @@ function os-aide {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-aide_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-aide_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-aide_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __os-aide_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "checkpoint" ]]; then
-        __os-aide_checkpoint "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __os-aide_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-aide_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-aide_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __os-aide_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __os-aide_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __os-aide_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-aide_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-aide_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "checkpoint" ]]; then
+        __os-aide_checkpoint "$2"
     else
         __os-aide_help
     fi
 }
 
-## \usage os-aide install|uninstall|configgen|configapply|checkpoint|check|run|download
+## \usage os-aide help|install|uninstall|download|disable|configgen|configapply|check|run|checkpoint
 function __os-aide_help {
     echo -e "Usage: os-aide [COMMAND]\n"
     echo -e "Helper to aide install configurations.\n"
@@ -75,12 +79,13 @@ function __os-aide_help {
     echo "   help        Show this help message"
     echo "   install     Install os aide"
     echo "   uninstall   Uninstall installed aide"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable aide"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
-    echo "   checkpoint  Make new checkpoint"
     echo "   check       Check vars available"
     echo "   run         Run tasks"
+    echo "   checkpoint  Make new checkpoint"
 }
 
 function __os-aide_install {
@@ -112,6 +117,22 @@ function __os-aide_install {
         cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
 }
 
+function __os-aide_uninstall { 
+    log_debug "Uninstalling ${DMNNAME}..."
+    apt purge -yq aide
+}
+
+function __os-aide_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __os-aide_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    :
+}
+
 function __os-aide_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
@@ -133,37 +154,13 @@ function __os-aide_configapply {
     return 0
 }
 
-function __os-aide_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __os-aide_uninstall { 
-    log_debug "Uninstalling ${DMNNAME}..."
-    apt purge -yq aide
-}
-
-function __os-aide_disable {
-    log_debug "Disabling ${DMNNAME}..."
-    :
-}
-
-function __os-aide_checkpoint {
-    log_debug "Make new checkpoint for os-aide."
-    local dtnow=$(date +%Y%m%d_%H%M%S)
-    mkdir -p /tmp/aidecp
-    if ! aide --check --config=/etc/aide/aide.minimal.conf 2>&1 1>/tmp/aidecp/aide_${dtnow}.log; then
-        mkdir -p /var/log/aide/checkpoints
-        mv /tmp/aidecp/aide_${dtnow}.log /var/log/aide/checkpoints
-        cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
-    fi
-}
-
 function __os-aide_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
 
+    # check package file exists
+    [[ $(find ./pkgs/${PKGNAME}*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_OS_AIDE} ]] && \
         log_error "RUN_OS_AIDE variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
@@ -186,3 +183,14 @@ function __os-aide_run {
 }
 
 complete -F _blank os-aide
+
+function __os-aide_checkpoint {
+    log_debug "Make new checkpoint for os-aide."
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    mkdir -p /tmp/aidecp
+    if ! aide --check --config=/etc/aide/aide.minimal.conf 2>&1 1>/tmp/aidecp/aide_${dtnow}.log; then
+        mkdir -p /var/log/aide/checkpoints
+        mv /tmp/aidecp/aide_${dtnow}.log /var/log/aide/checkpoints
+        cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
+    fi
+}

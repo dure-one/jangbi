@@ -44,31 +44,43 @@ function os-conf {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-conf_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-conf_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-conf_uninstall "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-conf_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-conf_disable "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
+        __os-conf_configgen "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
+        __os-conf_configapply "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
         __os-conf_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-conf_run "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __os-conf_download "$2"
     else
         __os-conf_help
     fi
 }
 
-## \usage os-conf install|uninstall|check|run|download
+## \usage os-conf help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-conf_help {
     echo -e "Usage: os-conf [COMMAND]\n"
     echo -e "Helper to os configuration installation.\n"
     echo -e "Commands:\n"
-    echo "   help      Show this help message"
-    echo "   install   Install os configuration"
-    echo "   uninstall Uninstall installed os configuration"
-    echo "   check     Check vars available"
-    echo "   run       Run tasks"
+    echo "   help        Show this help message"
+    echo "   install     Install os configuration"
+    echo "   uninstall   Uninstall installed os configuration"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable os configuration"
+    echo "   configgen   Generate configuration files"
+    echo "   configapply Apply configuration files"
+    echo "   check       Check vars available"
+    echo "   run         Run tasks"
 }
 
 function __os-conf_install {
@@ -164,10 +176,23 @@ function __os-conf_disable {
     return 0
 }
 
+function __os-conf_configgen {
+    log_debug "Generating config for ${DMNNAME}..."
+    return 0
+}
+
+function __os-conf_configapply {
+    log_debug "Applying config for ${DMNNAME}..."
+    return 0
+}
+
 function __os-conf_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
 
+    # check package file exists
+    [[ $(find ./pkgs/cron*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "cron package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_OS_CONF} ]] && \
         log_error "RUN_OS_CONF variable is not set." && [[ $running_status -lt 10 ]] && running_status=10

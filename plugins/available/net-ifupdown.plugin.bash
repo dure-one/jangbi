@@ -44,26 +44,30 @@ function net-ifupdown {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __net-ifupdown_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __net-ifupdown_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __net-ifupdown_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __net-ifupdown_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __net-ifupdown_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __net-ifupdown_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __net-ifupdown_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __net-ifupdown_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __net-ifupdown_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __net-ifupdown_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __net-ifupdown_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __net-ifupdown_run "$2"
     else
         __net-ifupdown_help
     fi
 }
 
-## \usage net-ifupdown install|uninstall|configgen|configapply|check|run|download
+## \usage net-ifupdown help|install|uninstall|download|disable|configgen|configapply|check|run
 function __net-ifupdown_help {
     echo -e "Usage: net-ifupdown [COMMAND]\n"
     echo -e "Helper to network configurations.\n"
@@ -71,9 +75,10 @@ function __net-ifupdown_help {
     echo "   help        Show this help message"
     echo "   install     Install os ifupdown"
     echo "   uninstall   Uninstall installed ifupdown"
+    echo "   download    Download pkg files to pkg dir"
+    echo "   disable     Disable ifupdown service"
     echo "   configgen   Configs Generator"
     echo "   configapply Apply Configs"
-    echo "   download    Download pkg files to pkg dir"
     echo "   check       Check vars available"
     echo "   run         Run tasks"
 }
@@ -131,6 +136,63 @@ function __net-ifupdown_download {
     _download_apt_pkgs "ifupdown iproute2" || log_error "${DMNNAME} download failed."
     return 0
 }
+
+function __net-ifupdown_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    systemctl stop networking
+    systemctl disable networking
+    return 0
+}
+
+function __net-ifupdown_uninstall {
+    log_debug "Uninstalling ${DMNNAME}..."
+    systemctl stop networking
+    systemctl disable networking
+}
+
+function __net-ifupdown_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
+    running_status=0
+    log_debug "Checking ${DMNNAME}..."
+
+    # check package file exists
+    [[ $(find ./pkgs/${PKGNAME}*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
+    # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
+    log_debug "check RUN_OS_SYSTEMD" 
+    [[ -z ${RUN_OS_SYSTEMD} ]] && \
+        log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
+    [[ ${RUN_OS_SYSTEMD} == 1 ]] && \
+        log_error "RUN_OS_SYSTEMD set to full systemd(RUN_OS_SYSTEMD=1)." && __net-ifupdown_disable && [[ $running_status -lt 20 ]] && running_status=20
+    # check package ifupdown
+    log_debug "check ifupdown is installed"
+    [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && \
+        log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+    # check if running
+    log_debug "check networking is running"
+    [[ $(systemctl status networking 2>/dev/null|grep -c "active") -gt 0 ]] && \
+        log_info "networking(ifupdown) is running." && [[ $running_status -lt 1 ]] && running_status=1
+
+    return 0
+}
+
+function __net-ifupdown_run {
+    # remove dhcp from interfaces not connected for preventing systemd networking from hanging
+    # local infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
+    # IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
+    # for((j=0;j<${#dure_infs[@]};j++)){
+    #     operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
+    #     if [[ ${operstate} == *"up"* ]]; then
+    #         sed -i "s|iface ${dure_infs[j]} inet manual.*|iface ${dure_infs[j]} inet dhcp|g" /etc/network/interfaces
+    #     elif [[ ${operstate} == "down" ]]; then
+    #         sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
+    #     fi
+    # }
+    systemctl restart networking
+    systemctl status networking && return 0 || \
+        log_error "ifupdown failed to run." && return 1
+}
+
+complete -F _blank net-ifupdown
 
 function __net-ifupdown_generate {
     if [[ -n ${JB_IFUPDOWN} ]]; then # custom interfaces exists
@@ -239,57 +301,3 @@ EOT
         esac
     done
 }
-
-function __net-ifupdown_uninstall {
-    log_debug "Uninstalling ${DMNNAME}..."
-    systemctl stop networking
-    systemctl disable networking
-}
-
-function __net-ifupdown_disable {
-    log_debug "Disabling ${DMNNAME}..."
-    systemctl stop networking
-    systemctl disable networking
-    return 0
-}
-
-function __net-ifupdown_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
-    running_status=0
-    log_debug "Checking ${DMNNAME}..."
-
-    # RUN_OS_SYSTEMD 1 - full systemd, 0 - disable completely, 2 - only journald
-    log_debug "check RUN_OS_SYSTEMD" 
-    [[ -z ${RUN_OS_SYSTEMD} ]] && \
-        log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    [[ ${RUN_OS_SYSTEMD} == 1 ]] && \
-        log_error "RUN_OS_SYSTEMD set to full systemd(RUN_OS_SYSTEMD=1)." && __net-ifupdown_disable && [[ $running_status -lt 20 ]] && running_status=20
-    # check package ifupdown
-    log_debug "check ifupdown is installed"
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "ifupdown") -lt 1 ]] && \
-        log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-    # check if running
-    log_debug "check networking is running"
-    [[ $(systemctl status networking 2>/dev/null|grep -c "active") -gt 0 ]] && \
-        log_info "networking(ifupdown) is running." && [[ $running_status -lt 1 ]] && running_status=1
-
-    return 0
-}
-
-function __net-ifupdown_run {
-    # remove dhcp from interfaces not connected for preventing systemd networking from hanging
-    # local infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
-    # IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
-    # for((j=0;j<${#dure_infs[@]};j++)){
-    #     operstate=$(cat /sys/class/net/${dure_infs[j]}/operstate)
-    #     if [[ ${operstate} == *"up"* ]]; then
-    #         sed -i "s|iface ${dure_infs[j]} inet manual.*|iface ${dure_infs[j]} inet dhcp|g" /etc/network/interfaces
-    #     elif [[ ${operstate} == "down" ]]; then
-    #         sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
-    #     fi
-    # }
-    systemctl restart networking
-    systemctl status networking && return 0 || \
-        log_error "ifupdown failed to run." && return 1
-}
-
-complete -F _blank net-ifupdown

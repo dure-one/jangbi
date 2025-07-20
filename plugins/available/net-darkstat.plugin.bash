@@ -57,7 +57,7 @@ function net-darkstat {
     fi
 }
 
-## \usage net-darkstat install|uninstall|configgen|configapply|check|run|download
+## \usage net-darkstat install|uninstall|download|disable|configgen|configapply|check|run|
 function __net-darkstat_help {
     echo -e "Usage: net-darkstat [COMMAND]\n"
     echo -e "Helper to darkstat install configurations.\n"
@@ -148,6 +148,9 @@ function __net-darkstat_check { # running_status: 0 running, 1 installed, runnin
     running_status=0
     log_debug "Checking ${DMNNAME}..."
 
+    # check package file exists
+    [[ $(find ./pkgs/darkstat*.pkgs|wc -l) -lt 1 ]] && \
+        log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_DARKSTAT} ]] && \
         log_error "RUN_NET_DARKSTAT variable is not set." && [[ $running_status -lt 10 ]] && running_status=10

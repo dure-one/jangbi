@@ -46,33 +46,41 @@ function os-minmon {
         _distname_check || exit 1
     fi
 
-    if [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
+    if [[ $# -eq 1 ]] && [[ "$1" = "help" ]]; then
+        __os-minmon_help "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "install" ]]; then
         __os-minmon_install "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "uninstall" ]]; then
         __os-minmon_uninstall "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
-        __os-minmon_check "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
-        __os-minmon_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
+        __os-minmon_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "disable" ]]; then
+        __os-minmon_disable "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configgen" ]]; then
         __os-minmon_configgen "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "configapply" ]]; then
         __os-minmon_configapply "$2"
-    elif [[ $# -eq 1 ]] && [[ "$1" = "download" ]]; then
-        __os-minmon_download "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "check" ]]; then
+        __os-minmon_check "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
+        __os-minmon_run "$2"
     else
         __os-minmon_help
     fi
 }
 
-## \usage os-minmon install|uninstall|configgen|configapply|check|run|download
+## \usage os-minmon help|install|uninstall|download|disable|configgen|configapply|check|run
 function __os-minmon_help {
     echo -e "Usage: os-minmon [COMMAND]\n"
     echo -e "Helper to minmon install configurations.\n"
     echo -e "Commands:\n"
     echo "   help      Show this help message"
-    echo "   install   Install os firmware"
-    echo "   uninstall Uninstall installed firmware"
+    echo "   install   Install minmon"
+    echo "   uninstall Uninstall installed minmon"
+    echo "   download  Download minmon packages"
+    echo "   disable   Disable minmon"
+    echo "   configgen Generate configuration"
+    echo "   configapply Apply configuration"
     echo "   check     Check vars available"
     echo "   run       Run tasks"
 }
@@ -103,6 +111,18 @@ function __os-minmon_install {
 }
 
 
+function __os-minmon_download {
+    log_debug "Downloading ${DMNNAME}..."
+    _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
+    return 0
+}
+
+function __os-minmon_disable {
+    log_debug "Disabling ${DMNNAME}..."
+    pidof minmon | xargs kill -9 2>/dev/null
+    return 0
+}
+
 function __os-minmon_configgen { # config generator and diff
     log_debug "Generating config for ${DMNNAME}..."
     rm -rf /tmp/${PKGNAME} 1>/dev/null 2>&1
@@ -126,42 +146,6 @@ function __os-minmon_configapply {
     return 0
 }
 
-function __os-minmon_download {
-    log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
-    return 0
-}
-
-function __os-minmon_generate_config {
-    mkdir -p /tmp/minmon
-    cp ./configs/minmon/minmon.toml /tmp/minmon/minmon.toml
-    enabled_plugins=$(_jangbi-it-describe "plugins" "a" "plugin" "Plugin"|grep \[x\]|awk '{print $1}')
-    IFS=$'\n' read -d "" -ra lvars <<< "${enabled_plugins}" # split
-    for((j=0;j<${#lvars[@]};j++)){
-        log_debug "${lvars[j]}"
-        runtype=$(typeset -f -- "${lvars[j]}"|metafor runtype)
-        log_debug "runtype: ${runtype}"
-        if [[ ${runtype} == "minmon" ]]; then
-            cp ./configs/minmon/template.toml /tmp/minmon/template.toml
-            sed -i "s|__PLUGINNAME__|${lvars[j]}|g" "/tmp/minmon/template.toml"
-            cat /tmp/minmon/template.toml >> /tmp/minmon/minmon.toml
-        fi
-    }
-    rm -rf /tmp/minmon
-}
-
-function __os-minmon_uninstall {
-    log_debug "Uninstalling ${DMNNAME}..."
-    pidof minmon | xargs kill -9 2>/dev/null
-    rm /usr/sbin/minmon
-}
-
-function __os-minmon_disabled {
-    log_debug "Disabling ${DMNNAME}..."
-    pidof minmon | xargs kill -9 2>/dev/null
-    return 0
-}
-
 function __os-minmon_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
     log_debug "Checking ${DMNNAME}..."
@@ -170,7 +154,7 @@ function __os-minmon_check { # running_status: 0 running, 1 installed, running_s
     [[ -z ${RUN_OS_MINMON} ]] && \
         log_error "RUN_OS_MINMON variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_OS_MINMON} != 1 ]] && \
-        log_error "RUN_OS_MINMON is not enabled." && __os-minmon_disabled && [[ $running_status -lt 20 ]] && running_status=20
+        log_error "RUN_OS_MINMON is not enabled." && __os-minmon_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(which minmon|grep -c "minmon") -lt 1 ]] && \
         log_info "minmon is not installed." && [[ $running_status -lt 5 ]] && running_status=5
@@ -190,3 +174,21 @@ function __os-minmon_run {
 }
 
 complete -F _blank os-minmon
+
+function __os-minmon_generate_config {
+    mkdir -p /tmp/minmon
+    cp ./configs/minmon/minmon.toml /tmp/minmon/minmon.toml
+    enabled_plugins=$(_jangbi-it-describe "plugins" "a" "plugin" "Plugin"|grep \[x\]|awk '{print $1}')
+    IFS=$'\n' read -d "" -ra lvars <<< "${enabled_plugins}" # split
+    for((j=0;j<${#lvars[@]};j++)){
+        log_debug "${lvars[j]}"
+        runtype=$(typeset -f -- "${lvars[j]}"|metafor runtype)
+        log_debug "runtype: ${runtype}"
+        if [[ ${runtype} == "minmon" ]]; then
+            cp ./configs/minmon/template.toml /tmp/minmon/template.toml
+            sed -i "s|__PLUGINNAME__|${lvars[j]}|g" "/tmp/minmon/template.toml"
+            cat /tmp/minmon/template.toml >> /tmp/minmon/minmon.toml
+        fi
+    }
+    rm -rf /tmp/minmon
+}
