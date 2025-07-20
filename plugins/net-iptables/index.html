@@ -603,6 +603,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net iptables
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -614,6 +627,232 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arptables : MAC Whitelisting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arptables : Allow Gateway MAC on WAN
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Arptables : Allow all other network except gateway
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Drop ICMP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Drop Invalid State
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Drop new non-SYN TCP Packets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Drop Spoofing Packets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Limit MSS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter/NAT Forward/Postrouting Masquerade
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      DMZ - after portforward, SDMZ - prior to portforward
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      NAT Prerouting/Postrouting Port forward
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raw Prerouting : Drop Invalid Tcp Flag
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Drop IPs from blacklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Table : Base Setup (policies, loopback, established connections)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Anti-spoofing protection
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Drop broadcast/multicast/anycast packets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : drop ICMP packets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Service-specific rules
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Noise reduction rules (Drop without logging)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Drop UPnP packets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Reject AUTH traffic quickly
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      NAT Prerouting : Port redirection
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      NAT Prerouting : DNAT port forwarding
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1261,44 +1500,330 @@
   <strong>Usage</strong>
     <pre><code>net-iptables help|install|uninstall|download|disable|configgen|configapply|check|run|build|watch</code></pre>
 
-  <strong>Description</strong>
-      <p>This tool helps install, configure, and manage iptables firewall rules
-for network security and traffic filtering. It provides automated installation,
-configuration management, and firewall rule control capabilities. The tool manages
-packet filtering, NAT, port forwarding, and network security policies using iptables
-and netfilter framework with support for IPv4 and IPv6.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
 
 
 
 
 
 
-  <strong>Examples</strong>
-    <em><p>Install and configure firewall rules:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-iptables<span class="w"> </span>install
-net-iptables<span class="w"> </span>configgen
-net-iptables<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install iptables, generate firewall configurations,
-and apply them to secure the network with proper filtering rules.</p>
-    <em><p>Apply rules and check firewall status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-iptables<span class="w"> </span>run
-net-iptables<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we activate the firewall rules and verify
-that the iptables configuration is working properly.</p>
+
+
+  <strong>Functions</strong>
+
+<h2 id="net-iptables.plugin.bash">Arptables : MAC Whitelisting<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Add mac address for target interface(LO/LAN/WAN/WLAN/ALL) to whitelist.<br/>
+(config)<code>IPTABLES_WHMACADDR="LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1"</code><br/>
+(command)<code>arptables -A INPUT -i "${targetinf}" --source-mac "${infmac[1]}" -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Arptables : Allow Gateway MAC on WAN<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Add gateway mac address to WAN mac whitelist.<br/>
+(config)<code>IPTABLES_GWMAC=1</code><br/>
+(command)<code>arptables -A INPUT -i "${targetinf}" --source-mac "${gwmac}" -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Arptables : Allow all other network except gateway<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Allow all ARP except gateway interface.<br/>
+(config)<code>IPTABLES_ARPALLINFS=1</code><br/>
+(command)<code>arptables -A INPUT -i "${allinfx[i]}" -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Mangle Prerouting : Drop ICMP<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop ICMP packets in mangle table prerouting chain.<br/>
+(config)<code>IPTABLES_DROP_ICMP=1</code><br/>
+(command)<code>iptables -t mangle -A PREROUTING -p icmp -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Mangle Prerouting : Drop Invalid State<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop packets with invalid connection state in mangle table prerouting chain.<br/>
+(config)<code>IPTABLES_DROP_INVALID_STATE=1</code><br/>
+(command)<code>iptables -t mangle -I PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Mangle Prerouting : Drop new non-SYN TCP Packets<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop new TCP packets that do not have SYN flag set in mangle table prerouting chain.<br/>
+(config)<code>IPTABLES_DROP_NON_SYN=1</code><br/>
+(command)<code>iptables -t mangle -I PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Mangle Prerouting : Drop Spoofing Packets<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop spoofing packets from specified networks except allowed routing in mangle table prerouting chain.<br/>
+(config)<code>IPTABLES_DROP_SPOOFING=1 IPTABLES_DROP_SPOOFING_TARINF=WAN IPTABLES_DROP_SPOOFING_NET="224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8"</code><br/>
+(command)<code>iptables -t mangle -A PREROUTING -s ${iptables_block_ip} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Mangle Prerouting : Limit MSS<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop TCP packets with MSS outside allowed range in mangle table prerouting chain.<br/>
+(config)<code>IPTABLES_LIMIT_MSS=1</code><br/>
+(command)<code>iptables -t mangle -I PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss ${mss} -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter/NAT Forward/Postrouting Masquerade<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Set up masquerading between internal and external interfaces with proper forwarding rules.<br/>
+(config)<code>IPTABLES_MASQ?="WLAN&lt;WAN|LAN&lt;WAN"</code><br/>
+(command)<code>iptables -t nat -A POSTROUTING ! -d ${fromnet} -o ${toinf} -m comment --comment ${funcname}_${j}_masq -j MASQUERADE</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">DMZ - after portforward, SDMZ - prior to portforward<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Set up DMZ (Demilitarized Zone) routing to forward all traffic to specified internal host.<br/>
+(config)<code>IPTABLES_DMZ="192.68.79.10" IPTABLES_SUPERDMZ=1</code><br/>
+(command)<code>iptables -t nat -A PREROUTING -p ALL -i ${waninf} -j DNAT --to-destination ${dmzip} -m comment --comment ${funcname}_dmznat</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">NAT Prerouting/Postrouting Port forward<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Forward external ports to internal hosts and ports using NAT DNAT/SNAT rules.<br/>
+(config)<code>IPTABLES_PORTFORWARD="8090:192.168.79.11:8090,8010:192.168.79.12:8010"</code><br/>
+(command)<code>iptables -t nat -A PREROUTING -p tcp --dst ${wanip} --dport ${wanport} -j DNAT --to-destination ${lanip}:${lanport} -m comment --comment ${funcname}_pre</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Raw Prerouting : Drop Invalid Tcp Flag<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop packets with invalid TCP flag combinations in raw table prerouting chain.<br/>
+(config)<code>IPTABLES_INVALID_TCPFLAG=1</code><br/>
+(command)<code>iptables -t raw -A PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -m comment --comment ${funcname}1 -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Drop IPs from blacklist<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Download and block IP addresses from blacklist URLs using ipset.<br/>
+(config)<code>IPTABLES_BLACK_NAMELIST="url|url"</code><br/>
+(command)<code>iptables -I INPUT -m set --match-set ${blist_name} src -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Table : Base Setup (policies, loopback, established connections)<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Set up basic filter table policies, loopback rules, and connection state tracking.<br/>
+(config)<code>IPTABLES_ENABLE_BASE=1</code><br/>
+(command)<code>iptables -P INPUT DROP &amp;&amp; iptables -A INPUT -i lo -m comment --comment ${funcname}_loopback_v4 -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Anti-spoofing protection<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Block packets claiming to be from loopback but coming from external interfaces.<br/>
+(config)<code>IPTABLES_ANTISPOOFING=1</code><br/>
+(command)<code>iptables -A INPUT -s 127.0.0.0/8 ! -i lo -m comment --comment ${funcname}_block_fake_loopback_v4 -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Drop broadcast/multicast/anycast packets<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop broadcast, multicast, and anycast packets to reduce network noise.<br/>
+(config)<code>IPTABLES_DROPCASTS=1</code><br/>
+(command)<code>iptables -A INPUT -m addrtype --dst-type BROADCAST -m comment --comment ${funcname}_drop_broadcast -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : drop ICMP packets<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Allow specific ICMP types for proper network operation while blocking others.<br/>
+(config)<code>IPTABLES_DROPICMP=1</code><br/>
+(command)<code>iptables -A INPUT -p icmp --icmp-type 0 -m conntrack --ctstate NEW -m comment --comment ${funcname}_echo_reply -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Service-specific rules<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Allow incoming connections on specified ports for services.<br/>
+(config)<code>IPTABLES_ALLOWED_PORTS="80,443,8080"</code><br/>
+(command)<code>iptables -A INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v4 -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Noise reduction rules (Drop without logging)<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop common network noise packets (SMB, NetBIOS) without logging to reduce log spam.<br/>
+(config)<code>IPTABLES_NOISE_REDUCTION=1</code><br/>
+(command)<code>iptables -A INPUT -p udp -m multiport --dports 135,445 -m comment --comment ${funcname}_smb_udp_v4 -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Drop UPnP packets<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop UPnP discovery packets to prevent unwanted service discovery.<br/>
+(config)<code>IPTABLES_DROP_UPNP=1</code><br/>
+(command)<code>iptables -A INPUT -p udp --dport 1900 -m comment --comment ${funcname}_upnp_v4 -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Reject AUTH traffic quickly<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Quickly reject AUTH (ident) service requests to speed up connections.<br/>
+(config)<code>IPTABLES_REJECT_AUTH=1</code><br/>
+(command)<code>iptables -A INPUT -p tcp --dport 113 --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_auth_v4 -j REJECT --reject-with tcp-reset</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">NAT Prerouting : Port redirection<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Redirect incoming connections from one port to another on the same host.<br/>
+(config)<code>IPTABLES_PORT_REDIRECT="21:2121,8080:80" IPTABLES_REDIRECT_INTERFACE="eth0"</code><br/>
+(command)<code>iptables -t nat -A PREROUTING -i ${interface} -p tcp --dport ${from_port} -m comment --comment ${funcname}_${from_port}_${to_port} -j REDIRECT --to-port ${to_port}</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">NAT Prerouting : DNAT port forwarding<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Forward external ports to internal hosts using DNAT (Destination NAT).<br/>
+(config)<code>IPTABLES_PORT_FORWARD="8080:192.168.1.10:80,9090:192.168.1.11:90" IPTABLES_FORWARD_INTERFACE="eth0"</code><br/>
+(command)<code>iptables -t nat -A PREROUTING -i ${interface} -p tcp --dport ${external_port} -m comment --comment ${funcname}_${external_port}_${internal_ip}_${internal_port} -j DNAT --to-destination ${internal_ip}:${internal_port}</code><br/></p>
 
 
 

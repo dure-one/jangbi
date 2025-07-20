@@ -1175,6 +1175,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Credits
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1186,6 +1199,88 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bash-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bash Libraries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-ci-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Docker &amp; CI Libraries
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Documentation Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Sources
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#operating-systems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Operating Systems
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-plugins-used-as-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      OS Plugins (Used As-Is)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-os-provided-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      Non OS-Provided Plugins
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1249,82 +1344,377 @@
 <li class="i18n-link i18n-link-found i18n-link-ko"><a href="../credits.ko/">Korean</a></li>
 </ul>
 <h1 id="credits">Credits<a class="headerlink" href="#credits" title="Permanent link">¤</a></h1>
-<div class="language-text highlight"><pre><span></span><code># Credits
-
-## Bash Libraries
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [pure-bash-bible](https://github.com/dylanaraps/pure-bash-bible) | Pure bash implementations of common utilities | - (archived) | - (archived) | MIT |
-| [bash-it](https://github.com/Bash-it/bash-it) | Bash framework for command line | v3.0.3 | v3.0.3 | MIT |
-| [composure](https://github.com/erichs/composure/) | Light functional composition for bash | 1.4.0 | 1.4.0 | MIT |
-| [kernel-installer](https://github.com/tmiland/kernel-installer/) | Kernel installation utilities | v1.2.3 | v1.2.3 | MIT |
-| [slib](https://github.com/virtualmin/slib) | Shell library utilities | v1.2.0 | v1.2.0 | BSD3 |
-| [run_ok](http://github.com/swelljoe/run_ok) | Command execution wrapper | - (no releases) | - (no releases) | BSD3 |
-| [ntpclient.pl](http://www.abnormal.com/~thogard/ntp/) | NTP client implementation | - | - | Unlicensed |
-
-## Docker &amp; CI Libraries
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [taskwarrior](https://github.com/GothenburgBitFactory/taskwarrior) | Task management system | v3.4.1 | v3.4.1 | MIT |
-
-## Documentation Tools
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [mkdocs](https://github.com/mkdocs/mkdocs) | Static site generator for documentation | 1.6.1 | 1.6.1 | BSD2 |
-| [mkdocs-material](https://squidfunk.github.io/mkdocs-material/) | Material design theme for MkDocs | 9.6.15 | 9.6.15 | MIT |
-| [mkdocstrings](https://github.com/mkdocstrings/mkdocstrings) | Automatic documentation from sources | 0.29.1 | 0.29.1 | ISC |
-| [mkdocstrings-shell](https://mkdocstrings.github.io/shell/) | Shell handler for mkdocstrings | 1.0.4 | 1.0.4 | ISC |
-| [jekyll-theme-rtd](https://github.com/carlosperate/jekyll-theme-rtd) | Read the Docs theme for Jekyll | - (no releases) | - (no releases) | BSD2 |
-
-## Configuration Sources
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [auditd configuration](https://github.com/Neo23x0/auditd) | Security auditing configuration | - (no releases) | - (no releases) | APACHE2 |
-| [sysctl hardening](https://github.com/imthenachoman/How-To-Secure-A-Linux-Server) | System hardening configurations | - (no releases) | - (no releases) | MIT |
-| [linux hardening](https://github.com/MikeHorn-git/Kernel-Hardening) | Kernel hardening configurations | - (no releases) | - (no releases) | MIT |
-| [jirutka iptables](https://gist.github.com/jirutka/3742890) | Firewall configuration scripts | - | - | MIT |
-
-## Operating Systems
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [debian](https://salsa.debian.org/kernel-team/linux/-/tree/debian/latest/debian?ref_type=heads) | Debian GNU/Linux distribution | - | - | GPL2 |
-| [armbian](https://github.com/armbian/os) | Lightweight Debian-based distribution for ARM | - | - | GPL3 |
-| [dietpi](https://github.com/MichaIng/DietPi) | Lightweight distribution for single board computers | - | - | GPL2 |
-| [raspberrypi OS](https://github.com/raspberrypi/linux) | Official Raspberry Pi operating system | - | - | GPL |
-
-## OS Plugins (Used As-Is)
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [dnsmasq](https://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=tree) | DNS forwarder and DHCP server | - | - | GPL2 or GPL3 |
-| [hostapd](https://w1.fi/cgit/hostap/tree/) | IEEE 802.11 AP and authentication server | - | - | BSD |
-| [ifupdown](https://salsa.debian.org/debian/ifupdown) | Network interface configuration tools | - | - | GPL2 |
-| [iptables](https://git.netfilter.org/iptables/tree/) | Linux kernel firewall administration tool | - | - | GPL2 |
-| [knockd](https://github.com/jvinet/knock) | Port knocking daemon | - | - | GPL2 |
-| [openssh-server](https://salsa.debian.org/ssh-team/openssh) | OpenSSH secure shell daemon | - | - | BSD |
-| [aide](https://github.com/aide/aide) | Advanced Intrusion Detection Environment | v0.19.1 | v0.19.1 | GPL2 |
-| [auditd](https://github.com/linux-audit/audit-userspace) | Linux audit daemon | v4.1.0 | v4.1.0 | GPL2 |
-| [firmware](https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/) | Linux firmware collection | - | - | GPL2 |
-| [redis](https://github.com/redis/redis) | In-memory data structure store | - | - | RSALv2 |
-| [systemd](https://github.com/systemd/systemd) | System and service manager | - | - | GPL2 |
-| [syslog-ng](https://github.com/syslog-ng/syslog-ng) | System logging daemon | - | - | LGPL |
-
-## Non OS-Provided Plugins
-
-| Project | Summary | Version (accepted) | Version (last resolved) | License |
-|---------|---------|-------------------|-------------------------|---------|
-| [step-cli](https://github.com/smallstep/cli) | Certificate authority and certificate management toolkit | v0.28.7 | v0.28.7 | APACHE2 |
-| [sysdig](https://github.com/draios/sysdig) | System exploration and troubleshooting tool | 0.40.1 | 0.40.1 | APACHE2 |
-| [hysteria](https://github.com/apernet/hysteria) | Feature-packed proxy &amp; relay tool | v2.6.2 | v2.6.2 | MIT |
-| [v2ray-core](https://github.com/v2fly/v2ray-core) | Platform for building proxies | v5.37.0 | v5.37.0 | MIT |
-| [shoes](https://github.com/cfal/shoes) | Multi-protocol proxy server | v0.1.7 | v0.1.7 | MIT |
-| [omnip](https://github.com/neevek/omnip) | IP address management tool | v0.7.3 | v0.7.3 | MPL2.0 |
-</code></pre></div>
+<h2 id="bash-libraries">Bash Libraries<a class="headerlink" href="#bash-libraries" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/dylanaraps/pure-bash-bible">pure-bash-bible</a></td>
+<td>Pure bash implementations of common utilities</td>
+<td>- (archived)</td>
+<td>- (archived)</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Bash-it/bash-it">bash-it</a></td>
+<td>Bash framework for command line</td>
+<td>v3.0.3</td>
+<td>v3.0.3</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/erichs/composure/">composure</a></td>
+<td>Light functional composition for bash</td>
+<td>1.4.0</td>
+<td>1.4.0</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/tmiland/kernel-installer/">kernel-installer</a></td>
+<td>Kernel installation utilities</td>
+<td>v1.2.3</td>
+<td>v1.2.3</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/virtualmin/slib">slib</a></td>
+<td>Shell library utilities</td>
+<td>v1.2.0</td>
+<td>v1.2.0</td>
+<td>BSD3</td>
+</tr>
+<tr>
+<td><a href="http://github.com/swelljoe/run_ok">run_ok</a></td>
+<td>Command execution wrapper</td>
+<td>- (no releases)</td>
+<td>- (no releases)</td>
+<td>BSD3</td>
+</tr>
+<tr>
+<td><a href="http://www.abnormal.com/~thogard/ntp/">ntpclient.pl</a></td>
+<td>NTP client implementation</td>
+<td>-</td>
+<td>-</td>
+<td>Unlicensed</td>
+</tr>
+</tbody>
+</table>
+<h2 id="docker-ci-libraries">Docker &amp; CI Libraries<a class="headerlink" href="#docker-ci-libraries" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/GothenburgBitFactory/taskwarrior">taskwarrior</a></td>
+<td>Task management system</td>
+<td>v3.4.1</td>
+<td>v3.4.1</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<h2 id="documentation-tools">Documentation Tools<a class="headerlink" href="#documentation-tools" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/mkdocs/mkdocs">mkdocs</a></td>
+<td>Static site generator for documentation</td>
+<td>1.6.1</td>
+<td>1.6.1</td>
+<td>BSD2</td>
+</tr>
+<tr>
+<td><a href="https://squidfunk.github.io/mkdocs-material/">mkdocs-material</a></td>
+<td>Material design theme for MkDocs</td>
+<td>9.6.15</td>
+<td>9.6.15</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/mkdocstrings/mkdocstrings">mkdocstrings</a></td>
+<td>Automatic documentation from sources</td>
+<td>0.29.1</td>
+<td>0.29.1</td>
+<td>ISC</td>
+</tr>
+<tr>
+<td><a href="https://mkdocstrings.github.io/shell/">mkdocstrings-shell</a></td>
+<td>Shell handler for mkdocstrings</td>
+<td>1.0.4</td>
+<td>1.0.4</td>
+<td>ISC</td>
+</tr>
+<tr>
+<td><a href="https://github.com/carlosperate/jekyll-theme-rtd">jekyll-theme-rtd</a></td>
+<td>Read the Docs theme for Jekyll</td>
+<td>- (no releases)</td>
+<td>- (no releases)</td>
+<td>BSD2</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration-sources">Configuration Sources<a class="headerlink" href="#configuration-sources" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/Neo23x0/auditd">auditd configuration</a></td>
+<td>Security auditing configuration</td>
+<td>- (no releases)</td>
+<td>- (no releases)</td>
+<td>APACHE2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/imthenachoman/How-To-Secure-A-Linux-Server">sysctl hardening</a></td>
+<td>System hardening configurations</td>
+<td>- (no releases)</td>
+<td>- (no releases)</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/MikeHorn-git/Kernel-Hardening">linux hardening</a></td>
+<td>Kernel hardening configurations</td>
+<td>- (no releases)</td>
+<td>- (no releases)</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://gist.github.com/jirutka/3742890">jirutka iptables</a></td>
+<td>Firewall configuration scripts</td>
+<td>-</td>
+<td>-</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<h2 id="operating-systems">Operating Systems<a class="headerlink" href="#operating-systems" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://salsa.debian.org/kernel-team/linux/-/tree/debian/latest/debian?ref_type=heads">debian</a></td>
+<td>Debian GNU/Linux distribution</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/armbian/os">armbian</a></td>
+<td>Lightweight Debian-based distribution for ARM</td>
+<td>-</td>
+<td>-</td>
+<td>GPL3</td>
+</tr>
+<tr>
+<td><a href="https://github.com/MichaIng/DietPi">dietpi</a></td>
+<td>Lightweight distribution for single board computers</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/raspberrypi/linux">raspberrypi OS</a></td>
+<td>Official Raspberry Pi operating system</td>
+<td>-</td>
+<td>-</td>
+<td>GPL</td>
+</tr>
+</tbody>
+</table>
+<h2 id="os-plugins-used-as-is">OS Plugins (Used As-Is)<a class="headerlink" href="#os-plugins-used-as-is" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://thekelleys.org.uk/gitweb/?p=dnsmasq.git;a=tree">dnsmasq</a></td>
+<td>DNS forwarder and DHCP server</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2 or GPL3</td>
+</tr>
+<tr>
+<td><a href="https://w1.fi/cgit/hostap/tree/">hostapd</a></td>
+<td>IEEE 802.11 AP and authentication server</td>
+<td>-</td>
+<td>-</td>
+<td>BSD</td>
+</tr>
+<tr>
+<td><a href="https://salsa.debian.org/debian/ifupdown">ifupdown</a></td>
+<td>Network interface configuration tools</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://git.netfilter.org/iptables/tree/">iptables</a></td>
+<td>Linux kernel firewall administration tool</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/jvinet/knock">knockd</a></td>
+<td>Port knocking daemon</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://salsa.debian.org/ssh-team/openssh">openssh-server</a></td>
+<td>OpenSSH secure shell daemon</td>
+<td>-</td>
+<td>-</td>
+<td>BSD</td>
+</tr>
+<tr>
+<td><a href="https://github.com/aide/aide">aide</a></td>
+<td>Advanced Intrusion Detection Environment</td>
+<td>v0.19.1</td>
+<td>v0.19.1</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/linux-audit/audit-userspace">auditd</a></td>
+<td>Linux audit daemon</td>
+<td>v4.1.0</td>
+<td>v4.1.0</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/">firmware</a></td>
+<td>Linux firmware collection</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/redis/redis">redis</a></td>
+<td>In-memory data structure store</td>
+<td>-</td>
+<td>-</td>
+<td>RSALv2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/systemd/systemd">systemd</a></td>
+<td>System and service manager</td>
+<td>-</td>
+<td>-</td>
+<td>GPL2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/syslog-ng/syslog-ng">syslog-ng</a></td>
+<td>System logging daemon</td>
+<td>-</td>
+<td>-</td>
+<td>LGPL</td>
+</tr>
+</tbody>
+</table>
+<h2 id="non-os-provided-plugins">Non OS-Provided Plugins<a class="headerlink" href="#non-os-provided-plugins" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Summary</th>
+<th>Version (accepted)</th>
+<th>Version (last resolved)</th>
+<th>License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/smallstep/cli">step-cli</a></td>
+<td>Certificate authority and certificate management toolkit</td>
+<td>v0.28.7</td>
+<td>v0.28.7</td>
+<td>APACHE2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/draios/sysdig">sysdig</a></td>
+<td>System exploration and troubleshooting tool</td>
+<td>0.40.1</td>
+<td>0.40.1</td>
+<td>APACHE2</td>
+</tr>
+<tr>
+<td><a href="https://github.com/apernet/hysteria">hysteria</a></td>
+<td>Feature-packed proxy &amp; relay tool</td>
+<td>v2.6.2</td>
+<td>v2.6.2</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/v2fly/v2ray-core">v2ray-core</a></td>
+<td>Platform for building proxies</td>
+<td>v5.37.0</td>
+<td>v5.37.0</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/cfal/shoes">shoes</a></td>
+<td>Multi-protocol proxy server</td>
+<td>v0.1.7</td>
+<td>v0.1.7</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><a href="https://github.com/neevek/omnip">omnip</a></td>
+<td>IP address management tool</td>
+<td>v0.7.3</td>
+<td>v0.7.3</td>
+<td>MPL2.0</td>
+</tr>
+</tbody>
+</table>
 
 
 

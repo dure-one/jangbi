@@ -764,6 +764,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net xtables
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -775,6 +788,115 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Ip Connection Limit per IP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Drop Invalid State
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Drop new non-SYN TCP Packets
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Mangle Prerouting : Limit MSS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raw Prerouting : Guard Overload Limit UDP PPS
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Raw Prerouting : Drop Invalid Tcp Flag
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Drop Port Scanner IP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : CHAOS responses to confuse attackers
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : DELUDE responses to make closed ports appear open
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-xtables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
+      Filter Input : Port Knocking with Open/Close Secrets (Example2)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1261,44 +1383,148 @@
   <strong>Usage</strong>
     <pre><code>net-xtables help|install|uninstall|download|disable|configgen|configapply|check|run|build|watch</code></pre>
 
-  <strong>Description</strong>
-      <p>This tool helps install, configure, and manage xtables (extended netfilter)
-for advanced packet filtering and network security. It provides automated installation,
-configuration management, and extended firewall capabilities. Xtables includes support
-for additional netfilter modules, advanced matching criteria, and enhanced packet
-manipulation features beyond standard iptables functionality.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
 
 
 
 
 
 
-  <strong>Examples</strong>
-    <em><p>Install and configure extended netfilter:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-xtables<span class="w"> </span>install
-net-xtables<span class="w"> </span>configgen
-net-xtables<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install xtables, generate extended firewall configurations,
-and apply them to enable advanced packet filtering capabilities.</p>
-    <em><p>Apply advanced rules and check status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-xtables<span class="w"> </span>run
-net-xtables<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we activate the extended netfilter rules and verify
-that the advanced firewall features are working properly.</p>
+
+
+  <strong>Functions</strong>
+
+<h2 id="net-xtables.plugin.bash">Mangle Prerouting : Ip Connection Limit per IP<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Allow all ARP except gateway interface.<br/>
+(config)<code>XTABLES_CONNLIMIT_PER_IP=100</code><br/>
+(command)<code>iptables -t mangle -A PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Mangle Prerouting : Drop Invalid State<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop packets with invalid connection state in mangle table prerouting chain.<br/>
+(config)<code>XTABLES_DROP_INVALID_STATE=1</code><br/>
+(command)<code>iptables -t mangle -I PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Mangle Prerouting : Drop new non-SYN TCP Packets<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop new TCP packets that do not have SYN flag set in mangle table prerouting chain.<br/>
+(config)<code>XTABLES_DROP_NON_SYN=1</code><br/>
+(command)<code>iptables -t mangle -I PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Mangle Prerouting : Limit MSS<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop TCP packets with MSS outside allowed range in mangle table prerouting chain.<br/>
+(config)<code>XTABLES_LIMIT_MSS=1</code><br/>
+(command)<code>iptables -t mangle -I PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss ${mss} -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Raw Prerouting : Guard Overload Limit UDP PPS<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Safeguard against CPU overload during amplified DDoS attacks by limiting UDP packets per second rate (PPS).<br/>
+(config)<code>XTABLES_GUARD_OVERLOAD=1</code><br/>
+(command)<code>iptables -t raw -A PREROUTING -p udp -m multiport --sports ${lusp} -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name ${funcname} --hashlimit-above 256/m -m comment --comment ${funcname} -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Raw Prerouting : Drop Invalid Tcp Flag<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Drop packets with invalid TCP flag combinations in raw table prerouting chain.<br/>
+(config)<code>XTABLES_INVALID_TCPFLAG=1</code><br/>
+(command)<code>iptables -t raw -A PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -m comment --comment ${funcname}1 -j DROP</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Filter Input : Drop Port Scanner IP<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Detect and block port scanning attempts using ipset and hashlimit rules.<br/>
+(config)<code>XTABLES_GUARD_PORT_SCANNER=1</code><br/>
+(command)<code>iptables -A INPUT -m state --state NEW -m set ! --match-set XTABLES_GUARD_SCANNED_PORTS src,dst -m hashlimit --hashlimit-above 1/hour --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name XTABLES_GUARD_PORT_SCANNER --hashlimit-htable-expire 10000 -j SET --add-set XTABLES_GUARD_PORT_SCANNER src --exist</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Filter Input : CHAOS responses to confuse attackers<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Apply CHAOS target to confuse attackers by providing random responses to specified ports.<br/>
+(config)<code>XTABLES_CHAOS_PORTS="22,23,80,443"</code><br/>
+(command)<code>iptables -A INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j CHAOS --tarpit</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Filter Input : DELUDE responses to make closed ports appear open<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Apply DELUDE target to make closed ports appear open by replying with SYN-ACK to SYN packets.<br/>
+(config)<code>XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"</code><br/>
+(command)<code>iptables -A INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j DELUDE</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-xtables.plugin.bash">Filter Input : Port Knocking with Open/Close Secrets (Example2)<a href="#net-xtables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Implement port knocking authentication with UDP knock sequence and secrets for secure access control.<br/>
+(config)<code>XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPENSECRET="foo" XTABLES_PKNOCK_CLOSESECRET="bar" XTABLES_PKNOCK_TARGET_PORTS="22,80,443"</code><br/>
+(command)<code>iptables -A INPUT -p udp -m pknock --knockports ${pknockports} --name ${pnockrulename} --opensecret ${opensecret} --closesecret ${closesecret} --autoclose 240 -m comment --comment ${funcname}_knock -j DROP</code><br/></p>
 
 
 
