@@ -134,37 +134,32 @@ function __net-netplan_download {
 }
 
 function __net-netplan_build { 
-    # backup exsisting netplan configs
-    # for f in /etc/netplan/*.yaml; do chmod 600 "$f" && mv "$f" $(echo $f|sed 's/.yaml/.yaml.old/g'); done
+    if [[ -n ${JB_NETPLAN} ]]; then # custom netplan exists
+        echo "${JB_NETPLAN}" > /tmp/netplan/dure_network.yaml
+        chmod 600 /tmp/netplan/dure_network.yaml 1>/dev/null 2>&1
+        return
+    fi
 
-    if [[ -n ${JB_NETPLAN} ]];then # custom netplan exists
-      echo "${JB_NETPLAN}" > /tmp/netplan/dure_network.yaml
-      chmod 600 /tmp/netplan/dure_network.yaml 1>/dev/null 2>&1
-    else # custom netplan not exists
-      tee /tmp/netplan/dure_network.yaml > /dev/null <<EOT
+    # Initialize YAML structure
+    tee /tmp/netplan/dure_network.yaml > /dev/null <<EOT
 network:
   version: 2
   renderer: networkd
   ethernets:
 EOT
-      local waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}
-      # generate netplan when waninf, laninf, wlaninf is all empty
-      if [[ -z ${waninf} && -z ${laninf} && -z ${wlaninf} ]]; then
-        local dure_infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
-        IFS=$'\n' read -rd '' -a dure_infs <<< "${dure_infs//:}"
 
-        # match interface name
-        for((j=0;j<${#dure_infs[@]};j++)){
-            if [[ ${dure_infs[j]:0:1} != 'w' && ! ${waninf} ]]; then
-            [[ ! ${waninf} && ${dure_infs[j]} != "${laninf}" && ${dure_infs[j]} != "${wlaninf}" ]] && waninf=${dure_infs[j]} && continue
-            fi
-            if [[ ${dure_infs[j]:0:1} != 'w' && ! ${laninf} ]]; then
-            [[ ! ${laninf} && ${dure_infs[j]} != "${waninf}" && ${dure_infs[j]} != "${wlaninf}" ]] && laninf=${dure_infs[j]} && continue
-            fi
-            if [[ ${dure_infs[j]:0:1} = 'w' && ! ${wlaninf} ]]; then
-            [[ ! ${wlaninf} && ${dure_infs[j]} != "${laninf}" && ${dure_infs[j]} != "${waninf}" ]] && wlaninf=${dure_infs[j]} && continue
-            fi
-        }
+    local waninf=${JB_WANINF} laninf=${JB_LANINF} wlaninf=${JB_WLANINF}
+
+    # Auto-select interfaces if not defined
+    if [[ -z ${waninf} && -z ${laninf} && -z ${wlaninf} ]]; then
+        local dure_infs=($(cat /proc/net/dev | awk '{ print $1 }' | grep : | grep -v lo: | sed 's/:$//'))
+        
+        for inf in "${dure_infs[@]}"; do
+            [[ ! ${waninf} && ${inf:0:1} != 'w' && ${inf} != "${laninf}" && ${inf} != "${wlaninf}" ]] && waninf=${inf} && continue
+            [[ ! ${laninf} && ${inf:0:1} != 'w' && ${inf} != "${waninf}" && ${inf} != "${wlaninf}" ]] && laninf=${inf} && continue
+            [[ ! ${wlaninf} && ${inf:0:1} == 'w' && ${inf} != "${laninf}" && ${inf} != "${waninf}" ]] && wlaninf=${inf} && continue
+        done
+
         sed -i "s|JB_WANINF=.*|JB_WANINF=${waninf}|g" "${JB_DEPLOY_PATH}/.config"
         [[ -z ${JB_WAN} ]] && sed -i "s|JB_WAN=.*|JB_WAN=\"dhcp\"|g" "${JB_DEPLOY_PATH}/.config"
         sed -i "s|JB_LANINF=.*|JB_LANINF=${laninf}|g" "${JB_DEPLOY_PATH}/.config"
@@ -173,272 +168,121 @@ EOT
         [[ -z ${JB_WLAN} ]] && sed -i "s|JB_WLAN=.*|JB_WLAN=\"192.168.100.1/24\"|g" "${JB_DEPLOY_PATH}/.config"
         [[ -z ${JB_WLAN_SSID} ]] && sed -i "s|JB_WLAN_SSID=.*|JB_WLAN_SSID=\"durejangbi\"|g" "${JB_DEPLOY_PATH}/.config"
         [[ -z ${JB_WLAN_PASS} ]] && sed -i "s|JB_WLAN=.*|JB_WLAN=\"durejangbi\"|g" "${JB_DEPLOY_PATH}/.config"
-      fi
+    fi
 
-      for((j=0;j<${#dure_infs[@]};j++)){
-        if [[ ${dure_infs[j]} = "${waninf}" ]]; then # match JB_WANINF
-          if [[ ${JB_WAN,,} = "dhcp" || ${JB_WAN} = "" ]]; then
+    # Helper function to generate ethernet interface config
+    _generate_ethernet_config() {
+        local inf_name=$1 ip_var=$2 gw_var=$3 inf_type=${4:-"lan"}
+        
+        if [[ -z ${!ip_var} || ${!ip_var,,} == "dhcp" ]]; then
             tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${waninf}:
+    ${inf_name}:
       dhcp4: true
 EOT
-          else
-            if [[ ! ${JB_WANGW} ]]; then
-              WANGW=$(ipcalc-ng "${JB_WAN}"|grep HostMin:|cut -f2)
-            else
-              WANGW=${JB_WANGW}
-            fi
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${waninf}:
-      dhcp4: false
-      addresses: [${JB_WAN}]
-      routes:
-        - to: 0.0.0.0/0
-          via: ${WANGW}
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${laninf}" ]]; then # match JB_LANINF
-          if [[ ${JB_LAN,,} = "dhcp" || ${JB_LAN} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${laninf}:
-      dhcp4: true
-EOT
-          else
-            if [[ ! ${JB_LANGW} ]]; then
-              LANGW=$(ipcalc-ng "${JB_LAN}"|grep HostMin:|cut -f2)
-              tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${laninf}:
-      dhcp4: false
-      addresses: [${JB_LAN}]
-EOT
-            else
-              LANGW=${JB_LANGW}
-              tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${laninf}:
-      dhcp4: false
-      addresses: [${JB_LAN}]
-      routes:
-        - to: 0.0.0.0/0
-          via: ${LANGW}
-EOT
-            fi
-          fi
-          continue
-        fi
-        #
-        # searching & match JB_LAN0INF ~ JB_LAN9INF
-        #
-        if [[ ${dure_infs[j]} = "${JB_LAN0INF}" ]]; then # match JB_LAN0INF
-          if [[ ${JB_LAN0,,} = "dhcp" || ${JB_LAN0} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN0INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN0INF}:
-      dhcp4: false
-      addresses: [${JB_LAN0}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN1INF}" ]]; then # match JB_LAN1INF
-          if [[ ${JB_LAN1,,} = "dhcp" || ${JB_LAN1} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN1INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN1INF}:
-      dhcp4: false
-      addresses: [${JB_LAN1}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN2INF}" ]]; then # match JB_LAN2INF
-          if [[ ${JB_LAN2,,} = "dhcp" || ${JB_LAN2} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN2INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN2INF}:
-      dhcp4: false
-      addresses: [${JB_LAN2}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN3INF}" ]]; then # match JB_LAN3INF
-          if [[ ${JB_LAN3,,} = "dhcp" || ${JB_LAN3} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN3INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN3INF}:
-      dhcp4: false
-      addresses: [${JB_LAN3}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN4INF}" ]]; then # match JB_LAN4INF
-          if [[ ${JB_LAN4,,} = "dhcp" || ${JB_LAN4} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN4INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN4INF}:
-      dhcp4: false
-      addresses: [${JB_LAN4}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN5INF}" ]]; then # match JB_LAN5INF
-          if [[ ${JB_LAN5,,} = "dhcp" || ${JB_LAN5} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN5INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN5INF}:
-      dhcp4: false
-      addresses: [${JB_LAN5}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN6INF}" ]]; then # match JB_LAN6INF
-          if [[ ${JB_LAN6,,} = "dhcp" || ${JB_LAN6} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN6INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN6INF}:
-      dhcp4: false
-      addresses: [${JB_LAN6}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN7INF}" ]]; then # match JB_LAN7INF
-          if [[ ${JB_LAN7,,} = "dhcp" || ${JB_LAN7} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN7INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN7INF}:
-      dhcp4: false
-      addresses: [${JB_LAN7}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN8INF}" ]]; then # match JB_LAN8INF
-          if [[ ${JB_LAN8,,} = "dhcp" || ${JB_LAN8} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN8INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN8INF}:
-      dhcp4: false
-      addresses: [${JB_LAN8}]
-EOT
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]} = "${JB_LAN9INF}" ]]; then # match JB_LAN9INF
-          if [[ ${JB_LAN9,,} = "dhcp" || ${JB_LAN9} = "" ]]; then
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN9INF}:
-      dhcp4: true
-EOT
-          else
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${JB_LAN9INF}:
-      dhcp4: false
-      addresses: [${JB_LAN9}]
-EOT
-          fi
-          continue
+            return
         fi
 
-        if [[ ${dure_infs[j]:0:1} != 'w' ]]; then # match REST
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${dure_infs[j]}:
-      dhcp4: true
-EOT
-          continue
+        # Static IP configuration
+        local routes_section=""
+        if [[ -n ${!gw_var} ]]; then
+            routes_section="
+      routes:
+        - to: 0.0.0.0/0
+          via: ${!gw_var}"
+        elif [[ ${inf_type} == "wan" ]]; then
+            local gw=$(ipcalc-ng "${!ip_var}" | grep HostMin: | cut -f2)
+            routes_section="
+      routes:
+        - to: 0.0.0.0/0
+          via: ${gw}"
         fi
-        if [[ ${dure_infs[j]} = "${wlaninf}" ]]; then # match JB_WLANINF
-          if [[ ${JB_WLAN,,} = "dhcp" || ${JB_WLAN} = "" ]]; then # client, dhcp mode
+
+        tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
+    ${inf_name}:
+      dhcp4: false
+      addresses: [${!ip_var}]${routes_section}
+EOT
+    }
+
+    # Helper function to generate wifi config
+    _generate_wifi_config() {
+        local inf_name=$1 ip_var=$2 gw_var=$3
+        
+        if [[ -z ${!ip_var} || ${!ip_var,,} == "dhcp" ]]; then
             tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
   wifis:
-    ${wlaninf}:
+    ${inf_name}:
       access-points:
         "${JB_WLAN_SSID}":
           password: "${JB_WLAN_PASS}"
       dhcp4: yes
 EOT
-          else # gateway, tunnelonly, ap mode, static gateway ip
-            if [[ ! ${JB_WLANGW} ]]; then
-              tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-  wifis:
-    ${wlaninf}:
-      addresses: [${JB_WLAN}]
-      access-points:
-        "${JB_WLAN_SSID}":
-          password: "${JB_WLAN_PASS}"
-      dhcp4: no
-      dhcp6: no
-EOT
-            else
-              WLANGW=${JB_WLANGW}
-              tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-  wifis:
-    ${wlaninf}:
-      addresses: [${JB_WLAN}]
-      access-points:
-        "${JB_WLAN_SSID}":
-          password: "${JB_WLAN_PASS}"
-      dhcp4: no
-      dhcp6: no
+            return
+        fi
+
+        # Static wifi configuration
+        local routes_section=""
+        [[ -n ${!gw_var} ]] && routes_section="
       routes:
         - to: 0.0.0.0/0
-          via: ${WLANGW}
+          via: ${!gw_var}"
+
+        tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
+  wifis:
+    ${inf_name}:
+      addresses: [${!ip_var}]
+      access-points:
+        "${JB_WLAN_SSID}":
+          password: "${JB_WLAN_PASS}"
+      dhcp4: no
+      dhcp6: no${routes_section}
 EOT
-            fi
-          fi
-          continue
-        fi
-        if [[ ${dure_infs[j]:0:1} = 'w' ]]; then  # match REST
-            tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
-    ${dure_infs[j]}:
+    }
+
+    # Process all interfaces
+    local dure_infs=($(cat /proc/net/dev | awk '{ print $1 }' | grep : | grep -v lo: | sed 's/:$//'))
+    local wifi_processed=false
+    
+    for inf in "${dure_infs[@]}"; do
+        case ${inf} in
+            ${waninf})
+                _generate_ethernet_config "${inf}" "JB_WAN" "JB_WANGW" "wan"
+                ;;
+            ${laninf})
+                _generate_ethernet_config "${inf}" "JB_LAN" "JB_LANGW" "lan"
+                ;;
+            ${wlaninf})
+                [[ ${wifi_processed} == false ]] && _generate_wifi_config "${inf}" "JB_WLAN" "JB_WLANGW" && wifi_processed=true
+                ;;
+            ${JB_LAN0INF}|${JB_LAN1INF}|${JB_LAN2INF}|${JB_LAN3INF}|${JB_LAN4INF}|${JB_LAN5INF}|${JB_LAN6INF}|${JB_LAN7INF}|${JB_LAN8INF}|${JB_LAN9INF})
+                # Find matching LAN interface
+                for i in {0..9}; do
+                    local lan_inf_var="JB_LAN${i}INF"
+                    local lan_var="JB_LAN${i}"
+                    [[ ${inf} == ${!lan_inf_var} ]] && {
+                        _generate_ethernet_config "${inf}" "${lan_var}" "" "lan"
+                        break
+                    }
+                done
+                ;;
+            *)
+                # Default DHCP for unmatched interfaces
+                if [[ ${inf:0:1} != 'w' ]]; then
+                    tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
+    ${inf}:
       dhcp4: true
 EOT
-          continue
-        fi
-      }
-      chmod 600 /tmp/netplan/dure_network.yaml 1>/dev/null 2>&1
-    fi
+                elif [[ ${inf:0:1} == 'w' && ${wifi_processed} == false ]]; then
+                    tee -a /tmp/netplan/dure_network.yaml > /dev/null <<EOT
+    ${inf}:
+      dhcp4: true
+EOT
+                fi
+                ;;
+        esac
+    done
+
+    chmod 600 /tmp/netplan/dure_network.yaml 1>/dev/null 2>&1
 }
 
 function __net-netplan_uninstall { 

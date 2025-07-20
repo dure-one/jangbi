@@ -151,7 +151,7 @@ function __net-omnip_check { # running_status 0 installed, running_status 5 can 
     log_debug "Checking ${DMNNAME}..."
 
     # check package file exists
-    [[ $(find ./pkgs/omnip-*-linux-*|wc -l) -lt 1 ]] && \
+    [[ $(find ./pkgs/omnip-linux-gnu-*|wc -l) -lt 1 ]] && \
         log_info "omnip package file does not exist." && [[ $running_status -lt 10 ]] && running_status=10
     # check global variable
     [[ -z ${RUN_NET_OMNIP} ]] && \

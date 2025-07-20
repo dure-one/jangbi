@@ -4,8 +4,12 @@
 
 ## JANGBI(장비)
 
-Jangbi는 가난한 자의 Firewalla 대안으로 설계된 포괄적인 보안 중심의 네트워크 어플라이언스 프레임워크입니다. Armbian/DietPi/Debian 위에서 iptables, dnsmasq 및 다양한 보안 도구를 결합하여 강력한 네트워크 보안 장치를 만듭니다. 이 프레임워크는 Dure 생태계의 일부이며 가정 및 소규모 비즈니스 네트워크를 위한 엔터프라이즈급 보안 기능을 제공합니다.<br/>
+장비는 Firewalla 저렴한 대안으로 설계된 포괄적인 보안 중심의 네트워크 어플라이언스 프레임워크입니다. Armbian/DietPi/Debian 위에서 iptables, dnsmasq 및 다양한 보안 도구를 결합하여 강력한 네트워크 보안 장치를 만듭니다. 이 프레임워크는 Dure 생태계의 일부이며 가정 및 소규모 비즈니스 네트워크를 위한 엔터프라이즈급 보안 기능을 제공합니다.<br/>
 유사한 프로젝트: [pi-hole](https://pi-hole.net/), [technitium](https://technitium.com/dns/), [adguardhome](https://github.com/AdguardTeam/AdGuardHome), [blocky](https://github.com/0xERR0R/blocky), [portmaster](https://github.com/safing/portmaster?tab=readme-ov-file)
+
+<details>
+
+<summary>기능</summary>
 
 ## 기능
 
@@ -73,8 +77,10 @@ nat 라우팅 없이, 클라이언트는 오직 tunnel app을 통해서만 외�
 * dns 차단 : dnsmasq
 * (할 일) 원격 게이트웨이 관리 앱 : buha 앱
 
+</details>
+
 ## 사전 요구사항
-- **bookworm** 배포판과 호환되는 armbian/debian/dietpi 호스트
+- **bookworm** 배포판과 호환되는 armbian/debian/dietpi/raspian 호스트
 - ipcalc-ng 설치됨
 
 ## 설치
@@ -82,7 +88,7 @@ nat 라우팅 없이, 클라이언트는 오직 tunnel app을 통해서만 외�
 
 ```bash
 # ipcalc-ng 설치
-$ apt install ipcalc-ng
+$ apt install ipcalc-ng git patch
 
 # 저장소 복제
 $ git clone https://github.com/dure-one/jangbi.git
@@ -100,7 +106,3 @@ $ nano .config
 # 구성자 실행
 $ ./init.sh
 ```
-
-### 기본 네트워크 설정
-* 단일 이더넷 또는 와이파이 인터페이스 : 클라이언트 모드
-* 두 개의 이더넷 또는 단일 이더넷과 와이파이 : 게이트웨이 모드(1wan, 1gateway 또는 1ap)

@@ -7,6 +7,10 @@
 Jangbi is a comprehensive security-focused network appliance framework designed as a poor man's Firewalla alternative. It combines iptables, dnsmasq, and various security tools on top of Armbian/DietPi/Debian to create a powerful network security device. The framework is part of the Dure ecosystem and provides enterprise-grade security features for home and small business networks.<br/>
 similar projects: [pi-hole](https://pi-hole.net/), [technitium](https://technitium.com/dns/), [adguardhome](https://github.com/AdguardTeam/AdGuardHome), [blocky](https://github.com/0xERR0R/blocky), [portmaster](https://github.com/safing/portmaster?tab=readme-ov-file)
 
+<details>
+
+<summary>Features</summary>
+
 ## Features
 
 ### Core Security Features
@@ -73,6 +77,8 @@ without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray
 * block dns : dnsmasq
 * (todo) remote gateway management app : buha app
 
+</details>
+
 ## Prerequisite
 - armbian/debian/dietpi compatible host with **bookworm** distribution
 - ipcalc-ng installed
@@ -82,7 +88,7 @@ without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray
 
 ```bash
 # install ipcalc-ng
-$ apt install ipcalc-ng
+$ apt install -qy ipcalc-ng git
 
 # clone repository
 $ git clone https://github.com/dure-one/jangbi.git /opt/jangbi
@@ -93,22 +99,42 @@ $ cp .config.gateway .config
 # check interface name
 # consider which interface is for WAN, LAN, WLAN
 $ ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.79.186/24 brd 192.168.79.255 scope global dynamic enx00e04c680686
+       valid_lft 37293sec preferred_lft 37293sec
+3: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
+4: wlan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN group default qlen 1000
+    link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
 
 # edit settings, add interface name on WAN, LAN, WLAN
 $ nano .config
+# Example interface assignments for gateway mode:
+JB_WANINF=eth0      # WAN interface (internet connection)
+JB_WAN="dhcp"
+JB_LANINF=eth1      # LAN interface (local network)
+JB_LAN="192.168.79.1/24"
+JB_WLANINF=wlan0    # WLAN interface (WiFi AP)
+JB_WLAN="192.168.89.1/24"
 
 # run configurator
 $ ./init.sh
+
 ```
 
-### Default Network Settings
-* single ethernet or wifi interface : client mode
-* two ethernet or single ethernet and wifi : gateway mode(1wan, 1gateway or 1ap)
+<details>
 
-## Todo
+<summary>Todos</summary>
+
+## Todos
 
 ### Before Next Release
-- (done)Sets numerous hardening kernel arguments (Inspired by Madaidan's Hardening Guide) details
+- (done)Sets numerous hardening kernel arguments (Following [Madaidan's Hardening Guide](https://madaidans-insecurities.github.io/guides/linux-hardening.html)) details
 - (done)SSHd configuration with knockd
 - (done)Wifi AP mode tests
 - (done)dhcp client replace for systemd-networkd
@@ -166,5 +192,6 @@ $ ./init.sh
 - Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
 - replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip
 - hysteria server configurations with/without domain name?
-
+- last configs saved in /etc/jangbi
+</details>
 

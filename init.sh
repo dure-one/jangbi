@@ -40,6 +40,7 @@ else
     return 1
 fi
 
+# blocker - before firstrun
 [[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
     log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
@@ -114,6 +115,14 @@ durl="http://ftp.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
     echo "" > /etc/apt/sources.list && \
     extrepo enable debian_official && \
     apt update -qy
+
+# install required packages
+required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "jq" "git")
+notinstalled_pkgs=()
+for pkg in "${required_pkgs[@]}"; do
+    [[ $(dpkg -l|awk '{print $2}'|grep ${pkg}|wc -l) -lt 1 ]] && notinstalled_pkgs+=(${pkg})
+done
+[[ ${#notinstalled_pkgs[@]} -gt 0 ]] && apt install -qy "${notinstalled_pkgs[@]}"
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."

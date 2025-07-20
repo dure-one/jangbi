@@ -125,7 +125,6 @@ $ net-darkstat run  # Web interface at http://device-ip:666
 - `net-sshd` - SSH daemon hardening
 - `net-v2ray` - V2Ray comprehensive proxy platform
 
-
 #### OS Plugins
 - `os-auditd` - System auditing
 - `os-aide` - File integrity monitoring
@@ -133,8 +132,6 @@ $ net-darkstat run  # Web interface at http://device-ip:666
 - `os-conf` - System configuration
 - `os-minmon` - Minimal monitoring
 - `os-vector` - Log management
-
-### Plugin Usage Pattern
 
 All plugins follow a consistent command structure:
 
