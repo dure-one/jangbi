@@ -1,28 +1,4 @@
 ## \brief iptables firewall configurations.
-## \desc This tool helps install, configure, and manage iptables firewall rules
-## for network security and traffic filtering. It provides automated installation,
-## configuration management, and firewall rule control capabilities. The tool manages
-## packet filtering, NAT, port forwarding, and network security policies using iptables
-## and netfilter framework with support for IPv4 and IPv6.
-
-## \example Install and configure firewall rules:
-## \example-code bash
-##   net-iptables install
-##   net-iptables configgen
-##   net-iptables configapply
-## \example-description
-## In this example, we install iptables, generate firewall configurations,
-## and apply them to secure the network with proper filtering rules.
-
-## \example Apply rules and check firewall status:
-## \example-code bash
-##   net-iptables run
-##   net-iptables check
-## \example-description
-## In this example, we activate the firewall rules and verify
-## that the iptables configuration is working properly.
-
-## \exit 1 Invalid command or parameters provided.
 
 # shellcheck shell=bash
 cite about-plugin a
@@ -279,11 +255,11 @@ function __net-iptables_build {
     #
     # ARP RULES
     #
-    # IPTABLES_WHITELISTED_MACADDRESSES
-    [[ ${#WHITELISTED_MACADDRESSES[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${waninf}" "${GW_MAC}" # targetinf macaddrs
-    # IPTABLES_GWMACONLY
+    # IPTABLES_IPTABLES_WHMACADDR
+    [[ ${#IPTABLES_WHMACADDR[@]} -gt 0 ]] && __net-iptables_mangle_all_both_macwhitelist "${waninf}" "${GW_MAC}" # targetinf macaddrs
+    # IPTABLES_GWMAC
     log_debug "iptables_mangle_ext_both_gwmaconly"
-    [[ ${IPTABLES_GWMACONLY} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
+    [[ ${IPTABLES_GWMAC} -gt 0 ]] && __net-iptables_mangle_ext_both_gwmaconly
     # IPTABLES_ARPALLINFS # Arptables : Allow all other network except gateway
     log_debug "iptables_mangle_all_both_arpallinfs"
     [[ ${IPTABLES_ARPALLINFS} -gt 0 ]] && __net-iptables_mangle_all_both_arpallinfs
@@ -429,8 +405,10 @@ function __net-iptables_build {
 # TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
 # PREFIX : int/ext/all inc/oug/both contents
 
-# Arptables : MAC Whitelisting (inf)-(mac), inf: LAN/WAN/WLAN/ALL
-# WHITELISTED_MACADDRESSES?=LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1
+## \function Arptables : MAC Whitelisting
+## \function-description Add mac address for target interface(LO/LAN/WAN/WLAN/ALL) to whitelist.<br/>
+## (config)```IPTABLES_WHMACADDR="LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1"```<br/>
+## (command)```arptables -A INPUT -i "${targetinf}" --source-mac "${infmac[1]}" -j ACCEPT```<br/>
 function __net-iptables_mangle_all_both_macwhitelist {
     local funcname targetinf macaddrs
     funcname="mab_macwhitelist"
@@ -454,8 +432,10 @@ function __net-iptables_mangle_all_both_macwhitelist {
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 
-# Arptables : Allow only from Gateway on wan
-# IPTABLES_GWMACONLYIPTABLES_GWMACONLY=1
+## \function Arptables : Allow Gateway MAC on WAN
+## \function-description Add gateway mac address to WAN mac whitelist.<br/>
+## (config)```IPTABLES_GWMAC=1```<br/>
+## (command)```arptables -A INPUT -i "${targetinf}" --source-mac "${gwmac}" -j ACCEPT```<br/>
 function __net-iptables_mangle_ext_both_gwmaconly {
     local funcname targetinf gwip gwmac
     funcname="meb_gwmaconly"
@@ -476,14 +456,16 @@ function __net-iptables_mangle_ext_both_gwmaconly {
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 
-# Arptables : Allow all other network except gateway
-# IPTABLES_ARPALLINFS=1
+## \function Arptables : Allow all other network except gateway
+## \function-description Allow all ARP except gateway interface.<br/>
+## (config)```IPTABLES_ARPALLINFS=1```<br/>
+## (command)```arptables -A INPUT -i "${allinfx[i]}" -j ACCEPT```<br/>
 function __net-iptables_mangle_all_both_arpallinfs {
-    local funcname targetinf allinfx infs
+    local funcname gwinf allinfx infs
     funcname="mab_arpallinfs"
 
-    targetinf=$(route|grep default|awk '{print $8}') # net-tools
-    targetinf=$(_trim_string ${targetinf})
+    gwinf=$(route|grep default|awk '{print $8}') # net-tools
+    gwinf=$(_trim_string ${gwinf})
     log_debug "check network interfaces for arptables"
 
     infs=$(cat /proc/net/dev|grep :|awk '{print $1}'|sed 's/://g')
@@ -493,8 +475,8 @@ function __net-iptables_mangle_all_both_arpallinfs {
             log_debug "skip lo interface for arptables"
             continue
         fi
-        if [[ ${allinfx[i]} = ${targetinf} ]]; then # except gateway interface
-            log_debug "skip ${targetinf} interface for arptables"
+        if [[ ${allinfx[i]} = ${gwinf} ]]; then # except gateway interface
+            log_debug "skip ${gwinf} interface for arptables"
             continue
         fi
         arptables -A INPUT -i "${allinfx[i]}" -j ACCEPT
@@ -503,8 +485,10 @@ function __net-iptables_mangle_all_both_arpallinfs {
     [[ $(arptables -S|grep -c "INPUT DROP") -lt 1 ]] && arptables -P INPUT DROP
 }
 
-# Mangle Prerouting : Drop ICMP
-# IPTABLES_DROP_ICMP=1
+## \function Mangle Prerouting : Drop ICMP
+## \function-description Drop ICMP packets in mangle table prerouting chain.<br/>
+## (config)```IPTABLES_DROP_ICMP=1```<br/>
+## (command)```iptables -t mangle -A PREROUTING -p icmp -m comment --comment ${funcname} -j DROP```<br/>
 function __net-iptables_mangle_all_both_dropicmp {
     local funcname="mab_dropicmp"
 
@@ -512,8 +496,10 @@ function __net-iptables_mangle_all_both_dropicmp {
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -A ${IPTABLE}
 }
 
-# Mangle Prerouting : Drop Invalid State
-# IPTABLES_DROP_INVALID_STATE=1
+## \function Mangle Prerouting : Drop Invalid State
+## \function-description Drop packets with invalid connection state in mangle table prerouting chain.<br/>
+## (config)```IPTABLES_DROP_INVALID_STATE=1```<br/>
+## (command)```iptables -t mangle -I PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP```<br/>
 function __net-iptables_mangle_all_both_dropinvalidstate {
     local funcname="mab_dropinvalidstate"
 
@@ -521,8 +507,10 @@ function __net-iptables_mangle_all_both_dropinvalidstate {
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
 }
 
-# Mangle Prerouting : Drop new non-SYN TCP Packets
-# IPTABLES_DROP_NON_SYN=1
+## \function Mangle Prerouting : Drop new non-SYN TCP Packets
+## \function-description Drop new TCP packets that do not have SYN flag set in mangle table prerouting chain.<br/>
+## (config)```IPTABLES_DROP_NON_SYN=1```<br/>
+## (command)```iptables -t mangle -I PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP```<br/>
 function __net-iptables_mangle_all_both_dropnonsyn {
     local funcname="mab_dropnonsyn"
 
@@ -530,8 +518,10 @@ function __net-iptables_mangle_all_both_dropnonsyn {
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
 }
 
-# Mangle Prerouting : Drop Spoofing Packets
-# IPTABLES_DROP_SPOOFING=1 IPTABLES_DROP_SPOOFING_TARINF=WAN IPTABLES_DROP_SPOOFING_NET="224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8"
+## \function Mangle Prerouting : Drop Spoofing Packets
+## \function-description Drop spoofing packets from specified networks except allowed routing in mangle table prerouting chain.<br/>
+## (config)```IPTABLES_DROP_SPOOFING=1 IPTABLES_DROP_SPOOFING_TARINF=WAN IPTABLES_DROP_SPOOFING_NET="224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8"```<br/>
+## (command)```iptables -t mangle -A PREROUTING -s ${iptables_block_ip} -i ${tarinf} -m comment --comment ${funcname}_block_${j} -j DROP```<br/>
 function __net-iptables_mangle_all_both_dropspoofing {
     local funcname="mab_dropspoofing"
     local tarinf tarnets
@@ -566,8 +556,10 @@ function __net-iptables_mangle_all_both_dropspoofing {
     }
 }
 
-# Mangle Prerouting : Limit MSS
-# IPTABLES_LIMIT_MSS=1
+## \function Mangle Prerouting : Limit MSS
+## \function-description Drop TCP packets with MSS outside allowed range in mangle table prerouting chain.<br/>
+## (config)```IPTABLES_LIMIT_MSS=1```<br/>
+## (command)```iptables -t mangle -I PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss ${mss} -m comment --comment ${funcname} -j DROP```<br/>
 function __net-iptables_mangle_all_both_limitmss {
     local funcname="mab_limitmss"
     local mss="536:65535" # port range
@@ -576,8 +568,10 @@ function __net-iptables_mangle_all_both_limitmss {
     iptables -t mangle -S | grep "${funcname}" || iptables -t mangle -I ${IPTABLE}
 }
 
-# Filter/NAT Forward/Postrouting Masqurade
-# IPTABLES_MASQ?="WLAN<WAN|LAN<WAN" # enP3p49s0>enP4p65s0(not implemented) #laninf lannet waninf
+## \function Filter/NAT Forward/Postrouting Masquerade
+## \function-description Set up masquerading between internal and external interfaces with proper forwarding rules.<br/>
+## (config)```IPTABLES_MASQ?="WLAN<WAN|LAN<WAN"```<br/>
+## (command)```iptables -t nat -A POSTROUTING ! -d ${fromnet} -o ${toinf} -m comment --comment ${funcname}_${j}_masq -j MASQUERADE```<br/>
 function __net-iptables_filternat_all_both_masquerade {
     local funcname="fab_masquerade"
     local frominf
@@ -617,8 +611,10 @@ function __net-iptables_filternat_all_both_masquerade {
 #    iptables -t nat -S | grep "${funcname}_${j}_snat" || iptables -t nat -A ${IPTABLE}
 #}
 
-# DMZ - after portforward, SDMZ - prior to portforward
-# IPTABLES_DMZ="192.68.79.10" IPTABLES_SUPERDMZ=1
+## \function DMZ - after portforward, SDMZ - prior to portforward
+## \function-description Set up DMZ (Demilitarized Zone) routing to forward all traffic to specified internal host.<br/>
+## (config)```IPTABLES_DMZ="192.68.79.10" IPTABLES_SUPERDMZ=1```<br/>
+## (command)```iptables -t nat -A PREROUTING -p ALL -i ${waninf} -j DNAT --to-destination ${dmzip} -m comment --comment ${funcname}_dmznat```<br/>
 function __net-iptables_nat_ext_both_dmzsdmz {
     local funcname waninf laninf dmzip sdmz
     funcname="neb_dmzsdmz"
@@ -655,8 +651,10 @@ function __net-iptables_nat_ext_both_dmzsdmz {
     iptables -t nat -S | grep "${funcname}_dmznat" || iptables -t nat ${ruleaddoverinsert} ${IPTABLE}
 }
 
-# NAT Prerouting/Postrouting Port forward
-# IPTABLES_PORTFORWARD="8090:192.168.79.11:8090,8010:192.168.79.12:8010"
+## \function NAT Prerouting/Postrouting Port forward
+## \function-description Forward external ports to internal hosts and ports using NAT DNAT/SNAT rules.<br/>
+## (config)```IPTABLES_PORTFORWARD="8090:192.168.79.11:8090,8010:192.168.79.12:8010"```<br/>
+## (command)```iptables -t nat -A PREROUTING -p tcp --dst ${wanip} --dport ${wanport} -j DNAT --to-destination ${lanip}:${lanport} -m comment --comment ${funcname}_pre```<br/>
 function __net-iptables_nat_ext_both_portforward {
     local pforwards funcname wanip wanport lanip lanport
     funcname="neb_portforward"
@@ -690,8 +688,10 @@ function __net-iptables_nat_ext_both_portforward {
     # iptables -t nat -A customipchain -p udp -m udp --dport 33540 -j DNAT --to-destination 192.168.0.5
 }
 
-# Raw Prerouting : Drop Invalid Tcp Flag
-# IPTABLES_INVALID_TCPFLAG=1
+## \function Raw Prerouting : Drop Invalid Tcp Flag
+## \function-description Drop packets with invalid TCP flag combinations in raw table prerouting chain.<br/>
+## (config)```IPTABLES_INVALID_TCPFLAG=1```<br/>
+## (command)```iptables -t raw -A PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -m comment --comment ${funcname}1 -j DROP```<br/>
 function __net-iptables_raw_all_both_dropinvtcpflag {
     local funcname="rab_dropinvtcpflag"
     # Invalid TCP Flag packet action
@@ -715,8 +715,10 @@ function __net-iptables_raw_all_both_dropinvtcpflag {
     iptables -t raw -S | grep "${funcname}7" || iptables -t raw -A ${IPTABLE7}
 }
 
-# Filter Input : Drop IPs from blacklist
-# IPTABLES_BLACK_NAMELIST="url|url" blockurls
+## \function Filter Input : Drop IPs from blacklist
+## \function-description Download and block IP addresses from blacklist URLs using ipset.<br/>
+## (config)```IPTABLES_BLACK_NAMELIST="url|url"```<br/>
+## (command)```iptables -I INPUT -m set --match-set ${blist_name} src -j DROP```<br/>
 function __net-iptables_filter_all_both_ipblacklist {
     local funcname="fab_ipblacklist"
     local blockurls filename_with_suffix filename #"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"
@@ -737,8 +739,10 @@ function __net-iptables_filter_all_both_ipblacklist {
     ipset save > /etc/iptables/ipset.conf
 }
 
-# Filter Table : Base Setup (policies, loopback, established connections)
-# IPTABLES_ENABLE_BASE=1
+## \function Filter Table : Base Setup (policies, loopback, established connections)
+## \function-description Set up basic filter table policies, loopback rules, and connection state tracking.<br/>
+## (config)```IPTABLES_ENABLE_BASE=1```<br/>
+## (command)```iptables -P INPUT DROP && iptables -A INPUT -i lo -m comment --comment ${funcname}_loopback_v4 -j ACCEPT```<br/>
 function __net-iptables_filter_all_both_basesetup {
     local funcname="fab_basesetup"
     log_debug "Setting up base filter table policies and loopback rules..."
@@ -780,8 +784,10 @@ function __net-iptables_filter_all_both_basesetup {
     # ip6tables -t filter -S | grep "${funcname}_invalid_v6" || ip6tables -t filter -A ${IPTABLE}
 }
 
-# Filter Input : Anti-spoofing protection
-# IPTABLES_ANTISPOOFING=1
+## \function Filter Input : Anti-spoofing protection
+## \function-description Block packets claiming to be from loopback but coming from external interfaces.<br/>
+## (config)```IPTABLES_ANTISPOOFING=1```<br/>
+## (command)```iptables -A INPUT -s 127.0.0.0/8 ! -i lo -m comment --comment ${funcname}_block_fake_loopback_v4 -j DROP```<br/>
 function __net-iptables_filter_all_both_antispoofing {
     local funcname="fab_antispoofing"
     log_debug "Setting up anti-spoofing protection..."
@@ -793,8 +799,10 @@ function __net-iptables_filter_all_both_antispoofing {
     ip6tables -t filter -S | grep "${funcname}_block_fake_loopback_v6" || ip6tables -t filter -A ${IPTABLE}
 }
 
-# Filter Input : Drop broadcast/multicast/anycast packets
-# IPTABLES_DROPCASTS=1
+## \function Filter Input : Drop broadcast/multicast/anycast packets
+## \function-description Drop broadcast, multicast, and anycast packets to reduce network noise.<br/>
+## (config)```IPTABLES_DROPCASTS=1```<br/>
+## (command)```iptables -A INPUT -m addrtype --dst-type BROADCAST -m comment --comment ${funcname}_drop_broadcast -j DROP```<br/>
 function __net-iptables_filter_all_both_dropcasts {
     local funcname="fab_dropcasts"
     log_debug "Setting up drop casts rules..."
@@ -810,8 +818,10 @@ function __net-iptables_filter_all_both_dropcasts {
     iptables -t filter -S | grep "${funcname}_drop_multicast_range" || iptables -t filter -A ${IPTABLE}
 }
 
-# Filter Input : drop ICMP packets
-# IPTABLES_DROPICMP=1
+## \function Filter Input : drop ICMP packets
+## \function-description Allow specific ICMP types for proper network operation while blocking others.<br/>
+## (config)```IPTABLES_DROPICMP=1```<br/>
+## (command)```iptables -A INPUT -p icmp --icmp-type 0 -m conntrack --ctstate NEW -m comment --comment ${funcname}_echo_reply -j ACCEPT```<br/>
 function __net-iptables_filter_all_both_dropicmp {
     local funcname="fab_icmprules"
     
@@ -841,8 +851,10 @@ function __net-iptables_filter_all_both_dropicmp {
     # done
 }
 
-# Filter Input : Service-specific rules
-# IPTABLES_ALLOWED_PORTS="80,443,8080"
+## \function Filter Input : Service-specific rules
+## \function-description Allow incoming connections on specified ports for services.<br/>
+## (config)```IPTABLES_ALLOWED_PORTS="80,443,8080"```<br/>
+## (command)```iptables -A INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v4 -j ACCEPT```<br/>
 function __net-iptables_filter_all_both_servicerules {
     local funcname="fab_servicerules"
     log_debug "Setting up service-specific rules..."
@@ -863,8 +875,10 @@ function __net-iptables_filter_all_both_servicerules {
     done
 }
 
-# Filter Input : Noise reduction rules (Drop without logging)
-# IPTABLES_NOISE_REDUCTION=1
+## \function Filter Input : Noise reduction rules (Drop without logging)
+## \function-description Drop common network noise packets (SMB, NetBIOS) without logging to reduce log spam.<br/>
+## (config)```IPTABLES_NOISE_REDUCTION=1```<br/>
+## (command)```iptables -A INPUT -p udp -m multiport --dports 135,445 -m comment --comment ${funcname}_smb_udp_v4 -j DROP```<br/>
 function __net-iptables_filter_all_both_noisereduction {
     local funcname="fab_noisereduction"
     log_debug "Setting up noise reduction rules..."
@@ -889,8 +903,10 @@ function __net-iptables_filter_all_both_noisereduction {
     # ip6tables -t filter -S | grep "${funcname}_smb_tcp_v6" || ip6tables -t filter -A ${IPTABLE}
 }
 
-# Filter Input : Drop UPnP packets
-# IPTABLES_DROP_UPNP=1
+## \function Filter Input : Drop UPnP packets
+## \function-description Drop UPnP discovery packets to prevent unwanted service discovery.<br/>
+## (config)```IPTABLES_DROP_UPNP=1```<br/>
+## (command)```iptables -A INPUT -p udp --dport 1900 -m comment --comment ${funcname}_upnp_v4 -j DROP```<br/>
 function __net-iptables_filter_all_both_dropupnp {
     local funcname="fab_dropupnp"
     log_debug "Setting up UPnP drop rules..."
@@ -902,8 +918,10 @@ function __net-iptables_filter_all_both_dropupnp {
     # ip6tables -t filter -S | grep "${funcname}_upnp_v6" || ip6tables -t filter -A ${IPTABLE}
 }
 
-# Filter Input : Reject AUTH traffic quickly
-# IPTABLES_REJECT_AUTH=1
+## \function Filter Input : Reject AUTH traffic quickly
+## \function-description Quickly reject AUTH (ident) service requests to speed up connections.<br/>
+## (config)```IPTABLES_REJECT_AUTH=1```<br/>
+## (command)```iptables -A INPUT -p tcp --dport 113 --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_auth_v4 -j REJECT --reject-with tcp-reset```<br/>
 function __net-iptables_filter_all_both_rejectauth {
     local funcname="fab_rejectauth"
     log_debug "Setting up AUTH reject rules..."
@@ -915,8 +933,10 @@ function __net-iptables_filter_all_both_rejectauth {
     # ip6tables -t filter -S | grep "${funcname}_auth_v6" || ip6tables -t filter -A ${IPTABLE}
 }
 
-# NAT Prerouting : Port redirection
-# IPTABLES_PORT_REDIRECT="21:2121,8080:80" IPTABLES_REDIRECT_INTERFACE="eth0"
+## \function NAT Prerouting : Port redirection
+## \function-description Redirect incoming connections from one port to another on the same host.<br/>
+## (config)```IPTABLES_PORT_REDIRECT="21:2121,8080:80" IPTABLES_REDIRECT_INTERFACE="eth0"```<br/>
+## (command)```iptables -t nat -A PREROUTING -i ${interface} -p tcp --dport ${from_port} -m comment --comment ${funcname}_${from_port}_${to_port} -j REDIRECT --to-port ${to_port}```<br/>
 function __net-iptables_nat_ext_both_portredirect {
     local funcname="neb_portredirect"
     local port_redirect interface
@@ -943,8 +963,10 @@ function __net-iptables_nat_ext_both_portredirect {
     done
 }
 
-# NAT Prerouting : DNAT port forwarding
-# IPTABLES_PORT_FORWARD="8080:192.168.1.10:80,9090:192.168.1.11:90" IPTABLES_FORWARD_INTERFACE="eth0"
+## \function NAT Prerouting : DNAT port forwarding
+## \function-description Forward external ports to internal hosts using DNAT (Destination NAT).<br/>
+## (config)```IPTABLES_PORT_FORWARD="8080:192.168.1.10:80,9090:192.168.1.11:90" IPTABLES_FORWARD_INTERFACE="eth0"```<br/>
+## (command)```iptables -t nat -A PREROUTING -i ${interface} -p tcp --dport ${external_port} -m comment --comment ${funcname}_${external_port}_${internal_ip}_${internal_port} -j DNAT --to-destination ${internal_ip}:${internal_port}```<br/>
 function __net-iptables_nat_ext_both_portforwardsingle {
     local funcname="neb_portforwardsingle"
     local port_forward interface

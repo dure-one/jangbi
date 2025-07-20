@@ -1,28 +1,4 @@
 ## \brief xtables extended netfilter configurations.
-## \desc This tool helps install, configure, and manage xtables (extended netfilter)
-## for advanced packet filtering and network security. It provides automated installation,
-## configuration management, and extended firewall capabilities. Xtables includes support
-## for additional netfilter modules, advanced matching criteria, and enhanced packet
-## manipulation features beyond standard iptables functionality.
-
-## \example Install and configure extended netfilter:
-## \example-code bash
-##   net-xtables install
-##   net-xtables configgen
-##   net-xtables configapply
-## \example-description
-## In this example, we install xtables, generate extended firewall configurations,
-## and apply them to enable advanced packet filtering capabilities.
-
-## \example Apply advanced rules and check status:
-## \example-code bash
-##   net-xtables run
-##   net-xtables check
-## \example-description
-## In this example, we activate the extended netfilter rules and verify
-## that the advanced firewall features are working properly.
-
-## \exit 1 Invalid command or parameters provided.
 
 # shellcheck shell=bash
 cite about-plugin a
@@ -248,8 +224,10 @@ function __net-xtables_build {
 # TABLES : filter(IFO), nat(PIOP), mangle(IFP), raw(PO), security(IOF) https://gist.github.com/egernst/2c39c6125d916f8caa0a9d3bf421767a
 # PREFIX : int/ext/all inc/oug/both contents
 
-# Mangle Prerouting : Ip Connection Limit per IP
-# XTABLES_CONNLIMIT_PER_IP=100
+## \function Mangle Prerouting : Ip Connection Limit per IP
+## \function-description Allow all ARP except gateway interface.<br/>
+## (config)```XTABLES_CONNLIMIT_PER_IP=100```<br/>
+## (command)```iptables -t mangle -A PREROUTING -p tcp -m connlimit --connlimit-above ${conlimitperip} --connlimit-mask 32 -m comment --comment ${funcname} -j DROP```<br/>
 function __net-xtables_mangle_all_both_conlimitperip {
     local funcname="xtmab_conlimitperip"
     local conlimitperip
@@ -262,8 +240,10 @@ function __net-xtables_mangle_all_both_conlimitperip {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-A ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -A ${IPTABLE}" >> "${RULESFILE}" )
 }
 
-# Mangle Prerouting : Drop Invalid State
-# XTABLES_DROP_INVALID_STATE=1
+## \function Mangle Prerouting : Drop Invalid State
+## \function-description Drop packets with invalid connection state in mangle table prerouting chain.<br/>
+## (config)```XTABLES_DROP_INVALID_STATE=1```<br/>
+## (command)```iptables -t mangle -I PREROUTING -p all -m conntrack --ctstate INVALID -m comment --comment ${funcname} -j DROP```<br/>
 function __net-xtables_mangle_all_both_dropinvalidstate {
     local funcname="xtmab_dropinvalidstate"
 
@@ -272,8 +252,10 @@ function __net-xtables_mangle_all_both_dropinvalidstate {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-I ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -I ${IPTABLE}" >> "${RULESFILE}" )
 }
 
-# Mangle Prerouting : Drop new non-SYN TCP Packets
-# XTABLES_DROP_NON_SYN=1
+## \function Mangle Prerouting : Drop new non-SYN TCP Packets
+## \function-description Drop new TCP packets that do not have SYN flag set in mangle table prerouting chain.<br/>
+## (config)```XTABLES_DROP_NON_SYN=1```<br/>
+## (command)```iptables -t mangle -I PREROUTING -p tcp ! --syn -m conntrack --ctstate NEW -m comment --comment ${funcname} -j DROP```<br/>
 function __net-xtables_mangle_all_both_dropnonsyn {
     local funcname="xtmab_dropnonsyn"
 
@@ -282,8 +264,10 @@ function __net-xtables_mangle_all_both_dropnonsyn {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-I ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -I ${IPTABLE}" >> "${RULESFILE}" )
 }
 
-# Mangle Prerouting : Limit MSS
-# XTABLES_LIMIT_MSS=1
+## \function Mangle Prerouting : Limit MSS
+## \function-description Drop TCP packets with MSS outside allowed range in mangle table prerouting chain.<br/>
+## (config)```XTABLES_LIMIT_MSS=1```<br/>
+## (command)```iptables -t mangle -I PREROUTING -p tcp -m conntrack --ctstate NEW -m tcpmss ! --mss ${mss} -m comment --comment ${funcname} -j DROP```<br/>
 function __net-xtables_mangle_all_both_limitmss {
     local funcname="xtmab_limitmss"
     local mss="536:65535" # port range
@@ -293,8 +277,10 @@ function __net-xtables_mangle_all_both_limitmss {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-t mangle \-I ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t mangle -I ${IPTABLE}" >> "${RULESFILE}" )
 }
 
-# Raw Prerouting : Guard Overload Limit UDP PPS
-# XTABLES_GUARD_OVERLOAD=1
+## \function Raw Prerouting : Guard Overload Limit UDP PPS
+## \function-description Safeguard against CPU overload during amplified DDoS attacks by limiting UDP packets per second rate (PPS).<br/>
+## (config)```XTABLES_GUARD_OVERLOAD=1```<br/>
+## (command)```iptables -t raw -A PREROUTING -p udp -m multiport --sports ${lusp} -m hashlimit --hashlimit-mode srcip,srcport --hashlimit-name ${funcname} --hashlimit-above 256/m -m comment --comment ${funcname} -j DROP```<br/>
 function __net-xtables_raw_all_both_limitudppps {
     local funcname="xtrab_limitudppps"
     # Safeguard against CPU overload during amplificated DDoS attacks by limiting DNS/NTP packets per second rate (PPS).
@@ -306,8 +292,10 @@ function __net-xtables_raw_all_both_limitudppps {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE}" >> "${RULESFILE}" )
 }
 
-# Raw Prerouting : Drop Invalid Tcp Flag
-# XTABLES_INVALID_TCPFLAG=1
+## \function Raw Prerouting : Drop Invalid Tcp Flag
+## \function-description Drop packets with invalid TCP flag combinations in raw table prerouting chain.<br/>
+## (config)```XTABLES_INVALID_TCPFLAG=1```<br/>
+## (command)```iptables -t raw -A PREROUTING -p tcp --tcp-flags SYN,RST SYN,RST -m comment --comment ${funcname}1 -j DROP```<br/>
 function __net-xtables_raw_all_both_dropinvtcpflag {
     local funcname="xtrab_dropinvtcpflag"
     # Invalid TCP Flag packet action
@@ -338,8 +326,10 @@ function __net-xtables_raw_all_both_dropinvtcpflag {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-t raw \-A ${IPTABLE7}" ${RULESFILE} 1>/dev/null || echo "-t raw -A ${IPTABLE7}" >> "${RULESFILE}" )
 }
 
-# Filter Input : Drop Port Scanner IP
-# XTABLES_GUARD_PORT_SCANNER=1
+## \function Filter Input : Drop Port Scanner IP
+## \function-description Detect and block port scanning attempts using ipset and hashlimit rules.<br/>
+## (config)```XTABLES_GUARD_PORT_SCANNER=1```<br/>
+## (command)```iptables -A INPUT -m state --state NEW -m set ! --match-set XTABLES_GUARD_SCANNED_PORTS src,dst -m hashlimit --hashlimit-above 1/hour --hashlimit-burst 5 --hashlimit-mode srcip --hashlimit-name XTABLES_GUARD_PORT_SCANNER --hashlimit-htable-expire 10000 -j SET --add-set XTABLES_GUARD_PORT_SCANNER src --exist```<br/>
 function __net-xtables_raw_all_both_portscanner {
     SETNAME=XTABLES_GUARD_PORT_SCANNER
     ipset list | grep -q XTABLES_GUARD_PORT_SCANNER || ipset create XTABLES_GUARD_PORT_SCANNER hash:ip family inet hashsize 32768 maxelem 65536 timeout 600
@@ -360,8 +350,10 @@ function __net-xtables_raw_all_both_portscanner {
     [[ -n ${RULESFILE} ]] && ( grep -c "\-A ${IPTABLE4}" ${RULESFILE} 1>/dev/null || echo "-A ${IPTABLE4}" >> "${RULESFILE}" )
 }
 
-# Filter Input : CHAOS responses to confuse attackers
-# XTABLES_CHAOS_PORTS="22,23,80,443"
+## \function Filter Input : CHAOS responses to confuse attackers
+## \function-description Apply CHAOS target to confuse attackers by providing random responses to specified ports.<br/>
+## (config)```XTABLES_CHAOS_PORTS="22,23,80,443"```<br/>
+## (command)```iptables -A INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j CHAOS --tarpit```<br/>
 function __net-xtables_filter_all_both_chaos {
     local funcname="xtfab_chaos"
     local chaos_ports
@@ -377,8 +369,10 @@ function __net-xtables_filter_all_both_chaos {
     done
 }
 
-# Filter Input : DELUDE responses to make closed ports appear open
-# XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"
+## \function Filter Input : DELUDE responses to make closed ports appear open
+## \function-description Apply DELUDE target to make closed ports appear open by replying with SYN-ACK to SYN packets.<br/>
+## (config)```XTABLES_DELUDE_PORTS="22,23,80,443,21,25,53,110,143,993,995"```<br/>
+## (command)```iptables -A INPUT -p tcp --dport ${port} -m comment --comment ${funcname}_${port} -j DELUDE```<br/>
 function __net-xtables_filter_all_both_delude {
     local funcname="fab_delude"
     local delude_ports
@@ -394,8 +388,10 @@ function __net-xtables_filter_all_both_delude {
     done
 }
 
-# Filter Input : Port Knocking with Open/Close Secrets (Example2)
-# XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPENSECRET="foo" XTABLES_PKNOCK_CLOSESECRET="bar" XTABLES_PKNOCK_TARGET_PORTS="22,80,443"
+## \function Filter Input : Port Knocking with Open/Close Secrets (Example2)
+## \function-description Implement port knocking authentication with UDP knock sequence and secrets for secure access control.<br/>
+## (config)```XTABLES_PKNOCK_PORTS="3001,3002,3003" XTABLES_PKNOCK_OPENSECRET="foo" XTABLES_PKNOCK_CLOSESECRET="bar" XTABLES_PKNOCK_TARGET_PORTS="22,80,443"```<br/>
+## (command)```iptables -A INPUT -p udp -m pknock --knockports ${pknockports} --name ${pnockrulename} --opensecret ${opensecret} --closesecret ${closesecret} --autoclose 240 -m comment --comment ${funcname}_knock -j DROP```<br/>
 function __net-xtables_filter_all_inc_pknock {
     local funcname="fai_pknock"
     local pknockports=${XTABLES_PKNOCK_PORTS}
