@@ -39,7 +39,7 @@ unset log
 
 log_and_tee() {
   [[ $SKIP_LOG == 1 ]] && return
-  printf '%s%s\n' "[$(date +"%Y-%m-%d %H:%M:%S %Z")] " "$@" | tee -a "${BASH_IT_LOG_FILE}"
+  printf '%s%s\n' "[$(date +"%Y-%m-%d %H:%M:%S %Z")] " "$@" | tee -a "${BASH_IT_LOG_FILE}" > /dev/null
 } # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
 log_info()   { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; }
 log_success(){ printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 6 - info
@@ -47,6 +47,7 @@ log_fatal()  { printf '%b%s%b\n' "${echo_background_red:-}" "$@" "${echo_normal:
 log_error()  { _log_error "$@" && log_and_tee "$@"; } # 3 - error
 log_warning(){ _log_warning "$@" && log_and_tee "$@"; } # 4 - warning
 log_debug()  { _log_debug "$@" && log_and_tee "$@"; } # 5 - debug
+log_trace()  { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_white:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 7 - trace
 
 # libraries, but skip appearance (themes) for now
 source "${BASH_IT}/lib/command_duration.bash"
@@ -352,8 +353,8 @@ _load_config() { # Load config including parent config ex) _load_config .config
   # load config in order
   for((j=${#stack[@]};j>0;j--)){
     conf=${stack[j-1]}
-    log_debug "Config file(${conf}) is loading..."
-    [[ -f ${JANGBI_IT}/${conf} ]] && source ${JANGBI_IT}/${conf} && JB_LOADED_FILES+=("${JANGBI_IT}/${conf}|$(stat -c %Y ${JANGBI_IT}/${conf})")
+    log_trace "Config file(${conf}) is loading..."
+    [[ -f ${JANGBI_IT}/${conf} ]] && source ${JANGBI_IT}/${conf} && JB_LOADED_FILES+=("${JANGBI_IT}/${conf}")
     JB_VARS="${JB_VARS} $(cat ${JANGBI_IT}/${conf}|grep -v '^#'|grep .|cut -d= -f1)"
     JB_CFILES="${JB_CFILES} ${conf}"
   }
@@ -370,7 +371,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   # RUN_LOG="/dev/null"
 }
 
-_check_config_reload() {
+_check_config_reload() { 
   if [[ -z ${JB_LOADED_TIME} || -z ${JB_LOADED_FILES} || -z ${JB_VARS} ]]; then
     log_debug "JB_LOADED_TIME, JB_LOADED_FILES, JB_VARS is not set. Reloading config."
     _load_config
@@ -378,11 +379,14 @@ _check_config_reload() {
   fi
   # check if any loaded file is newer than JB_LOADED_TIME
   for file in "${JB_LOADED_FILES[@]}"; do
-    local file_time=$(echo "${file}" | cut -d'|' -f2)
-    if [[ ${JB_LOADED_TIME} -lt ${file_time} ]]; then
+    local file_time=$(stat -c %Y ${file})
+    # log_debug $((JB_LOADED_TIME - file_time))
+    if [[ $((JB_LOADED_TIME - file_time)) -lt 0 ]]; then
       log_debug "Loaded file(${file}) is newer than JB_LOADED_TIME(${JB_LOADED_TIME})(${file_time}). Reloading config."
       _load_config
       return 0
+    else
+      log_debug "Not loading JB_LOADED_TIME(${JB_LOADED_TIME})(${file_time})."
     fi
   done
   log_debug "Config is up to date. No need to reload."
@@ -494,6 +498,55 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   fi
   log_error "No matching package found for ${pkgfileprefix} ${comparch} ${pkgfilepostfix} in ${possible_list}"
   return 1
+}
+
+_ipt_remove_filtered_comments() {
+  local table chain filter linenumbers
+  table=${1:-"filter"}
+  chain=${2:-"INPUT"}
+  filter=${3}
+  linenumbers=$(iptables -t ${table} -L ${chain} -n --line-numbers|grep ${filter}|awk '{ print $1 }'|sort -nr)
+  if [[ -n ${linenumbers} ]]; then
+    for line in ${linenumbers}; do
+      iptables -t ${table} -D ${chain} ${line}
+    done
+  fi
+}
+
+_allow_ports_byplugin() {
+  local funcname="ports_byplugin"
+  local plugin="$1" # net-sshd
+  local rules="$2" # LO:20,LAN:2018
+  [[ ${#1} -lt 1 ]] && log_error "${funcname}: plugin is not set" && return 1
+  [[ ${#2} -lt 1 ]] && log_error "${funcname}: rules are not set" && return 1
+
+  log_debug "Allow ports in iptables by plugin..."
+  local newrulename="${funcname}_${plugin}"
+  _ipt_remove_filtered_comments "filter" "INPUT" "${newrulename}"
+
+  IFS=',' read -ra rules_array <<< "${rules}"
+  for rule in "${rules_array[@]}"; do 
+      rule=$(echo "$rule" | xargs) # trim whitespace
+      if [[ $rule =~ ^[A-Z]+:[0-9]+$ ]]; then
+          local inf="${rule%%:*}" # get interface name
+          local port="${rule##*:}" # get port number
+          if [[ -z ${inf} || -z ${port} ]]; then
+              log_error "Invalid rule format: ${rule}. Expected format: INTERFACE:PORT"
+              continue
+          fi
+          local ip=$( _get_ip_of_infmark "${inf}" )
+          if [[ -z ${ip} ]]; then
+              log_error "IP address for interface ${inf} is not set."
+              continue
+          fi
+          IPTABLE="INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${newrulename}_${inf}_${port}_v4 -j ACCEPT"
+          iptables -t filter -S | grep "${newrulename}_${inf}_${port}_v4" || iptables -t filter -A ${IPTABLE}
+          # IPTABLE="INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${newrulename}_${inf}_${port}_v6 -j ACCEPT"
+          # ip6tables -t filter -S | grep "${newrulename}_${inf}_${port}_v6" || ip6tables -t filter -A ${IPTABLE}
+      else
+          log_error "Invalid rule format: ${rule}. Expected format: INTERFACE:PORT"
+      fi
+  done
 }
 
 _blank(){
