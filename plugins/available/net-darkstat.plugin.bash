@@ -1,18 +1,5 @@
 ## \brief darkstat install configurations.
 ## \desc This tool helps install, configure, and manage darkstat (network traffic analyzer)
-## for network monitoring. .
-
-## \exit 1 Invalid command or parameters provided.
-
-## \file /etc/super_script/default_conf.rc The default configuration file for my super script.
-## \file /dev/null I think you got it.
-
-## \error Just like bugs, notes, caveats...
-## An error is something the user should not do,
-## something that is considered wrong or bad practice when using your script.
-
-## If you want to document the standard error messages, or the exit status,
-## see \stderr and \exit.
 
 # shellcheck shell=bash
 cite about-plugin
@@ -30,8 +17,7 @@ function net-darkstat {
     local DMNNAME="net-darkstat"
     BASH_IT_LOG_PREFIX="net-darkstat: "
     DARKSTAT_PORTS="${DARKSTAT_PORTS:-"LO:19283"}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi

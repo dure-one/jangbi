@@ -40,8 +40,7 @@ function net-knockd {
     local DMNNAME="net-knockd"
     BASH_IT_LOG_PREFIX="net-knockd: "
     # KNOCKD_PORTS="${KNOCKD_PORTS:-""}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi

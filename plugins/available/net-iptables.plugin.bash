@@ -80,8 +80,7 @@ function net-iptables {
     local DMNNAME="net-iptables"
     BASH_IT_LOG_PREFIX="net-iptables: "
     # IPTABLES_PORTS="${IPTABLES_PORTS:-""}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi
@@ -245,11 +244,11 @@ function __net-iptables_build {
 
     # GET VARs
     local wanip lanip wlanip
-    wanip=$(_get_ip_of_infmark "WAN")
+    wanip=$(_get_ip_of_infmark "WAN" || echo "")
     [[ -z ${wanip} ]] && wanip="127.0.0.1"
-    lanip=$(_get_ip_of_infmark "LAN")
+    lanip=$(_get_ip_of_infmark "LAN" || echo "")
     [[ -z ${lanip} ]] && lanip="127.0.0.1"
-    wlanip=$(_get_ip_of_infmark "WLAN")
+    wlanip=$(_get_ip_of_infmark "WLAN" || echo "")
     [[ -z ${wlanip} ]] && wlanip="127.0.0.1"
     
     #
@@ -659,7 +658,7 @@ function __net-iptables_nat_ext_both_portforward {
     local pforwards funcname wanip wanport lanip lanport
     funcname="neb_portforward"
     pforwards=${IPTABLES_PORTFORWARD}
-    wanip=$(_get_ip_of_infmark "WAN")
+    wanip=$(_get_ip_of_infmark "WAN" || echo "")
     
     [[ ${#pforwards} -lt 1 ]] && log_error "${funcname}: \"${pforwards}\" is not set" && return 1
     log_debug "${pforwards}"

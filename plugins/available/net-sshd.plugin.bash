@@ -40,8 +40,7 @@ function net-sshd {
     local DMNNAME="net-sshd"
     BASH_IT_LOG_PREFIX="net-sshd: "
     SSHD_PORTS="${SSHD_PORTS:-"LO:22"}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi
@@ -143,9 +142,11 @@ function __net-sshd_configgen { # config generator and diff
         if [[ ${#SSHD_INFS[@]} -gt 0 ]]; then
             IFS=$',' read -d "" -ra ssh_infs <<< "${SSHD_INFS}" # split
             for((j=0;j<${#ssh_infs[@]};j++)){
+                log_debug "Setting ListenAddress for ${ssh_infs[j]}"
                 __bp_trim_whitespace tinf "${ssh_infs[j]}"
                 infip=$(_get_ip_of_infmark "${tinf}")
-                [[ -z ${infip} ]] && log_error "Interface ${tinf} is not valid. Please set correct interface name in config." && continue
+                ! _is_valid_ipv4 "${infip}" && \
+                    log_error "Interface ${tinf} has invalid IP address: ${infip}. Please set correct interface name in config." && continue
                 echo "Setting ListenAddress for ${tinf}"
                 ssh_config="${ssh_config}\nListenAddress ${infip} # JB_SSHD_INFS" && sed -i "s|ListenAddress=.*||g" /tmp/sshd/sshd_config
             }

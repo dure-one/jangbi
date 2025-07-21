@@ -40,8 +40,7 @@ function net-dnscryptproxy {
     local DMNNAME="net-dnscryptproxy"
     BASH_IT_LOG_PREFIX="net-dnscryptproxy: "
     DNSCRYPTPROXY_PORTS="${DNSCRYPTPROXY_PORTS:-"LO:53"}"
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi

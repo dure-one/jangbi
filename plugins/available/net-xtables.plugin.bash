@@ -16,8 +16,7 @@ function net-xtables {
     local DMNNAME="net-xtables"
     BASH_IT_LOG_PREFIX="net-xtables: "
     # XTABLES_PORTS="${XTABLES_PORTS:-""}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi
@@ -167,18 +166,23 @@ function __net-xtables_watch {
 }
 
 function __net-xtables_build {
+    local funcname="net-xtables_build"
     local RULESFILE
     RULESFILE=$(_trim_string $1)
     [[ -z ${RULESFILE} ]] && log_debug "no rulesfile specified. direct insert mode"
 
     # GET VARs
     local wanip lanip wlanip
-    wanip=$(_get_ip_of_infmark "WAN")
+    wanip=$(_get_ip_of_infmark "WAN" || echo "")
     [[ -z ${wanip} ]] && wanip="127.0.0.1"
-    lanip=$(_get_ip_of_infmark "LAN")
+    lanip=$(_get_ip_of_infmark "LAN" || echo "")
     [[ -z ${lanip} ]] && lanip="127.0.0.1"
-    wlanip=$(_get_ip_of_infmark "WLAN")
+    wlanip=$(_get_ip_of_infmark "WLAN" || echo "")
     [[ -z ${wlanip} ]] && wlanip="127.0.0.1"
+
+    [[ ${#wanip} -lt 1 ]] && log_error "${funcname}: wanip is not set" && return 1
+    [[ ${#lanip} -lt 1 ]] && log_error "${funcname}: wanip is not set" && return 1
+    [[ ${#wlanip} -lt 1 ]] && log_error "${funcname}: wanip is not set" && return 1
 
     #
     # NET RULES

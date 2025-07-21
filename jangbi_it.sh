@@ -191,9 +191,21 @@ _get_rip(){
   fi
 }
 
+_is_valid_ipv4() {
+  local ip="$1"
+  # Check if the input is a valid IPv4 address
+  if [[ "$ip" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    IFS='.' read -r i1 i2 i3 i4 <<< "$ip"
+    if (( i1 <= 255 && i2 <= 255 && i3 <= 255 && i4 <= 255 )); then
+      return 0
+    fi
+  fi
+  return 1
+}
+
 _get_inf_of_infmark(){
   local inf=$1 tarinf
-  if [[ ${inf,,} =~ ^(wan|lan|wlan|lan[0-9])$ ]]; then
+  if [[ ${inf,,} =~ ^(lo|wan|lan|wlan|lan[0-9])$ ]]; then
     :
   else
     log_error "Interface ${inf} is not valid. Please set correct interface name in config."
@@ -223,15 +235,20 @@ _get_inf_of_infmark(){
     echo "${JB_LAN7INF}"
   elif [[ ${inf,,} == "lan8" ]]; then
     echo "${JB_LAN8INF}"
-  else
+  elif [[ ${inf,,} == "lan9" ]]; then
     echo "${JB_LAN9INF}"
+  elif [[ ${inf,,} == "lo" ]]; then
+    echo "lo"
+  else
+    log_error "Interface ${inf} is not valid. Please set correct interface name in config."
+    return 1
   fi
   return 0
 }
 
 _get_ip_of_infmark(){
   local inf=$1 tarinf
-  if [[ ${inf,,} =~ ^(wan|lan|wlan|lan[0-9])$ ]]; then
+  if [[ ${inf,,} =~ ^(lo|wan|lan|wlan|lan[0-9])$ ]]; then
     :
   else
     log_error "Interface ${inf} is not valid. Please set correct interface name in config."
@@ -262,14 +279,19 @@ _get_ip_of_infmark(){
     tarinf=${JB_LAN7INF}
   elif [[ ${inf,,} == "lan8" ]]; then
     tarinf=${JB_LAN8INF}
-  else
+  elif [[ ${inf,,} == "lan9" ]]; then
     tarinf=${JB_LAN9INF}
-  fi
-  if [[ ! ${tarinf} ]]; then
-    log_error "Interface ${inf}/${tarinf} is not set. Please set correct interface name in config."
+  elif [[ ${inf,,} == "lo" ]]; then
+    tarinf="lo"
+  else
+    log_error "Interface ${inf} is not valid. Please set correct interface name in config."
     return 1
   fi
-  _get_ip_of_inf "${tarinf}"
+  if [[ ! ${tarinf} ]]; then
+    log_error "Interface ${inf}(${tarinf}) is not set. Please set correct interface name in config."
+    return 1
+  fi
+  _get_ip_of_inf "${tarinf}" || return 1
   return 0
 }
 
@@ -279,6 +301,10 @@ _get_ip_of_inf(){
   if [[ -n ${!tarinf} ]]; then
     log_error "Interface ${tarinf} is not set. Please set correct interface name in config."
     return 1
+  fi
+  if [[ ${tarinf} == "lo" ]]; then
+    echo "127.0.0.1"
+    return 0
   fi
   if [[ $(ip link show "${tarinf}" 2>/dev/null|grep -c "state UP") -lt 1 ]]; then
     log_error "Interface ${tarinf} is not up."
@@ -305,6 +331,8 @@ _trim_string() { # Usage: _trim_string "   example   string    "
 
 _load_config() { # Load config including parent config ex) _load_config .config
   local conf=".config"
+  JB_LOADED_FILES=()
+  JB_LOADED_TIME=$(date +%s)
   JB_VARS=""
   # log_debug "Load config from ${JANGBI_IT}/${conf}" 
   [[ ! -f "${JANGBI_IT}/${conf}" ]] && log_fatal "config file ${JANGBI_IT}/${conf} not exist." && _safe_exit 1
@@ -324,8 +352,8 @@ _load_config() { # Load config including parent config ex) _load_config .config
   # load config in order
   for((j=${#stack[@]};j>0;j--)){
     conf=${stack[j-1]}
-    # echo "config file(${conf}) is loading..."
-    [[ -f ${JANGBI_IT}/${conf} ]] && source ${JANGBI_IT}/${conf}
+    log_debug "Config file(${conf}) is loading..."
+    [[ -f ${JANGBI_IT}/${conf} ]] && source ${JANGBI_IT}/${conf} && JB_LOADED_FILES+=("${JANGBI_IT}/${conf}|$(stat -c %Y ${JANGBI_IT}/${conf})")
     JB_VARS="${JB_VARS} $(cat ${JANGBI_IT}/${conf}|grep -v '^#'|grep .|cut -d= -f1)"
     JB_CFILES="${JB_CFILES} ${conf}"
   }
@@ -333,13 +361,32 @@ _load_config() { # Load config including parent config ex) _load_config .config
 
   # setup slog
   log_debug "LOGFILE: $LOGFILE LOG_PATH: $LOG_PATH RUN_LOG: $RUN_LOG"
-  LOGFILE=${LOGFILE:="output.log"}
-  LOG_PATH=${LOG_PATH:="output.log"}
-  RUN_LOG=${RUN_LOG:="output.log"}
+  LOGFILE=${LOGFILE:="${JANGBI_IT}/output.log"}
+  LOG_PATH=${LOG_PATH:="${JANGBI_IT}/output.log"}
+  RUN_LOG=${RUN_LOG:="${JANGBI_IT}/output.log"}
   # RUN_ERRORS_FATAL=${RUN_ERRORS_FATAL:=1}
   # LOG_LEVEL_STDOUT=${LOG_LEVEL_STDOUT:="INFO"}
   # LOG_LEVEL_LOG=${LOG_LEVEL_LOG:="DEBUG"}
   # RUN_LOG="/dev/null"
+}
+
+_check_config_reload() {
+  if [[ -z ${JB_LOADED_TIME} || -z ${JB_LOADED_FILES} || -z ${JB_VARS} ]]; then
+    log_debug "JB_LOADED_TIME, JB_LOADED_FILES, JB_VARS is not set. Reloading config."
+    _load_config
+    return 0
+  fi
+  # check if any loaded file is newer than JB_LOADED_TIME
+  for file in "${JB_LOADED_FILES[@]}"; do
+    local file_time=$(echo "${file}" | cut -d'|' -f2)
+    if [[ ${JB_LOADED_TIME} -lt ${file_time} ]]; then
+      log_debug "Loaded file(${file}) is newer than JB_LOADED_TIME(${JB_LOADED_TIME})(${file_time}). Reloading config."
+      _load_config
+      return 0
+    fi
+  done
+  log_debug "Config is up to date. No need to reload."
+  return 1
 }
 
 _checkbin() {

@@ -111,27 +111,30 @@ $ net-darkstat run  # Web interface at http://device-ip:666
 ```
 
 ### Available Plugins
-
 #### Network Plugins
-- `net-darkstat` - Network traffic monitoring
-- `net-dnsmasq` - DNS/DHCP server
-- `net-dnscryptproxy` - Encrypted DNS proxy
-- `net-hostapd` - WiFi access point
-- `net-hysteria` - Hysteria high-performance QUIC proxy
-- `net-iptables` - Firewall management
-- `net-knockd` - Port knocking daemon
-- `net-omnip` - Omnip all-in-one QUIC proxy
-- `net-shoes` - Shoes multi-protocol proxy server
-- `net-sshd` - SSH daemon hardening
-- `net-v2ray` - V2Ray comprehensive proxy platform
+- [`net-darkstat`](plugins/net-darkstat.md) - Network traffic monitoring
+- [`net-dnscryptproxy`](plugins/net-dnscryptproxy.md) - Encrypted DNS proxy
+- [`net-dnsmasq`](plugins/net-dnsmasq.md) - DNS/DHCP server
+- [`net-hostapd`](plugins/net-hostapd.md) - WiFi access point
+- [`net-hysteria`](plugins/net-hysteria.md) - Hysteria high-performance QUIC proxy
+- [`net-ifupdown`](plugins/net-ifupdown.md) - Network Interface Management
+- [`net-iptables`](plugins/net-iptables.md) - Firewall management
+- [`net-knockd`](plugins/net-knockd.md) - Port knocking daemon
+- [`net-omnip`](plugins/net-omnip.md) - Omnip all-in-one QUIC proxy
+- [`net-shoes`](plugins/net-shoes.md) - Shoes multi-protocol proxy server
+- [`net-sshd`](plugins/net-sshd.md) - SSH daemon hardening
+- [`net-v2ray`](plugins/net-v2ray.md) - V2Ray comprehensive proxy platform
+- [`net-xtables`](plugins/net-xtables.md) - Complex Firewall management
 
 #### OS Plugins
-- `os-auditd` - System auditing
-- `os-aide` - File integrity monitoring
-- `os-sysctl` - Kernel parameter tuning
-- `os-conf` - System configuration
-- `os-minmon` - Minimal monitoring
-- `os-vector` - Log management
+- [`os-aide`](plugins/os-aide.md) - File integrity monitoring
+- [`os-auditd`](plugins/os-auditd.md) - System auditing
+- [`os-conf`](plugins/os-conf.md) - System configuration
+- [`os-minmon`](plugins/os-minmon.md) - Minimal monitoring
+- [`os-redis`](plugins/os-redis.md) - Redis in-memory data store
+- [`os-sysctl`](plugins/os-sysctl.md) - Kernel parameter tuning
+- [`os-systemd`](plugins/os-systemd.md) - Systemd service management
+- [`os-vector`](plugins/os-vector.md) - Log management
 
 All plugins follow a consistent command structure:
 

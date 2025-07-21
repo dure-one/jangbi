@@ -40,8 +40,7 @@ function net-v2ray {
     local DMNNAME="net-v2ray"
     BASH_IT_LOG_PREFIX="net-v2ray: "
     V2RAY_PORTS="${V2RAY_PORTS:-"LO:1080"}"
-    if [[ -z ${DURE_DEPLOY_PATH} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi

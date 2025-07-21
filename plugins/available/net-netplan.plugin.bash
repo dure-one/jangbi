@@ -40,7 +40,7 @@ function net-netplan {
   local DMNNAME="net-netplan"
   BASH_IT_LOG_PREFIX="net-netplan: "
   # NETPLAN_PORTS="${NETPLAN_PORTS:-""}"
-  if [[ -z ${JB_VARS} ]]; then
+  if _check_config_reload; then
       _load_config
       _root_only
       _distname_check

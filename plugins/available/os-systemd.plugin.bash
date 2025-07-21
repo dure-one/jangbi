@@ -39,8 +39,7 @@ function os-systemd {
     local DMNNAME="os-systemd"
     BASH_IT_LOG_PREFIX="os-systemd: "
     # OS_SYSTEMD_PORTS="${OS_SYSTEMD_PORTS:-""}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi
@@ -239,6 +238,20 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
     apt install -qy isc-dhcp-client ifupdown iproute2
+
+    # disable journald storage
+    sed -i 's/#Storage=auto/Storage=none # JB/' /etc/systemd/journald.conf
+    sed -i 's/Storage=.*/Storage=none # JB/' /etc/systemd/journald.conf
+    sed -i 's/#MaxLevelStore=debug/MaxLevelStore=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/MaxLevelStore=.*/MaxLevelStore=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/#MaxLevelSyslog=debug/MaxLevelSyslog=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/MaxLevelSyslog=.*/MaxLevelSyslog=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/#MaxLevelKMsg=notice/MaxLevelKMsg=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/MaxLevelKMsg=.*/MaxLevelKMsg=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/#MaxLevelConsole=info/MaxLevelConsole=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/MaxLevelConsole=.*/MaxLevelConsole=warning # JB/' /etc/systemd/journald.conf
+    sed -i 's/#MaxLevelWall=emerg/MaxLevelWall=crit # JB/' /etc/systemd/journald.conf
+    sed -i 's/MaxLevelWall=.*/MaxLevelWall=crit # JB/' /etc/systemd/journald.conf
 
     systemctl enable networking.service
 }

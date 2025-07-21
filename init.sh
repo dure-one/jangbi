@@ -31,8 +31,7 @@ usage() {
 BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
 BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 
-if [[ -z ${JB_VARS} ]]; then
-    _load_config || exit 1
+if _check_config_reload; then
     _root_only || exit 1
     _distname_check || exit 1
 else

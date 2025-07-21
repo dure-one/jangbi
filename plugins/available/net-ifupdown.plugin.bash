@@ -38,8 +38,7 @@ function net-ifupdown {
     local DMNNAME="net-ifupdown"
     BASH_IT_LOG_PREFIX="net-ifupdown: "
     # IFUPDOWN_PORTS="${IFUPDOWN_PORTS:-""}"
-    if [[ -z ${JB_VARS} ]]; then
-        _load_config || exit 1
+    if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
     fi
