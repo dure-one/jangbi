@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([f5eef98](https://github.com/dure-one/jangbi/commit/f5eef98d8203af5c4475f035ddd6ca6b8e831160) by nikescar).
+- Add changelog automatically ([08517ab](https://github.com/dure-one/jangbi/commit/08517ab09bb8aa11e05d4544aa616c0366edcf3f) by nikescar).
 
 ### Fixed
 
+- fix. load config when config file changed. ([684295c](https://github.com/dure-one/jangbi/commit/684295c749b34d38ca3753701e4f85c4317d36e9) by Woojae, Park).
 - fix. reorganize plugin functions. ([b14d679](https://github.com/dure-one/jangbi/commit/b14d679ccb1ef86c48febea04337ae579a5ba332) by Woojae, Park).
 - fix. xtable pknock. iptables run. ([360ec42](https://github.com/dure-one/jangbi/commit/360ec421bec919635aabc384086c5ade51b13fe2) by Woojae, Park).
 - fix. concise ifdown netplan generate function. other bugs. ([7895239](https://github.com/dure-one/jangbi/commit/7895239ac4d792bb245df53ecbed67bd89d5cc40) by Woojae, Park).
