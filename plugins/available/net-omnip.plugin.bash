@@ -22,26 +22,6 @@
 ## ```bash title="/etc/omnip/config.json"
 ## ```
 
-## \example Install and configure omnip:
-## \example-code bash
-##   net-omnip install
-##   net-omnip configgen
-##   net-omnip configapply
-## \example-description
-## In this example, we install omnip, generate the configuration files,
-## and apply them to the system for proxy services.
-
-## \example Download package and run service:
-## \example-code bash
-##   net-omnip download
-##   net-omnip run
-##   net-omnip check
-## \example-description
-## In this example, we download the omnip package,
-## start the service, and verify its running status.
-
-## \exit 1 Invalid command or parameters provided.
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'omnip install configurations.'

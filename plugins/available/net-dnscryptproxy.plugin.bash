@@ -23,26 +23,6 @@
 ## --8<-- "./configs/dnscryptproxy/dnscrypt-proxy.toml"
 ## ```
 
-## \example Install and configure DNSCrypt-proxy:
-## \example-code bash
-##   net-dnscryptproxy install
-##   net-dnscryptproxy configgen
-##   net-dnscryptproxy configapply
-## \example-description
-## In this example, we install DNSCrypt-proxy, generate the configuration files,
-## and apply them to the system for secure DNS resolution.
-
-## \example Download package and run service:
-## \example-code bash
-##   net-dnscryptproxy download
-##   net-dnscryptproxy run
-##   net-dnscryptproxy check
-## \example-description
-## In this example, we download the DNSCrypt-proxy package,
-## start the service, and verify its running status.
-
-## \exit 1 Invalid command or parameters provided.
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'dnscryptproxy install configurations.'

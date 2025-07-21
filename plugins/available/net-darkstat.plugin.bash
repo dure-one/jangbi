@@ -95,6 +95,7 @@ function __net-darkstat_install {
     INTERNET_AVAIL=0
     log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
+    # darkstat installation
     if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
@@ -110,10 +111,45 @@ function __net-darkstat_install {
         # shellcheck disable=SC2068
         apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
+
+    # html-table-csv-converter installation
+    local filepat="./pkgs/html-table-csv-converter-*-linux-musl.tar.gz"
+    local tmpdir="/tmp/html-table-csv-converter"
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
+    mkdir -p ${tmpdir} 1>/dev/null 2>&1
+
+    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-darkstat_download 
+    tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 1>/dev/null 2>&1
+    if [[ ! -f /tmp/html-table-csv-converter/html-table-csv-converter ]]; then
+        log_error "html-table-csv-converter binary not found in package."
+        return 1
+    fi
+    cp ${tmpdir}/html-table-csv-converter /usr/sbin/html-table-csv-converter
+    chmod 755 /sbin/html-table-csv-converter
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
+
+    # cdn-lookup installation
+    local filepat="./pkgs/cdn-lookup-*-linux-musl.tar.gz"
+    local tmpdir="/tmp/cdn-lookup"
+    rm -rf ${tmpdir} 1>/dev/null 2>&1
+    mkdir -p ${tmpdir} 1>/dev/null 2>&1
+
+    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-darkstat_download
+    tar -zxvf ${filepat} -C ${tmpdir} --strip-components=1 1>/dev/null 2>&1
+    if [[ ! -f /tmp/cdn-lookup/cdn-lookup ]]; then
+        log_error "cdn-lookup binary not found in package."
+        return 1
+    fi
+    cp ${tmpdir}/cdn-lookup /usr/sbin/cdn-lookup
+    chmod 755 /sbin/cdn-lookup
+
+    # generate config
     if ! __net-darkstat_configgen; then # if gen config is different do apply
         __net-darkstat_configapply
         rm -rf /tmp/darkstat
     fi
+
+    # add darkstat user
     log_debug "Creating darkstat user..."
     userdel darkstat 1>/dev/null 2>&1
     useradd -s /bin/false --no-create-home darkstat 1>/dev/null 2>&1
@@ -132,7 +168,8 @@ function __net-darkstat_uninstall {
 function __net-darkstat_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs darkstat || log_error "${DMNNAME} download failed."
-    _download_github_pkgs projectdiscovery/cdncheck cdncheck_*.zip  || log_error "${DMNNAME} download failed."
+    _download_github_pkgs nikescar/html-table-csv-converter html-table-csv-converter-*-linux-musl.tar.gz || log_error "${DMNNAME} download failed."
+    _download_github_pkgs nikescar/cdn-lookup cdn-lookup-*-linux-musl.tar.gz || log_error "${DMNNAME} download failed."
     return 0
 }
 

@@ -23,26 +23,6 @@
 ## --8<-- "./configs/shoes/config.yaml"
 ## ```
 
-## \example Install and configure shoes:
-## \example-code bash
-##   net-shoes install
-##   net-shoes configgen
-##   net-shoes configapply
-## \example-description
-## In this example, we install shoes, generate the configuration files,
-## and apply them to the system for proxy services.
-
-## \example Download package and run service:
-## \example-code bash
-##   net-shoes download
-##   net-shoes run
-##   net-shoes check
-## \example-description
-## In this example, we download the shoes package,
-## start the service, and verify its running status.
-
-## \exit 1 Invalid command or parameters provided.
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'shoes install configurations.'

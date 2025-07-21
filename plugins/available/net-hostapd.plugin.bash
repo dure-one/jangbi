@@ -25,25 +25,6 @@
 ## --8<-- "./configs/hostapd/hostapd.conf.sample"
 ## ```
 
-## \example Install and configure WiFi access point:
-## \example-code bash
-##   net-hostapd install
-##   net-hostapd configgen
-##   net-hostapd configapply
-## \example-description
-## In this example, we install hostapd, generate the configuration files for WiFi AP,
-## and apply them to create a functional wireless access point.
-
-## \example Start access point and verify status:
-## \example-code bash
-##   net-hostapd run
-##   net-hostapd check
-## \example-description
-## In this example, we start the hostapd service to enable the WiFi access point
-## and verify that the service is running properly.
-
-## \exit 1 Invalid command or parameters provided.
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'hostapd install configurations.'

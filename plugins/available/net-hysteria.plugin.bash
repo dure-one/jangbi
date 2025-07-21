@@ -23,26 +23,6 @@
 ## --8<-- "./configs/hysteria/config.yaml"
 ## ```
 
-## \example Install and configure Hysteria:
-## \example-code bash
-##   net-hysteria install
-##   net-hysteria configgen
-##   net-hysteria configapply
-## \example-description
-## In this example, we install Hysteria, generate the configuration files,
-## and apply them to the system for high-performance proxy services.
-
-## \example Download package and run service:
-## \example-code bash
-##   net-hysteria download
-##   net-hysteria run
-##   net-hysteria check
-## \example-description
-## In this example, we download the Hysteria package,
-## start the service, and verify its running status.
-
-## \exit 1 Invalid command or parameters provided.
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'hysteria install configurations.'

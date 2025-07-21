@@ -25,25 +25,6 @@
 ## --8<-- "./configs/sshd/sshd_config"
 ## ```
 
-## \example Install and configure SSH daemon:
-## \example-code bash
-##   net-sshd install
-##   net-sshd configgen
-##   net-sshd configapply
-## \example-description
-## In this example, we install SSH daemon, generate secure configurations,
-## and apply them to enable secure remote access.
-
-## \example Start SSH service and verify status:
-## \example-code bash
-##   net-sshd run
-##   net-sshd check
-## \example-description
-## In this example, we start the SSH daemon and verify
-## that the service is running and accessible.
-
-## \exit 1 Invalid command or parameters provided.
-
 # shellcheck shell=bash
 cite about-plugin
 about-plugin 'sshd install configurations.'

@@ -193,5 +193,6 @@ $ ./init.sh
 - replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip
 - hysteria server configurations with/without domain name?
 - last configs saved in /etc/jangbi
+- setup wizard to edit write .config file
 </details>
 
