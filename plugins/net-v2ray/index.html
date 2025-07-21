@@ -741,6 +741,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net v2ray
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -752,6 +765,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-v2ray.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-v2ray.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-v2ray.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,49 +1315,62 @@
 
 
 <h1 id="net-v2ray.plugin.bash">net-v2ray.plugin.bash<a href="#net-v2ray.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>v2ray install configurations.</p>
+  <p>v2ray install configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>-</strong> | port: <strong>LO:1080</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-v2ray help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-v2ray help|install|uninstall|download|disable|configgen|configapply|check|run
+$ net-v2ray install - install V2Ray proxy platform
+$ net-v2ray uninstall - uninstall V2Ray
+$ net-v2ray download - download V2Ray package files to pkg dir
+$ net-v2ray disable - disable V2Ray plugin
+$ net-v2ray configgen - generate V2Ray configuration files
+$ net-v2ray configapply - apply V2Ray configuration files
+$ net-v2ray check - check V2Ray plugin status
+$ net-v2ray run - run V2Ray service
+$ net-v2ray help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage V2Ray
-for secure proxy and tunneling. It provides automated installation, configuration management,
-and service control capabilities. V2Ray is a platform for building proxies to bypass network
-restrictions and protect privacy with advanced routing capabilities.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure V2Ray:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-v2ray<span class="w"> </span>install
-net-v2ray<span class="w"> </span>configgen
-net-v2ray<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install V2Ray, generate the configuration files,
-and apply them to the system for secure proxy services.</p>
-    <em><p>Download package and run service:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-v2ray<span class="w"> </span>download
-net-v2ray<span class="w"> </span>run
-net-v2ray<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we download the V2Ray package,
-start the service, and verify its running status.</p>
+      <p><a href="https://v2fly.org/" target="_blank">V2Ray</a> is a platform for building proxies to bypass network restrictions and protect privacy.</p>
+<h2 id="net-v2ray.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-v2ray.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_V2RAY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable V2Ray proxy</span>
+<span class="nv">V2RAY_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:1080&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 1080 - SOCKS port</span>
+</code></pre></div>
+<h2 id="net-v2ray.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-v2ray.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>v2ray
+tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:1080<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;v2ray&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">3</span><span class="o">))</span>
+$<span class="w"> </span>pidof<span class="w"> </span>v2ray
+<span class="m">12345</span>
+</code></pre></div>
+<h2 id="net-v2ray.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-v2ray.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/v2ray/</code>. it is generated by <code>net-v2ray configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/v2ray/config.json</span><pre><span></span><code><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;log&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">        </span><span class="s2">&quot;access&quot;</span>:<span class="w"> </span><span class="s2">&quot;/var/log/v2ray/access.log&quot;</span>,
+<span class="w">        </span><span class="s2">&quot;error&quot;</span>:<span class="w"> </span><span class="s2">&quot;/var/log/v2ray/error.log&quot;</span>,
+<span class="w">        </span><span class="s2">&quot;loglevel&quot;</span>:<span class="w"> </span><span class="s2">&quot;warning&quot;</span>
+<span class="w">    </span><span class="o">}</span>,
+<span class="w">    </span><span class="s2">&quot;inbounds&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">        </span><span class="o">{</span>
+<span class="w">            </span><span class="s2">&quot;port&quot;</span>:<span class="w"> </span><span class="m">10086</span>,
+<span class="w">            </span><span class="s2">&quot;listen&quot;</span>:<span class="w"> </span><span class="s2">&quot;127.0.0.1&quot;</span>,
+<span class="w">            </span><span class="s2">&quot;protocol&quot;</span>:<span class="w"> </span><span class="s2">&quot;vmess&quot;</span>,
+<span class="w">            </span><span class="s2">&quot;settings&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">                </span><span class="s2">&quot;clients&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">                    </span><span class="o">{</span>
+<span class="w">                        </span><span class="s2">&quot;id&quot;</span>:<span class="w"> </span><span class="s2">&quot;b831381d-6324-4d53-ad4f-8cda48b30811&quot;</span>
+<span class="w">                    </span><span class="o">}</span>
+<span class="w">                </span><span class="o">]</span>
+<span class="w">            </span><span class="o">}</span>
+<span class="w">        </span><span class="o">}</span>
+<span class="w">    </span><span class="o">]</span>,
+<span class="w">    </span><span class="s2">&quot;outbounds&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">        </span><span class="o">{</span>
+<span class="w">            </span><span class="s2">&quot;protocol&quot;</span>:<span class="w"> </span><span class="s2">&quot;freedom&quot;</span>
+<span class="w">        </span><span class="o">}</span>
+<span class="w">    </span><span class="o">]</span>
+<span class="o">}</span>
+</code></pre></div></p>
 
 
 

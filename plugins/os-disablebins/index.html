@@ -856,6 +856,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os disablebins
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -867,6 +880,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-disablebins.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-disablebins.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-disablebins.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,47 +1315,36 @@
 
 
 <h1 id="os-disablebins.plugin.bash">os-disablebins.plugin.bash<a href="#os-disablebins.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>disable system binaries for security.</p>
+  <p>disable system binaries for security. <div style="text-align: right"> group:<strong>postos</strong> | runtype:<strong>manual</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>os-disablebins help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>os-disablebins install|uninstall|download|disable|configgen|configapply|check|run
+$ os-disablebins install - install binary restrictions
+$ os-disablebins uninstall - uninstall binary restrictions
+$ os-disablebins download - download package files to pkg dir
+$ os-disablebins disable - disable binary restrictions plugin
+$ os-disablebins configgen - generate binary restriction configuration files
+$ os-disablebins configapply - apply binary restriction configuration files
+$ os-disablebins check - check binary restrictions plugin status
+$ os-disablebins run - run binary restrictions
+$ os-disablebins help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps disable potentially dangerous system binaries
-for enhanced security hardening. It provides automated installation,
-configuration management, and binary restriction capabilities. The tool safely
-disables or replaces system binaries that could be used maliciously while
-maintaining system functionality through controlled access and replacement scripts.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure binary restrictions:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-disablebins<span class="w"> </span>install
-os-disablebins<span class="w"> </span>run
-</code></pre></div>      <p>In this example, we install binary restriction configurations and apply them
-to disable potentially dangerous system binaries for security hardening.</p>
-    <em><p>Check restriction status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-disablebins<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we verify which binaries are currently disabled
-and ensure the security restrictions are properly applied.</p>
+      <p>This tool helps disable potentially dangerous system binaries for enhanced security hardening.</p>
+<h2 id="os-disablebins.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-disablebins.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_DISABLEBINS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable binary restrictions</span>
+<span class="nv">DISABLEBINS_MODE</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="w"> </span><span class="c1"># mode: disable|replace</span>
+</code></pre></div>
+<h2 id="os-disablebins.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-disablebins.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/usr/bin/nc<span class="w"> </span>/usr/bin/netcat
+-rwxr-xr-x<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">123</span><span class="w"> </span>Jan<span class="w"> </span><span class="m">01</span><span class="w"> </span><span class="m">12</span>:00<span class="w"> </span>/usr/bin/nc
+-rwxr-xr-x<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">456</span><span class="w"> </span>Jan<span class="w"> </span><span class="m">01</span><span class="w"> </span><span class="m">12</span>:00<span class="w"> </span>/usr/bin/netcat
+</code></pre></div>
+<h2 id="os-disablebins.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-disablebins.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/disablebins/</code>. it is generated by <code>os-disablebins configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/disablebins/config</span><pre><span></span><code>
+</code></pre></div></p>
 
 
 

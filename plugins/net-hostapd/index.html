@@ -534,6 +534,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net hostapd
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -545,6 +558,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-hostapd.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-hostapd.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-hostapd.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,16 +1315,48 @@
 
 
 <h1 id="net-hostapd.plugin.bash">net-hostapd.plugin.bash<a href="#net-hostapd.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>hostapd install configurations.</p>
+  <p>hostapd install configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-hostapd help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-hostapd help|install|uninstall|download|disable|configgen|configapply|check|run
+$ net-hostapd install - install hostapd
+$ net-hostapd uninstall - uninstall hostapd
+$ net-hostapd download - download hostapd package files to pkg dir
+$ net-hostapd disable - disable hostapd plugin
+$ net-hostapd configgen - generate hostapd configuration files
+$ net-hostapd configapply - apply hostapd configuration files
+$ net-hostapd check - check hostapd plugin status
+$ net-hostapd run - run hostapd service
+$ net-hostapd help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage hostapd (Host Access Point Daemon)
-for creating WiFi access points. It provides automated installation, configuration management,
-and service control capabilities. Hostapd turns a wireless network interface into an access point,
-enabling other devices to connect to your system as a WiFi hotspot.</p>
+      <p><a href="https://w1.fi/hostapd/" target="_blank">Hostapd</a> (Host Access Point Daemon) turns a wireless network interface into an access point.</p>
+<h2 id="net-hostapd.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-hostapd.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable hostapd</span>
+<span class="nv">JB_WLANINF</span><span class="o">=</span><span class="s2">&quot;wlan0&quot;</span><span class="w"> </span><span class="c1"># wireless interface name</span>
+<span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">&quot;MyAccessPoint&quot;</span><span class="w"> </span><span class="c1"># WiFi network name</span>
+<span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">&quot;password123&quot;</span><span class="w"> </span><span class="c1"># WiFi password</span>
+</code></pre></div>
+<h2 id="net-hostapd.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-hostapd.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ps<span class="w"> </span>aux<span class="p">|</span>grep<span class="w"> </span>hostapd
+root<span class="w">      </span><span class="m">12345</span><span class="w">  </span><span class="m">0</span>.0<span class="w">  </span><span class="m">0</span>.1<span class="w">  </span><span class="m">12345</span><span class="w">  </span><span class="m">1234</span><span class="w"> </span>?<span class="w">        </span>S<span class="w">    </span><span class="m">12</span>:34<span class="w">   </span><span class="m">0</span>:00<span class="w"> </span>hostapd<span class="w"> </span>/etc/hostapd/hostapd.conf
+$<span class="w"> </span>iwconfig<span class="w"> </span>wlan0
+wlan0<span class="w">     </span>IEEE<span class="w"> </span><span class="m">802</span>.11<span class="w">  </span>Mode:Master<span class="w">  </span>Tx-Power<span class="o">=</span><span class="m">20</span><span class="w"> </span>dBm
+</code></pre></div>
+<h2 id="net-hostapd.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-hostapd.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/hostapd/</code>. it is generated by <code>net-hostapd configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/hostapd/hostapd.conf</span><pre><span></span><code><span class="nv">interface</span><span class="o">=</span>
+<span class="nv">ssid</span><span class="o">=</span>durejangbi
+<span class="nv">hw_mode</span><span class="o">=</span>g
+<span class="nv">channel</span><span class="o">=</span><span class="m">6</span>
+<span class="nv">ieee80211n</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">wpa</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">wpa_passphrase</span><span class="o">=</span>durejangbi
+<span class="nv">wpa_key_mgmt</span><span class="o">=</span>WPA-PSK
+<span class="nv">rsn_pairwise</span><span class="o">=</span>CCMP
+<span class="nv">wmm_enabled</span><span class="o">=</span><span class="m">1</span>
+</code></pre></div></p>
 
 
 

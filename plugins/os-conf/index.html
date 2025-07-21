@@ -833,6 +833,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os conf
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -844,6 +857,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-conf.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-conf.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-conf.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,47 +1315,36 @@
 
 
 <h1 id="os-conf.plugin.bash">os-conf.plugin.bash<a href="#os-conf.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>custom OS configurations.</p>
+  <p>custom OS configurations. <div style="text-align: right"> group:<strong>prenet</strong> | runtype:<strong>none</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>os-conf help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>os-conf help|install|uninstall|download|disable|configgen|configapply|check|run
+$ os-conf install - install custom OS configurations
+$ os-conf uninstall - uninstall custom OS configurations
+$ os-conf download - download OS configuration files to pkg dir
+$ os-conf disable - disable OS configuration plugin
+$ os-conf configgen - generate OS configuration files
+$ os-conf configapply - apply OS configuration files
+$ os-conf check - check OS configuration plugin status
+$ os-conf run - run OS configuration tasks
+$ os-conf help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage custom operating system
-configurations for system hardening and optimization. It provides automated installation,
-configuration management, and system customization capabilities. The tool manages
-user accounts, file permissions, system settings, and various OS-level configurations
-to establish a secure and optimized system baseline.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure custom OS settings:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-conf<span class="w"> </span>install
-os-conf<span class="w"> </span>run
-</code></pre></div>      <p>In this example, we install custom OS configurations and apply them
-to establish proper system settings and security baselines.</p>
-    <em><p>Check configuration status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-conf<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we verify the current configuration status
-and ensure all custom settings are properly applied.</p>
+      <p><a href="https://jangbi.org/docs/os-conf" target="_blank">OS Configuration</a> provides custom operating system configurations for system hardening and optimization.</p>
+<h2 id="os-conf.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-conf.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_CONF</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable custom OS configurations</span>
+</code></pre></div>
+<h2 id="os-conf.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-conf.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/etc/jangbi/
+-rw-r--r--<span class="w"> </span><span class="m">1</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span>custom.conf
+$<span class="w"> </span>systemctl<span class="w"> </span>--no-pager<span class="w"> </span>list-unit-files<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>jangbi
+jangbi-hardening.service<span class="w">              </span>enabled
+</code></pre></div>
+<h2 id="os-conf.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-conf.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/jangbi/</code>. it is generated by <code>os-conf configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/jangbi/custom.conf</span><pre><span></span><code>
+</code></pre></div></p>
 
 
 

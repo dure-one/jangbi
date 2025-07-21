@@ -810,6 +810,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os auditd
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -821,6 +834,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-auditd.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-auditd.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-auditd.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,48 +1315,88 @@
 
 
 <h1 id="os-auditd.plugin.bash">os-auditd.plugin.bash<a href="#os-auditd.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>auditd install configurations.</p>
+  <p>auditd install configurations. <div style="text-align: right"> group:<strong>prenet</strong> | runtype:<strong>systemd</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>os-auditd help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>os-auditd help|install|uninstall|download|disable|configgen|configapply|check|run
+$ os-auditd install - install auditd system monitoring
+$ os-auditd uninstall - uninstall auditd
+$ os-auditd download - download auditd package files to pkg dir
+$ os-auditd disable - disable auditd plugin
+$ os-auditd configgen - generate auditd configuration files
+$ os-auditd configapply - apply auditd configuration files
+$ os-auditd check - check auditd plugin status
+$ os-auditd run - run auditd service
+$ os-auditd help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage auditd (Linux Audit Daemon)
-for system security monitoring and compliance. It provides automated installation,
-configuration management, and audit log monitoring capabilities. Auditd tracks
-system calls, file access, user activities, and security events for forensics and compliance.</p>
+      <p><a href="https://github.com/linux-audit/audit-userspace" target="_blank">Auditd</a> (Linux Audit Daemon) tracks system calls, file access, user activities, and security events.</p>
+<h2 id="os-auditd.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-auditd.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_AUDITD</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable auditd system monitoring</span>
+</code></pre></div>
+<h2 id="os-auditd.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-auditd.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>auditd
+●<span class="w"> </span>auditd.service<span class="w"> </span>-<span class="w"> </span>Security<span class="w"> </span>Auditing<span class="w"> </span>Service
+<span class="w">   </span>Active:<span class="w"> </span>active<span class="w"> </span><span class="o">(</span>running<span class="o">)</span>
+$<span class="w"> </span>aureport<span class="w"> </span>--summary
+Summary<span class="w"> </span><span class="nv">Report</span>
+<span class="o">======================</span>
+Range<span class="w"> </span>of<span class="w"> </span><span class="nb">time</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>logs:<span class="w"> </span><span class="m">01</span>/01/2024<span class="w"> </span><span class="m">00</span>:00:00.000<span class="w"> </span>-<span class="w"> </span><span class="m">07</span>/22/2025<span class="w"> </span><span class="m">12</span>:00:00.000
+</code></pre></div>
+<h2 id="os-auditd.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-auditd.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/audit/</code>. it is generated by <code>os-auditd configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/audit/auditd.conf</span><pre><span></span><code><span class="c1">#</span>
+<span class="c1"># This file controls the configuration of the audit daemon</span>
+<span class="c1">#</span>
+
+<span class="nv">local_events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+<span class="nv">write_logs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+<span class="nv">log_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/var/log/audit/audit.log
+<span class="nv">log_group</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>adm
+<span class="nv">log_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>ENRICHED<span class="w"> </span><span class="c1"># RAW / ENRICHED</span>
+<span class="nv">flush</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>INCREMENTAL_ASYNC
+<span class="nv">freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">50</span>
+<span class="nv">max_log_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">8</span>
+<span class="nv">num_logs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
+<span class="nv">priority_boost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">4</span>
+<span class="nv">name_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>NONE
+<span class="c1">##name = mydomain</span>
+<span class="nv">max_log_file_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>ROTATE
+<span class="nv">space_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">75</span>
+<span class="nv">space_left_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>SYSLOG
+<span class="nv">verify_email</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+<span class="nv">action_mail_acct</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>root
+<span class="nv">admin_space_left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">50</span>
+<span class="nv">admin_space_left_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>SUSPEND
+<span class="nv">disk_full_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>SUSPEND
+<span class="nv">disk_error_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>SUSPEND
+<span class="nv">use_libwrap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>yes
+<span class="c1">##tcp_listen_port = 60</span>
+<span class="nv">tcp_listen_queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
+<span class="nv">tcp_max_per_addr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<span class="c1">##tcp_client_ports = 1024-65535</span>
+<span class="nv">tcp_client_max_idle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">0</span>
+<span class="nv">transport</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>TCP
+<span class="nv">krb5_principal</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>auditd
+<span class="c1">##krb5_key_file = /etc/audit/audit.key</span>
+<span class="nv">distribute_network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>no
+<span class="nv">q_depth</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2000</span>
+<span class="nv">overflow_action</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>SYSLOG
+<span class="nv">max_restarts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
+<span class="nv">plugin_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/etc/audit/plugins.d
+<span class="nv">end_of_event_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2</span>
+</code></pre></div></p>
 
 
 
 
 
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
 
 
 
 
 
-
-  <strong>Examples</strong>
-    <em><p>Install and configure auditd:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-auditd<span class="w"> </span>install
-os-auditd<span class="w"> </span>configgen
-os-auditd<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install auditd, generate security audit configurations,
-and apply them to enable comprehensive system monitoring.</p>
-    <em><p>Start auditing and check status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-auditd<span class="w"> </span>run
-os-auditd<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we start the audit daemon to begin security monitoring
-and verify that the auditing service is functioning properly.</p>
 
 
 

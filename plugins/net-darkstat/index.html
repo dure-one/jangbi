@@ -1331,7 +1331,7 @@ $ net-darkstat help - show this help message</code></pre>
 
   <strong>Description</strong>
       <p><a href="https://unix4lyfe.org/darkstat/" target="_blank">Darkstat</a> is saving network traffic statistics and serving them over HTTP.</p>
-<p><a class="glightbox" href="../imgs/darkstat_1.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="darkstat main" src="../imgs/darkstat_1.png" title="darkstat main" /></a></p>
+<p><a class="glightbox" href="../../imgs/darkstat_1.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="darkstat main" src="../../imgs/darkstat_1.png" title="darkstat main" /></a></p>
 <h2 id="net-darkstat.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-darkstat.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable darkstat</span>
 <span class="nv">DARKSTAT_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:19283,LAN:19283&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, LAN - LAN interface , 19283 - port</span>
@@ -1347,10 +1347,10 @@ $<span class="w"> </span>pidof<span class="w"> </span>darkstat
 You can edit it manually and not run install or configapply commands to keep current configurations.
 <div class="language-bash highlight"><span class="filename">/etc/darkstat/init.conf</span><pre><span></span><code><span class="nv">START_DARKSTAT</span><span class="o">=</span>yes
 <span class="nv">DS_STATIC_VARS</span><span class="o">=</span><span class="s2">&quot;--chroot /var/log/darkstat --user darkstat --pidfile darkstat.pid  --no-dns --daylog darkstat_day.log --no-promisc --export darkstat.db --import darkstat.db --no-daemon --no-macs&quot;</span>
-<span class="nv">INTERFACE</span><span class="o">=</span><span class="s2">&quot;-i __DARKSTAT_INF__&quot;</span>
-<span class="nv">LOCAL</span><span class="o">=</span><span class="s2">&quot;-l __DARKSTAT_INFNET__&quot;</span>
-<span class="nv">PORT</span><span class="o">=</span><span class="s2">&quot;-p __DARKSTAT_PORT__&quot;</span>
-<span class="nv">BINDIP</span><span class="o">=</span><span class="s2">&quot;__DARKSTAT_BINDIP__&quot;</span>
+<span class="nv">INTERFACE</span><span class="o">=</span><span class="s2">&quot;-i enx00e04c680686&quot;</span>
+<span class="nv">LOCAL</span><span class="o">=</span><span class="s2">&quot;-l 192.168.79.186/255.255.255.0&quot;</span>
+<span class="nv">PORT</span><span class="o">=</span><span class="s2">&quot;-p 19283&quot;</span>
+<span class="nv">BINDIP</span><span class="o">=</span><span class="s2">&quot;-b 127.0.0.1&quot;</span>
 
 <span class="c1"># darkstat $STATIC_VARS $INTERFACE $PORT $BINDIP $LOCAL</span>
 <span class="c1"># darkstat --chroot /var/log/darkstat --user darkstat --pidfile darkstat.pid  --no-dns --daylog darkstat_day.log --no-promisc --export darkstat.db --import darkstat.db --no-daemon --no-macs -i enx00e04c680686 -p 19283 -b 127.0.0.1 -l 192.68.79.0/255.255.255.0</span>

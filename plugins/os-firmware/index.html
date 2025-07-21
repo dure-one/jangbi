@@ -879,6 +879,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os firmware
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -890,6 +903,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-firmware.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-firmware.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-firmware.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,47 +1315,37 @@
 
 
 <h1 id="os-firmware.plugin.bash">os-firmware.plugin.bash<a href="#os-firmware.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>custom OS firmware install in kernel.</p>
+  <p>custom OS firmware install in kernel. <div style="text-align: right"> group:<strong>postos</strong> | runtype:<strong>manual</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>os-firmware help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>os-firmware install|uninstall|download|disable|configgen|configapply|check|run
+$ os-firmware install - install firmware
+$ os-firmware uninstall - uninstall firmware
+$ os-firmware download - download firmware files to pkg dir
+$ os-firmware disable - disable firmware plugin
+$ os-firmware configgen - generate firmware configuration files
+$ os-firmware configapply - apply firmware configuration files
+$ os-firmware check - check firmware plugin status
+$ os-firmware run - run firmware installation
+$ os-firmware help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage custom firmware
-in the Linux kernel for hardware support and optimization. It provides automated installation,
-configuration management, and firmware update capabilities. The tool manages
-kernel firmware files, driver modules, and hardware-specific configurations
-to ensure proper hardware functionality and performance.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure firmware:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-firmware<span class="w"> </span>install
-os-firmware<span class="w"> </span>run
-</code></pre></div>      <p>In this example, we install custom firmware and apply it
-to enable proper hardware support and driver functionality.</p>
-    <em><p>Check firmware status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-firmware<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we verify the current firmware installation status
-and ensure all hardware components are properly supported.</p>
+      <p>This tool helps install, configure, and manage custom firmware in the Linux kernel for hardware support and optimization.</p>
+<h2 id="os-firmware.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-firmware.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_FIRMWARE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable firmware installation</span>
+<span class="nv">FIRMWARE_MODE</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="w"> </span><span class="c1"># mode: auto|manual</span>
+</code></pre></div>
+<h2 id="os-firmware.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-firmware.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/lib/firmware/
+drwxr-xr-x<span class="w"> </span><span class="m">2</span><span class="w"> </span>root<span class="w"> </span>root<span class="w"> </span><span class="m">4096</span><span class="w"> </span>Jan<span class="w"> </span><span class="m">01</span><span class="w"> </span><span class="m">12</span>:00<span class="w"> </span>firmware
+$<span class="w"> </span>dmesg<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>firmware
+<span class="o">[</span><span class="w">    </span><span class="m">1</span>.234567<span class="o">]</span><span class="w"> </span>firmware:<span class="w"> </span>loading<span class="w"> </span>firmware<span class="w"> </span>files
+</code></pre></div>
+<h2 id="os-firmware.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-firmware.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/firmware/</code>. it is generated by <code>os-firmware configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/firmware/config</span><pre><span></span><code>
+</code></pre></div></p>
 
 
 

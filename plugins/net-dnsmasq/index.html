@@ -511,6 +511,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net dnsmasq
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -522,6 +535,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-dnsmasq.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-dnsmasq.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-dnsmasq.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,49 +1315,75 @@
 
 
 <h1 id="net-dnsmasq.plugin.bash">net-dnsmasq.plugin.bash<a href="#net-dnsmasq.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>dnsmasq install configurations.</p>
+  <p>dnsmasq install configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>-</strong> | port: <strong>LO:53</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-dnsmasq help|install|uninstall|download|disable|configgen|configapply|check|run|updateblist</code></pre>
+    <pre><code>net-dnsmasq help|install|uninstall|download|disable|configgen|configapply|check|run|updateblist
+$ net-dnsmasq install - install dnsmasq
+$ net-dnsmasq uninstall - uninstall dnsmasq
+$ net-dnsmasq download - download dnsmasq package files to pkg dir
+$ net-dnsmasq disable - disable dnsmasq plugin
+$ net-dnsmasq configgen - generate dnsmasq configuration files
+$ net-dnsmasq configapply - apply dnsmasq configuration files
+$ net-dnsmasq check - check dnsmasq plugin status
+$ net-dnsmasq run - run dnsmasq service
+$ net-dnsmasq updateblist - update DNS blacklist files
+$ net-dnsmasq help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage dnsmasq (DNS forwarder and DHCP server)
-for network services. It provides automated installation, configuration management,
-DNS blacklist updates, and service control capabilities. Dnsmasq serves as a lightweight
-DNS forwarder, DHCP server, and network boot server for small networks.</p>
+      <p><a href="https://thekelleys.org.uk/dnsmasq/doc.html" target="_blank">Dnsmasq</a> is a lightweight DNS forwarder and DHCP server for small networks.</p>
+<h2 id="net-dnsmasq.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-dnsmasq.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable dnsmasq</span>
+<span class="nv">DNSMASQ_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 53 - DNS port</span>
+</code></pre></div>
+<h2 id="net-dnsmasq.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-dnsmasq.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>dnsmasq
+udp<span class="w">   </span>UNCONN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">0</span><span class="w">          </span><span class="m">127</span>.0.0.1:53<span class="w">         </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;dnsmasq&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">5</span><span class="o">))</span>
+$<span class="w"> </span>pidof<span class="w"> </span>dnsmasq
+<span class="m">12345</span>
+</code></pre></div>
+<h2 id="net-dnsmasq.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-dnsmasq.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/dnsmasq/</code>. it is generated by <code>net-dnsmasq configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/dnsmasq/dnsmasq.conf</span><pre><span></span><code><span class="c1"># JB_ROLE=gateway</span>
+domain-needed
+bogus-priv
+dnssec
+dnssec-check-unsigned
+filterwin2k
+strict-order
+no-resolv
+no-poll
+conf-file<span class="o">=</span>/etc/dnsmasq/trust-anchors.conf
+<span class="nv">server</span><span class="o">=</span><span class="m">1</span>.1.1.1
+listen-address<span class="o">=</span><span class="m">127</span>.0.0.1
+
+<span class="nv">interface</span><span class="o">=</span>lo
+
+bind-interfaces
+
+no-hosts
+dhcp-range<span class="o">=</span>interface:lo,127.0.0.1,127.0.0.254,12h
+
+dhcp-leasefile<span class="o">=</span>/var/lib/misc/dnsmasq.leases
+cache-size<span class="o">=</span><span class="m">1000</span>
+no-negcache
+conf-dir<span class="o">=</span>/etc/dnsmasq/,*.conf
+local-service
+dns-loop-detect
+log-queries
+log-dhcp
+</code></pre></div></p>
 
 
 
 
 
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
 
 
 
 
 
-
-  <strong>Examples</strong>
-    <em><p>Install and configure dnsmasq:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-dnsmasq<span class="w"> </span>install
-net-dnsmasq<span class="w"> </span>configgen
-net-dnsmasq<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install dnsmasq, generate the configuration files,
-and apply them to the system for DNS and DHCP services.</p>
-    <em><p>Update blacklist and run service:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-dnsmasq<span class="w"> </span>updateblist
-net-dnsmasq<span class="w"> </span>run
-net-dnsmasq<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we update the DNS blacklist for ad-blocking,
-start the dnsmasq service, and verify that it's running properly.</p>
 
 
 

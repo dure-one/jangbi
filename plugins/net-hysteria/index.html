@@ -557,6 +557,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net hysteria
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -568,6 +581,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-hysteria.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-hysteria.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-hysteria.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,16 +1315,94 @@
 
 
 <h1 id="net-hysteria.plugin.bash">net-hysteria.plugin.bash<a href="#net-hysteria.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>hysteria install configurations.</p>
+  <p>hysteria install configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>-</strong> | port: <strong>LO:1080</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-hysteria help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-hysteria help|install|uninstall|download|disable|configgen|configapply|check|run
+$ net-hysteria install - install hysteria
+$ net-hysteria uninstall - uninstall hysteria
+$ net-hysteria download - download hysteria package files to pkg dir
+$ net-hysteria disable - disable hysteria plugin
+$ net-hysteria configgen - generate hysteria configuration files
+$ net-hysteria configapply - apply hysteria configuration files
+$ net-hysteria check - check hysteria plugin status
+$ net-hysteria run - run hysteria service
+$ net-hysteria help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage Hysteria
-for high-performance proxy and tunneling. It provides automated installation, configuration management,
-and service control capabilities. Hysteria is a feature-packed proxy &amp; relay tool optimized for
-lossy, unstable connections with brutal performance.</p>
+      <p><a href="https://v2.hysteria.network/" target="_blank">Hysteria</a> is a feature-packed proxy &amp; relay tool optimized for lossy, unstable connections.</p>
+<h2 id="net-hysteria.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-hysteria.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_HYSTERIA</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable hysteria</span>
+<span class="nv">HYSTERIA_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:1080&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 1080 - SOCKS port</span>
+</code></pre></div>
+<h2 id="net-hysteria.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-hysteria.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>hysteria
+tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:1080<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;hysteria&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">3</span><span class="o">))</span>
+$<span class="w"> </span>pidof<span class="w"> </span>hysteria
+<span class="m">12345</span>
+</code></pre></div>
+<h2 id="net-hysteria.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-hysteria.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/hysteria/</code>. it is generated by <code>net-hysteria configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/hysteria/config.yaml</span><pre><span></span><code><span class="c1"># https://v2.hysteria.network/docs/getting-started/Server/#__tabbed_1_1</span>
+listen:<span class="w"> </span>:443
+
+obfs:
+<span class="w">  </span>type:<span class="w"> </span>salamander<span class="w"> </span>
+<span class="w">  </span>salamander:
+<span class="w">    </span>password:<span class="w"> </span>123password
+
+server:<span class="w"> </span>localhost
+
+<span class="c1"># openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out some.crt -keyout some.key -subj &quot;/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost&quot;</span>
+tls:<span class="w"> </span>
+<span class="w">  </span>cert:<span class="w"> </span>some.crt
+<span class="w">  </span>key:<span class="w"> </span>some.key
+<span class="w">  </span>sniGuard:<span class="w"> </span>strict
+
+<span class="c1"># acme:</span>
+<span class="c1">#   domains:</span>
+<span class="c1">#     - your.domain.net </span>
+<span class="c1">#   email: your@email.com </span>
+
+auth:<span class="w"> </span>password
+
+<span class="c1"># trafficStats:</span>
+<span class="c1">#   listen: :9999 </span>
+<span class="c1">#   secret: some_secret </span>
+
+<span class="c1"># resolver: # otherwise, system resolver will be used</span>
+<span class="c1">#   type: udp | tcp | tls | https </span>
+<span class="c1">#   tcp:</span>
+<span class="c1">#     addr: 8.8.8.8:53 </span>
+<span class="c1">#     timeout: 4s </span>
+<span class="c1">#   udp:</span>
+<span class="c1">#     addr: 8.8.4.4:53 </span>
+<span class="c1">#     timeout: 4s</span>
+<span class="c1">#   tls:</span>
+<span class="c1">#     addr: 1.1.1.1:853 </span>
+<span class="c1">#     timeout: 10s</span>
+<span class="c1">#     sni: cloudflare-dns.com </span>
+<span class="c1">#     insecure: false </span>
+<span class="c1">#   https:</span>
+<span class="c1">#     addr: 1.1.1.1:443 </span>
+<span class="c1">#     timeout: 10s</span>
+<span class="c1">#     sni: cloudflare-dns.com</span>
+<span class="c1">#     insecure: false</span>
+
+<span class="c1"># sniff:</span>
+<span class="c1">#   enable: true </span>
+<span class="c1">#   timeout: 2s </span>
+<span class="c1">#   rewriteDomain: false </span>
+<span class="c1">#   tcpPorts: 80,443,8000-9000 </span>
+<span class="c1">#   udpPorts: all </span>
+
+<span class="c1"># masquerade: </span>
+<span class="c1">#   type: proxy</span>
+<span class="c1">#   proxy:</span>
+<span class="c1">#     url: https://news.ycombinator.com/ </span>
+<span class="c1">#     rewriteHost: true</span>
+</code></pre></div></p>
 
 
 

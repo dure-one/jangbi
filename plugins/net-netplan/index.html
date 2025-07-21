@@ -649,6 +649,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net netplan
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -660,6 +673,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-netplan.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-netplan.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-netplan.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,49 +1315,38 @@
 
 
 <h1 id="net-netplan.plugin.bash">net-netplan.plugin.bash<a href="#net-netplan.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>netplan network configurations.</p>
+  <p>netplan network configurations. <div style="text-align: right"> group:<strong>net</strong> | runtype:<strong>systemd</strong> | deps: <strong>os-systemd</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-netplan help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-netplan help|install|uninstall|download|disable|configgen|configapply|check|run
+$ net-netplan install - install netplan network management
+$ net-netplan uninstall - uninstall netplan
+$ net-netplan download - download netplan package files to pkg dir
+$ net-netplan disable - disable netplan plugin
+$ net-netplan configgen - generate netplan configuration files
+$ net-netplan configapply - apply netplan configuration files
+$ net-netplan check - check netplan plugin status
+$ net-netplan run - run netplan network services
+$ net-netplan help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage Netplan network configurations
-for modern Ubuntu/Debian network management. It provides automated installation,
-configuration management, and network service control capabilities. Netplan uses
-YAML configuration files to define network interfaces, bridges, bonds, and VLANs
-with backend support for NetworkManager and systemd-networkd.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure Netplan:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-netplan<span class="w"> </span>install
-net-netplan<span class="w"> </span>configgen
-net-netplan<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install Netplan, generate network configurations,
-and apply them to manage network interfaces with modern tooling.</p>
-    <em><p>Apply network changes and verify status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-netplan<span class="w"> </span>run
-net-netplan<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we apply the Netplan configuration and verify
-that the network settings are active and working properly.</p>
+      <p><a href="https://netplan.io/" target="_blank">Netplan</a> provides modern Ubuntu/Debian network management with YAML configuration files.</p>
+<h2 id="net-netplan.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-netplan.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_NETPLAN</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable netplan network management</span>
+</code></pre></div>
+<h2 id="net-netplan.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-netplan.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>netplan<span class="w"> </span>status
+●<span class="w"> </span><span class="m">1</span>:<span class="w"> </span>lo<span class="w"> </span>ethernet<span class="w"> </span>UNKNOWN/UP<span class="w"> </span><span class="o">(</span>unmanaged<span class="o">)</span>
+●<span class="w"> </span><span class="m">2</span>:<span class="w"> </span>eth0<span class="w"> </span>ethernet<span class="w"> </span>UP<span class="w"> </span><span class="o">(</span>networkd:<span class="w"> </span>eth0<span class="o">)</span>
+$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>systemd-networkd
+●<span class="w"> </span>systemd-networkd.service<span class="w"> </span>-<span class="w"> </span>Network<span class="w"> </span>Service
+<span class="w">   </span>Active:<span class="w"> </span>active<span class="w"> </span><span class="o">(</span>running<span class="o">)</span>
+</code></pre></div>
+<h2 id="net-netplan.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-netplan.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/netplan/</code>. it is generated by <code>net-netplan configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/netplan/01-netcfg.yaml</span><pre><span></span><code>
+</code></pre></div></p>
 
 
 

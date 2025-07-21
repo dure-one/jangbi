@@ -626,6 +626,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net knockd
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -637,6 +650,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-knockd.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-knockd.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-knockd.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,49 +1315,66 @@
 
 
 <h1 id="net-knockd.plugin.bash">net-knockd.plugin.bash<a href="#net-knockd.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>knockd port knocking daemon configurations.</p>
+  <p>knockd port knocking daemon configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>systemd</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-knockd help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-knockd help|install|uninstall|download|disable|configgen|configapply|check|run
+$ net-knockd install - install knockd port knocking daemon
+$ net-knockd uninstall - uninstall knockd
+$ net-knockd download - download knockd package files to pkg dir
+$ net-knockd disable - disable knockd plugin
+$ net-knockd configgen - generate knockd configuration files
+$ net-knockd configapply - apply knockd configuration files
+$ net-knockd check - check knockd plugin status
+$ net-knockd run - run knockd service
+$ net-knockd help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage knockd (port knocking daemon)
-for enhanced network security through stealth port access. It provides automated installation,
-configuration management, and port knocking service control capabilities. Knockd enables
-secure remote access by requiring specific port knock sequences before opening firewall ports,
-adding an extra layer of security to network services.</p>
+      <p><a href="http://www.zeroflux.org/projects/knock" target="_blank">Knockd</a> is a port knocking daemon for enhanced network security through stealth port access.</p>
+<h2 id="net-knockd.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-knockd.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_KNOCKD</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable knockd port knocking</span>
+</code></pre></div>
+<h2 id="net-knockd.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-knockd.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ps<span class="w"> </span>aux<span class="p">|</span>grep<span class="w"> </span>knockd
+root<span class="w">      </span><span class="m">12345</span><span class="w">  </span><span class="m">0</span>.0<span class="w">  </span><span class="m">0</span>.1<span class="w">  </span><span class="m">12345</span><span class="w">  </span><span class="m">1234</span><span class="w"> </span>?<span class="w">        </span>S<span class="w">    </span><span class="m">12</span>:34<span class="w">   </span><span class="m">0</span>:00<span class="w"> </span>knockd<span class="w"> </span>-d<span class="w"> </span>-i<span class="w"> </span>eth0
+$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>knockd
+●<span class="w"> </span>knockd.service<span class="w"> </span>-<span class="w"> </span>Port-Knock<span class="w"> </span>Daemon
+<span class="w">   </span>Active:<span class="w"> </span>active<span class="w"> </span><span class="o">(</span>running<span class="o">)</span>
+</code></pre></div>
+<h2 id="net-knockd.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-knockd.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/knockd.conf</code>. it is generated by <code>net-knockd configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/knockd.conf</span><pre><span></span><code><span class="o">[</span>options<span class="o">]</span>
+UseSyslog
+<span class="c1"># LogFile = /var/log/knockd.log</span>
+<span class="c1"># PidFile = /var/run/knockd.pid</span>
+<span class="nv">Interface</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>eth0
 
+<span class="c1"># [stepCliOpenSSH]</span>
+<span class="c1"># One_Time_Sequences = /etc/knockd.otp</span>
+<span class="c1"># seq_timeout = 5</span>
+<span class="c1"># start_command = /usr/sbin/iptables -A INPUT -s %IP% -p tcp --syn -j ACCEPT</span>
+<span class="c1"># tcpflags    = syn,ack</span>
+<span class="c1"># stop_command  = /usr/sbin/iptables -D INPUT -s %IP% -p tcp --syn -j ACCEPT</span>
 
+<span class="o">[</span>openSSH<span class="o">]</span>
+<span class="nv">sequence</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="m">7000</span>,8000,9000
+<span class="nv">seq_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
+<span class="nb">command</span><span class="w">     </span><span class="o">=</span><span class="w"> </span>/sbin/iptables<span class="w"> </span>-A<span class="w"> </span>INPUT<span class="w"> </span>-s<span class="w"> </span>%IP%<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">22</span><span class="w"> </span>-j<span class="w"> </span>ACCEPT
+<span class="nv">tcpflags</span><span class="w">    </span><span class="o">=</span><span class="w"> </span>syn
 
+<span class="o">[</span>closeSSH<span class="o">]</span>
+<span class="nv">sequence</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="m">9000</span>,8000,7000
+<span class="nv">seq_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5</span>
+<span class="nb">command</span><span class="w">     </span><span class="o">=</span><span class="w"> </span>/sbin/iptables<span class="w"> </span>-D<span class="w"> </span>INPUT<span class="w"> </span>-s<span class="w"> </span>%IP%<span class="w"> </span>-p<span class="w"> </span>tcp<span class="w"> </span>--dport<span class="w"> </span><span class="m">22</span><span class="w"> </span>-j<span class="w"> </span>ACCEPT
+<span class="nv">tcpflags</span><span class="w">    </span><span class="o">=</span><span class="w"> </span>syn
 
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure port knocking:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-knockd<span class="w"> </span>install
-net-knockd<span class="w"> </span>configgen
-net-knockd<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install knockd, generate port knocking configurations,
-and apply them to enable stealth network access controls.</p>
-    <em><p>Start knockd service and verify status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>net-knockd<span class="w"> </span>run
-net-knockd<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we start the port knocking daemon and verify
-that the service is monitoring for knock sequences.</p>
+<span class="c1"># [openHTTPS]</span>
+<span class="c1"># sequence    = 12345,54321,24680,13579</span>
+<span class="c1"># seq_timeout = 5</span>
+<span class="c1"># command     = /usr/local/sbin/knock_add -i -c INPUT -p tcp -d 443 -f %IP%</span>
+<span class="c1"># tcpflags    = syn</span>
+</code></pre></div></p>
 
 
 

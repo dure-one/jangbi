@@ -948,6 +948,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os redis
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -959,6 +972,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-redis.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-redis.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-redis.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,49 +1315,37 @@
 
 
 <h1 id="os-redis.plugin.bash">os-redis.plugin.bash<a href="#os-redis.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>redis server install configurations.</p>
+  <p>redis server install configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>systemd</strong> | deps: <strong>-</strong> | port: <strong>LO:6379</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>os-redis help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>os-redis help|install|uninstall|download|disable|configgen|configapply|check|run
+$ os-redis install - install Redis server
+$ os-redis uninstall - uninstall Redis server
+$ os-redis download - download Redis package files to pkg dir
+$ os-redis disable - disable Redis plugin
+$ os-redis configgen - generate Redis configuration files
+$ os-redis configapply - apply Redis configuration files
+$ os-redis check - check Redis plugin status
+$ os-redis run - run Redis service
+$ os-redis help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage Redis server
-for high-performance data storage and caching. It provides automated installation,
-configuration management, and Redis service control capabilities. Redis is an
-in-memory data structure store used as a database, cache, and message broker,
-supporting various data types and advanced features for modern applications.</p>
-
-
-
-
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure Redis server:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-redis<span class="w"> </span>install
-os-redis<span class="w"> </span>configgen
-os-redis<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install Redis server, generate configurations,
-and apply them to establish a high-performance data store.</p>
-    <em><p>Start Redis service and verify status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-redis<span class="w"> </span>run
-os-redis<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we start the Redis service and verify
-that the server is running and accepting connections.</p>
+      <p><a href="https://redis.io/" target="_blank">Redis</a> is an in-memory data structure store used as a database, cache, and message broker.</p>
+<h2 id="os-redis.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-redis.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable redis server</span>
+<span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:6379&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 6379 - Redis port</span>
+</code></pre></div>
+<h2 id="os-redis.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-redis.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>redis
+tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:6379<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;redis-server&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">6</span><span class="o">))</span>
+$<span class="w"> </span>redis-cli<span class="w"> </span>ping
+PONG
+</code></pre></div>
+<h2 id="os-redis.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-redis.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/redis/</code>. it is generated by <code>os-redis configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/redis/redis.conf</span><pre><span></span><code>
+</code></pre></div></p>
 
 
 

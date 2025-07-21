@@ -488,6 +488,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net dnscryptproxy
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -499,6 +512,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-dnscryptproxy.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-dnscryptproxy.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-dnscryptproxy.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,16 +1315,1050 @@
 
 
 <h1 id="net-dnscryptproxy.plugin.bash">net-dnscryptproxy.plugin.bash<a href="#net-dnscryptproxy.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>dnscryptproxy install configurations.</p>
+  <p>dnscryptproxy install configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>net-dnsmasq</strong> | port: <strong>LO:53</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-dnscryptproxy help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-dnscryptproxy install|uninstall|download|disable|configgen|configapply|check|run
+$ net-dnscryptproxy install - install dnscrypt-proxy
+$ net-dnscryptproxy uninstall - uninstall dnscrypt-proxy
+$ net-dnscryptproxy download - download dnscrypt-proxy package files to pkg dir
+$ net-dnscryptproxy disable - disable dnscrypt-proxy plugin
+$ net-dnscryptproxy configgen - generate dnscrypt-proxy configuration files
+$ net-dnscryptproxy configapply - apply dnscrypt-proxy configuration files
+$ net-dnscryptproxy check - check dnscrypt-proxy plugin status
+$ net-dnscryptproxy run - run dnscrypt-proxy service
+$ net-dnscryptproxy help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage DNSCrypt-proxy
-for secure DNS resolution. It provides automated installation, configuration management,
-and service control capabilities. DNSCrypt-proxy encrypts DNS queries and can protect
-against DNS spoofing and surveillance by routing queries through secure resolvers.</p>
+      <p><a href="https://dnscrypt.info/" target="_blank">DNSCrypt-proxy</a> encrypts DNS queries and protects against DNS spoofing and surveillance.</p>
+<h2 id="net-dnscryptproxy.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-dnscryptproxy.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable DNSCrypt-proxy</span>
+<span class="nv">DNSCRYPTPROXY_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 53 - DNS port</span>
+</code></pre></div>
+<h2 id="net-dnscryptproxy.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-dnscryptproxy.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>dnscrypt-proxy
+udp<span class="w">   </span>UNCONN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">0</span><span class="w">          </span><span class="m">127</span>.0.0.2:53<span class="w">         </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;dnscrypt-proxy&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">5</span><span class="o">))</span>
+$<span class="w"> </span>pidof<span class="w"> </span>dnscrypt-proxy
+<span class="m">12345</span>
+</code></pre></div>
+<h2 id="net-dnscryptproxy.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-dnscryptproxy.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/dnscryptproxy/</code>. it is generated by <code>net-dnscryptproxy configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/dnscryptproxy/dnscrypt-proxy.toml</span><pre><span></span><code><span class="c1">##############################################</span>
+<span class="c1">#                                            #</span>
+<span class="c1">#        dnscrypt-proxy configuration        #</span>
+<span class="c1">#                                            #</span>
+<span class="c1">##############################################</span>
+
+<span class="c1">## This is an example configuration file.</span>
+<span class="c1">## You should adjust it to your needs, and save it as &quot;dnscrypt-proxy.toml&quot;</span>
+<span class="c1">##</span>
+<span class="c1">## Online documentation is available here: https://dnscrypt.info/doc</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                             Global settings                                  #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## List of servers to use</span>
+<span class="c1">##</span>
+<span class="c1">## Servers from the &quot;public-resolvers&quot; source (see down below) can</span>
+<span class="c1">## be viewed here: https://dnscrypt.info/public-servers</span>
+<span class="c1">##</span>
+<span class="c1">## The proxy will automatically pick working servers from this list.</span>
+<span class="c1">## Note that the require_* filters do NOT apply when using this setting.</span>
+<span class="c1">##</span>
+<span class="c1">## By default, this list is empty and all registered servers matching the</span>
+<span class="c1">## require_* filters will be used instead.</span>
+<span class="c1">##</span>
+<span class="c1">## Remove the leading # first to enable this; lines starting with # are ignored.</span>
+
+<span class="c1"># server_names = [&#39;scaleway-fr&#39;, &#39;google&#39;, &#39;yandex&#39;, &#39;cloudflare&#39;]</span>
+
+
+<span class="c1">## List of local addresses and ports to listen to. Can be IPv4 and/or IPv6.</span>
+<span class="c1">## Example with both IPv4 and IPv6:</span>
+<span class="c1">## listen_addresses = [&#39;127.0.0.1:53&#39;, &#39;[::1]:53&#39;]</span>
+<span class="c1">##</span>
+<span class="c1">## To listen to all IPv4 addresses, use `listen_addresses = [&#39;0.0.0.0:53&#39;]`</span>
+<span class="c1">## To listen to all IPv4+IPv6 addresses, use `listen_addresses = [&#39;[::]:53&#39;]`</span>
+
+<span class="nv">listen_addresses</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s1">&#39;127.0.0.2:53&#39;</span><span class="o">]</span>
+
+
+<span class="c1">## Maximum number of simultaneous client connections to accept</span>
+
+<span class="nv">max_clients</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">250</span>
+
+
+<span class="c1">## Switch to a different system user after listening sockets have been created.</span>
+<span class="c1">## Note (1): this feature is currently unsupported on Windows.</span>
+<span class="c1">## Note (2): this feature is not compatible with systemd socket activation.</span>
+<span class="c1">## Note (3): when using -pidfile, the PID file directory must be writable by the new user</span>
+
+<span class="c1"># user_name = &#39;nobody&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                            Server Selection                                  #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Require servers (from remote sources) to satisfy specific properties</span>
+
+<span class="c1"># Use servers reachable over IPv4</span>
+<span class="nv">ipv4_servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Use servers reachable over IPv6 -- Do not enable if you don&#39;t have IPv6 connectivity</span>
+<span class="nv">ipv6_servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="c1"># Use servers implementing the DNSCrypt protocol</span>
+<span class="nv">dnscrypt_servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Use servers implementing the DNS-over-HTTPS protocol</span>
+<span class="nv">doh_servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Use servers implementing the Oblivious DoH protocol</span>
+<span class="nv">odoh_servers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+
+<span class="c1">## Require servers defined by remote sources to satisfy specific properties</span>
+
+<span class="c1"># Server must support DNS security extensions (DNSSEC)</span>
+<span class="nv">require_dnssec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="c1"># Server must not log user queries (declarative)</span>
+<span class="nv">require_nolog</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Server must not enforce its own blocklist (for parental control, ads blocking...)</span>
+<span class="nv">require_nofilter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1"># Server names to avoid even if they match all criteria</span>
+<span class="nv">disabled_server_names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                           Connection Settings                                #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Always use TCP to connect to upstream servers.</span>
+<span class="c1">## This can be useful if you need to route everything through Tor.</span>
+<span class="c1">## Otherwise, leave this to `false`, as it doesn&#39;t improve security</span>
+<span class="c1">## (dnscrypt-proxy will always encrypt everything even using UDP), and can</span>
+<span class="c1">## only increase latency.</span>
+
+<span class="nv">force_tcp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+
+<span class="c1">## Enable *experimental* support for HTTP/3 (HTTP over QUIC)</span>
+<span class="c1">## Note that, like DNSCrypt but unlike other HTTP versions, this uses</span>
+<span class="c1">## UDP and (usually) port 443 instead of TCP.</span>
+
+<span class="nv">http3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="c1">## When http3 is true, always try HTTP/3 first for DoH servers.</span>
+<span class="c1">## If the HTTP/3 connection fails, fallback to HTTP/2 and don&#39;t try</span>
+<span class="c1">## HTTP/3 again for that server. By default, HTTP/3 is only used for</span>
+<span class="c1">## servers that advertise support via the Alt-Svc header.</span>
+<span class="c1">##</span>
+<span class="c1">## WARNING: This setting is disabled by default because it will make</span>
+<span class="c1">## connections significantly slower for servers that don&#39;t support HTTP/3.</span>
+<span class="c1">## This is primarily a workaround for server operators who haven&#39;t</span>
+<span class="c1">## configured their servers to send proper Alt-Svc headers. The better</span>
+<span class="c1">## solution is to reach out to these operators and encourage them to</span>
+<span class="c1">## fix their servers to correctly advertise HTTP/3 support.</span>
+
+<span class="nv">http3_probe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+
+<span class="c1">## SOCKS proxy</span>
+<span class="c1">## Uncomment the following line to route all TCP connections to a local Tor node</span>
+<span class="c1">## Tor doesn&#39;t support UDP, so set `force_tcp` to `true` as well. When passing</span>
+<span class="c1">## a random username and password to Tor&#39;s socks5 connection, dnscrypt-proxy gets</span>
+<span class="c1">## an isolated circuit so it will not share an exit node with other applications.</span>
+<span class="c1">## Note: the random username and password used by dnscrypt-proxy should not</span>
+<span class="c1">## actually be defined in Tor&#39;s configuration.</span>
+
+<span class="c1"># proxy = &#39;socks5://dnscrypt:dnscrypt@127.0.0.1:9050&#39;</span>
+
+
+<span class="c1">## HTTP/HTTPS proxy</span>
+<span class="c1">## Only for DoH servers</span>
+
+<span class="c1"># http_proxy = &#39;http://127.0.0.1:8888&#39;</span>
+
+
+<span class="c1">## How long a DNS query will wait for a response, in milliseconds.</span>
+<span class="c1">## If you have a network with *a lot* of latency, you may need to</span>
+<span class="c1">## increase this. Startup may be slower if you do so.</span>
+<span class="c1">## Don&#39;t increase it too much. 10000 is the highest reasonable value.</span>
+<span class="c1">## A timeout below 5000 is not recommended.</span>
+
+<span class="nv">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">5000</span>
+
+
+<span class="c1">## Keepalive for HTTP (HTTPS, HTTP/2, HTTP/3) queries, in seconds</span>
+
+<span class="nv">keepalive</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30</span>
+
+
+<span class="c1">## Add EDNS-client-subnet information to outgoing queries</span>
+<span class="c1">##</span>
+<span class="c1">## Multiple networks can be listed; they will be randomly chosen.</span>
+<span class="c1">## These networks don&#39;t have to match your actual networks.</span>
+
+<span class="c1"># edns_client_subnet = [&#39;0.0.0.0/0&#39;, &#39;2001:db8::/32&#39;]</span>
+
+
+<span class="c1">## Response for blocked queries. Options are `refused`, `hinfo` (default) or</span>
+<span class="c1">## an IP response. To give an IP response, use the format `a:&lt;IPv4&gt;,aaaa:&lt;IPv6&gt;`.</span>
+<span class="c1">## Using the `hinfo` option means that some responses will be lies.</span>
+<span class="c1">## Unfortunately, the `hinfo` option appears to be required for Android 8+</span>
+
+<span class="c1"># blocked_query_response = &#39;refused&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                        Load Balancing &amp; Performance                          #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Load-balancing strategy: &#39;wp2&#39; (default), &#39;p2&#39;, &#39;ph&#39;, &#39;p&lt;n&gt;&#39;, &#39;first&#39;, or &#39;random&#39;</span>
+<span class="c1">## &#39;wp2&#39; (default): Weighted Power of Two - selects the better performing server</span>
+<span class="c1">## from two random candidates based on real-time RTT and success rates.</span>
+<span class="c1">## &#39;p2&#39;: Randomly choose 1 of the fastest 2 servers by latency.</span>
+<span class="c1">## &#39;ph&#39;: Randomly choose from fastest half of servers.</span>
+<span class="c1">## &#39;p&lt;n&gt;&#39;: Randomly choose from fastest n servers (e.g., &#39;p3&#39; for fastest 3).</span>
+<span class="c1">## &#39;first&#39;: Always use the fastest server.</span>
+<span class="c1">## &#39;random&#39;: Randomly choose from all servers.</span>
+<span class="c1">## The response quality still depends on the server itself.</span>
+
+<span class="c1"># lb_strategy = &#39;wp2&#39;</span>
+
+<span class="c1">## Set to `true` to constantly try to estimate the latency of all the resolvers</span>
+<span class="c1">## and adjust the load-balancing parameters accordingly, or to `false` to disable.</span>
+<span class="c1">## Default is `true` that makes &#39;p2&#39; `lb_strategy` work well.</span>
+
+<span class="c1"># lb_estimator = true</span>
+
+<span class="c1">## Set to `true` to enable hot reloading of configuration files (like allowed-names.txt,</span>
+<span class="c1">## blocked-names.txt, etc.) when they are modified. This can increase CPU and memory usage.</span>
+<span class="c1">## Default is `false` (hot reloading is disabled).</span>
+
+<span class="c1"># enable_hot_reload = false</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                                Logging                                       #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Log level (0-6, default: 2 - 0 is very verbose, 6 only contains fatal errors)</span>
+
+<span class="c1"># log_level = 2</span>
+
+
+<span class="c1">## Log file for the application, as an alternative to sending logs to</span>
+<span class="c1">## the standard system logging service (syslog/Windows event log).</span>
+<span class="c1">##</span>
+<span class="c1">## This file is different from other log files, and will not be</span>
+<span class="c1">## automatically rotated by the application.</span>
+
+<span class="c1"># log_file = &#39;dnscrypt-proxy.log&#39;</span>
+
+
+<span class="c1">## When using a log file, only keep logs from the most recent launch.</span>
+
+<span class="c1"># log_file_latest = true</span>
+
+
+<span class="c1">## Use the system logger (syslog on Unix, Event Log on Windows)</span>
+
+<span class="c1"># use_syslog = true</span>
+
+
+<span class="c1">## Automatic log files rotation</span>
+
+<span class="c1"># Maximum log files size in MB - Set to 0 for unlimited.</span>
+<span class="nv">log_files_max_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># How long to keep backup files, in days</span>
+<span class="nv">log_files_max_age</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">7</span>
+
+<span class="c1"># Maximum log files backups to keep (or 0 to keep all backups)</span>
+<span class="nv">log_files_max_backups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                           Certificate Management                             #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## The maximum concurrency to reload certificates from the resolvers.</span>
+<span class="c1">## Default is 10.</span>
+
+<span class="c1"># cert_refresh_concurrency = 10</span>
+
+
+<span class="c1">## Delay, in minutes, after which certificates are reloaded</span>
+
+<span class="nv">cert_refresh_delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">240</span>
+
+
+<span class="c1">## Initially don&#39;t check DNSCrypt server certificates for expiration, and</span>
+<span class="c1">## only start checking them after a first successful connection to a resolver.</span>
+<span class="c1">## This can be useful on routers with no battery-backed clock.</span>
+
+<span class="c1"># cert_ignore_timestamp = false</span>
+
+
+<span class="c1">## DNSCrypt: Create a new, unique key for every single DNS query</span>
+<span class="c1">## This may improve privacy but can also have a significant impact on CPU usage</span>
+<span class="c1">## Only enable if you don&#39;t have a lot of network load</span>
+
+<span class="c1"># dnscrypt_ephemeral_keys = false</span>
+
+
+<span class="c1">## DoH: Disable TLS session tickets - increases privacy but also latency</span>
+
+<span class="c1"># tls_disable_session_tickets = false</span>
+
+
+<span class="c1">## DoH: Use TLS 1.2 and specific cipher suite instead of the server preference</span>
+<span class="c1">## 49199 = TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</span>
+<span class="c1">## 49195 = TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256</span>
+<span class="c1">## 52392 = TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305</span>
+<span class="c1">## 52393 = TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305</span>
+<span class="c1">##</span>
+<span class="c1">## On non-Intel CPUs such as MIPS routers and ARM systems (Android, Raspberry Pi...),</span>
+<span class="c1">## uncommenting the following line may improve performance.</span>
+<span class="c1">## This may also help on Intel CPUs running 32-bit operating systems.</span>
+<span class="c1">## However, this can cause issues fetching sources or connecting to some HTTP servers,</span>
+<span class="c1">## and should not be set on regular CPUs.</span>
+<span class="c1">##</span>
+<span class="c1">## Keep tls_cipher_suite undefined to let the app automatically choose secure parameters.</span>
+
+<span class="c1"># tls_cipher_suite = [52392, 49199]</span>
+
+
+<span class="c1">## Log TLS key material to a file, for debugging purposes only.</span>
+<span class="c1">## This file will contain the TLS master key, which can be used to decrypt</span>
+<span class="c1">## all TLS traffic to/from DoH servers.</span>
+<span class="c1">## Never ever enable except for debugging purposes with a tool such as mitmproxy.</span>
+
+<span class="c1"># tls_key_log_file = &#39;/tmp/keylog.txt&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                            Startup &amp; Network                                 #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Bootstrap resolvers</span>
+<span class="c1">##</span>
+<span class="c1">## These are normal, non-encrypted DNS resolvers, that will be only used</span>
+<span class="c1">## for one-shot queries when retrieving the initial resolvers list and if</span>
+<span class="c1">## the system DNS configuration doesn&#39;t work.</span>
+<span class="c1">##</span>
+<span class="c1">## No user queries will ever be leaked through these resolvers, and they will</span>
+<span class="c1">## not be used after IP addresses of DoH resolvers have been found (if you are</span>
+<span class="c1">## using DoH).</span>
+<span class="c1">##</span>
+<span class="c1">## They will never be used if lists have already been cached, and if the stamps</span>
+<span class="c1">## of the configured servers already include IP addresses (which is the case for</span>
+<span class="c1">## most of DoH servers, and for all DNSCrypt servers and relays).</span>
+<span class="c1">##</span>
+<span class="c1">## They will not be used if the configured system DNS works, or after the</span>
+<span class="c1">## proxy already has at least one usable secure resolver.</span>
+<span class="c1">##</span>
+<span class="c1">## Resolvers supporting DNSSEC are recommended, and, if you are using</span>
+<span class="c1">## DoH, bootstrap resolvers should ideally be operated by a different entity</span>
+<span class="c1">## than the DoH servers you will be using, especially if you have IPv6 enabled.</span>
+<span class="c1">##</span>
+<span class="c1">## People in China may want to use 114.114.114.114:53 here.</span>
+<span class="c1">## Other popular options include 8.8.8.8, 9.9.9.9 and 1.1.1.1.</span>
+<span class="c1">##</span>
+<span class="c1">## If more than one resolver is specified, they will be tried in sequence.</span>
+<span class="c1">##</span>
+<span class="c1">## TL;DR: put valid standard resolver addresses here. Your actual queries will</span>
+<span class="c1">## not be sent there. If you&#39;re using DNSCrypt or Anonymized DNS and your</span>
+<span class="c1">## lists are up to date, these resolvers will not even be used.</span>
+
+<span class="nv">bootstrap_resolvers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s1">&#39;9.9.9.11:53&#39;</span>,<span class="w"> </span><span class="s1">&#39;8.8.8.8:53&#39;</span><span class="o">]</span>
+
+
+<span class="c1">## When internal DNS resolution is required, for example to retrieve</span>
+<span class="c1">## the resolvers list:</span>
+<span class="c1">##</span>
+<span class="c1">## - queries will be sent to dnscrypt-proxy itself, if it is already</span>
+<span class="c1">##   running with active servers (*)</span>
+<span class="c1">## - or else, queries will be sent to fallback servers</span>
+<span class="c1">## - finally, if `ignore_system_dns` is `false`, queries will be sent</span>
+<span class="c1">##   to the system DNS</span>
+<span class="c1">##</span>
+<span class="c1">## (*) this is incompatible with systemd sockets.</span>
+<span class="c1">## `listen_addrs` must not be empty.</span>
+
+<span class="nv">ignore_system_dns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+
+<span class="c1">## Maximum time (in seconds) to wait for network connectivity before</span>
+<span class="c1">## initializing the proxy.</span>
+<span class="c1">## Useful if the proxy is automatically started at boot, and network</span>
+<span class="c1">## connectivity is not guaranteed to be immediately available.</span>
+<span class="c1">## Use 0 to not test for connectivity at all (not recommended),</span>
+<span class="c1">## and -1 to wait as much as possible.</span>
+
+<span class="nv">netprobe_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">60</span>
+
+<span class="c1">## Address and port to try initializing a connection to, just to check</span>
+<span class="c1">## if the network is up. It can be any address and any port, even if</span>
+<span class="c1">## there is nothing answering these on the other side. Just don&#39;t use</span>
+<span class="c1">## a local address, as the goal is to check for Internet connectivity.</span>
+<span class="c1">## On Windows, a datagram with a single, nul byte will be sent, only</span>
+<span class="c1">## when the system starts.</span>
+<span class="c1">## On other operating systems, the connection will be initialized</span>
+<span class="c1">## but nothing will be sent at all.</span>
+
+<span class="nv">netprobe_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;9.9.9.9:53&#39;</span>
+
+
+<span class="c1">## Offline mode - Do not use any remote encrypted servers.</span>
+<span class="c1">## The proxy will remain fully functional to respond to queries that</span>
+<span class="c1">## plugins can handle directly (forwarding, cloaking, ...)</span>
+
+<span class="c1"># offline_mode = false</span>
+
+
+<span class="c1">## Additional data to attach to outgoing queries.</span>
+<span class="c1">## These strings will be added as TXT records to queries.</span>
+<span class="c1">## Do not use, except on servers explicitly asking for extra data</span>
+<span class="c1">## to be present.</span>
+<span class="c1">## encrypted-dns-server can be configured to use this for access control</span>
+<span class="c1">## in the [access_control] section</span>
+
+<span class="c1"># query_meta = [&#39;key1:value1&#39;, &#39;key2:value2&#39;, &#39;token:MySecretToken&#39;]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                                 Filters                                      #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Note: if you are using dnsmasq, disable the `dnssec` option in dnsmasq if you</span>
+<span class="c1">## configure dnscrypt-proxy to do any kind of filtering (including the filters</span>
+<span class="c1">## below and blocklists).</span>
+<span class="c1">## You can still choose resolvers that do DNSSEC validation.</span>
+
+
+<span class="c1">## Immediately respond to IPv6-related queries with an empty response</span>
+<span class="c1">## This makes things faster when there is no IPv6 connectivity, but can</span>
+<span class="c1">## also cause reliability issues with some stub resolvers.</span>
+
+<span class="nv">block_ipv6</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+
+<span class="c1">## Immediately respond to A and AAAA queries for host names without a domain name</span>
+<span class="c1">## This also prevents &quot;dotless domain names&quot; from being resolved upstream.</span>
+
+<span class="nv">block_unqualified</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+
+<span class="c1">## Immediately respond to queries for local zones instead of leaking them to</span>
+<span class="c1">## upstream resolvers (always causing errors or timeouts).</span>
+
+<span class="nv">block_undelegated</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+
+<span class="c1">## TTL for synthetic responses sent when a request has been blocked (due to</span>
+<span class="c1">## IPv6 or blocklists).</span>
+
+<span class="nv">reject_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                              Forwarding                                      #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Route queries for specific domains to a dedicated set of servers</span>
+
+<span class="c1">## See the `example-forwarding-rules.txt` file for an example</span>
+
+<span class="nv">forwarding_rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;forwarding-rules.txt&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                              Cloaking                                        #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Cloaking returns a predefined address for a specific name.</span>
+<span class="c1">## In addition to acting as a HOSTS file, it can also return the IP address</span>
+<span class="c1">## of a different name. It will also do CNAME flattening.</span>
+<span class="c1">## If &#39;cloak_ptr&#39; is set, then PTR (reverse lookups) are enabled</span>
+<span class="c1">## for cloaking rules that do not contain wild cards.</span>
+<span class="c1">##</span>
+<span class="c1">## See the `example-cloaking-rules.txt` file for an example</span>
+
+<span class="nv">cloaking_rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cloaking-rules.txt&#39;</span>
+
+<span class="c1">## TTL used when serving entries in cloaking-rules.txt</span>
+
+<span class="c1"># cloak_ttl = 600</span>
+<span class="c1"># cloak_ptr = false</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                                DNS Cache                                     #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Enable a DNS cache to reduce latency and outgoing traffic</span>
+
+<span class="nv">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+
+<span class="c1">## Cache size</span>
+
+<span class="nv">cache_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">4096</span>
+
+
+<span class="c1">## Minimum TTL for cached entries</span>
+
+<span class="nv">cache_min_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2400</span>
+
+
+<span class="c1">## Maximum TTL for cached entries</span>
+
+<span class="nv">cache_max_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">86400</span>
+
+
+<span class="c1">## Minimum TTL for negatively cached entries</span>
+
+<span class="nv">cache_neg_min_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">60</span>
+
+
+<span class="c1">## Maximum TTL for negatively cached entries</span>
+
+<span class="nv">cache_neg_max_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">600</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                           Captive portal handling                            #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>captive_portals<span class="o">]</span>
+
+<span class="c1">## A file that contains a set of names used by operating systems to</span>
+<span class="c1">## check for connectivity and captive portals, along with hard-coded</span>
+<span class="c1">## IP addresses to return.</span>
+
+<span class="nv">map_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;captive-portals.txt&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                            Local DoH server                                  #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>local_doh<span class="o">]</span>
+
+<span class="c1">## dnscrypt-proxy can act as a local DoH server. By doing so, web browsers</span>
+<span class="c1">## requiring a direct connection to a DoH server in order to enable some</span>
+<span class="c1">## features will enable these, without bypassing your DNS proxy.</span>
+
+<span class="c1">## Addresses that the local DoH server should listen to</span>
+
+<span class="c1"># listen_addresses = [&#39;127.0.0.1:3000&#39;]</span>
+
+
+<span class="c1">## Path of the DoH URL. This is not a file, but the part after the hostname</span>
+<span class="c1">## in the URL. By convention, `/dns-query` is frequently chosen.</span>
+<span class="c1">## For each `listen_address` the complete URL to access the server will be:</span>
+<span class="c1">## `https://&lt;listen_address&gt;&lt;path&gt;` (ex: `https://127.0.0.1/dns-query`)</span>
+
+<span class="c1"># path = &#39;/dns-query&#39;</span>
+
+
+<span class="c1">## Certificate file and key - Note that the certificate has to be trusted.</span>
+<span class="c1">## Can be generated using the following command:</span>
+<span class="c1">## openssl req -x509 -nodes -newkey rsa:2048 -days 5000 -sha256 -keyout localhost.pem -out localhost.pem</span>
+<span class="c1">## See the documentation (wiki) for more information.</span>
+
+<span class="c1"># cert_file = &#39;localhost.pem&#39;</span>
+<span class="c1"># cert_key_file = &#39;localhost.pem&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                              Query logging                                   #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>query_log<span class="o">]</span>
+
+<span class="c1">## Path to the query log file (absolute, or relative to the same directory as the config file)</span>
+<span class="c1">## Can be set to /dev/stdout in order to log to the standard output.</span>
+
+<span class="c1"># file = &#39;query.log&#39;</span>
+
+
+<span class="c1">## Query log format (currently supported: tsv and ltsv)</span>
+
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;tsv&#39;</span>
+
+
+<span class="c1">## Do not log these query types, to reduce verbosity. Keep empty to log everything.</span>
+
+<span class="c1"># ignored_qtypes = [&#39;DNSKEY&#39;, &#39;NS&#39;]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                        Suspicious queries logging                            #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>nx_log<span class="o">]</span>
+
+<span class="c1">## Log queries for nonexistent zones</span>
+<span class="c1">## These queries can reveal the presence of malware, broken/obsolete applications,</span>
+<span class="c1">## and devices signaling their presence to 3rd parties.</span>
+
+<span class="c1">## Path to the query log file (absolute, or relative to the same directory as the config file)</span>
+
+<span class="c1"># file = &#39;nx.log&#39;</span>
+
+
+<span class="c1">## Query log format (currently supported: tsv and ltsv)</span>
+
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;tsv&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                    Pattern-based blocking (blocklists)                       #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Blocklists are made of one pattern per line. Example of valid patterns:</span>
+<span class="c1">##</span>
+<span class="c1">##   example.com</span>
+<span class="c1">##   =example.com</span>
+<span class="c1">##   *sex*</span>
+<span class="c1">##   ads.*</span>
+<span class="c1">##   ads*.example.*</span>
+<span class="c1">##   ads*.example[0-9]*.com</span>
+<span class="c1">##</span>
+<span class="c1">## Example blocklist files can be found at https://download.dnscrypt.info/blocklists/</span>
+<span class="c1">## A script to build blocklists from public feeds can be found in the</span>
+<span class="c1">## `utils/generate-domains-blocklists` directory of the dnscrypt-proxy source code.</span>
+
+<span class="o">[</span>blocked_names<span class="o">]</span>
+
+<span class="c1">## Path to the file of blocking rules (absolute, or relative to the same directory as the config file)</span>
+
+<span class="nv">blocked_names_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocked-names.txt&#39;</span>
+
+
+<span class="c1">## Optional path to a file logging blocked queries</span>
+
+<span class="c1"># log_file = &#39;blocked-names.log&#39;</span>
+
+
+<span class="c1">## Optional log format: tsv or ltsv (default: tsv)</span>
+
+<span class="c1"># log_format = &#39;tsv&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                  Pattern-based IP blocking (IP blocklists)                   #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## IP blocklists are made of one pattern per line. Example of valid patterns:</span>
+<span class="c1">##</span>
+<span class="c1">##   127.*</span>
+<span class="c1">##   fe80:abcd:*</span>
+<span class="c1">##   192.168.1.4</span>
+
+<span class="o">[</span>blocked_ips<span class="o">]</span>
+
+<span class="c1">## Path to the file of blocking rules (absolute, or relative to the same directory as the config file)</span>
+
+<span class="nv">blocked_ips_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;blocked-ips.txt&#39;</span>
+
+
+<span class="c1">## Optional path to a file logging blocked queries</span>
+
+<span class="c1"># log_file = &#39;blocked-ips.log&#39;</span>
+
+
+<span class="c1">## Optional log format: tsv or ltsv (default: tsv)</span>
+
+<span class="c1"># log_format = &#39;tsv&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                 Pattern-based allow lists (blocklists bypass)                #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Allowlists support the same patterns as blocklists</span>
+<span class="c1">## If a name matches an allowlist entry, the corresponding session</span>
+<span class="c1">## will bypass names and IP filters.</span>
+<span class="c1">##</span>
+<span class="c1">## Time-based rules are also supported to make some websites only accessible at specific times of the day.</span>
+
+<span class="o">[</span>allowed_names<span class="o">]</span>
+
+<span class="c1">## Path to the file of allow list rules (absolute, or relative to the same directory as the config file)</span>
+
+<span class="nv">allowed_names_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;allowed-names.txt&#39;</span>
+
+
+<span class="c1">## Optional path to a file logging allowed queries</span>
+
+<span class="c1"># log_file = &#39;allowed-names.log&#39;</span>
+
+
+<span class="c1">## Optional log format: tsv or ltsv (default: tsv)</span>
+
+<span class="c1"># log_format = &#39;tsv&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#           Pattern-based allowed IPs lists (blocklists bypass)                #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Allowed IP lists support the same patterns as IP blocklists</span>
+<span class="c1">## If an IP response matches an allowed entry, the corresponding session</span>
+<span class="c1">## will bypass IP filters.</span>
+<span class="c1">##</span>
+<span class="c1">## Time-based rules are also supported to make some websites only accessible at specific times of the day.</span>
+
+<span class="o">[</span>allowed_ips<span class="o">]</span>
+
+<span class="c1">## Path to the file of allowed ip rules (absolute, or relative to the same directory as the config file)</span>
+
+<span class="nv">allowed_ips_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;allowed-ips.txt&#39;</span>
+
+
+<span class="c1">## Optional path to a file logging allowed queries</span>
+
+<span class="c1"># log_file = &#39;allowed-ips.log&#39;</span>
+
+<span class="c1">## Optional log format: tsv or ltsv (default: tsv)</span>
+
+<span class="c1"># log_format = &#39;tsv&#39;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                        Time access restrictions                              #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## One or more weekly schedules can be defined here.</span>
+<span class="c1">## Patterns in the name-based blocked_names file can optionally be followed with @schedule_name</span>
+<span class="c1">## to apply the pattern &#39;schedule_name&#39; only when it matches a time range of that schedule.</span>
+<span class="c1">##</span>
+<span class="c1">## For example, the following rule in a blocklist file:</span>
+<span class="c1">## *.youtube.* @time-to-sleep</span>
+<span class="c1">## would block access to YouTube during the times defined by the &#39;time-to-sleep&#39; schedule.</span>
+<span class="c1">##</span>
+<span class="c1">## {after=&#39;21:00&#39;, before= &#39;7:00&#39;} matches 0:00-7:00 and 21:00-0:00</span>
+<span class="c1">## {after= &#39;9:00&#39;, before=&#39;18:00&#39;} matches 9:00-18:00</span>
+
+<span class="o">[</span>schedules<span class="o">]</span>
+
+<span class="c1"># [schedules.time-to-sleep]</span>
+<span class="c1">#   mon = [{after=&#39;21:00&#39;, before=&#39;7:00&#39;}]</span>
+<span class="c1">#   tue = [{after=&#39;21:00&#39;, before=&#39;7:00&#39;}]</span>
+<span class="c1">#   wed = [{after=&#39;21:00&#39;, before=&#39;7:00&#39;}]</span>
+<span class="c1">#   thu = [{after=&#39;21:00&#39;, before=&#39;7:00&#39;}]</span>
+<span class="c1">#   fri = [{after=&#39;23:00&#39;, before=&#39;7:00&#39;}]</span>
+<span class="c1">#   sat = [{after=&#39;23:00&#39;, before=&#39;7:00&#39;}]</span>
+<span class="c1">#   sun = [{after=&#39;21:00&#39;, before=&#39;7:00&#39;}]</span>
+
+<span class="c1"># [schedules.work]</span>
+<span class="c1">#   mon = [{after=&#39;9:00&#39;, before=&#39;18:00&#39;}]</span>
+<span class="c1">#   tue = [{after=&#39;9:00&#39;, before=&#39;18:00&#39;}]</span>
+<span class="c1">#   wed = [{after=&#39;9:00&#39;, before=&#39;18:00&#39;}]</span>
+<span class="c1">#   thu = [{after=&#39;9:00&#39;, before=&#39;18:00&#39;}]</span>
+<span class="c1">#   fri = [{after=&#39;9:00&#39;, before=&#39;17:00&#39;}]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                                Servers                                       #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="c1">## Remote lists of available servers</span>
+<span class="c1">## Multiple sources can be used simultaneously, but every source</span>
+<span class="c1">## requires a dedicated cache file.</span>
+<span class="c1">##</span>
+<span class="c1">## Refer to the documentation for URLs of public sources.</span>
+<span class="c1">##</span>
+<span class="c1">## A prefix can be prepended to server names in order to</span>
+<span class="c1">## avoid collisions if different sources share the same for</span>
+<span class="c1">## different servers. In that case, names listed in `server_names`</span>
+<span class="c1">## must include the prefixes.</span>
+<span class="c1">##</span>
+<span class="c1">## If the `urls` property is missing, cache files and valid signatures</span>
+<span class="c1">## must already be present. This doesn&#39;t prevent these cache files from</span>
+<span class="c1">## expiring after `refresh_delay` hours.</span>
+<span class="c1">## `refreshed_delay` must be in the [24..168] interval.</span>
+<span class="c1">## The minimum delay of 24 hours (1 day) avoids unnecessary requests to servers.</span>
+<span class="c1">## The maximum delay of 168 hours (1 week) ensures cache freshness.</span>
+
+<span class="o">[</span>sources<span class="o">]</span>
+
+<span class="c1">### An example of a remote source from https://github.com/DNSCrypt/dnscrypt-resolvers</span>
+
+<span class="o">[</span>sources.public-resolvers<span class="o">]</span>
+<span class="nv">urls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="w">  </span><span class="s1">&#39;https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md&#39;</span>,
+<span class="o">]</span>
+<span class="nv">cache_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;public-resolvers.md&#39;</span>
+<span class="nv">minisign_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3&#39;</span>
+<span class="nv">refresh_delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">73</span>
+<span class="nv">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+
+<span class="c1">### Anonymized DNS relays</span>
+
+<span class="o">[</span>sources.relays<span class="o">]</span>
+<span class="nv">urls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="w">  </span><span class="s1">&#39;https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/relays.md&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;https://download.dnscrypt.info/resolvers-list/v3/relays.md&#39;</span>,
+<span class="o">]</span>
+<span class="nv">cache_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;relays.md&#39;</span>
+<span class="nv">minisign_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3&#39;</span>
+<span class="nv">refresh_delay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">73</span>
+<span class="nv">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&#39;</span>
+
+<span class="c1">### ODoH (Oblivious DoH) servers and relays</span>
+
+<span class="c1"># [sources.odoh-servers]</span>
+<span class="c1">#   urls = [&#39;https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-servers.md&#39;, &#39;https://download.dnscrypt.info/resolvers-list/v3/odoh-servers.md&#39;]</span>
+<span class="c1">#   cache_file = &#39;odoh-servers.md&#39;</span>
+<span class="c1">#   minisign_key = &#39;RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3&#39;</span>
+<span class="c1">#   refresh_delay = 73</span>
+<span class="c1">#   prefix = &#39;&#39;</span>
+<span class="c1"># [sources.odoh-relays]</span>
+<span class="c1">#   urls = [&#39;https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/odoh-relays.md&#39;, &#39;https://download.dnscrypt.info/resolvers-list/v3/odoh-relays.md&#39;]</span>
+<span class="c1">#   cache_file = &#39;odoh-relays.md&#39;</span>
+<span class="c1">#   minisign_key = &#39;RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3&#39;</span>
+<span class="c1">#   refresh_delay = 73</span>
+<span class="c1">#   prefix = &#39;&#39;</span>
+
+<span class="c1">### Quad9</span>
+
+<span class="c1"># [sources.quad9-resolvers]</span>
+<span class="c1">#   urls = [&#39;https://www.quad9.net/quad9-resolvers.md&#39;]</span>
+<span class="c1">#   minisign_key = &#39;RWQBphd2+f6eiAqBsvDZEBXBGHQBJfeG6G+wJPPKxCZMoEQYpmoysKUN&#39;</span>
+<span class="c1">#   cache_file = &#39;quad9-resolvers.md&#39;</span>
+<span class="c1">#   prefix = &#39;quad9-&#39;</span>
+
+<span class="c1">### Another example source, with resolvers censoring some websites not appropriate for children</span>
+<span class="c1">### This is a subset of the `public-resolvers` list, so enabling both is useless.</span>
+
+<span class="c1"># [sources.parental-control]</span>
+<span class="c1">#   urls = [&#39;https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/parental-control.md&#39;, &#39;https://download.dnscrypt.info/resolvers-list/v3/parental-control.md&#39;]</span>
+<span class="c1">#   cache_file = &#39;parental-control.md&#39;</span>
+<span class="c1">#   minisign_key = &#39;RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3&#39;</span>
+
+<span class="c1">### dnscry.pt servers - See https://www.dnscry.pt</span>
+
+<span class="c1">#  [sources.dnscry-pt-resolvers]</span>
+<span class="c1">#    urls = [&quot;https://www.dnscry.pt/resolvers.md&quot;]</span>
+<span class="c1">#    minisign_key = &quot;RWQM31Nwkqh01x88SvrBL8djp1NH56Rb4mKLHz16K7qsXgEomnDv6ziQ&quot;</span>
+<span class="c1">#    cache_file = &quot;dnscry.pt-resolvers.md&quot;</span>
+<span class="c1">#    refresh_delay = 73</span>
+<span class="c1">#    prefix = &quot;dnscry.pt-&quot;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                        Servers with known bugs                               #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>broken_implementations<span class="o">]</span>
+
+<span class="c1">## Cisco servers currently cannot handle queries larger than 1472 bytes, and don&#39;t</span>
+<span class="c1">## truncate responses larger than questions as expected by the DNSCrypt protocol.</span>
+<span class="c1">## This prevents large responses from being received over UDP and over relays.</span>
+<span class="c1">##</span>
+<span class="c1">## Older versions of the `dnsdist` server software had a bug with queries larger</span>
+<span class="c1">## than 1500 bytes. This is fixed since `dnsdist` version 1.5.0, but</span>
+<span class="c1">## some server may still run an outdated version.</span>
+<span class="c1">##</span>
+<span class="c1">## The list below enables workarounds to make non-relayed usage more reliable</span>
+<span class="c1">## until the servers are fixed.</span>
+
+<span class="nv">fragments_blocked</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="w">  </span><span class="s1">&#39;cisco&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cisco-ipv6&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cisco-familyshield&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cisco-familyshield-ipv6&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cisco-sandbox&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cleanbrowsing-adult&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cleanbrowsing-adult-ipv6&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cleanbrowsing-family&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cleanbrowsing-family-ipv6&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cleanbrowsing-security&#39;</span>,
+<span class="w">  </span><span class="s1">&#39;cleanbrowsing-security-ipv6&#39;</span>,
+<span class="o">]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                Certificate-based client authentication for DoH               #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>doh_client_x509_auth<span class="o">]</span>
+
+<span class="c1">## Use a X509 certificate to authenticate yourself when connecting to DoH servers.</span>
+<span class="c1">## This is only useful if you are operating your own, private DoH server(s).</span>
+<span class="c1">## &#39;creds&#39; maps servers to certificates, and supports multiple entries.</span>
+<span class="c1">## If you are not using the standard root CA, an optional &quot;root_ca&quot;</span>
+<span class="c1">## property set to the path to a root CRT file can be added to a server entry.</span>
+
+<span class="c1"># creds = [</span>
+<span class="c1">#    { server_name=&#39;*&#39;, client_cert=&#39;client.crt&#39;, client_key=&#39;client.key&#39; }</span>
+<span class="c1"># ]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                          Anonymized DNS                                      #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>anonymized_dns<span class="o">]</span>
+
+<span class="c1">## Routes are indirect ways to reach DNSCrypt servers.</span>
+<span class="c1">##</span>
+<span class="c1">## A route maps a server name (&quot;server_name&quot;) to one or more relays that will be</span>
+<span class="c1">## used to connect to that server.</span>
+<span class="c1">##</span>
+<span class="c1">## A relay can be specified as a DNS Stamp (either a relay stamp, or a</span>
+<span class="c1">## DNSCrypt stamp) or a server name.</span>
+<span class="c1">##</span>
+<span class="c1">## The following example routes &quot;example-server-1&quot; via `anon-example-1` or `anon-example-2`,</span>
+<span class="c1">## and &quot;example-server-2&quot; via the relay whose relay DNS stamp is</span>
+<span class="c1">## &quot;sdns://gRIxMzcuNzQuMjIzLjIzNDo0NDM&quot;.</span>
+<span class="c1">##</span>
+<span class="c1">## !!! THESE ARE JUST EXAMPLES !!!</span>
+<span class="c1">##</span>
+<span class="c1">## Review the list of available relays from the &quot;relays.md&quot; file, and, for each</span>
+<span class="c1">## server you want to use, define the relays you want connections to go through.</span>
+<span class="c1">##</span>
+<span class="c1">## Carefully choose relays and servers so that they are run by different entities.</span>
+<span class="c1">##</span>
+<span class="c1">## &quot;server_name&quot; can also be set to &quot;*&quot; to define a default route, for all servers:</span>
+<span class="c1">## { server_name=&#39;*&#39;, via=[&#39;anon-example-1&#39;, &#39;anon-example-2&#39;] }</span>
+<span class="c1">##</span>
+<span class="c1">## If a route is [&quot;*&quot;], the proxy automatically picks a relay on a distinct network.</span>
+<span class="c1">## { server_name=&#39;*&#39;, via=[&#39;*&#39;] } is also an option, but is likely to be suboptimal.</span>
+<span class="c1">##</span>
+<span class="c1">## Manual selection is always recommended over automatic selection, so that you can</span>
+<span class="c1">## select (relay,server) pairs that work well and fit your own criteria (close by or</span>
+<span class="c1">## in different countries, operated by different entities, on distinct ISPs...)</span>
+
+<span class="c1"># routes = [</span>
+<span class="c1">#    { server_name=&#39;example-server-1&#39;, via=[&#39;anon-example-1&#39;, &#39;anon-example-2&#39;] },</span>
+<span class="c1">#    { server_name=&#39;example-server-2&#39;, via=[&#39;sdns://gRIxMzcuNzQuMjIzLjIzNDo0NDM&#39;] }</span>
+<span class="c1"># ]</span>
+
+
+<span class="c1">## Skip resolvers incompatible with anonymization instead of using them directly</span>
+
+<span class="nv">skip_incompatible</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+
+<span class="c1">## If public server certificates for a non-conformant server cannot be</span>
+<span class="c1">## retrieved via a relay, try getting them directly. Actual queries</span>
+<span class="c1">## will then always go through relays.</span>
+
+<span class="c1"># direct_cert_fallback = false</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                                 DNS64                                        #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>dns64<span class="o">]</span>
+
+<span class="c1">## DNS64 is a mechanism for synthesizing AAAA records from A records.</span>
+<span class="c1">## It is used with an IPv6/IPv4 translator to enable client-server</span>
+<span class="c1">## communication between an IPv6-only client and an IPv4-only server,</span>
+<span class="c1">## without requiring any changes to either the IPv6 or the IPv4 node,</span>
+<span class="c1">## for the class of applications that work through NATs.</span>
+<span class="c1">##</span>
+<span class="c1">## There are two options to synthesize such records:</span>
+<span class="c1">## Option 1: Using a set of static IPv6 prefixes;</span>
+<span class="c1">## Option 2: By discovering the IPv6 prefix from DNS64-enabled resolver.</span>
+<span class="c1">##</span>
+<span class="c1">## If both options are configured - only static prefixes are used.</span>
+<span class="c1">## (Ref. RFC6147, RFC6052, RFC7050)</span>
+<span class="c1">##</span>
+<span class="c1">## Do not enable unless you know what DNS64 is and why you need it, or else</span>
+<span class="c1">## you won&#39;t be able to connect to anything at all.</span>
+
+<span class="c1">## Static prefix(es) as Pref64::/n CIDRs</span>
+
+<span class="c1"># prefix = [&#39;64:ff9b::/96&#39;]</span>
+
+<span class="c1">## DNS64-enabled resolver(s) to discover Pref64::/n CIDRs</span>
+<span class="c1">## These resolvers are used to query for Well-Known IPv4-only Name (WKN) &quot;ipv4only.arpa.&quot; to discover only.</span>
+<span class="c1">## Set with your ISP&#39;s resolvers in case of custom prefixes (other than Well-Known Prefix 64:ff9b::/96).</span>
+<span class="c1">## IMPORTANT: Default resolvers listed below support Well-Known Prefix 64:ff9b::/96 only.</span>
+
+<span class="c1"># resolver = [&#39;[2606:4700:4700::64]:53&#39;, &#39;[2001:4860:4860::64]:53&#39;]</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                            Monitoring UI                                     #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>monitoring_ui<span class="o">]</span>
+
+<span class="c1">## Enable the monitoring UI</span>
+<span class="nv">enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="c1">## Listen address for the monitoring UI</span>
+<span class="nv">listen_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;127.0.0.1:17283&quot;</span>
+
+<span class="c1">## Optional username and password for basic authentication</span>
+<span class="c1">## To disable authentication, set username to an empty string: username = &quot;&quot;</span>
+<span class="c1">## If both username and password are empty, no authentication is required</span>
+<span class="nv">username</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;admin&quot;</span>
+<span class="nv">password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;changeme&quot;</span>
+
+<span class="c1">## Optional TLS certificate and key for HTTPS</span>
+<span class="c1">## If both are empty, HTTP will be used</span>
+<span class="nv">tls_certificate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="nv">tls_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+
+<span class="c1">## Enable query logging in the monitoring UI</span>
+<span class="c1">## This will show recent queries in the UI</span>
+<span class="nv">enable_query_log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="c1">## Privacy level for the monitoring UI</span>
+<span class="c1">## 0: show all details including client IPs</span>
+<span class="c1">## 1: anonymize client IPs (default)</span>
+<span class="c1">## 2: aggregate data only (no individual queries or domains shown)</span>
+<span class="nv">privacy_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+
+<span class="c1">## Maximum number of recent query log entries to keep in memory</span>
+<span class="c1">## Helps control memory usage on high-traffic servers</span>
+<span class="c1">## Default: 100</span>
+<span class="c1"># max_query_log_entries = 100</span>
+
+<span class="c1">## Maximum memory usage in MB for recent query logs</span>
+<span class="c1">## Automatic cleanup when limit is exceeded</span>
+<span class="c1">## Default: 1</span>
+<span class="c1"># max_memory_mb = 1</span>
+
+<span class="c1">## Enable Prometheus metrics endpoint</span>
+<span class="c1">## Default: false</span>
+<span class="c1"># prometheus_enabled = false</span>
+
+<span class="c1">## Path for Prometheus metrics endpoint</span>
+<span class="c1">## Default: /metrics</span>
+<span class="c1"># prometheus_path = &quot;/metrics&quot;</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1">#                            Static entries                                    #</span>
+<span class="c1">###############################################################################</span>
+
+<span class="o">[</span>static<span class="o">]</span>
+
+<span class="c1">## Optional, local, static list of additional servers</span>
+<span class="c1">## Mostly useful for testing your own servers.</span>
+
+<span class="c1"># [static.myserver]</span>
+<span class="c1">#   stamp = &#39;sdns://AQcAAAAAAAAAAAAQMi5kbnNjcnlwdC1jZXJ0Lg&#39;</span>
+</code></pre></div></p>
 
 
 

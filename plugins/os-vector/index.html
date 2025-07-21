@@ -1017,6 +1017,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Os vector
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1028,6 +1041,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#os-vector.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-vector.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-vector.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,49 +1315,72 @@
 
 
 <h1 id="os-vector.plugin.bash">os-vector.plugin.bash<a href="#os-vector.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>vector log management configurations.</p>
+  <p>vector log management configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>os-vector help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>os-vector help|install|uninstall|download|disable|configgen|configapply|check|run
+$ os-vector install - install Vector log management
+$ os-vector uninstall - uninstall Vector
+$ os-vector download - download Vector package files to pkg dir
+$ os-vector disable - disable Vector plugin
+$ os-vector configgen - generate Vector configuration files
+$ os-vector configapply - apply Vector configuration files
+$ os-vector check - check Vector plugin status
+$ os-vector run - run Vector service
+$ os-vector help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This tool helps install, configure, and manage Vector log management system
-for high-performance log collection, transformation, and routing.
-In Janbi's security context, it will collect contacted ipaddresses by application
-with sysdig and put them in /var/log/vector folder. so that the user could block
-ips whether it is on cdn or not.</p>
+      <p><a href="https://vector.dev/" target="_blank">Vector</a> is a high-performance log collection, transformation, and routing system.</p>
+<h2 id="os-vector.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-vector.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_VECTOR</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable vector log management</span>
+</code></pre></div>
+<h2 id="os-vector.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-vector.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ps<span class="w"> </span>aux<span class="p">|</span>grep<span class="w"> </span>vector
+root<span class="w">      </span><span class="m">12345</span><span class="w">  </span><span class="m">0</span>.0<span class="w">  </span><span class="m">0</span>.1<span class="w">  </span><span class="m">12345</span><span class="w">  </span><span class="m">1234</span><span class="w"> </span>?<span class="w">        </span>S<span class="w">    </span><span class="m">12</span>:34<span class="w">   </span><span class="m">0</span>:00<span class="w"> </span>vector<span class="w"> </span>--config<span class="w"> </span>/etc/vector/vector.toml
+$<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/var/log/vector/
+-rw-r--r--<span class="w"> </span><span class="m">1</span><span class="w"> </span>vector<span class="w"> </span>vector<span class="w"> </span>contacted_ips.log
+</code></pre></div>
+<h2 id="os-vector.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-vector.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/vector/</code>. it is generated by <code>os-vector configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/vector/vector.toml</span><pre><span></span><code><span class="c1">#                                    __   __  __</span>
+<span class="c1">#                                    \ \ / / / /</span>
+<span class="c1">#                                     \ V / / /</span>
+<span class="c1">#                                      \_/  \/</span>
+<span class="c1">#</span>
+<span class="c1">#                                    V E C T O R</span>
+<span class="c1">#                                   Configuration</span>
+<span class="c1">#</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># Website: https://vector.dev</span>
+<span class="c1"># Docs: https://vector.dev/docs</span>
+<span class="c1"># Chat: https://chat.vector.dev</span>
+<span class="c1"># https://docs.sysdig.com/en/sysdig-secure/rule-fields-library/</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># </span>
 
+<span class="c1"># Change this to use a non-default directory for Vector data storage:</span>
+<span class="nv">data_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/log/vector&quot;</span>
 
+<span class="c1"># Execute sysdig command to capture network connections</span>
+<span class="o">[</span>sources.sysdig_network<span class="o">]</span>
+<span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;exec&quot;</span>
+<span class="nb">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;sysdig&quot;</span>,<span class="w"> </span><span class="s2">&quot;evt.type in (connect,accept)&quot;</span>,<span class="w"> </span><span class="s2">&quot;-p&quot;</span>,<span class="w"> </span><span class="s2">&quot;%evt.datetime.s %user.name %proc.exepath pid=%proc.pid ppid=%proc.ppid %fd.cip:%fd.cport %fd.sip:%fd.sport %fd.lip:%fd.lport %fd.rip:%fd.rport&quot;</span><span class="o">]</span>
+<span class="nv">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;streaming&quot;</span>
 
+<span class="c1"># Backup sink - save individual parsed events immediately (no buffering)</span>
+<span class="o">[</span>sinks.backup_file<span class="o">]</span>
+<span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;file&quot;</span>
+<span class="nv">inputs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;sysdig_network&quot;</span><span class="o">]</span>
+<span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/log/vector/raw_connections_%Y%m%d_%H.log&quot;</span>
+encoding.codec<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;text&quot;</span>
 
-
-  <strong>Exit Status</strong>
-    <ul>
-      <li>
-        <code>1</code>:
-        <div class="doc doc-md-description">
-          <p>Invalid command or parameters provided.</p>
-        </div>
-      </li>
-  </ul>
-
-
-
-
-
-
-  <strong>Examples</strong>
-    <em><p>Install and configure Vector:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-vector<span class="w"> </span>install
-os-vector<span class="w"> </span>configgen
-os-vector<span class="w"> </span>configapply
-</code></pre></div>      <p>In this example, we install Vector, generate log pipeline configurations,
-and apply them to establish efficient log management.</p>
-    <em><p>Start Vector service and verify status:</p></em>
-<div class="language-bash highlight"><pre><span></span><code>os-vector<span class="w"> </span>run
-os-vector<span class="w"> </span>check
-</code></pre></div>      <p>In this example, we start the Vector service and verify
-that log collection and processing is working properly.</p>
+<span class="c1"># Minimal buffering for backup file</span>
+<span class="o">[</span>sinks.backup_file.buffer<span class="o">]</span>
+<span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;memory&quot;</span>
+<span class="nv">max_events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
+<span class="nv">when_full</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;block&quot;</span>
+</code></pre></div></p>
 
 
 

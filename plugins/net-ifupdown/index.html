@@ -580,6 +580,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Net ifupdown
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -591,6 +604,52 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#net-ifupdown.plugin.bash--jangbi-configs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Jangbi Configs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-ifupdown.plugin.bash--check-if-running" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check if running
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-ifupdown.plugin.bash--current-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Configuration
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1256,16 +1315,37 @@
 
 
 <h1 id="net-ifupdown.plugin.bash">net-ifupdown.plugin.bash<a href="#net-ifupdown.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>miscellaneous tools and utilities.</p>
+  <p>ifupdown network configurations. <div style="text-align: right"> group:<strong>net</strong> | runtype:<strong>systemd</strong> | deps: <strong>os-systemd</strong> | port: <strong>-</strong></div><br/></p>
 
   <strong>Usage</strong>
-    <pre><code>net-ifupdown help|install|uninstall|download|disable|configgen|configapply|check|run</code></pre>
+    <pre><code>net-ifupdown help|install|uninstall|download|disable|configgen|configapply|check|run
+$ net-ifupdown install - install ifupdown network configurations
+$ net-ifupdown uninstall - uninstall ifupdown configurations
+$ net-ifupdown download - download ifupdown package files to pkg dir
+$ net-ifupdown disable - disable ifupdown plugin
+$ net-ifupdown configgen - generate ifupdown configuration files
+$ net-ifupdown configapply - apply ifupdown configuration files
+$ net-ifupdown check - check ifupdown plugin status
+$ net-ifupdown run - run ifupdown network services
+$ net-ifupdown help - show this help message</code></pre>
 
   <strong>Description</strong>
-      <p>This plugin provides a collection of miscellaneous utility functions
-for network diagnostics, file operations, and system information gathering.
-It includes tools for IP address detection, website availability checking,
-random file operations, and various system utilities for daily administration tasks.</p>
+      <p><a href="https://manpages.debian.org/buster/ifupdown/interfaces.5.en.html" target="_blank">Ifupdown</a> provides network interface configuration for Debian/Ubuntu systems.</p>
+<h2 id="net-ifupdown.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-ifupdown.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_IFUPDOWN</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable ifupdown network configurations</span>
+</code></pre></div>
+<h2 id="net-ifupdown.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-ifupdown.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
+<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>networking
+●<span class="w"> </span>networking.service<span class="w"> </span>-<span class="w"> </span>Raise<span class="w"> </span>network<span class="w"> </span>interfaces
+<span class="w">   </span>Active:<span class="w"> </span>active<span class="w"> </span><span class="o">(</span>exited<span class="o">)</span>
+$<span class="w"> </span>ip<span class="w"> </span>addr<span class="w"> </span>show
+<span class="m">2</span>:<span class="w"> </span>eth0:<span class="w"> </span>&lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;<span class="w"> </span>mtu<span class="w"> </span><span class="m">1500</span><span class="w"> </span>qdisc<span class="w"> </span>pfifo_fast<span class="w"> </span>state<span class="w"> </span>UP
+</code></pre></div>
+<h2 id="net-ifupdown.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#net-ifupdown.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
+<p>Current configuration is stored in <code>/etc/network/</code>. it is generated by <code>net-ifupdown configgen</code> command on install.
+You can edit it manually and not run install or configapply commands to keep current configurations.
+<div class="language-bash highlight"><span class="filename">/etc/network/interfaces</span><pre><span></span><code>
+</code></pre></div></p>
 
 
 
