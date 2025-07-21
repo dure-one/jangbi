@@ -1647,7 +1647,7 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">IPTABLES_DROP_ICMP</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_NON_SYN</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_SPOOFING</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">IPTABLES_DROP_SPOOFING_TARINF</span><span class="o">=</span>WAN
+<span class="nv">IPTABLES_DROP_SPOOFING_TARINF</span><span class="o">=</span><span class="s2">&quot;WAN&quot;</span>
 <span class="nv">IPTABLES_DROP_SPOOFING_NET</span><span class="o">=</span><span class="s2">&quot;224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8&quot;</span>
 <span class="nv">IPTABLES_LIMIT_MSS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_INVALID_TCPFLAG</span><span class="o">=</span><span class="m">1</span>
@@ -1685,7 +1685,7 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">DNSCRYPTPROXY_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span>
 <span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">DARKSTAT_PORTS</span><span class="o">=</span><span class="s2">&quot;LAN:19283,WLAN:19283&quot;</span>
+<span class="nv">DARKSTAT_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:19283&quot;</span>
 <span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">0</span>
 <span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:6379&quot;</span>
 <span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
