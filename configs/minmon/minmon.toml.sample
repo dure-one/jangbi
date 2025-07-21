@@ -1,0 +1,76 @@
+
+[[actions]]
+name = "Log error"
+type = "Log"
+level = "Error"
+template = """{{check_name}} check didn't have valid data for alarm '{{alarm_name}}' and id '{{alarm_id}}': {{check_error}}."""
+
+[log]
+level = "Info" # Info|Debug|Warning|Error
+target = "Stdout" # Stdout|Stderr|Journal
+
+### net-darkstat start ###
+[[checks]]
+disable = false
+name = "net-darkstat check"
+type = "ProcessExitStatus"
+# check optional
+interval = 30
+timeout = 5
+# ProcessExitStatus
+#path = "/usr/bin/pidof"
+#arguments = ["dnsmasq"]
+#status_code = [0,1]
+path = "/opt/jangbi/init.sh"
+arguments = ["--check","net-darkstat"]
+
+[[checks.alarms]]
+status_codes = [0]
+disable = false
+name = "net-darkstat alarm"
+action = "net-darkstat run"
+# alarms optional
+cycles = 2
+repeat_cycles = 100
+error_repeat_cycles = 200
+error_action = "Log error"
+
+[[actions]]
+name = "net-darkstat run"
+type = "Process"
+path = "/opt/jangbi/init.sh"
+arguments = ["--launch","net-darkstat"]
+### dnsmasq end ###
+
+### net-dnsmasq start ###
+[[checks]]
+disable = false
+name = "net-dnsmasq check"
+type = "ProcessExitStatus"
+# check optional
+interval = 30
+timeout = 5
+# ProcessExitStatus
+#path = "/usr/bin/pidof"
+#arguments = ["dnsmasq"]
+#status_code = [0,1]
+path = "/opt/jangbi/init.sh"
+arguments = ["--check","net-dnsmasq"]
+
+[[checks.alarms]]
+status_codes = [0]
+disable = false
+name = "net-dnsmasq alarm"
+action = "net-dnsmasq run"
+# alarms optional
+cycles = 2
+repeat_cycles = 100
+error_repeat_cycles = 200
+error_action = "Log error"
+
+[[actions]]
+name = "net-dnsmasq run"
+type = "Process"
+path = "/opt/jangbi/init.sh"
+arguments = ["--launch","net-dnsmasq"]
+### dnsmasq end ###

@@ -1,6 +1,6 @@
 # workspace
 tmp
-imgs
+imgs/debian*
 pkgs
 .firmware_last
 enabled/*

@@ -1,0 +1,10 @@
+interface=
+ssid=durejangbi
+hw_mode=g
+channel=6
+ieee80211n=1
+wpa=2
+wpa_passphrase=durejangbi
+wpa_key_mgmt=WPA-PSK
+rsn_pairwise=CCMP
+wmm_enabled=1

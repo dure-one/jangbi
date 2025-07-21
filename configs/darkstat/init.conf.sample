@@ -1,0 +1,9 @@
+START_DARKSTAT=yes
+DS_STATIC_VARS="--chroot /var/log/darkstat --user darkstat --pidfile darkstat.pid  --no-dns --daylog darkstat_day.log --no-promisc --export darkstat.db --import darkstat.db --no-daemon --no-macs"
+INTERFACE="-i enx00e04c680686"
+LOCAL="-l 192.168.79.186/255.255.255.0"
+PORT="-p 19283"
+BINDIP="-b 127.0.0.1"
+
+# darkstat $STATIC_VARS $INTERFACE $PORT $BINDIP $LOCAL
+# darkstat --chroot /var/log/darkstat --user darkstat --pidfile darkstat.pid  --no-dns --daylog darkstat_day.log --no-promisc --export darkstat.db --import darkstat.db --no-daemon --no-macs -i enx00e04c680686 -p 19283 -b 127.0.0.1 -l 192.68.79.0/255.255.255.0
