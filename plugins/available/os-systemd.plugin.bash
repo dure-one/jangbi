@@ -122,12 +122,22 @@ function __os-systemd_uninstall {
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy systemd-timesyncd systemd-resolved rsyslog netplan.io iproute2
+    apt install -qy rsyslog netplan.io iproute2 wpasupplicant macchanger
 }
 
 function __os-systemd_download {
     log_debug "Downloading ${DMNNAME}..."
-    # No specific packages to download for systemd configuration
+    case "${RUN_OS_SYSTEMD}" in
+        1)
+            _download_apt_pkgs "systemd rsyslog netplan.io iproute2 wpasupplicant macchanger"
+            ;;
+        2)
+            _download_apt_pkgs "systemd isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger"
+            ;;
+        0)
+            _download_apt_pkgs "systemd isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger"
+            ;;
+    esac
     return 0
 }
 
@@ -237,7 +247,7 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy isc-dhcp-client ifupdown iproute2
+    apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger
 
     # disable journald storage
     sed -i 's/#Storage=auto/Storage=none # JB/' /etc/systemd/journald.conf
@@ -276,7 +286,7 @@ function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy isc-dhcp-client ifupdown iproute2
+    apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger
     systemctl enable networking.service
 }
 
@@ -286,5 +296,6 @@ function __os-systemd_full_systemd { # 0 - disable completely, 1 - full systemd,
         apt purge -yq v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq ntpsec wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
+    apt purge -yq systemd-timesyncd systemd-resolved
     __os-systemd_uninstall
 }
