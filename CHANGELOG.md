@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([2a86b06](https://github.com/dure-one/jangbi/commit/2a86b06eaaa50c55cc33055728e668d87e79dffb) by nikescar).
+- Add changelog automatically ([ece5c08](https://github.com/dure-one/jangbi/commit/ece5c08cb602e6a02e555a71b832085e0fb5879c) by nikescar).
 
 ### Fixed
 
+- fix. csv converter, cdn lookup install. remove not used docs. ([c3a5785](https://github.com/dure-one/jangbi/commit/c3a57859ec2dfffc4e0e08b3f709e708531e2e64) by Woojae, Park).
 - fix. replace plugin documentation with new template. ([5910997](https://github.com/dure-one/jangbi/commit/59109979a27d3bd6ffbd1b7f5789feafdb5ca690) by Woojae, Park).
 - fix. darkstat run properly. ([586128e](https://github.com/dure-one/jangbi/commit/586128eea83fed17cbf12bec1f6c2f623e077d9e) by Woojae, Park).
 - fix. systemd download support. ([140eed6](https://github.com/dure-one/jangbi/commit/140eed61309a1a69b9d3d10a1952fb4077d8ad9b) by Woojae, Park).
