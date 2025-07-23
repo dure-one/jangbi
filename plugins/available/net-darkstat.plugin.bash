@@ -268,9 +268,13 @@ function __net-darkstat_run {
     
     pidof darkstat|xargs kill &>/dev/null
     
+    # preserve darkstat_day.log
+    [[ -f /var/log/darkstat/darkstat_day.log ]] && \
+        cat "/var/log/darkstat/darkstat_day.log" >> "/var/log/darkstat/darkstat_day_preserved.log"
+
     # shellcheck disable=SC1091
     source /etc/darkstat/init.conf && \
-        darkstat $DS_STATIC_VARS $INTERFACE $PORT $BINDIP $LOCAL 1>/var/log/darkstat/run.log 2>&1 &
+        darkstat $DS_STATIC_VARS $INTERFACE $PORT $BINDIP $LOCAL 1>>/var/log/darkstat/run.log 2>&1 &
     pidof darkstat && return 0 || \
         log_error "darkstat failed to run." && return 0
 }
