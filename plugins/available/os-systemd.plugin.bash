@@ -229,7 +229,8 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
 }
 
 function __os-systemd_run {
-    systemctl restart systemd-udevd
+    # restarting systemd-udeved in rc.local mode will initiate anacron service which takes 20 minus on start.
+    # systemctl restart systemd-udevd
     systemctl status systemd-udevd && return 0 || \
         log_error "os-systemd failed to run." && return 1
 }
@@ -274,6 +275,10 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     sed -i 's/#MaxLevelWall=emerg/MaxLevelWall=crit # JB/' /etc/systemd/journald.conf
     sed -i 's/MaxLevelWall=.*/MaxLevelWall=crit # JB/' /etc/systemd/journald.conf
 
+    # disable fsck and show details on boot
+    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="fsck.mode=skip" # JB/' /etc/default/grub
+    update-grub
+    
     systemctl enable networking.service
 }
 
