@@ -61,10 +61,12 @@ function net-darkstat {
         __net-darkstat_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-darkstat_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "cronjob" ]]; then
+        __net-darkstat_cronjob "$2"
     else
         __net-darkstat_help
     fi
-}
+} 
 
 ## \usage net-darkstat install|uninstall|download|disable|configgen|configapply|check|run
 ## $ net-darkstat install - install darkstat
@@ -89,6 +91,7 @@ function __net-darkstat_help {
     echo "   configapply Apply Configs"
     echo "   check       Check vars available"
     echo "   run         Run tasks"
+    echo "   cronjob     Add to cronjob"
 }
 
 function __net-darkstat_install {
@@ -157,6 +160,9 @@ function __net-darkstat_install {
     mkdir -p /var/log/darkstat
     chown darkstat:darkstat /var/log/darkstat
     chmod 755 /var/log/darkstat
+
+    # add cronjob
+    __net-darkstat_cronjob
 }
 
 function __net-darkstat_uninstall { 
@@ -274,9 +280,20 @@ function __net-darkstat_run {
 
     # shellcheck disable=SC1091
     source /etc/darkstat/init.conf && \
-        darkstat $DS_STATIC_VARS $INTERFACE $PORT $BINDIP $LOCAL 1>>/var/log/darkstat/run.log 2>&1 &
+        darkstat ${DS_STATIC_VARS} ${INTERFACE} ${PORT} ${BINDIP} ${LOCAL} 1>>/var/log/darkstat/run.log 2>&1 &
+    source /etc/darkstat/init.conf && \
+        darkstat ${DS_STATIC_VARS} ${INTERFACE} ${PORT} ${BINDIP} ${LOCAL} 1>>/var/log/darkstat/run.log 2>&1 &
     pidof darkstat && return 0 || \
         log_error "darkstat failed to run." && return 0
+}
+
+function __net-darkstat_cronjob { # will save hourly log to /var/log/darkstat
+    log_debug "Add Cronjob for ${DMNNAME}..."
+    crontab -l > /tmp/${DMNNAME}
+    sed -i "s|^.*# ${DMNNAME}_cronjob||g" "/tmp/${DMNNAME}"
+    echo "0 * * * * /usr/sbin/html-table-csv-converter --show-fields 1,3,4,5,6 \"http://127.0.0.1:19283/hosts/?full=yes\\&sort=lastseen\" --no-header --delimiter '|'|grep -v hrs|grep -v hr, > \"/var/log/darkstat/hl\$(date +\\%Y\\%m\\%d\\%H).log\" # net-darkstat_cronjob" >> /tmp/${DMNNAME}
+    crontab /tmp/${DMNNAME}
+    rm /tmp/${DMNNAME}
 }
 
 complete -F _blank net-darkstat

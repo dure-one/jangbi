@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
-# BASH_IT_LOG_LEVEL=7
+# BASH_IT_LOG_LEVEL=6
 BASH_IT_LOG_PREFIX="core: main: "
 : "${BASH_IT:=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 : "${BASH_IT_CUSTOM:=${BASH_IT}/custom}"
