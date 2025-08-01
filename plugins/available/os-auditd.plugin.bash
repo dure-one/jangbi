@@ -128,7 +128,7 @@ function __os-auditd_uninstall {
 
 function __os-auditd_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs auditd || log_error "${DMNNAME} download failed."
     return 0
 }
 
