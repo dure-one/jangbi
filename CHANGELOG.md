@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([8d6360a](https://github.com/dure-one/jangbi/commit/8d6360aea9452631e366df8a44dd0a4380a8cd2e) by nikescar).
+- Add changelog automatically ([2377f84](https://github.com/dure-one/jangbi/commit/2377f84cf29d6270f3fe535de0f31458d28d5723) by nikescar).
 
 ### Fixed
 
+- fix. add log_debug to all iptables rules. ([9a2bb74](https://github.com/dure-one/jangbi/commit/9a2bb7418c814e8e508f3197da8d1134b623ccc7) by Woojae, Park).
 - fix. download pkg misspell. ([fa923b5](https://github.com/dure-one/jangbi/commit/fa923b54832485222c0c07a7847fc38caa1a843b) by Woojae, Park).
 - fix. make darkstat preseve logs. ([5617e80](https://github.com/dure-one/jangbi/commit/5617e80b970978e562f066d0d52230abb9fe7285) by Woojae, Park).
 - fix. disable systemd-udevd restart on system run due to delaying boot for 20 minutes of anacron service. ([ee360a9](https://github.com/dure-one/jangbi/commit/ee360a9e1aa741bb24d11a04b3bbe77d0b3affd6) by Woojae, Park).
