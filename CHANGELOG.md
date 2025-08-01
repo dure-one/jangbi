@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([f5e29db](https://github.com/dure-one/jangbi/commit/f5e29db24c36f894b998a8af461116eaad9dcc2d) by nikescar).
+- Add changelog automatically ([8d6360a](https://github.com/dure-one/jangbi/commit/8d6360aea9452631e366df8a44dd0a4380a8cd2e) by nikescar).
 
 ### Fixed
 
+- fix. download pkg misspell. ([fa923b5](https://github.com/dure-one/jangbi/commit/fa923b54832485222c0c07a7847fc38caa1a843b) by Woojae, Park).
+- fix. make darkstat preseve logs. ([5617e80](https://github.com/dure-one/jangbi/commit/5617e80b970978e562f066d0d52230abb9fe7285) by Woojae, Park).
 - fix. disable systemd-udevd restart on system run due to delaying boot for 20 minutes of anacron service. ([ee360a9](https://github.com/dure-one/jangbi/commit/ee360a9e1aa741bb24d11a04b3bbe77d0b3affd6) by Woojae, Park).
 - fix. csv converter, cdn lookup install. remove not used docs. ([c3a5785](https://github.com/dure-one/jangbi/commit/c3a57859ec2dfffc4e0e08b3f709e708531e2e64) by Woojae, Park).
 - fix. replace plugin documentation with new template. ([5910997](https://github.com/dure-one/jangbi/commit/59109979a27d3bd6ffbd1b7f5789feafdb5ca690) by Woojae, Park).
