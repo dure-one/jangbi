@@ -438,9 +438,10 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
   [[ ! -f .task-desktop ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-desktop| grep "^\w" > .task-desktop
   # [[ ! -f .task-ssh-server ]] && apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends task-ssh-server| grep "^\w" > .task-ssh-server
   apt-cache depends --recurse --no-recommends --no-suggests --no-conflicts --no-breaks --no-replaces --no-enhances --no-pre-depends $1| grep "^\w" > /tmp/compare_pkg
-  grep -Fxv -f .task-desktop /tmp/compare_pkg > /tmp/unique_pkg
+  grep -Fxv -f .task-desktop /tmp/compare_pkg|tr '\n' ' ' > /tmp/unique_pkg
   pushd "${JANGBI_IT}/pkgs" 1>/dev/null 2>&1
   cp /tmp/unique_pkg "${pkgname}.pkgs"
+  log_debug "Downloading $(</tmp/unique_pkg)"
   apt download $(</tmp/unique_pkg)
   popd 1>/dev/null 2>&1
 }

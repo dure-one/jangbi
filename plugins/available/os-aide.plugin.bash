@@ -185,7 +185,8 @@ function __os-aide_check { # running_status: 0 running, 1 installed, running_sta
 
 function __os-aide_run {
     # aide minimal check for first run
-    aide --check --config=/etc/aide/aide.minimal.conf
+    local dtnow=$(date +%Y%m%d_%H%M%S)
+    aide --check --config=/etc/aide/aide.minimal.conf 2>&1 1>"/var/log/aide/log_${dtnow}.log"
     return 0
 }
 

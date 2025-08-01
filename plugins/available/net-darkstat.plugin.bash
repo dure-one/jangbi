@@ -1,10 +1,13 @@
-## \brief darkstat install configurations. <div style="text-align: right"> group:**postnet** | runtype:**minmon** | deps: **-** | port: **LO:19283**</div><br/>
+## \brief darkstat install configurations. it can be extended to log houly ips and show statistics.<div style="text-align: right"> group:**postnet** | runtype:**minmon** | deps: **-** | port: **LO:19283**</div><br/>
 ## \desc 
 ## [Darkstat](https://unix4lyfe.org/darkstat/){:target="_blank"} is saving network traffic statistics and serving them over HTTP.
 # We will take the contact ip list from darkstat and devide if contacted address
 # is on cdn or not. and we could block them by if cdn or its company names from reverse ips.
 ## 
 ## ![darkstat main](../imgs/darkstat_1.png "darkstat main")
+## # Other Application Used
+## [html-csv-converter](https://github.com/nikescar/html-table-csv-converter) : download ip list from darkstat web interface and save to log.
+## [cdn-lookup](https://github.com/nikescar/cdn-lookup) : show companies by ip address.
 ## # Jangbi Configs
 ## ```bash title="/opt/jangbi/.config"
 ## RUN_NET_DARKSTAT=1 # enable darkstat
