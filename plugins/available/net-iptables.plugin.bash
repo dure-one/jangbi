@@ -367,63 +367,45 @@ function __net-iptables_build {
     # MASQUERADE WAN->NET
     # IPTABLES_MASQ="LAN<WAN,LAN1<WAN"
     if [[ -n ${IPTABLES_MASQ} ]]; then
+        IPTABLES_MASQ=$(_trim_string ${IPTABLES_MASQ})
         IFS=$',' read -d "" -ra MASQROUTES <<< "${IPTABLES_MASQ}" # split
         for((j=0;j<${#MASQROUTES[@]};j++)){
             local frominf="" toinf="" fromnet="" tonet=""
             IFS=$'<' read -d "" -ra masqinfs <<< "${MASQROUTES[j]}"
+            frominf=$(_get_inf_of_infmark "${masqinfs[0]}" || echo "")
+            toinf=$(_get_inf_of_infmark "$(_trim_string ${masqinfs[1]})" || echo "")
             if [[ $(_trim_string ${masqinfs[0]}) = "LAN" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${laninf}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "WLAN" && $(_trim_string ${masqinfs[1]}) = "WAN"  ]]; then
-                frominf=${wlaninf}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_WLAN}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN0" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN0INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN0}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN1" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN1INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN1}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN2" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN2INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN2}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN3" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN3INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN3}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN4" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN4INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN4}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN5" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN5INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN5}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN6" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN6INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN6}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN7" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN7INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN7}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN8" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN8INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN8}|grep Network:|cut -f2)
             elif [[ $(_trim_string ${masqinfs[0]}) = "LAN9" && $(_trim_string ${masqinfs[1]}) = "WAN" ]]; then
-                frominf=${JB_LAN9INF}
-                toinf=${waninf}
                 fromnet=$(ipcalc-ng ${JB_LAN9}|grep Network:|cut -f2)
             fi
 
             if [[ -n ${frominf} && -n ${toinf} ]]; then
-                log_debug "iptables_filternat_all_both_masquerade frominf:${frominf}" fromnet:"${fromnet}" toinf:"${toinf}"
+                log_debug "iptables_filternat_all_both_masquerade frominf:${frominf} fromnet:${fromnet} toinf:${toinf}"
                 __net-iptables_filternat_all_both_masquerade  "${frominf}" "${fromnet}" "${toinf}" # laninf lannet waninf
+            else
+                log_error "iptables_filternat_all_both_masquerade ${IPTABLES_MASQ} ${MASQROUTES[j]} frominf:${frominf} fromnet:${fromnet} toinf:${toinf}"
+                continue
             fi
         }
     fi
@@ -714,7 +696,7 @@ function __net-iptables_nat_ext_both_portforward {
         IFS=$':' read -d "" -ra target <<< "${pforw[j]}" # split
         wanport=${target[0]}
         lanip=${target[1]}
-        lanport=${target[2]}
+        lanport=$(_trim_string ${target[2]})
 
         [[ ${#wanip} -lt 1 ]] && log_error "${funcname}: wanip is not set" && return 1
         [[ ${#wanport} -lt 1 ]] && log_error "${funcname}: wanport is not set" && return 1

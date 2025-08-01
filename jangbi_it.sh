@@ -209,7 +209,7 @@ _get_inf_of_infmark(){
   if [[ ${inf,,} =~ ^(lo|wan|lan|wlan|lan[0-9])$ ]]; then
     :
   else
-    log_error "Interface ${inf} is not valid. Please set correct interface name in config."
+    log_error "Interface '${inf}' is not valid. Please set correct interface name in config."
     return 1
   fi
   if [[ ${inf,,} == "wan" ]]; then
