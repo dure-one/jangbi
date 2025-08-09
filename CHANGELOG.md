@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([d75e112](https://github.com/dure-one/jangbi/commit/d75e11251fb244038a89700249daa5224314962a) by nikescar).
+- Add changelog automatically ([b32d6c1](https://github.com/dure-one/jangbi/commit/b32d6c1d71262c8595f8211e4e94972a86cf9d3f) by nikescar).
 
 ### Fixed
 
