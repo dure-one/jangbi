@@ -209,6 +209,9 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
 
 function __net-knockd_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${KNOCKD_PORTS}" || log_debug "failed to set iptables rules for ${KNOCKD_PORTS}."
+
     systemctl restart knockd
     systemctl status knockd && return 0 || \
         log_error "knockd failed to run." && return 0

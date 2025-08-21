@@ -916,6 +916,36 @@ function __net-iptables_filter_all_both_servicerules {
     done
 }
 
+## \function Filter Input : Service-specific rules
+## \function-description Allow incoming connections on specified ports for services.<br/>
+## (config)```***_PORTS="LO:19283,LO:19282,LAN:20392"```<br/>
+## (command)```iptables -A INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v4 -j ACCEPT```<br/>
+function __net-iptables_nat_ext_both_allowedportinf {
+    local funcname aportsinfs
+    funcname="neb_allowedportinf"
+    aportsinfs=$(_trim_string "$1")
+    [[ ${#aportsinfs} -lt 1 ]] && log_error "${funcname}: \"${aportsinfs}\" is not set" && return 1
+    log_debug "${aportsinfs}"
+    IFS=$',' read -d "" -ra aportinf <<< "${aportsinfs}" # split
+    for((j=0;j<${#aportinf[@]};j++)){
+        IFS=$':' read -d "" -ra target <<< "${aportinf[j]}" # split
+        dinf=$(_trim_string "${target[0]}")
+        dip=$(_get_ip_of_infmark "${dinf}" || echo "")
+        dport=$(_trim_string "${target[1]}")
+
+        [[ ${#dinf} -lt 1 ]] && log_error "${funcname}: dinf is not set" && return 1
+        [[ ${#dip} -lt 1 ]] && log_error "${funcname}: dip is not set" && return 1
+        [[ ${#dport} -lt 1 ]] && log_error "${funcname}: dport is not set" && return 1
+        
+        port=$(echo "$dport" | xargs) # trim whitespace
+        [[ $port =~ ^[0-9]+$ ]] && {
+            IPTABLE="INPUT -i ${dinf} -d ${dip} -p tcp --dport ${dport} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_${dinf}_${dport} -j ACCEPT"
+            log_debug "${IPTABLE}"
+            iptables -t filter -S | grep "{funcname}_${dinf}_${dport}" || iptables -t filter -A ${IPTABLE}
+        }
+    }
+}
+
 ## \function Filter Input : Noise reduction rules (Drop without logging)
 ## \function-description Drop common network noise packets (SMB, NetBIOS) without logging to reduce log spam.<br/>
 ## (config)```IPTABLES_NOISE_REDUCTION=1```<br/>

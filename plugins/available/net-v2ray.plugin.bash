@@ -195,6 +195,8 @@ function __net-v2ray_check { # running_status 0 installed, running_status 5 can 
 
 function __net-v2ray_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${V2RAY_PORTS}" || log_debug "failed to set iptables rules for ${V2RAY_PORTS}."
     
     pidof v2ray | xargs kill &>/dev/null
     

@@ -181,6 +181,8 @@ function __net-dnscryptproxy_check { # running_status 0 installed, running_statu
 
 function __net-dnscryptproxy_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${DNSCRYPTPROXY_PORTS}" || log_debug "failed to set iptables rules for ${DNSCRYPTPROXY_PORTS}."
     
     pidof dnscrypt-proxy | xargs kill &>/dev/null
     

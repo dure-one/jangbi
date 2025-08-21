@@ -169,6 +169,9 @@ function __os-vector_check { # running_status: 0 running, 1 installed, running_s
 }
 
 function __os-vector_run {
+    log_debug "Running ${DMNNAME}..."
+    # [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+    #     __net-iptables_nat_ext_both_allowedportinf "${VECTOR_PORTS}" || log_debug "failed to set iptables rules for ${VECTOR_PORTS}."
     pidof vector | xargs kill -9 2>/dev/null
     vector -c /etc/vector/vector.toml 1>>/var/log/vector/daemon.log 2>&1 &
     pidof vector && return 0 || return 1

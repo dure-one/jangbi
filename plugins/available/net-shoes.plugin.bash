@@ -182,6 +182,8 @@ function __net-shoes_check { # running_status 0 installed, running_status 5 can 
 
 function __net-shoes_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${SHOES_PORTS}" || log_debug "failed to set iptables rules for ${SHOES_PORTS}."
     
     pidof shoes | xargs kill &>/dev/null
     

@@ -180,6 +180,8 @@ function __net-omnip_check { # running_status 0 installed, running_status 5 can 
 
 function __net-omnip_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${OMNIP_PORTS}" || log_debug "failed to set iptables rules for ${OMNIP_PORTS}."
     
     pidof omnip | xargs kill &>/dev/null
     

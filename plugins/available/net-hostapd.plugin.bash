@@ -195,7 +195,8 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
 
 function __net-hostapd_run {
     log_debug "Running ${DMNNAME}..."
-
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${HOSTAPD_PORTS}" || log_debug "failed to set iptables rules for ${HOSTAPD_PORTS}."
     # detect enabled/available wlan interface
     if [[ -z ${JB_WLANINF} ]]; then
         log_error "JB_WLANINF variable is not set. Please set it to your wlan interface."

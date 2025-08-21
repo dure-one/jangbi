@@ -189,6 +189,9 @@ function __net-dnsmasq_check { # running_status: 0 running, 1 installed, running
 
 function __net-dnsmasq_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${DNSMASQ_PORTS}" || log_debug "failed to set iptables rules for ${DNSMASQ_PORTS}."
+
     # add iptables rules
     # __bp_trim_whitespace JB_WANINF "${JB_WANINF}"
     # __bp_trim_whitespace JB_LANINF "${JB_LANINF}"

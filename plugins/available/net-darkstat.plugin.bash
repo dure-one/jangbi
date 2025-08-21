@@ -6,8 +6,8 @@
 ## 
 ## ![darkstat main](../imgs/darkstat_1.png "darkstat main")
 ## # Other Application Used
-## [html-csv-converter](https://github.com/nikescar/html-table-csv-converter) : download ip list from darkstat web interface and save to log.
-## [cdn-lookup](https://github.com/nikescar/cdn-lookup) : show companies by ip address.
+## [html-csv-converter](https://github.com/nikescar/html-table-csv-converter){:target="_blank"} : download ip list from darkstat web interface and save to log.<br/>
+## [cdn-lookup](https://github.com/nikescar/cdn-lookup){:target="_blank"} : show companies by ip address.
 ## # Jangbi Configs
 ## ```bash title="/opt/jangbi/.config"
 ## RUN_NET_DARKSTAT=1 # enable darkstat
@@ -273,7 +273,9 @@ function __net-darkstat_check { # running_status: 0 running, 1 installed, runnin
 
 function __net-darkstat_run {
     log_debug "Running ${DMNNAME}..."
-    _allow_ports_byplugin ${DMNNAME} ${DARKSTAT_PORTS}
+    # _allow_ports_byplugin ${DMNNAME} ${DARKSTAT_PORTS}
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${DARKSTAT_PORTS}" || log_debug "failed to set iptables rules for ${DARKSTAT_PORTS}."
     
     pidof darkstat|xargs kill &>/dev/null
     

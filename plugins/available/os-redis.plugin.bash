@@ -182,6 +182,8 @@ function __os-redis_check { # running_status: 0 running, 1 installed, running_st
 
 function __os-redis_run {
     log_debug "Running ${DMNNAME}..."
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${REDIS_PORTS}" || log_debug "failed to set iptables rules for ${REDIS_PORTS}."
     systemctl restart redis-server
     pidof redis-server && return 0 || \
         log_error "redis-server failed to run." && return 0
