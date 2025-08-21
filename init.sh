@@ -21,10 +21,11 @@ usage() {
   echo "  bootstraping scripts for jangbi system"
   echo
   printf "%s\\n" "  ${YELLOW}--help                          |-h${NORMAL}   display this help and exit"
-  printf "%s\\n" "  ${YELLOW}--check net-darkstat            |-c${NORMAL}   check single plugin"
-  printf "%s\\n" "  ${YELLOW}--launch net-darkstat           |-l${NORMAL}   run single plugin"
-  printf "%s\\n" "  ${YELLOW}--sync                          |-s${NORMAL}   sync enabled plugin in config to jangbi-it and exit"
-  printf "%s\\n" "  ${YELLOW}--download enabled/net-darkstat |-s${NORMAL}   download pkg file for offline installation"
+  printf "%s\\n" "  ${YELLOW}--check enabled|net-darkstat    |-c${NORMAL}   check enabled|single plugin"
+  printf "%s\\n" "  ${YELLOW}--launch enabled|net-darkstat   |-l${NORMAL}   run enabled|single plugin"
+  printf "%s\\n" "  ${YELLOW}--sync                          |-s${NORMAL}   sync janbit config to plugin"
+  printf "%s\\n" "  ${YELLOW}--download enabled|net-darkstat |-d${NORMAL}   download enabled|single plugin pkgs"
+  printf "%s\\n" "  ${YELLOW}--install enabled|net-darkstat  |-i${NORMAL}   install enabled|single plugin pkgs"
   echo
 }
 # setup log
@@ -52,16 +53,14 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     --check | -c)
-      SKIP_LOG=1
-      TRPROC=$2
-      ${TRPROC} check
-      exit ${running_status}
+      CH_OPTION="$2"
+      shift
+      shift
       ;;
     --launch | -l)
-      SKIP_LOG=1
-      TRPROC=$2
-      ${TRPROC} run
-      exit 0
+      RN_OPTION="$2"
+      shift
+      shift
       ;;
     --sync | -s)
       SYNC_AND_BREAK=1
@@ -69,6 +68,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --download | -d)
       DN_OPTION="$2"
+      shift
+      shift
+      ;;
+    --install | -i)
+      IN_OPTION="$2"
       shift
       shift
       ;;
@@ -166,13 +170,46 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 # append deps array to orig array
 prenet+=("${prenetdeps[@]}") 
 postnet+=("${postnetdeps[@]}")
+# check
+if [[ ${CH_OPTION} = "enabled" || $(echo "${CH_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    for plugin in "./enabled"/*".plugin.bash"; do
+        plug=${plugin##.*---}
+        plug=${plug%%.plugin.bash}
+        echo "${plug}"
+        ${plug} check
+        
+    done
+    exit 0
+fi
+# run
+if [[ ${RN_OPTION} = "enabled" || $(echo "${RN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    for plugin in "./enabled"/*".plugin.bash"; do
+        plug=${plugin##.*---}
+        plug=${plug%%.plugin.bash}
+        echo "${plug}"
+        ${plug} run
+        
+    done
+    exit 0
+fi
 # download
 if [[ ${DN_OPTION} = "enabled" || $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
     for plugin in "./enabled"/*".plugin.bash"; do
         plug=${plugin##.*---}
         plug=${plug%%.plugin.bash}
         echo "${plug}"
-        __${plug}_download
+        ${plug} download
+        
+    done
+    exit 0
+fi
+# install
+if [[ ${DN_OPTION} = "enabled" || $(echo "${IN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    for plugin in "./enabled"/*".plugin.bash"; do
+        plug=${plugin##.*---}
+        plug=${plug%%.plugin.bash}
+        echo "${plug}"
+        ${plug} install
         
     done
     exit 0

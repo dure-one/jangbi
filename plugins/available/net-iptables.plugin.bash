@@ -929,8 +929,8 @@ function __net-iptables_nat_ext_both_allowedportinf {
     IFS=$',' read -d "" -ra aportinf <<< "${aportsinfs}" # split
     for((j=0;j<${#aportinf[@]};j++)){
         IFS=$':' read -d "" -ra target <<< "${aportinf[j]}" # split
-        dinf=$(_trim_string "${target[0]}")
-        dip=$(_get_ip_of_infmark "${dinf}" || echo "")
+        dinf=$(_get_inf_of_infmark "${target[0]}" || echo "")
+        dip=$(_get_ip_of_infmark "${target[0]}" || echo "")
         dport=$(_trim_string "${target[1]}")
 
         [[ ${#dinf} -lt 1 ]] && log_error "${funcname}: dinf is not set" && return 1
