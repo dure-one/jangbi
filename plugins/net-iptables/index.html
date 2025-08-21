@@ -835,6 +835,15 @@
         <li class="md-nav__item">
   <a href="#net-iptables.plugin.bash" class="md-nav__link">
     <span class="md-ellipsis">
+      Filter Input : Service-specific rules
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#net-iptables.plugin.bash" class="md-nav__link">
+    <span class="md-ellipsis">
       Filter Input : Noise reduction rules (Drop without logging)
     </span>
   </a>
@@ -1888,6 +1897,20 @@ COMMIT
 
   <p>Allow incoming connections on specified ports for services.<br/>
 (config)<code>IPTABLES_ALLOWED_PORTS="80,443,8080"</code><br/>
+(command)<code>iptables -A INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v4 -j ACCEPT</code><br/></p>
+
+
+
+
+
+
+
+<hr>
+<h2 id="net-iptables.plugin.bash">Filter Input : Service-specific rules<a href="#net-iptables.plugin.bash" class="headerlink" title="Permanent link">¤</a></h2>
+
+
+  <p>Allow incoming connections on specified ports for services.<br/>
+(config)<code>***_PORTS="LO:19283,LO:19282,LAN:20392"</code><br/>
 (command)<code>iptables -A INPUT -p tcp --dport ${port} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_custom_${port}_v4 -j ACCEPT</code><br/></p>
 
 
