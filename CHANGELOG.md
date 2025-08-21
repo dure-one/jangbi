@@ -12,12 +12,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([6a8d5ae](https://github.com/dure-one/jangbi/commit/6a8d5ae289062ed247aefe2b107f2707e31b9f95) by nikescar).
+- Add changelog automatically ([1875bf2](https://github.com/dure-one/jangbi/commit/1875bf20e7139be83ad6fc5b6f202c613fc9f854) by nikescar).
 
 ### Fixed
 
 - fix. add wlan masquerate for apmode. ([173edbf](https://github.com/dure-one/jangbi/commit/173edbfc2e8a1ccfacbd6c3650302361ad4ba127) by Woojae, Park).
 - fix. add iptables rules for each plugins. ([7fa967f](https://github.com/dure-one/jangbi/commit/7fa967f4423e38b48da95c4d291709aa50ae90ae) by Woojae, Park).
+- fix. add install. change download/run/check cmd to do all and per plugin. fix iptables bugs. ([0fb2543](https://github.com/dure-one/jangbi/commit/0fb2543848d86df22f248f3df30f6a588c891ca2) by Woojae, Park).
 - fix. iptables variable error. ([27c9197](https://github.com/dure-one/jangbi/commit/27c91976bbd444aac5c85064fc8c94171b584615) by Woojae, Park).
 - fix. add log_debug to all iptables rules. ([9a2bb74](https://github.com/dure-one/jangbi/commit/9a2bb7418c814e8e508f3197da8d1134b623ccc7) by Woojae, Park).
 - fix. download pkg misspell. ([fa923b5](https://github.com/dure-one/jangbi/commit/fa923b54832485222c0c07a7847fc38caa1a843b) by Woojae, Park).
