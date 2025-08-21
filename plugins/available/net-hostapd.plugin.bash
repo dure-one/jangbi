@@ -195,13 +195,19 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
 
 function __net-hostapd_run {
     log_debug "Running ${DMNNAME}..."
-    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
-        __net-iptables_nat_ext_both_allowedportinf "${HOSTAPD_PORTS}" || log_debug "failed to set iptables rules for ${HOSTAPD_PORTS}."
     # detect enabled/available wlan interface
     if [[ -z ${JB_WLANINF} ]]; then
         log_error "JB_WLANINF variable is not set. Please set it to your wlan interface."
         return 0
     fi
+
+    # wlan masquerading rules if iptables is enabled
+    if [[ ${RUN_NET_IPTABLES} -gt 0 ]] && [[ -n ${JB_WANINF} ]] && [[ ${JB_WLAN_APMODE} -gt 0 ]]; then
+        log_debug "Setting up iptables masquerading for ${JB_WLANINF}..."
+        fromnet=$(ipcalc-ng ${JB_WLAN}|grep Network:|cut -f2)
+        __net-iptables_filternat_all_both_masquerade  "${JB_WLANINF}" "${fromnet}" "${JB_WANINF}"
+    fi
+
     pidof hostapd | xargs kill -9 2>/dev/null
     echo "Initiated on $(date +%Y%m%d_%H%M%S)" >> /var/log/hostapd.log
     hostapd /etc/hostapd/hostapd.conf -f /var/log/hostapd.log -B
