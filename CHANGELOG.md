@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([b906b64](https://github.com/dure-one/jangbi/commit/b906b64924e06069d496177826844edff67a3426) by nikescar).
+- Add changelog automatically ([6a8d5ae](https://github.com/dure-one/jangbi/commit/6a8d5ae289062ed247aefe2b107f2707e31b9f95) by nikescar).
 
 ### Fixed
 
+- fix. add wlan masquerate for apmode. ([173edbf](https://github.com/dure-one/jangbi/commit/173edbfc2e8a1ccfacbd6c3650302361ad4ba127) by Woojae, Park).
 - fix. add iptables rules for each plugins. ([7fa967f](https://github.com/dure-one/jangbi/commit/7fa967f4423e38b48da95c4d291709aa50ae90ae) by Woojae, Park).
 - fix. iptables variable error. ([27c9197](https://github.com/dure-one/jangbi/commit/27c91976bbd444aac5c85064fc8c94171b584615) by Woojae, Park).
 - fix. add log_debug to all iptables rules. ([9a2bb74](https://github.com/dure-one/jangbi/commit/9a2bb7418c814e8e508f3197da8d1134b623ccc7) by Woojae, Park).
