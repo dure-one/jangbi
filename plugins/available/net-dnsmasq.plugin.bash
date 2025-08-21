@@ -226,7 +226,7 @@ function __net-dnsmasq_run {
             iptables -S | grep "DMQ_DWLB_${JB_WLANINF}" || \
                 iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DWLB_${JB_WLANINF} -j ACCEPT
             iptables -S | grep "DMQ_DWLR_${JB_WLANINF}" || \
-                iptables -t filter -A INPUT -i ${JB_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${JB_WLANINF} -j ACCEPT
+                iptables -t filter -I INPUT -i ${JB_WLANINF} -p udp --dport 53 -m comment --comment DMQ_DWLR_${JB_WLANINF} -j ACCEPT
         fi
     fi
     # Additional Listening for Masqueraded Interface
@@ -264,7 +264,7 @@ function __net-dnsmasq_run {
             iptables -S | grep "DMQ_DB_${TARINF}" || \
                 iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 68 --sport 67 -m comment --comment DMQ_DB_${TARINF} -j ACCEPT
             iptables -S | grep "DMQ_DR_${TARINF}" || \
-                iptables -t filter -A INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
+                iptables -t filter -I INPUT -i ${TARINF} -p udp --dport 53 -m comment --comment DMQ_DR_${TARINF} -j ACCEPT
         }
     fi
     
