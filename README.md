@@ -194,5 +194,9 @@ $ ./init.sh
 - hysteria server configurations with/without domain name?
 - last configs saved in /etc/jangbi
 - setup wizard to edit write .config file
+
+- configuration organizer in rust
+- run precondition check for all plugins
+
 </details>
 

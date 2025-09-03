@@ -151,11 +151,15 @@ function __os-conf_install {
     crontab -l > /tmp/mycron
     sed -i "s|^.*# CONF_TIMESYNC||g" "/tmp/mycron"
     if [[ ${CONF_TIMESYNC} == 'http' ]]; then # CONF_TIMESYNC=http
-        echo "*/10 * * * * cd ${JB_DEPLOY_PATH} && source functions.sh _time_sync ${DNS_UPSTREAM} # CONF_TIMESYNC" >> /tmp/mycron
+        echo "*/10 * * * * cd ${JB_DEPLOY_PATH} && source jangbi_it.sh && _time_sync ${DNS_UPSTREAM} # CONF_TIMESYNC" >> /tmp/mycron
     else # CONF_TIMESYNC=ntp
         cp ./configs/ntpclient.pl /sbin/ntpclient.pl
         chmod +x /sbin/ntpclient.pl
         echo "*/10 * * * * /sbin/ntpclient.pl # CONF_TIMESYNC" >> /tmp/mycron
+        # iptables allow 123/udp port
+        if [[ ${RUN_NET_IPTABLES} -eq 1 ]]; then
+            iptables -A INPUT -p udp --dport 123 -j ACCEPT
+        fi
     fi
     crontab /tmp/mycron
     rm /tmp/mycron

@@ -26,6 +26,7 @@ usage() {
   printf "%s\\n" "  ${YELLOW}--sync                          |-s${NORMAL}   sync janbit config to plugin"
   printf "%s\\n" "  ${YELLOW}--download enabled|net-darkstat |-d${NORMAL}   download enabled|single plugin pkgs"
   printf "%s\\n" "  ${YELLOW}--install enabled|net-darkstat  |-i${NORMAL}   install enabled|single plugin pkgs"
+  printf "%s\\n" "  ${YELLOW}--doctor                        |-t${NORMAL}   doctor network issues"
   echo
 }
 # setup log
@@ -75,6 +76,16 @@ while [[ $# -gt 0 ]]; do
       IN_OPTION="$2"
       shift
       shift
+      ;;
+    --doctor | -t)
+      # doctor network issues
+      log_info "Running network doctor..."
+      if _check_network; then
+          log_info "Network looks good."
+      else
+          log_error "Network issues detected. Please check your configuration."
+      fi
+      exit 0
       ;;
     -* | --*)
       printf "%s\\n\\n" "Unrecognized option: $1"
@@ -158,6 +169,15 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 [[ ${group_txt// /} == "postnet" && ${#deps_txt[@]} -gt 0 ]] && postnetdeps+=(${load_plugin})
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -eq 0 ]] && prenet+=(${load_plugin})
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -gt 0 ]] && prenetdeps+=(${load_plugin})
+
+                # --check
+                [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]] && ${load_plugin} check
+                # --launch
+                [[ ${RN_OPTION} = "enabled" ]] || [[ ${RN_OPTION} = "${load_plugin}" ]] && ${load_plugin} run
+                # --download
+                [[ ${DN_OPTION} = "enabled" ]] || [[ ${DN_OPTION} = "${load_plugin}" ]] && ${load_plugin} download
+                # --install
+                [[ ${IN_OPTION} = "enabled" ]] || [[ ${IN_OPTION} = "${load_plugin}" ]] && ${load_plugin} install
             fi
             log_debug "${lvars[k]} $group_txt" # log loaded vars
             unset group_txt
@@ -167,53 +187,16 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 }
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
+# exit on check, run, download, install
+if [[ ${CH_OPTION} = "enabled" || ${RN_OPTION} = "enabled" || ${DN_OPTION} = "enabled" || ${IN_OPTION} = "enabled" || \
+    $(echo "${CH_OPTION}"|grep -o "-"|wc -l) = 1 || $(echo "${RN_OPTION}"|grep -o "-"|wc -l) = 1 || \
+    $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 || $(echo "${IN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    exit 0
+fi
+
 # append deps array to orig array
 prenet+=("${prenetdeps[@]}") 
 postnet+=("${postnetdeps[@]}")
-# check
-if [[ ${CH_OPTION} = "enabled" || $(echo "${CH_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
-    for plugin in "./enabled"/*".plugin.bash"; do
-        plug=${plugin##.*---}
-        plug=${plug%%.plugin.bash}
-        echo "${plug}"
-        ${plug} check
-        
-    done
-    exit 0
-fi
-# run
-if [[ ${RN_OPTION} = "enabled" || $(echo "${RN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
-    for plugin in "./enabled"/*".plugin.bash"; do
-        plug=${plugin##.*---}
-        plug=${plug%%.plugin.bash}
-        echo "${plug}"
-        ${plug} run
-        
-    done
-    exit 0
-fi
-# download
-if [[ ${DN_OPTION} = "enabled" || $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
-    for plugin in "./enabled"/*".plugin.bash"; do
-        plug=${plugin##.*---}
-        plug=${plug%%.plugin.bash}
-        echo "${plug}"
-        ${plug} download
-        
-    done
-    exit 0
-fi
-# install
-if [[ ${DN_OPTION} = "enabled" || $(echo "${IN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
-    for plugin in "./enabled"/*".plugin.bash"; do
-        plug=${plugin##.*---}
-        plug=${plug%%.plugin.bash}
-        echo "${plug}"
-        ${plug} install
-        
-    done
-    exit 0
-fi
 
 # add to rclocal
 if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then

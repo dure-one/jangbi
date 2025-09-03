@@ -560,6 +560,65 @@ _time_sync(){
   sudo date -us "$(curl -Is 1.1 | sed -n 's/^Date://p')"
 }
 
+_check_network(){
+  local waninf=${JB_WANINF}
+  local rip
+  rip=$(_get_ip_of_inf "${waninf}")
+  
+  # dns fix
+  if ! dig +short cloudflare.com @"${rip}" | grep -qE '^[0-9.]+$'; then
+    log_warning "DNS resolution failed using interface ${waninf}(${rip}). Checking /etc/resolv.conf..."
+    if ! grep -q 'nameserver 1.1.1.1' /etc/resolv.conf; then
+      echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf
+    fi
+  fi
+
+  # wan con fix
+  if [[ -n ${rip} ]]; then
+    if [[ $(_is_valid_ipv4 "${rip}") == 0 ]]; then
+      if [[ $(ipcalc-ng "${rip}" | grep -c "Address space: *Internet") -lt 1 ]]; then
+        log_warning "Interface ${waninf}(${rip}) is not connected to Internet. Restarting networking service."
+        if systemctl is-active --quiet networking; then
+          systemctl restart networking
+        elif systemctl is-active --quiet NetworkManager; then
+          systemctl restart NetworkManager
+        else
+          log_error "No networking service found to restart."
+        fi
+      else
+        log_debug "Interface ${waninf}(${rip}) is connected to Internet."
+      fi
+    else
+      log_warning "Interface ${waninf}(${rip}) has invalid IP address. Restarting networking service."
+      if systemctl is-active --quiet networking; then
+        systemctl restart networking
+      elif systemctl is-active --quiet NetworkManager; then
+        systemctl restart NetworkManager
+      else
+        log_error "No networking service found to restart."
+      fi
+    fi
+  else
+    log_warning "Interface ${waninf} has no IP address. Restarting networking service."
+    if systemctl is-active --quiet networking; then
+      systemctl restart networking
+    elif systemctl is-active --quiet NetworkManager; then
+      systemctl restart NetworkManager
+    else
+      log_error "No networking service found to restart."
+    fi
+  fi
+
+  # wan con fix2 for network service has broken
+  if [[ "${JB_WAN}" == "dhcp" ]]; then
+    if ! curl -s --max-time 5 --head 1.1.1.1; then
+      log_warning "Cannot reach 1.1.1.1. Trying to obtain IP address via DHCP."
+      dhclient "${waninf}"
+    fi
+  fi
+
+}
+
 # _get_delay() { # UDP comms on bash not working
 # 	TIMESERVER="$1"
 # 	TIMES="${2:-20}"

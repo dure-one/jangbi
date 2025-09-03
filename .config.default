@@ -16,7 +16,7 @@ RUN_OS_CONF=1
 CONF_TIMEZONE="Asia/Seoul"
 ## if os system existing swap size is bigger than 1Gb, not replace existing one
 CONF_SWAPSIZE="1G"
-CONF_TIMESYNC="ntp" # ntp or http
+CONF_TIMESYNC="http" # ntp or http
 DNS_UPSTREAM="1.1.1.1"
 
 ## host specific configurations
