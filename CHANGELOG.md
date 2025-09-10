@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([3f65b85](https://github.com/dure-one/jangbi/commit/3f65b85f3f6997fe8896061f62054c16c1b31a31) by nikescar).
+- Add changelog automatically ([5baa0a4](https://github.com/dure-one/jangbi/commit/5baa0a4c0efaf4de127dbb96fccf9a1e4474b88a) by nikescar).
 
 ### Fixed
 
+- fix. install bug. ([13c187c](https://github.com/dure-one/jangbi/commit/13c187cf1966255f76ec10dc3d8c218675e6758c) by Woojae, Park).
+- fix. log file to output.log ([d97cf83](https://github.com/dure-one/jangbi/commit/d97cf83fd6af74f44f0e82b873c86dafb91b45be) by Woojae, Park).
+- fix. running aid on background. ([0ce7c36](https://github.com/dure-one/jangbi/commit/0ce7c361bf6cd7525e3eca775a61b8a31eac0e68) by Woojae, Park).
 - fix. hostapd exiting problem. time issue. doctor check_web funcions. ([6e94771](https://github.com/dure-one/jangbi/commit/6e94771512a2b274320dd726edbd43b8eab243e4) by Woojae, Park).
 - fix. add wlan masquerate for apmode. ([173edbf](https://github.com/dure-one/jangbi/commit/173edbfc2e8a1ccfacbd6c3650302361ad4ba127) by Woojae, Park).
 - fix. add iptables rules for each plugins. ([7fa967f](https://github.com/dure-one/jangbi/commit/7fa967f4423e38b48da95c4d291709aa50ae90ae) by Woojae, Park).
