@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([b2d18bb](https://github.com/dure-one/jangbi/commit/b2d18bb8333641ed2a354dbfc92041323aad0a19) by nikescar).
+- Add changelog automatically ([3f65b85](https://github.com/dure-one/jangbi/commit/3f65b85f3f6997fe8896061f62054c16c1b31a31) by nikescar).
 
 ### Fixed
 
+- fix. hostapd exiting problem. time issue. doctor check_web funcions. ([6e94771](https://github.com/dure-one/jangbi/commit/6e94771512a2b274320dd726edbd43b8eab243e4) by Woojae, Park).
 - fix. add wlan masquerate for apmode. ([173edbf](https://github.com/dure-one/jangbi/commit/173edbfc2e8a1ccfacbd6c3650302361ad4ba127) by Woojae, Park).
 - fix. add iptables rules for each plugins. ([7fa967f](https://github.com/dure-one/jangbi/commit/7fa967f4423e38b48da95c4d291709aa50ae90ae) by Woojae, Park).
 - fix. fix iptables masquerade dns port order. ([97506d0](https://github.com/dure-one/jangbi/commit/97506d0dd30b7ef081507de70ea8f35d0b175abd) by Woojae, Park).
