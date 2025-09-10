@@ -131,7 +131,7 @@ done
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
 rm ./enabled/* 2>/dev/null # remove all enabled plugins
-prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=()
+prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=() processed=()
 ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
 source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
@@ -170,14 +170,17 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -eq 0 ]] && prenet+=(${load_plugin})
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -gt 0 ]] && prenetdeps+=(${load_plugin})
 
+                # skip if processed array has ${load_plugin} 
+                case "${processed[@]}" in  *"${load_plugin}"*) continue ;; esac
+
                 # --check
-                [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]] && ${load_plugin} check
+                [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]] && ${load_plugin} check && processed+=(${load_plugin})
                 # --launch
-                [[ ${RN_OPTION} = "enabled" ]] || [[ ${RN_OPTION} = "${load_plugin}" ]] && ${load_plugin} run
+                [[ ${RN_OPTION} = "enabled" ]] || [[ ${RN_OPTION} = "${load_plugin}" ]] && ${load_plugin} run && processed+=(${load_plugin})
                 # --download
-                [[ ${DN_OPTION} = "enabled" ]] || [[ ${DN_OPTION} = "${load_plugin}" ]] && ${load_plugin} download
+                [[ ${DN_OPTION} = "enabled" ]] || [[ ${DN_OPTION} = "${load_plugin}" ]] && ${load_plugin} download && processed+=(${load_plugin})
                 # --install
-                [[ ${IN_OPTION} = "enabled" ]] || [[ ${IN_OPTION} = "${load_plugin}" ]] && ${load_plugin} install
+                [[ ${IN_OPTION} = "enabled" ]] || [[ ${IN_OPTION} = "${load_plugin}" ]] && ${load_plugin} install && processed+=(${load_plugin})
             fi
             log_debug "${lvars[k]} $group_txt" # log loaded vars
             unset group_txt

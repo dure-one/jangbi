@@ -133,7 +133,8 @@ function __os-vector_configapply {
 
 function __os-vector_download {
     log_debug "Downloading ${DMNNAME}..." 
-    _download_github_pkgs vectordotdev/vector vector_*.deb  || log_error "${DMNNAME} download failed."
+    # _download_github_pkgs vectordotdev/vector vector_*.deb  || log_error "${DMNNAME} download failed."
+    wget https://github.com/vectordotdev/vector/releases/download/v0.49.0/vector_0.49.0-1_amd64.deb -O ./pkgs/vector_0.49.0-1_amd64.deb 2>&1 1>/dev/null &
     _download_github_pkgs draios/sysdig sysdig-*.deb || log_error "${DMNNAME} download failed."
     return 0
 }
