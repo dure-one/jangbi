@@ -327,7 +327,7 @@ spinner () {
 # run_ok - function to run a command or function, start a spinner and print a confirmation
 # indicator when done.
 # Canonical source - http://github.com/swelljoe/run_ok
-RUN_LOG="run.log"
+RUN_LOG="output.log"
 
 # Check for unicode support in the shell
 # This is a weird function, but seems to work. Checks to see if a unicode char can be
