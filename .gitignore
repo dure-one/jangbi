@@ -2,11 +2,13 @@
 tmp
 imgs/debian*
 pkgs
+pkgs*
 .firmware_last
 enabled/*
 .firmware*
 .idea
 .config
+.config*
 jangbi_aide.log
 jangbi.log
 output.log
