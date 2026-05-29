@@ -700,3 +700,59 @@ _ip2conv() {
   echo "$(((a<<24)+(b<<16)+(c<<8)+d))"
 }
 
+# Enhanced run_ok that displays error messages for Installing, Running, and Downloading steps
+run_ok_with_reason() {
+  local cmd="${1}"
+  local msg="${2}"
+  local step_type="${3:-}"  # "Installing", "Running", "Downloading", etc.
+
+  # Get initial log line count to track new errors
+  local log_start_line=0
+  [[ -f "${RUN_LOG}" ]] && log_start_line=$(wc -l < "${RUN_LOG}" 2>/dev/null || echo 0)
+
+  # Call the original run_ok function
+  run_ok "${cmd}" "${msg}"
+  local result=$?
+
+  # If failed and it's an Installing, Running, or Downloading step, extract and display the reason
+  if [[ ${result} -ne 0 ]] && [[ "${step_type}" =~ ^(Installing|Running|Downloading)$ ]]; then
+    # Extract relevant error messages from the log since the command started
+    local error_msg=""
+    if [[ -f "${RUN_LOG}" ]]; then
+      # Get new log entries and filter for actual errors
+      local new_logs=$(tail -n +$((log_start_line + 1)) "${RUN_LOG}" 2>/dev/null)
+
+      # Look for common error patterns (prioritize actual error messages over generic ones)
+      error_msg=$(echo "${new_logs}" | grep -iE "^(find:|wget:|curl:|.*: line [0-9]+:|.*error:|.*failed:|.*not found|.*No such file|.*cannot|.*unable|command not found)" | grep -v "Failed with error:" | head -3 | sed 's/^DEBUG: [^:]*: //' | sed 's/^\[.*\] //')
+
+      # If no specific error found, look for the last meaningful non-empty lines
+      if [[ -z "${error_msg}" ]]; then
+        error_msg=$(echo "${new_logs}" | grep -v "^\[.*\] \[INFO\]" | grep -v "^DEBUG:" | grep -v "^$" | grep -v "Success\." | grep -v "Failed with error:" | tail -3)
+      fi
+
+      # Last resort: just show that it failed
+      if [[ -z "${error_msg}" ]]; then
+        error_msg="Command exited with error code ${result}"
+      fi
+    else
+      error_msg="Command exited with error code ${result}"
+    fi
+
+    # Display the error reason if found, with smart truncation for very long messages
+    if [[ -n "${error_msg}" ]]; then
+      local display_msg=$(echo "${error_msg}" | tr '\n' '; ' | sed 's/; $//' | sed 's/;; /; /g')
+      # Truncate if too long (more than 150 chars) - keep first error messages
+      if [[ ${#display_msg} -gt 150 ]]; then
+        # Try to keep the first complete error message
+        display_msg=$(echo "${display_msg}" | cut -d';' -f1-2)
+        if [[ ${#display_msg} -gt 150 ]]; then
+          display_msg="${display_msg:0:147}..."
+        fi
+      fi
+      echo -e "${YELLOW}  └─ Reason: ${RED}${display_msg}${NORMAL}"
+    fi
+  fi
+
+  return ${result}
+}
+

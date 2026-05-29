@@ -259,13 +259,13 @@ process_each_step() {
 
     case ${running_status} in # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
         5)
-            run_ok "${command} install" "${command}(${step}) Installing..."
+            run_ok_with_reason "${command} install" "${command}(${step}) Installing..." "Installing"
             log_debug "$!"
-            run_ok "${command} run" "${command}(${step}) Running..."
+            run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
             log_debug "$!"
             ;; # package is not installed, install it
         0)
-            run_ok "${command} run" "${command}(${step}) Running..."
+            run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
             log_debug "$!"
             ;; # package is not running, run it
         10)
@@ -273,11 +273,11 @@ process_each_step() {
             exit 1
             ;;
         15)
-            run_ok "${command} download" "${command}(${step}) Downloading..."
+            run_ok_with_reason "${command} download" "${command}(${step}) Downloading..." "Downloading"
             log_debug "$!"
-            run_ok "${command} install" "${command}(${step}) Installing..."
+            run_ok_with_reason "${command} install" "${command}(${step}) Installing..." "Installing"
             log_debug "$!"
-            run_ok "${command} run" "${command}(${step}) Running..."
+            run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
             log_debug "$!"
             ;; # package file does not exist, download and install it
         20)
