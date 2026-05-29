@@ -101,7 +101,7 @@ function __os-minmon_install {
     rm -rf ${tmpdir} 1>/dev/null 2>&1
     mkdir -p ${tmpdir} 1>/dev/null 2>&1
 
-    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __net-minmon_download
+    [[ $(find ${filepat}|wc -l) -lt 1 ]] && __os-minmon_download
     tar -zxvf ${filepat} -C ${tmpdir} 1>/dev/null 2>&1
     if [[ ! -f /tmp/minmon/minmon ]]; then
         log_error "minmon binary not found in package."
@@ -112,8 +112,8 @@ function __os-minmon_install {
     rm -rf ${tmpdir} 1>/dev/null 2>&1
     touch /var/log/minmon.log
 
-    if ! __net-minmon_configgen; then # if gen config is different do apply
-        __net-minmon_configapply
+    if ! __os-minmon_configgen; then # if gen config is different do apply
+        __os-minmon_configapply
         rm -rf ${tmpdir}
     fi
 }
@@ -176,7 +176,15 @@ function __os-minmon_check { # running_status: 0 running, 1 installed, running_s
 function __os-minmon_run {
     log_debug "Running ${DMNNAME}..."
     pidof minmon | xargs kill -9 2>/dev/null
-    systemd-run --unit minmon -r minmon /etc/minmon/minmon.toml 1>>/var/log/minmon.log 2>&1
+
+    # Remove any existing systemd unit
+    systemctl stop minmon.service 2>/dev/null || true
+    systemctl reset-failed minmon.service 2>/dev/null || true
+
+    # Run minmon directly in the background
+    minmon /etc/minmon/minmon.toml 1>>/var/log/minmon.log 2>&1 &
+
+    sleep 1
     pidof minmon && return 0 || \
         log_error "minmon failed to run." && return 1
 }
@@ -186,7 +194,8 @@ complete -F _blank os-minmon
 function __os-minmon_generate_config {
     mkdir -p /tmp/minmon
     cp ./configs/minmon/minmon.toml /tmp/minmon/minmon.toml
-    enabled_plugins=$(_jangbi-it-describe "plugins" "a" "plugin" "Plugin"|grep \[x\]|awk '{print $1}')
+    # enabled_plugins=$(_bash-it-describe "plugins" "a" "plugin" "Plugin"|grep \[x\]|awk '{print $1}')
+    enabled_plugins=$(jangbi-it show plugins|grep \[x\]|awk '{print $1}')
     IFS=$'\n' read -d "" -ra lvars <<< "${enabled_plugins}" # split
     for((j=0;j<${#lvars[@]};j++)){
         log_debug "${lvars[j]}"
@@ -198,5 +207,4 @@ function __os-minmon_generate_config {
             cat /tmp/minmon/template.toml >> /tmp/minmon/minmon.toml
         fi
     }
-    rm -rf /tmp/minmon
 }
