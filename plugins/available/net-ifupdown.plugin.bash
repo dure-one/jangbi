@@ -151,9 +151,14 @@ function __net-ifupdown_configapply {
     log_debug "Applying config ${DMNNAME}..."
     local dtnow=$(date +%Y%m%d_%H%M%S)
     [[ -d "/etc/network" ]] && cp -rf "/etc/network" "/etc/.network.${dtnow}"
-    pushd /etc/network 1>/dev/null 2>&1
-    patch -i /tmp/${PKGNAME}.diff
-    popd 1>/dev/null 2>&1
+
+    # Instead of using patch, directly copy the interfaces file
+    # Preserve existing subdirectories (if-up.d, if-down.d, etc.) and only update interfaces file
+    if [[ -f /tmp/${PKGNAME}/interfaces ]]; then
+        cp /tmp/${PKGNAME}/interfaces /etc/network/interfaces
+        chmod 600 /etc/network/interfaces
+    fi
+
     rm /tmp/${PKGNAME}.diff
     return 0
 }
