@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([c84bb72](https://github.com/dure-one/jangbi/commit/c84bb72ed0fc4a12d6119457f0490dc42f728fe5) by nikescar).
+- Add changelog automatically ([d2a925b](https://github.com/dure-one/jangbi/commit/d2a925b1d45c088f384761c5d032ab99db4a4af3) by nikescar).
 
 ### Fixed
 
+- fix. generate config, running error. ([6877404](https://github.com/dure-one/jangbi/commit/6877404fd5527cda8d0ec2d020fa0e5cd71a2f95) by Woojae, Park).
 - fix. install bug. ([13c187c](https://github.com/dure-one/jangbi/commit/13c187cf1966255f76ec10dc3d8c218675e6758c) by Woojae, Park).
 - fix. log file to output.log ([d97cf83](https://github.com/dure-one/jangbi/commit/d97cf83fd6af74f44f0e82b873c86dafb91b45be) by Woojae, Park).
 - fix. running aid on background. ([0ce7c36](https://github.com/dure-one/jangbi/commit/0ce7c361bf6cd7525e3eca775a61b8a31eac0e68) by Woojae, Park).
