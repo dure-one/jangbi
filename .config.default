@@ -82,6 +82,7 @@ RUN_NET_SSHD=1
 SSHD_PORT="22"
 SSHD_PORTS="LO:22"
 SSHD_INFS="LAN,WLAN"
+SSHD_CUSTOMOPTIONS="PasswordAuthentication=yes\nPermitRootLogin=yes"
 
 # iptables
 RUN_NET_IPTABLES=1

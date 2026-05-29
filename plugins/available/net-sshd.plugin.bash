@@ -162,6 +162,13 @@ function __net-sshd_configgen { # config generator and diff
             }
         fi
         [[ ${DISABLE_IPV6} -gt 0 ]] && ssh_config="${ssh_config}\nAddressFamily inet # JB_DISABLE_IPV6" && sed -i "s|AddressFamily=.*||g" /tmp/sshd/sshd_config
+
+        if [[ -n "${SSHD_CUSTOMOPTIONS}" ]]; then
+            log_debug "Applying custom SSH options"
+            ssh_config="${ssh_config}\n# JB_SSHD_CUSTOMOPTIONS"
+            ssh_config="${ssh_config}\n${SSHD_CUSTOMOPTIONS} # JB_SSHD_CUSTOMOPTIONS"
+        fi
+
         echo -e "\n\n${ssh_config}\n\n" >> /tmp/sshd/sshd_config
     fi
     
