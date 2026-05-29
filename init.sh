@@ -227,7 +227,36 @@ process_each_step() {
     local running_status=0
     run_ok "${command} check" "${command}(${step}) Checking..."
     [[ ${FORCE_INSTALL} == 1 ]] && log_info "FORCE_INSTALL enabled, Override to install." && running_status=5
-    log_debug "${step} Check Result : ${running_status}"
+
+    # Get the config variable name (e.g., net-sshd -> RUN_NET_SSHD)
+    local plugin_name="${command}"
+    local var_name="RUN_${plugin_name//-/_}"
+    var_name="${var_name^^}"  # Convert to uppercase
+    local config_status="${!var_name:-unset}"
+
+    # Determine enabled/disabled status
+    local enabled_status
+    if [[ "${config_status}" == "1" ]]; then
+        enabled_status="enabled"
+    elif [[ "${config_status}" == "0" ]]; then
+        enabled_status="disabled"
+    else
+        enabled_status="unset"
+    fi
+
+    # Convert status code to readable message
+    local status_msg
+    case ${running_status} in
+        0)  status_msg="installed but not running" ;;
+        1)  status_msg="running" ;;
+        5)  status_msg="ready to install" ;;
+        10) status_msg="variable not set" ;;
+        15) status_msg="pkg file not downloaded" ;;
+        20) status_msg="not enabled/skipped" ;;
+        *)  status_msg="unknown status (${running_status})" ;;
+    esac
+    log_debug "${step} [config:${enabled_status}] ${status_msg} (${running_status})"
+
     case ${running_status} in # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
         5)
             run_ok "${command} install" "${command}(${step}) Installing..."

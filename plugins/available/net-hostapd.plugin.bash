@@ -97,21 +97,28 @@ function __net-hostapd_help {
 function __net-hostapd_install {
     log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
-    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
-        [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-        [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy ${PKGNAME} || log_error "${DMNNAME} online install failed."
-    else
-        local filepat="./pkgs/${PKGNAME}*.deb"
+
+    # Check if local package files exist first
+    local filepat="./pkgs/${PKGNAME}*.deb"
+    if [[ $(find ${filepat} 2>/dev/null|wc -l) -gt 0 ]]; then
+        # Install from local packages
         local pkglist="./pkgs/${PKGNAME}.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
         pkgslist_down=()
         while read -r pkg; do
-            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
+            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}"*.deb)
         done < ${pkglist}
         # shellcheck disable=SC2068
         apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
-        
+    else
+        # Install from online repositories
+        if ping -c 1 -W 2 1.1.1.1 &>/dev/null || ping -c 1 -W 2 8.8.8.8 &>/dev/null; then
+            [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+            [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+            apt install -qy ${PKGNAME} || log_error "${DMNNAME} online install failed."
+        else
+            log_error "${DMNNAME} pkg file not found and no internet connection."
+            return 1
+        fi
     fi
     if ! __net-hostapd_configgen; then # if gen config is different do apply
         __net-hostapd_configapply
@@ -176,19 +183,28 @@ function __net-hostapd_check { # running_status: 0 running, 1 installed, running
     log_debug "Checking ${DMNNAME}..."
 
     # check package file exists
-    [[ $(find ./pkgs/${PKGNAME}*.pkgs|wc -l) -lt 1 ]] && \
+    [[ $(find ./pkgs/${PKGNAME}*.pkgs 2>/dev/null|wc -l) -lt 1 ]] && \
         log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_HOSTAPD} ]] && \
         log_error "RUN_NET_HOSTAPD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_HOSTAPD} != 1 ]] && \
         log_error "RUN_NET_HOSTAPD is not enabled." && __net-hostapd_disable && [[ $running_status -lt 20 ]] && running_status=20
-    # check package installed
-    [[ $(dpkg -l|awk '{print $2}'|grep -c "hostapd") -lt 1 ]] && \
-        log_info "hostapd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-    # check if running
-    [[ $(pidof hostapd) -gt 0 ]] && \
-        log_info "hostapd is running." && [[ $running_status -lt 1 ]] && running_status=1
+
+    # check package installed - use which command to check if binary exists
+    if ! which hostapd &>/dev/null; then
+        log_info "hostapd is not installed."
+        [[ $running_status -lt 5 ]] && running_status=5
+    else
+        # Package is installed, check if running
+        if [[ -n "$(pidof hostapd)" ]]; then
+            log_info "hostapd is running."
+            [[ $running_status -lt 0 ]] && running_status=0
+        else
+            log_info "hostapd is installed but not running."
+            [[ $running_status -lt 1 ]] && running_status=1
+        fi
+    fi
 
     return 0
 }
