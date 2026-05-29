@@ -499,7 +499,7 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   # log_debug "List : ${possible_list}"
   IFS=$'\n' read -rd '' -a durls <<<"$possible_list"
 
-  if [[ ${#durls[@]} -gt 1 ]]; then
+  if [[ ${#durls[@]} -ge 1 ]]; then
     for((k=0;k<${#durls[@]};k++)){ # sysdig-0.40.1-x86_64.deb dnscrypt-proxy-linux_x86_64-2.1.12.tar.gz
       durl=$(_trim_string ${durls[k],,});
       if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"${pkgfilepostfix}" ]]; then
@@ -508,7 +508,7 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
         return 0
       fi
     }
-    for((k=0;k<${#durls[@]};k++)){ # hysteria-linux-amd64 
+    for((k=0;k<${#durls[@]};k++)){ # hysteria-linux-amd64
       durl=$(_trim_string ${durls[k],,});
       if [[ ${durl} == *"${pkgfileprefix}"* && ${durl} == *"linux"* ]]; then
         log_debug "Downloading(type2) ${durl} to ${arch1} ${pkgfilepostfix}..."
