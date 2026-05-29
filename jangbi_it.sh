@@ -184,6 +184,42 @@ unset "${!_bash_it_library_finalize_@}" "${!_bash_it_main_file_@}"
 # recover bash_it var
 [[ ${BASH_IT_} ]] && BASH_IT=${BASH_IT_}
 
+# Override _bash-it-component-item-is-enabled to always check JANGBI_IT enabled directory
+# This must come AFTER all bash-it sources to ensure it overrides the vendor function
+function _bash-it-component-item-is-enabled() {
+	local component_type item_name
+	if [[ -f "${1?}" ]]; then
+		item_name="$(_bash-it-get-component-name-from-path "${1}")"
+		component_type="$(_bash-it-get-component-type-from-path "${1}")"
+	else
+		component_type="${1}" item_name="${2?}"
+	fi
+
+	# Check in JANGBI_IT enabled directory - use find with correct type syntax
+	local enabled_file
+	enabled_file=$(find "${JANGBI_IT?}/enabled" -maxdepth 1 \( -type f -o -type l \) \
+		-name "*${BASH_IT_LOAD_PRIORITY_SEPARATOR?}${item_name}.${component_type}*.bash" \
+		-print -quit 2>/dev/null)
+	[[ -n "${enabled_file}" ]] && return 0
+
+	# Check legacy locations
+	enabled_file=$(find "${JANGBI_IT}/${component_type}"* -maxdepth 2 \( -type f -o -type l \) \
+		-path "*/enabled/${item_name}.${component_type}*.bash" \
+		-print -quit 2>/dev/null)
+	[[ -n "${enabled_file}" ]] && return 0
+
+	enabled_file=$(find "${JANGBI_IT}/${component_type}"* -maxdepth 2 \( -type f -o -type l \) \
+		-path "*/enabled/*${BASH_IT_LOAD_PRIORITY_SEPARATOR?}${item_name}.${component_type}*.bash" \
+		-print -quit 2>/dev/null)
+	[[ -n "${enabled_file}" ]] && return 0
+
+	return 1
+}
+
+# Clear bash-it component cache after overriding the function
+# This ensures the cache is regenerated with the correct enabled status
+_bash-it-component-cache-clean plugins 2>/dev/null || true
+
 _get_rip(){
   if [[ $(ip addr show dev "${1}" |grep inet|wc -l) -gt 1 ]]; then
     ip addr show dev "${1}" |grep inet|grep -v inet6|cut -d' ' -f6
