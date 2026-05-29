@@ -208,7 +208,7 @@ if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then
         log_debug "Installing jangbi init script to rc.local(ADDTO_RCLOCAL)."
         add_cmd="bash ${JB_DEPLOY_PATH}/init.sh # JB_INIT_SCRIPT"
         cp /etc/rc.local /etc/rc.local_"$(date +%Y%m%d%H%M%S).bak"
-        sed -i "s|^\(.*\)exit 0|${add_cmd}\nexit 0|" /etc/rc.local
+        sed -i "s|^exit 0|${add_cmd}\nexit 0|" /etc/rc.local
         chmod +x /etc/rc.local
         chmod +x ./init.sh
     fi
