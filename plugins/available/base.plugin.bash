@@ -223,3 +223,36 @@ function renex() {
         mv "$file" "$dst"
     done
 }
+
+function change_mac() {
+    about 'change MAC address of network interface'
+    param '1: interface name'
+    param '2: MAC address mode (random|specific MAC)'
+    example 'change_mac eth0 random'
+    example 'change_mac eth0 aa:bb:cc:dd:ee:ff'
+    group 'base'
+    local interface="${1:-}"
+    local mac_mode="${2:-}"
+
+    if [[ -z "$interface" ]] || [[ -z "$mac_mode" ]]; then
+        log_error "change_mac: interface and mac_mode are required"
+        return 1
+    fi
+
+    if ! _command_exists macchanger; then
+        log_error "change_mac: macchanger is not installed"
+        return 1
+    fi
+
+    log_info "Changing MAC address for interface ${interface}"
+
+    if [[ "$mac_mode" == "random" ]]; then
+        macchanger -r "$interface" 1>/dev/null 2>&1 && \
+            log_info "MAC address randomized for ${interface}" || \
+            log_error "Failed to randomize MAC address for ${interface}"
+    else
+        macchanger -m "$mac_mode" "$interface" 1>/dev/null 2>&1 && \
+            log_info "MAC address set to ${mac_mode} for ${interface}" || \
+            log_error "Failed to set MAC address to ${mac_mode} for ${interface}"
+    fi
+}

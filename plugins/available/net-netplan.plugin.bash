@@ -100,7 +100,7 @@ function __net-netplan_install {
   if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
       [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
       [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-      apt install -qy netplan.io iproute2 || log_error "${DMNNAME} online install failed."
+      apt install -qy netplan.io iproute2 macchanger || log_error "${DMNNAME} online install failed."
   else
       local filepat="./pkgs/${PKGNAME}*.deb"
       local pkglist="./pkgs/${PKGNAME}.pkgs"
@@ -338,6 +338,15 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
 }
 
 function __net-netplan_run {
+  # Change MAC address before bringing network up
+  if [[ -n "${JB_WANMAC}" ]] && [[ -n "${JB_WANINF}" ]]; then
+    # Bring interface down first
+    ip link set "${JB_WANINF}" down
+
+    # Apply MAC change
+    change_mac "${JB_WANINF}" "${JB_WANMAC}"
+  fi
+
   # Cannot call openvswitch: ovsdb-server.service is not running. msg is not relevant.
   netplan apply
   systemctl status systemd-networkd && return 0 || \

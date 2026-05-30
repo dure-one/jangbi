@@ -38,6 +38,8 @@ JB_IFUPDOWN=
 
 ## network interfaces
 JB_WANINF="enP3p49s0"
+## random, aa:bb:cc:dd:ee:ff
+JB_WANMAC="random"
 ## dhcp, 192.168.5.1/24(first ip of subnet become gw ip, 192.168.5.1)
 JB_WAN="dhcp"
 JB_WANGW=

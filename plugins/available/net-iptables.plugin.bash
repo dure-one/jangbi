@@ -941,7 +941,7 @@ function __net-iptables_nat_ext_both_allowedportinf {
         [[ $port =~ ^[0-9]+$ ]] && {
             IPTABLE="INPUT -i ${dinf} -d ${dip} -p tcp --dport ${dport} --syn -m conntrack --ctstate NEW -m comment --comment ${funcname}_${dinf}_${dport} -j ACCEPT"
             log_debug "${IPTABLE}"
-            iptables -t filter -S | grep "{funcname}_${dinf}_${dport}" || iptables -t filter -A ${IPTABLE}
+            iptables -t filter -S | grep "${funcname}_${dinf}_${dport}" || iptables -t filter -A ${IPTABLE}
         }
     }
 }
