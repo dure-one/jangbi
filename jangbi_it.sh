@@ -338,7 +338,7 @@ _get_ip_of_infmark(){
 _get_ip_of_inf(){
   local tarinf
   tarinf=${1,,}
-  if [[ -n ${!tarinf} ]]; then
+  if [[ -z ${tarinf} ]]; then
     log_error "Interface ${tarinf} is not set. Please set correct interface name in config."
     return 1
   fi

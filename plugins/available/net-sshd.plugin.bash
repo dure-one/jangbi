@@ -213,8 +213,10 @@ function __net-sshd_check { # running_status: 0 running, 1 installed, running_st
 
 function __net-sshd_run {
     systemctl restart ssh
-    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
-        __net-iptables_nat_ext_both_allowedportinf "${SSHD_PORTS}" || log_debug "failed to set iptables rules for ${SSHD_PORTS}."
+    if [[ ${RUN_NET_IPTABLES} -gt 0 ]]; then
+        __net-iptables_nat_ext_both_allowedportinf "${SSHD_PORTS}" || \
+            log_error "failed to set iptables rules for ${SSHD_PORTS}."
+    fi
     pidof sshd && return 0 || \
         log_error "sshd failed to run." && return 0
 }

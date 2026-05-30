@@ -130,20 +130,26 @@ done
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
-rm ./enabled/* 2>/dev/null # remove all enabled plugins
+# Keep list of current enabled plugins to remove later (prevents race condition)
+current_enabled=($(find ./enabled -type l -name "*.plugin.bash" 2>/dev/null))
 prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=() processed=()
-ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
+ln -sf "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
+# Remove from current_enabled list
+current_enabled=("${current_enabled[@]//*os-systemd.plugin.bash/}")
 source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown" "net-iptables")
-    ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
+    ln -sf "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
+    current_enabled=("${current_enabled[@]//*net-ifupdown.plugin.bash/}")
     source $(find ./enabled|grep bash|grep "net-ifupdown") # load plugin
 else # case 1 full systemd
     postnet+=("net-netplan" "net-iptables")
-    ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
+    ln -sf "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
+    current_enabled=("${current_enabled[@]//*net-netplan.plugin.bash/}")
     source $(find ./enabled|grep bash|grep "net-netplan") # load plugin
 fi
-ln -s "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptables.plugin.bash"
+ln -sf "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptables.plugin.bash"
+current_enabled=("${current_enabled[@]//*net-iptables.plugin.bash/}")
 source $(find ./enabled|grep bash|grep "net-iptables") # load plugin
 predefined=("os-systemd" "net-ifupdown" "net-netplan" "net-iptables")
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
@@ -160,8 +166,9 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 load_plugin=${load_plugin//_/-}
                 case "${predefined[@]}" in  *"${load_plugin}"*) continue ;; esac
                 [[ $(find ./enabled|grep -c ${load_plugin}) -lt 1 ]] && \
-                    ln -s "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
-
+                    ln -sf "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
+                # Remove from current_enabled list
+                current_enabled=("${current_enabled[@]//*${load_plugin}.plugin.bash/}")
                 source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
                 deps_txt=$(typeset -f -- "${load_plugin}"|metafor deps)
@@ -188,6 +195,11 @@ for((j=0;j<${#JB_VARS[@]};j++)){
         fi
     }
 }
+
+# Remove remaining plugins that were not re-linked (cleanup old/disabled plugins)
+for old_plugin in "${current_enabled[@]}"; do
+    [[ -n "${old_plugin}" ]] && rm -f "${old_plugin}" 2>/dev/null
+done
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
 # exit on check, run, download, install
