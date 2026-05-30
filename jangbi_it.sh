@@ -167,25 +167,8 @@ function jangbi-it() {
 source "${BASH_IT}/lib/preexec.bash"
 source "${BASH_IT}/lib/utilities.bash"
 
-# Load the global "enabled" directory, then enabled aliases, completion, plugins
-# "_bash_it_main_file_type" param is empty so that files get sourced in glob order
-for _bash_it_main_file_type in "" "plugins"; do
-	BASH_IT_LOG_PREFIX="core: reloader: "
-	# shellcheck disable=SC2140
-	source "${JANGBI_IT}/reloader.bash" ${_bash_it_main_file_type:+"skip" "$_bash_it_main_file_type"}
-	BASH_IT_LOG_PREFIX="core: main: "
-done
-
-for _bash_it_library_finalize_f in "${_bash_it_library_finalize_hook[@]:-}"; do
-	eval "${_bash_it_library_finalize_f?}" # Use `eval` to achieve the same behavior as `$PROMPT_COMMAND`.
-done
-unset "${!_bash_it_library_finalize_@}" "${!_bash_it_main_file_@}"
-
-# recover bash_it var
-[[ ${BASH_IT_} ]] && BASH_IT=${BASH_IT_}
-
-# Override _bash-it-component-item-is-enabled to always check JANGBI_IT enabled directory
-# This must come AFTER all bash-it sources to ensure it overrides the vendor function
+# Override _bash-it-component-item-is-enabled to check JANGBI_IT enabled directory
+# This must come BEFORE plugin loading to ensure plugins are found correctly
 function _bash-it-component-item-is-enabled() {
 	local component_type item_name
 	if [[ -f "${1?}" ]]; then
@@ -215,6 +198,26 @@ function _bash-it-component-item-is-enabled() {
 
 	return 1
 }
+
+# Load the global "enabled" directory, then enabled aliases, completion, plugins
+# "_bash_it_main_file_type" param is empty so that files get sourced in glob order
+for _bash_it_main_file_type in "" "plugins"; do
+	BASH_IT_LOG_PREFIX="core: reloader: "
+	# shellcheck disable=SC2140
+	source "${JANGBI_IT}/reloader.bash" ${_bash_it_main_file_type:+"skip" "$_bash_it_main_file_type"}
+	BASH_IT_LOG_PREFIX="core: main: "
+done
+
+for _bash_it_library_finalize_f in "${_bash_it_library_finalize_hook[@]:-}"; do
+	eval "${_bash_it_library_finalize_f?}" # Use `eval` to achieve the same behavior as `$PROMPT_COMMAND`.
+done
+unset "${!_bash_it_library_finalize_@}" "${!_bash_it_main_file_@}"
+
+# recover bash_it var
+[[ ${BASH_IT_} ]] && BASH_IT=${BASH_IT_}
+
+# _bash-it-component-item-is-enabled override is now defined earlier (before plugin loading)
+# to ensure plugins are detected correctly on first source
 
 # Clear bash-it component cache after overriding the function
 # This ensures the cache is regenerated with the correct enabled status
