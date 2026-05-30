@@ -232,6 +232,9 @@ for((j=0;j<${#JB_VARS[@]};j++)){
 # Log that config was saved to file
 log_debug "Configuration saved to .config.last ($(wc -l < .config.last) lines)"
 
+# Validate interface names against system interfaces
+_validate_interfaces
+
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
 # exit on check, run, download, install
 if [[ ${CH_OPTION} = "enabled" || ${RN_OPTION} = "enabled" || ${DN_OPTION} = "enabled" || ${IN_OPTION} = "enabled" || \

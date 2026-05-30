@@ -465,6 +465,88 @@ _distname_check() {
   fi
 }
 
+_validate_interfaces() {
+  # Get all available network interfaces on the system (excluding lo)
+  local available_interfaces=($(ip -o link show | awk -F': ' '{print $2}' | grep -v "^lo$"))
+  local validation_failed=0
+  local missing_interfaces=()
+
+  log_debug "Available system interfaces: ${available_interfaces[*]}"
+
+  # Function to check if interface exists
+  _interface_exists() {
+    local check_inf="$1"
+    [[ -z "${check_inf}" ]] && return 1  # Empty interface name
+    for avail_inf in "${available_interfaces[@]}"; do
+      if [[ "${avail_inf}" == "${check_inf}" ]]; then
+        return 0
+      fi
+    done
+    return 1
+  }
+
+  # Validate WAN interface
+  if [[ -n "${JB_WANINF}" ]]; then
+    if ! _interface_exists "${JB_WANINF}"; then
+      log_error "WAN interface '${JB_WANINF}' (JB_WANINF) not found on system"
+      missing_interfaces+=("WAN:${JB_WANINF}")
+      validation_failed=1
+    else
+      log_debug "WAN interface '${JB_WANINF}' validated"
+    fi
+  fi
+
+  # Validate LAN interface
+  if [[ -n "${JB_LANINF}" ]]; then
+    if ! _interface_exists "${JB_LANINF}"; then
+      log_error "LAN interface '${JB_LANINF}' (JB_LANINF) not found on system"
+      missing_interfaces+=("LAN:${JB_LANINF}")
+      validation_failed=1
+    else
+      log_debug "LAN interface '${JB_LANINF}' validated"
+    fi
+  fi
+
+  # Validate WLAN interface
+  if [[ -n "${JB_WLANINF}" ]]; then
+    if ! _interface_exists "${JB_WLANINF}"; then
+      log_error "WLAN interface '${JB_WLANINF}' (JB_WLANINF) not found on system"
+      missing_interfaces+=("WLAN:${JB_WLANINF}")
+      validation_failed=1
+    else
+      log_debug "WLAN interface '${JB_WLANINF}' validated"
+    fi
+  fi
+
+  # Validate LAN1-10 interfaces
+  for i in {1..10}; do
+    local lan_var="JB_LAN${i}INF"
+    local lan_inf="${!lan_var}"
+    if [[ -n "${lan_inf}" ]]; then
+      if ! _interface_exists "${lan_inf}"; then
+        log_error "LAN${i} interface '${lan_inf}' (${lan_var}) not found on system"
+        missing_interfaces+=("LAN${i}:${lan_inf}")
+        validation_failed=1
+      else
+        log_debug "LAN${i} interface '${lan_inf}' validated"
+      fi
+    fi
+  done
+
+  # Exit if validation failed
+  if [[ ${validation_failed} -eq 1 ]]; then
+    log_fatal "Interface validation failed. The following interfaces are not available on the system:"
+    for inf in "${missing_interfaces[@]}"; do
+      log_fatal "  - ${inf}"
+    done
+    log_fatal "Available interfaces: ${available_interfaces[*]}"
+    log_fatal "Please update your .config file with correct interface names and try again."
+    exit 1
+  fi
+
+  log_debug "All configured interfaces validated successfully"
+}
+
 _download_apt_pkgs() { # _download_apt_pkgs darkstat
   local pkgs=($1)
   local pkgname=$(_trim_string ${pkgs[0]})
