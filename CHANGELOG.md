@@ -12,11 +12,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([14b69de](https://github.com/dure-one/jangbi/commit/14b69deb770deb0e2c3cfbfaef3fcc67a0eac2e2) by nikescar).
+- Add changelog automatically ([0edc347](https://github.com/dure-one/jangbi/commit/0edc347f2f7e70b34530c87764640bef811cb5e5) by nikescar).
 
 ### Fixed
 
+- fix. iptables rules for each app and change enabled app refresh method. ([bb9c839](https://github.com/dure-one/jangbi/commit/bb9c839abd306b21a47684b044db618fffaf92df) by Woojae, Park).
 - fix. shoes pkg download link. ([05217c5](https://github.com/dure-one/jangbi/commit/05217c5225ddd18004233dc643d351cdc49f355c) by Woojae, Park).
+- fix. partial load on source jangbi_it. ([02fa81d](https://github.com/dure-one/jangbi/commit/02fa81d4fa37f31b6c23de7aec0bdedffafb7935) by Woojae, Park).
 - fix. remove omnip plugin, hostapd install issue, shoes pugin issue. ([c4f600d](https://github.com/dure-one/jangbi/commit/c4f600dc73752381bff98f8d7517097cef23e22f) by Woojae, Park).
 - fix. minmon download error. ([4d82159](https://github.com/dure-one/jangbi/commit/4d821592619df6b24806ac86057a8729f75e371d) by Woojae, Park).
 - fix. missing plugins on showing plugin list. ([f10b574](https://github.com/dure-one/jangbi/commit/f10b574ac758b34975ec0405c1de885f72956b84) by Woojae, Park).
