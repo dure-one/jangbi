@@ -30,7 +30,7 @@ usage() {
   echo
 }
 # setup log
-BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace,
 BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 
 if _check_config_reload; then
@@ -40,10 +40,6 @@ else
     log_fatal "JB_DEPLOY_PATH configure is not set. please make .config file."
     return 1
 fi
-
-# blocker - before firstrun
-[[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
-    log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
 POSITIONAL_ARGS=()
 SYNC_AND_BREAK=0
@@ -106,27 +102,12 @@ set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 [[ ! -d ./imgs ]] && mkdir -p ./imgs
 [[ ! -d ./enabled ]] && mkdir -p ./enabled
 
-# install extrepo if not exists
-durl="https://ftp.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl_0.077-1+b1_$(dpkg --print-architecture).deb"
-[[ $(dpkg -l|awk '{print $2}'|grep libcryptx-perl|wc -l) -lt 1 ]] && \
-    wget --directory-prefix=./pkgs "${durl}" && \
-    apt install -qy ./pkgs/libcryptx-perl_*.deb
-durl="http://ftp.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
-[[ $(dpkg -l|awk '{print $2}'|grep extrepo|wc -l) -lt 1 ]] && \
-    wget --directory-prefix=./pkgs "${durl}" && \
-    apt install -qy ./pkgs/extrepo_*.deb && \
-    mv /etc/apt/sources.list /etc/apt/sources.list_$(date +"%Y%m%d").bak && \
-    echo "" > /etc/apt/sources.list && \
-    extrepo enable debian_official && \
-    apt update -qy
-
 # install required packages
-required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "jq" "git")
-notinstalled_pkgs=()
-for pkg in "${required_pkgs[@]}"; do
-    [[ $(dpkg -l|awk '{print $2}'|grep ${pkg}|wc -l) -lt 1 ]] && notinstalled_pkgs+=(${pkg})
-done
-[[ ${#notinstalled_pkgs[@]} -gt 0 ]] && apt install -qy "${notinstalled_pkgs[@]}"
+required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo")
+apt install -qy "${required_pkgs[@]}"
+
+# install jq binary
+_download_github_pkgs v2fly/v2ray-core v2ray-linux-*.zip "${comparch}" || log_error "${DMNNAME} download failed."
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
@@ -170,7 +151,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -eq 0 ]] && prenet+=(${load_plugin})
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -gt 0 ]] && prenetdeps+=(${load_plugin})
 
-                # skip if processed array has ${load_plugin} 
+                # skip if processed array has ${load_plugin}
                 case "${processed[@]}" in  *"${load_plugin}"*) continue ;; esac
 
                 # --check
@@ -198,7 +179,7 @@ if [[ ${CH_OPTION} = "enabled" || ${RN_OPTION} = "enabled" || ${DN_OPTION} = "en
 fi
 
 # append deps array to orig array
-prenet+=("${prenetdeps[@]}") 
+prenet+=("${prenetdeps[@]}")
 postnet+=("${postnetdeps[@]}")
 
 # add to rclocal
