@@ -107,7 +107,13 @@ required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo")
 apt install -qy "${required_pkgs[@]}"
 
 # install jq binary
-_download_github_pkgs v2fly/v2ray-core v2ray-linux-*.zip "${comparch}" || log_error "${DMNNAME} download failed."
+arch1_=$(dpkg --print-architecture)
+arch1=${3:-${arch1_}}
+[[ ${arch1} == "amd64" ]] && comparch="-64-"
+[[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
+_download_github_pkgs jqlang/jq jq-linux-* "${arch1}" || log_error "${DMNNAME} download failed."
+cp jq-linux-${arch1} /usr/sbin/jq
+chmod +x /usr/sbin/jq
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
