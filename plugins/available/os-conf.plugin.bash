@@ -148,6 +148,95 @@ function __os-conf_install {
         apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
     fi
 
+    # E. apt repo hardening
+    log_debug "Hardening APT repository security..."
+    # Check internet availability inline
+    local has_internet=0
+    if timeout 3 curl -s --head http://1.1.1.1 >/dev/null 2>&1 || \
+       timeout 3 wget --spider -q http://1.1.1.1 2>/dev/null || \
+       [[ ${INTERNET_AVAIL:-0} -gt 0 ]]; then
+        has_internet=1
+    fi
+
+    if [[ ${has_internet} -gt 0 ]]; then
+        # Install HTTPS transport support
+        apt-get install -y apt-transport-https ca-certificates
+
+        # Backup APT sources
+        local BACKUP_DIR="/root/apt-backup-$(date +%Y%m%d-%H%M%S)"
+        mkdir -p "$BACKUP_DIR"
+        cp -r /etc/apt/sources.list "$BACKUP_DIR/" 2>/dev/null || true
+        cp -r /etc/apt/sources.list.d "$BACKUP_DIR/" 2>/dev/null || true
+        log_debug "APT backup created at $BACKUP_DIR"
+
+        # Convert HTTP repositories to HTTPS
+        local updated_count=0
+
+        # Handle old format sources.list
+        if [ -f /etc/apt/sources.list ]; then
+            sed -i.bak 's|http://|https://|g' /etc/apt/sources.list
+            log_debug "Updated /etc/apt/sources.list to HTTPS"
+            ((updated_count++))
+        fi
+
+        # Handle old format .list files in sources.list.d
+        if [ -d /etc/apt/sources.list.d ]; then
+            local list_files=$(find /etc/apt/sources.list.d -type f -name "*.list" 2>/dev/null | wc -l)
+            if [ "$list_files" -gt 0 ]; then
+                find /etc/apt/sources.list.d -type f -name "*.list" -exec sed -i.bak 's|http://|https://|g' {} \;
+                log_debug "Updated $list_files .list files in sources.list.d/ to HTTPS"
+                ((updated_count++))
+            fi
+
+            # Handle new DEB822 format .sources files (case-insensitive URIs/Uris)
+            local sources_files=$(find /etc/apt/sources.list.d -type f -name "*.sources" 2>/dev/null | wc -l)
+            if [ "$sources_files" -gt 0 ]; then
+                # Handle both URIs: and Uris: (case variations)
+                find /etc/apt/sources.list.d -type f -name "*.sources" -exec sed -i.bak -E 's|(URIs?:) http://|\1 https://|gi' {} \;
+                log_debug "Updated $sources_files .sources files in sources.list.d/ to HTTPS"
+                ((updated_count++))
+            fi
+        fi
+
+        log_debug "Total repository files updated: $updated_count"
+
+        # Create security configuration
+        cat > /etc/apt/apt.conf.d/99security << 'EOF'
+// APT Security Hardening Configuration
+// Created by os-conf plugin
+
+// Require valid GPG signatures
+APT::Get::AllowUnauthenticated "false";
+Acquire::AllowInsecureRepositories "false";
+Acquire::AllowDowngradeToInsecureRepositories "false";
+
+// HTTPS verification
+Acquire::https::Verify-Peer "true";
+Acquire::https::Verify-Host "true";
+
+// Check valid-until field in Release files
+Acquire::Check-Valid-Until "true";
+
+// Enforce signature checking
+APT::Get::AllowUnauthenticated::* "false";
+EOF
+        chmod 644 /etc/apt/apt.conf.d/99security
+        log_debug "Created /etc/apt/apt.conf.d/99security"
+
+        # Test APT configuration
+        if ! apt-get update; then
+            log_error "APT update failed with new security settings - restoring backup..."
+            cp "$BACKUP_DIR/sources.list" /etc/apt/sources.list
+            cp -r "$BACKUP_DIR/sources.list.d"/* /etc/apt/sources.list.d/ 2>/dev/null || true
+            rm -f /etc/apt/apt.conf.d/99security
+            log_error "APT backup restored. Some repositories may not support HTTPS."
+        else
+            log_debug "APT security hardening completed successfully"
+        fi
+    else
+        log_debug "Skipping APT hardening (no internet available)"
+    fi
+
     crontab -l > /tmp/mycron
     sed -i "s|^.*# CONF_TIMESYNC||g" "/tmp/mycron"
     if [[ ${CONF_TIMESYNC} == 'http' ]]; then # CONF_TIMESYNC=http
