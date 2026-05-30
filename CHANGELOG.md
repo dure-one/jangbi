@@ -12,10 +12,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([d2a925b](https://github.com/dure-one/jangbi/commit/d2a925b1d45c088f384761c5d032ab99db4a4af3) by nikescar).
+- Add changelog automatically ([14b69de](https://github.com/dure-one/jangbi/commit/14b69deb770deb0e2c3cfbfaef3fcc67a0eac2e2) by nikescar).
 
 ### Fixed
 
+- fix. shoes pkg download link. ([05217c5](https://github.com/dure-one/jangbi/commit/05217c5225ddd18004233dc643d351cdc49f355c) by Woojae, Park).
+- fix. remove omnip plugin, hostapd install issue, shoes pugin issue. ([c4f600d](https://github.com/dure-one/jangbi/commit/c4f600dc73752381bff98f8d7517097cef23e22f) by Woojae, Park).
+- fix. minmon download error. ([4d82159](https://github.com/dure-one/jangbi/commit/4d821592619df6b24806ac86057a8729f75e371d) by Woojae, Park).
+- fix. missing plugins on showing plugin list. ([f10b574](https://github.com/dure-one/jangbi/commit/f10b574ac758b34975ec0405c1de885f72956b84) by Woojae, Park).
+- fix. show digests reason of running, installing results on init.sh. ([0b3ab54](https://github.com/dure-one/jangbi/commit/0b3ab54d0dc4fc0945774e1b1479499e0bdbe18c) by Woojae, Park).
+- fix. rc.local init command addition. ([2dd3a1a](https://github.com/dure-one/jangbi/commit/2dd3a1a6700a8275df6db0c1d2b9b4092a0261df) by Woojae, Park).
+- fix. ifupdown config error. ([eb50d45](https://github.com/dure-one/jangbi/commit/eb50d4551880cdaa9cf87f9c5da00747ea5e55fd) by Woojae, Park).
 - fix. generate config, running error. ([6877404](https://github.com/dure-one/jangbi/commit/6877404fd5527cda8d0ec2d020fa0e5cd71a2f95) by Woojae, Park).
 - fix. install bug. ([13c187c](https://github.com/dure-one/jangbi/commit/13c187cf1966255f76ec10dc3d8c218675e6758c) by Woojae, Park).
 - fix. log file to output.log ([d97cf83](https://github.com/dure-one/jangbi/commit/d97cf83fd6af74f44f0e82b873c86dafb91b45be) by Woojae, Park).

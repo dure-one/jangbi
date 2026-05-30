@@ -1,10 +1,10 @@
 ## \brief minimal monitoring system configurations. <div style="text-align: right"> group:**prenet** | runtype:**cron** | deps: **-** | port: **-**</div><br/>
-## \desc 
+## \desc
 ## This tool helps install, configure, and manage a minimal monitoring system for basic system health and performance tracking.
 # It provides automated installation, configuration management, and monitoring service control capabilities.
 # The tool sets up lightweight monitoring scripts, cron-based checks, and basic alerting for system resources,
 # services, and network connectivity.
-## 
+##
 ## # Jangbi Configs
 ## ```bash title="/opt/jangbi/.config"
 ## RUN_OS_MINMON=1 # enable minimal monitoring
@@ -121,7 +121,7 @@ function __os-minmon_install {
 
 function __os-minmon_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
+    _download_github_pkgs flo-at/minmon minmon-linux-*.tar.gz "${arch}" || log_error "${DMNNAME} download failed."
     return 0
 }
 

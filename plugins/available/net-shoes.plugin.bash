@@ -163,7 +163,7 @@ function __net-shoes_check { # running_status 0 installed, running_status 5 can 
     log_debug "Checking ${DMNNAME}..."
 
     # check package file exists
-    [[ $(find ./pkgs/shoes-*-linux-*.tar.gz 2>/dev/null|wc -l) -lt 1 ]] && \
+    [[ $(find ./pkgs/shoes-*-unknown-linux-musl.tar.gz 2>/dev/null|wc -l) -lt 1 ]] && \
         log_info "shoes package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_SHOES} ]] && \
