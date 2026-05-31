@@ -31,7 +31,7 @@ cite about-alias about-plugin about-completion
 _bash_it_library_finalize_hook=()
 
 source "${BASH_IT}/lib/colors.bash"
-# convert slib logsystem to bash-it logsystem 
+# convert slib logsystem to bash-it logsystem
 source "${JANGBI_IT}/vendor/slib/slib.sh"
 # We need to load logging module early in order to be able to log
 source "${BASH_IT}/lib/log.bash"
@@ -40,7 +40,7 @@ unset log
 log_and_tee() {
   [[ $SKIP_LOG == 1 ]] && return
   printf '%s%s\n' "[$(date +"%Y-%m-%d %H:%M:%S %Z")] " "$@" | tee -a "${BASH_IT_LOG_FILE}" > /dev/null
-} # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+} # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace,
 log_info()   { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; }
 log_success(){ printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 6 - info
 log_fatal()  { printf '%b%s%b\n' "${echo_background_red:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 1 - fatal
@@ -371,7 +371,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   JB_LOADED_FILES=()
   JB_LOADED_TIME=$(date +%s)
   JB_VARS=""
-  # log_debug "Load config from ${JANGBI_IT}/${conf}" 
+  # log_debug "Load config from ${JANGBI_IT}/${conf}"
   [[ ! -f "${JANGBI_IT}/${conf}" ]] && log_fatal "config file ${JANGBI_IT}/${conf} not exist." && _safe_exit 1
   stack=()
   pushstk() { stack+=("$@"); }
@@ -407,7 +407,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   # RUN_LOG="/dev/null"
 }
 
-_check_config_reload() { 
+_check_config_reload() {
   if [[ -z ${JB_LOADED_TIME} || -z ${JB_LOADED_FILES} || -z ${JB_VARS} ]]; then
     log_debug "JB_LOADED_TIME, JB_LOADED_FILES, JB_VARS is not set. Reloading config."
     _load_config
@@ -652,7 +652,7 @@ _allow_ports_byplugin() {
   _ipt_remove_filtered_comments "filter" "INPUT" "${newrulename}"
 
   IFS=',' read -ra rules_array <<< "${rules}"
-  for rule in "${rules_array[@]}"; do 
+  for rule in "${rules_array[@]}"; do
       rule=$(echo "$rule" | xargs) # trim whitespace
       if [[ $rule =~ ^[A-Z]+:[0-9]+$ ]]; then
           local inf="${rule%%:*}" # get interface name
@@ -683,14 +683,14 @@ _blank(){
 _time_sync(){
   # date -s "$(curl -s --head ${1} | grep ^Date: | sed 's/Date: //g')"
   log_debug "Syncing system time with 1.1. Taking time."
-  sudo date -us "$(curl -Is 1.1 | sed -n 's/^Date://p')"
+  date -us "$(curl -Is 1.1 | sed -n 's/^Date://p')"
 }
 
 _check_network(){
   local waninf=${JB_WANINF}
   local rip
   rip=$(_get_ip_of_inf "${waninf}")
-  
+
   # dns fix
   if ! dig +short cloudflare.com @"${rip}" | grep -qE '^[0-9.]+$'; then
     log_warning "DNS resolution failed using interface ${waninf}(${rip}). Checking /etc/resolv.conf..."
@@ -845,4 +845,3 @@ run_ok_with_reason() {
 
   return ${result}
 }
-

@@ -183,8 +183,13 @@ function __net-xtables_check { # running_status: 0 running, 1 installed, running
     [[ $(dpkg -l|awk '{print $2}'|grep -c xtables-addons-common) -lt 1 ]] && \
         log_info "xtables-addons-common is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(systemctl status nftables 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
-        log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
+    if command -v systemctl &>/dev/null; then
+        [[ $(systemctl status nftables 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+            log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
+    else
+        [[ $(pgrep -x nft|wc -l) -gt 0 ]] && \
+            log_info "nftables is running." && [[ $running_status -lt 1 ]] && running_status=1
+    fi
 
     return 0
 }

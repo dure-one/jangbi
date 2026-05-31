@@ -171,15 +171,23 @@ function __net-ifupdown_download {
 
 function __net-ifupdown_disable {
     log_debug "Disabling ${DMNNAME}..."
-    systemctl stop networking
-    systemctl disable networking
+    if command -v systemctl &>/dev/null; then
+        systemctl stop networking
+        systemctl disable networking
+    else
+        /etc/init.d/networking stop
+    fi
     return 0
 }
 
 function __net-ifupdown_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
-    systemctl stop networking
-    systemctl disable networking
+    if command -v systemctl &>/dev/null; then
+        systemctl stop networking
+        systemctl disable networking
+    else
+        /etc/init.d/networking stop
+    fi
 }
 
 function __net-ifupdown_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
@@ -201,8 +209,13 @@ function __net-ifupdown_check { # running_status: 0 running, 1 installed, runnin
         log_info "ifupdown is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     log_debug "check networking is running"
-    [[ $(systemctl status networking 2>/dev/null|grep -c "active") -gt 0 ]] && \
-        log_info "networking(ifupdown) is running." && [[ $running_status -lt 1 ]] && running_status=1
+    if command -v systemctl &>/dev/null; then
+        [[ $(systemctl status networking 2>/dev/null|grep -c "active") -gt 0 ]] && \
+            log_info "networking(ifupdown) is running." && [[ $running_status -lt 1 ]] && running_status=1
+    else
+        [[ $(ip a|grep -v lo|grep UP|wc -l) -gt 0 ]] && \
+            log_info "networking(ifupdown) is running." && [[ $running_status -lt 1 ]] && running_status=1
+    fi
 
     return 0
 }
@@ -219,9 +232,14 @@ function __net-ifupdown_run {
     #         sed -i "s|iface ${dure_infs[j]} inet dhcp.*|iface ${dure_infs[j]} inet manual|g" /etc/network/interfaces
     #     fi
     # }
-    systemctl restart networking
-    systemctl status networking && return 0 || \
-        log_error "ifupdown failed to run." && return 1
+    if command -v systemctl &>/dev/null; then
+        systemctl restart networking
+        systemctl status networking && return 0 || \
+            log_error "ifupdown failed to run." && return 1
+    else
+        /etc/init.d/networking restart && return 0 || \
+            log_error "ifupdown failed to run." && return 1
+    fi
 }
 
 complete -F _blank net-ifupdown

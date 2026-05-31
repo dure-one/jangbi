@@ -305,8 +305,12 @@ function __net-netplan_uninstall {
 
 function __net-netplan_disable {
   log_debug "Disabling ${DMNNAME}..."
-  systemctl stop systemd-networkd
-  systemctl disable systemd-networkd
+  if command -v systemctl &>/dev/null; then
+      systemctl stop systemd-networkd
+      systemctl disable systemd-networkd
+  else
+      pgrep -x systemd-networkd | xargs -r kill -9
+  fi
   return 0
 }
 
@@ -331,8 +335,13 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
   #[[ -f /etc/netplan/dure_network.yaml ]] && \
   #    log_info "netplan is configured." && [[ $running_status -lt 0 ]] && running_status=0
   # check if running
-  [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
-      log_info "systemd-networkd is running." && [[ $running_status -lt 1 ]] && running_status=1
+  if command -v systemctl &>/dev/null; then
+      [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+          log_info "systemd-networkd is running." && [[ $running_status -lt 1 ]] && running_status=1
+  else
+      [[ $(pgrep -x systemd-networkd|wc -l) -gt 0 ]] && \
+          log_info "systemd-networkd is running." && [[ $running_status -lt 1 ]] && running_status=1
+  fi
 
   return 0
 }
@@ -340,8 +349,13 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
 function __net-netplan_run {
   # Cannot call openvswitch: ovsdb-server.service is not running. msg is not relevant.
   netplan apply
-  systemctl status systemd-networkd && return 0 || \
-        log_error "net-netplan failed to run." && return 1
+  if command -v systemctl &>/dev/null; then
+      systemctl status systemd-networkd && return 0 || \
+            log_error "net-netplan failed to run." && return 1
+  else
+      pgrep -x systemd-networkd >/dev/null && return 0 || \
+            log_error "net-netplan failed to run." && return 1
+  fi
   return 0
 }
 

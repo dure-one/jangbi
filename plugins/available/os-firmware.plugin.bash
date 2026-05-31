@@ -117,20 +117,24 @@ function __os-firmware_install {
         # unzip -d "/lib/firmware" "${RUN_OS_FIRMWARE_file}" && f=("/lib/firmware"/*) && cp -rf "/lib/firmware"/*/* "/lib/firmware" && rm -rf "${f[@]}"
         tar xfv "${firmware_file}" -C /lib/firmware --strip-components=1
         log_debug "new firmware file unzip to /lib/firmware."
-        systemctl restart systemd-modules-load.service # reload kernel modules
+        if command -v systemctl &>/dev/null; then
+            systemctl restart systemd-modules-load.service # reload kernel modules
+        fi
         log_debug "new firmware has loaded."
         # save installed firmware file size
         find "${firmware_file}" -printf "%s\n" > /lib/firmware/.last_firmware_updated.size
     fi
 }
 
-function __os-firmware_uninstall { 
+function __os-firmware_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
     sha256sum -c ".firmware_original.sha256"
     # [[ $(du -s /lib/firmware| cut -f1) -ne $(cat .firmware_updated.size|cut -f1) ]] && echo "/lib/firmware folder has changed since last firmware installed. please retry with --force argument." && update_proceed=0
     tar -zxf .firmware_original.tar.gz -C /lib/firmware --strip-components=2
     echo "original firmware file has extracted to /lib/firmware."
-    systemctl restart systemd-modules-load.service # reload kernel modules
+    if command -v systemctl &>/dev/null; then
+        systemctl restart systemd-modules-load.service # reload kernel modules
+    fi
     echo "firmware reloaded."
 }
 

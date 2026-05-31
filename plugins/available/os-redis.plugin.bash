@@ -150,14 +150,22 @@ function __os-redis_download {
 
 function __os-redis_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
-    systemctl stop redis-server
-    systemctl disable redis-server
+    if command -v systemctl &>/dev/null; then
+        systemctl stop redis-server
+        systemctl disable redis-server
+    else
+        pgrep -x redis-server | xargs -r kill -9
+    fi
 }
 
 function __os-redis_disable {
     log_debug "Disabling ${DMNNAME}..."
-    systemctl stop redis-server
-    systemctl disable redis-server
+    if command -v systemctl &>/dev/null; then
+        systemctl stop redis-server
+        systemctl disable redis-server
+    else
+        pgrep -x redis-server | xargs -r kill -9
+    fi
     return 0
 }
 
@@ -184,7 +192,11 @@ function __os-redis_run {
     log_debug "Running ${DMNNAME}..."
     [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
         __net-iptables_nat_ext_both_allowedportinf "${REDIS_PORTS}" || log_debug "failed to set iptables rules for ${REDIS_PORTS}."
-    systemctl restart redis-server
+    if command -v systemctl &>/dev/null; then
+        systemctl restart redis-server
+    else
+        /etc/init.d/redis-server restart
+    fi
     pidof redis-server && return 0 || \
         log_error "redis-server failed to run." && return 0
 }

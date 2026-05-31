@@ -107,15 +107,14 @@ function __net-suricata_install {
     fi
 
     export DEBIAN_FRONTEND=noninteractive
-    # Check if internet is available
-    if ping -c 1 -W 2 1.1.1.1 &>/dev/null || ping -c 1 -W 2 8.8.8.8 &>/dev/null; then
+    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
         apt install -qy ${PKGNAME} || log_error "${DMNNAME} online install failed."
     else
         local filepat="./pkgs/${PKGNAME}*.deb"
         local pkglist="./pkgs/${PKGNAME}.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
+        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && __net-suricata_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
@@ -142,7 +141,7 @@ function __net-suricata_uninstall {
 
 function __net-suricata_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs suricata || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs "suricata" || log_error "${DMNNAME} download failed."
     return 0
 }
 
@@ -298,11 +297,18 @@ function __net-suricata_generate_config {
 
     # Create basic suricata.yaml if it doesn't exist in /tmp
     if [[ ! -f /tmp/${PKGNAME}/suricata.yaml ]]; then
-        # Copy system default or create minimal config
+        # Try to copy from system default, from configs dir, or from sample locations
         if [[ -f /etc/suricata/suricata.yaml ]]; then
             cp /etc/suricata/suricata.yaml /tmp/${PKGNAME}/suricata.yaml
+        elif [[ -f ./configs/${PKGNAME}/suricata.yaml ]]; then
+            cp ./configs/${PKGNAME}/suricata.yaml /tmp/${PKGNAME}/suricata.yaml
+        elif [[ -f /usr/share/suricata/suricata.yaml ]]; then
+            cp /usr/share/suricata/suricata.yaml /tmp/${PKGNAME}/suricata.yaml
+        elif [[ -f /usr/share/doc/suricata/examples/suricata.yaml ]]; then
+            cp /usr/share/doc/suricata/examples/suricata.yaml /tmp/${PKGNAME}/suricata.yaml
         else
-            log_error "Default suricata.yaml not found. Please install suricata package first."
+            log_error "Default suricata.yaml not found in any location. Suricata package may not be properly installed."
+            log_error "Tried: /etc/suricata, ./configs/suricata, /usr/share/suricata, /usr/share/doc/suricata/examples"
             return 1
         fi
     fi
