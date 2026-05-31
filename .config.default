@@ -19,6 +19,10 @@ CONF_SWAPSIZE="1G"
 CONF_TIMESYNC="http" # ntp or http
 DNS_UPSTREAM="1.1.1.1"
 
+## GitHub API token for avoiding rate limits (optional)
+## Get token at: https://github.com/settings/tokens (no special scopes needed for public repos)
+GITHUB_TOKEN=""
+
 ## host specific configurations
 JB_DEPLOY_PATH="/opt/jangbi"
 JB_USERID=test

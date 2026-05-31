@@ -122,20 +122,28 @@ function __os-auditd_install {
 
 function __os-auditd_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
-    systemctl stop auditd
-    systemctl disable auditd
+    if command -v systemctl &>/dev/null; then
+        systemctl stop auditd
+        systemctl disable auditd
+    else
+        pgrep -x auditd | xargs -r kill -9
+    fi
 }
 
 function __os-auditd_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs auditd || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs "auditd libauparse0t64" || log_error "${DMNNAME} download failed."
     return 0
 }
 
 function __os-auditd_disable {
     log_debug "Disabling ${DMNNAME}..."
-    systemctl stop auditd
-    systemctl disable auditd
+    if command -v systemctl &>/dev/null; then
+        systemctl stop auditd
+        systemctl disable auditd
+    else
+        pgrep -x auditd | xargs -r kill -9
+    fi
     return 0
 }
 
@@ -185,9 +193,14 @@ function __os-auditd_check {  # running_status: 0 running, 1 installed, running_
 
 function __os-auditd_run {
     log_debug "Running ${DMNNAME}..."
-    systemctl restart auditd
-    systemctl status auditd && return 0 || \
-        log_error "auditd failed to run." && return 1
+    if command -v systemctl &>/dev/null; then
+        systemctl restart auditd
+        systemctl status auditd && return 0 || \
+            log_error "auditd failed to run." && return 1
+    else
+        /etc/init.d/auditd restart && return 0 || \
+            log_error "auditd failed to run." && return 1
+    fi
     return 0
 }
 

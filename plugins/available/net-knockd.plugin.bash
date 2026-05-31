@@ -169,17 +169,25 @@ function __net-knockd_download {
     return 0
 }
 
-function __net-knockd_uninstall { 
+function __net-knockd_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
     # rm /sbin/knock_otp_regen.sh 2>/dev/null
-    systemctl stop knockd
-    systemctl disable knockd
+    if command -v systemctl &>/dev/null; then
+        systemctl stop knockd
+        systemctl disable knockd
+    else
+        pgrep -x knockd | xargs -r kill -9
+    fi
 }
 
 function __net-knockd_disable {
     log_debug "Disabling ${DMNNAME}..."
-    systemctl stop knockd
-    systemctl disable knockd
+    if command -v systemctl &>/dev/null; then
+        systemctl stop knockd
+        systemctl disable knockd
+    else
+        pgrep -x knockd | xargs -r kill -9
+    fi
     return 0
 }
 
@@ -201,8 +209,13 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
     [[ $(dpkg -l|awk '{print $2}'|grep -c "knockd") -lt 1 ]] && \
         log_info "knockd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(systemctl status knockd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
-        log_info "knockd is running." && [[ $running_status -lt 1 ]] && running_status=1
+    if command -v systemctl &>/dev/null; then
+        [[ $(systemctl status knockd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+            log_info "knockd is running." && [[ $running_status -lt 1 ]] && running_status=1
+    else
+        [[ $(pgrep -x knockd|wc -l) -gt 0 ]] && \
+            log_info "knockd is running." && [[ $running_status -lt 1 ]] && running_status=1
+    fi
 
     return 0
 }
@@ -212,9 +225,14 @@ function __net-knockd_run {
     [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
         __net-iptables_nat_ext_both_allowedportinf "${KNOCKD_PORTS}" || log_debug "failed to set iptables rules for ${KNOCKD_PORTS}."
 
-    systemctl restart knockd
-    systemctl status knockd && return 0 || \
-        log_error "knockd failed to run." && return 0
+    if command -v systemctl &>/dev/null; then
+        systemctl restart knockd
+        systemctl status knockd && return 0 || \
+            log_error "knockd failed to run." && return 0
+    else
+        /etc/init.d/knockd restart && return 0 || \
+            log_error "knockd failed to run." && return 0
+    fi
 }
 
 complete -F _blank net-knockd

@@ -111,11 +111,17 @@ function __os-systemd_install { # 0 - disable completely, 1 - full systemd, 2 - 
     mkdir -p /etc/systemd/system/networking.service.d/
     echo "[Service]" > /etc/systemd/system/networking.service.d/override.conf
     echo "TimeoutStartSec=15" >> /etc/systemd/system/networking.service.d/override.conf
-    systemctl daemon-reload
+    if command -v systemctl &>/dev/null; then
+        systemctl daemon-reload
+    fi
 }
 
-function __os-systemd_uninstall { 
+function __os-systemd_uninstall {
     log_debug "Starting os-systemd Uninstall"
+    if ! command -v systemctl &>/dev/null; then
+        log_debug "systemctl not found, skipping systemd uninstall"
+        return 0
+    fi
     # recover system
     systemctl disable networking.service
     systemctl enable \
@@ -128,7 +134,7 @@ function __os-systemd_uninstall {
         systemd-networkd systemd-networkd.socket
     systemctl unmask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
     systemctl unmask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    
+
     apt remove -yq isc-dhcp-client ifupdown
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
@@ -231,6 +237,9 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
 function __os-systemd_run {
     # restarting systemd-udeved in rc.local mode will initiate anacron service which takes 20 minus on start.
     # systemctl restart systemd-udevd
+    if ! command -v systemctl &>/dev/null; then
+        return 0
+    fi
     systemctl status systemd-udevd && return 0 || \
         log_error "os-systemd failed to run." && return 1
 }
@@ -239,22 +248,27 @@ complete -F _blank os-systemd
 
 function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1 - full systemd(netplan), 2 - only journald(ifupdown)
     log_debug "Starting os-systemd disable completely(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
+    if ! command -v systemctl &>/dev/null; then
+        return 0
+    fi
     if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utils v4l-utils v4l2loopback-dkms v4l2loopback-utils
         apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
     fi
     # disable systemd services
     apt purge -yq systemd-timesyncd systemd-resolved rsyslog
-    systemctl stop \
-        systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl disable \
-        systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
-    systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
+    if command -v systemctl &>/dev/null; then
+        systemctl stop \
+            systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
+            systemd-logind.service \
+            systemd-networkd systemd-networkd.socket
+        systemctl disable \
+            systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
+            systemd-logind.service \
+            systemd-networkd systemd-networkd.socket
+        systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
+        systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
+    fi
 
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
@@ -278,8 +292,10 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     # disable fsck and show details on boot
     sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="fsck.mode=skip" # JB/' /etc/default/grub
     update-grub
-    
-    systemctl enable networking.service
+
+    if command -v systemctl &>/dev/null; then
+        systemctl enable networking.service
+    fi
 }
 
 function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd, 2 - only journald
@@ -290,20 +306,24 @@ function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd
     fi
     # disable systemd services
     apt purge -yq systemd-timesyncd systemd-resolved
-    systemctl stop \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl disable \
-        systemd-logind.service \
-        systemd-networkd systemd-networkd.socket
-    systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
-    systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
-    
+    if command -v systemctl &>/dev/null; then
+        systemctl stop \
+            systemd-logind.service \
+            systemd-networkd systemd-networkd.socket
+        systemctl disable \
+            systemd-logind.service \
+            systemd-networkd systemd-networkd.socket
+        systemctl mask systemd-networkd systemd-networkd-wait-online.service systemd-journald systemd-logind.service wpa_supplicant.service
+        systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
+    fi
+
     export DEBIAN_FRONTEND=noninteractive
     [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
     [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
     apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger
-    systemctl enable networking.service
+    if command -v systemctl &>/dev/null; then
+        systemctl enable networking.service
+    fi
 }
 
 function __os-systemd_full_systemd { # 0 - disable completely, 1 - full systemd, 2 - only journald

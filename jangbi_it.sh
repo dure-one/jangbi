@@ -31,7 +31,7 @@ cite about-alias about-plugin about-completion
 _bash_it_library_finalize_hook=()
 
 source "${BASH_IT}/lib/colors.bash"
-# convert slib logsystem to bash-it logsystem 
+# convert slib logsystem to bash-it logsystem
 source "${JANGBI_IT}/vendor/slib/slib.sh"
 # We need to load logging module early in order to be able to log
 source "${BASH_IT}/lib/log.bash"
@@ -40,7 +40,7 @@ unset log
 log_and_tee() {
   [[ $SKIP_LOG == 1 ]] && return
   printf '%s%s\n' "[$(date +"%Y-%m-%d %H:%M:%S %Z")] " "$@" | tee -a "${BASH_IT_LOG_FILE}" > /dev/null
-} # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+} # BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace,
 log_info()   { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_cyan:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; }
 log_success(){ printf '%b%s%b\n' "${echo_blue:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 6 - info
 log_fatal()  { printf '%b%s%b\n' "${echo_background_red:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 1 - fatal
@@ -374,7 +374,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   JB_LOADED_FILES=()
   JB_LOADED_TIME=$(date +%s)
   JB_VARS=""
-  # log_debug "Load config from ${JANGBI_IT}/${conf}" 
+  # log_debug "Load config from ${JANGBI_IT}/${conf}"
   [[ ! -f "${JANGBI_IT}/${conf}" ]] && log_fatal "config file ${JANGBI_IT}/${conf} not exist." && _safe_exit 1
   stack=()
   pushstk() { stack+=("$@"); }
@@ -410,7 +410,7 @@ _load_config() { # Load config including parent config ex) _load_config .config
   # RUN_LOG="/dev/null"
 }
 
-_check_config_reload() { 
+_check_config_reload() {
   if [[ -z ${JB_LOADED_TIME} || -z ${JB_LOADED_FILES} || -z ${JB_VARS} ]]; then
     log_debug "JB_LOADED_TIME, JB_LOADED_FILES, JB_VARS is not set. Reloading config."
     _load_config
@@ -468,6 +468,88 @@ _distname_check() {
   fi
 }
 
+_validate_interfaces() {
+  # Get all available network interfaces on the system (excluding lo)
+  local available_interfaces=($(ip -o link show | awk -F': ' '{print $2}' | grep -v "^lo$"))
+  local validation_failed=0
+  local missing_interfaces=()
+
+  log_debug "Available system interfaces: ${available_interfaces[*]}"
+
+  # Function to check if interface exists
+  _interface_exists() {
+    local check_inf="$1"
+    [[ -z "${check_inf}" ]] && return 1  # Empty interface name
+    for avail_inf in "${available_interfaces[@]}"; do
+      if [[ "${avail_inf}" == "${check_inf}" ]]; then
+        return 0
+      fi
+    done
+    return 1
+  }
+
+  # Validate WAN interface
+  if [[ -n "${JB_WANINF}" ]]; then
+    if ! _interface_exists "${JB_WANINF}"; then
+      log_error "WAN interface '${JB_WANINF}' (JB_WANINF) not found on system"
+      missing_interfaces+=("WAN:${JB_WANINF}")
+      validation_failed=1
+    else
+      log_debug "WAN interface '${JB_WANINF}' validated"
+    fi
+  fi
+
+  # Validate LAN interface
+  if [[ -n "${JB_LANINF}" ]]; then
+    if ! _interface_exists "${JB_LANINF}"; then
+      log_error "LAN interface '${JB_LANINF}' (JB_LANINF) not found on system"
+      missing_interfaces+=("LAN:${JB_LANINF}")
+      validation_failed=1
+    else
+      log_debug "LAN interface '${JB_LANINF}' validated"
+    fi
+  fi
+
+  # Validate WLAN interface
+  if [[ -n "${JB_WLANINF}" ]]; then
+    if ! _interface_exists "${JB_WLANINF}"; then
+      log_error "WLAN interface '${JB_WLANINF}' (JB_WLANINF) not found on system"
+      missing_interfaces+=("WLAN:${JB_WLANINF}")
+      validation_failed=1
+    else
+      log_debug "WLAN interface '${JB_WLANINF}' validated"
+    fi
+  fi
+
+  # Validate LAN1-10 interfaces
+  for i in {1..10}; do
+    local lan_var="JB_LAN${i}INF"
+    local lan_inf="${!lan_var}"
+    if [[ -n "${lan_inf}" ]]; then
+      if ! _interface_exists "${lan_inf}"; then
+        log_error "LAN${i} interface '${lan_inf}' (${lan_var}) not found on system"
+        missing_interfaces+=("LAN${i}:${lan_inf}")
+        validation_failed=1
+      else
+        log_debug "LAN${i} interface '${lan_inf}' validated"
+      fi
+    fi
+  done
+
+  # Exit if validation failed
+  if [[ ${validation_failed} -eq 1 ]]; then
+    log_fatal "Interface validation failed. The following interfaces are not available on the system:"
+    for inf in "${missing_interfaces[@]}"; do
+      log_fatal "  - ${inf}"
+    done
+    log_fatal "Available interfaces: ${available_interfaces[*]}"
+    log_fatal "Please update your .config file with correct interface names and try again."
+    exit 1
+  fi
+
+  log_debug "All configured interfaces validated successfully"
+}
+
 _download_apt_pkgs() { # _download_apt_pkgs darkstat
   local pkgs=($1)
   local pkgname=$(_trim_string ${pkgs[0]})
@@ -486,7 +568,7 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
 }
 
 _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz
-  local arch1 arch2 
+  local arch1 arch2
   arch1=$(dpkg --print-architecture)
   arch2=$(arch)
   [[ -n ${3} ]] && arch1=${3}
@@ -498,7 +580,15 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   [[ $(find ${JANGBI_IT}/pkgs/$2 2>/dev/null|wc -l) -gt 0 ]] && rm ${JANGBI_IT}/pkgs/$2
   pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
   pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
-  local possible_list=$(curl -sSL "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
+
+  # Use GitHub token if available to avoid rate limiting
+  local curl_cmd="curl -sSL"
+  if [[ -n "${GITHUB_TOKEN}" ]]; then
+    curl_cmd="curl -sSL -H \"Authorization: Bearer ${GITHUB_TOKEN}\""
+    log_trace "Using GitHub token for API request"
+  fi
+
+  local possible_list=$(eval ${curl_cmd} "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
   # log_debug "List : ${possible_list}"
   IFS=$'\n' read -rd '' -a durls <<<"$possible_list"
 
@@ -565,7 +655,7 @@ _allow_ports_byplugin() {
   _ipt_remove_filtered_comments "filter" "INPUT" "${newrulename}"
 
   IFS=',' read -ra rules_array <<< "${rules}"
-  for rule in "${rules_array[@]}"; do 
+  for rule in "${rules_array[@]}"; do
       rule=$(echo "$rule" | xargs) # trim whitespace
       if [[ $rule =~ ^[A-Z]+:[0-9]+$ ]]; then
           local inf="${rule%%:*}" # get interface name
@@ -596,14 +686,14 @@ _blank(){
 _time_sync(){
   # date -s "$(curl -s --head ${1} | grep ^Date: | sed 's/Date: //g')"
   log_debug "Syncing system time with 1.1. Taking time."
-  sudo date -us "$(curl -Is 1.1 | sed -n 's/^Date://p')"
+  date -us "$(curl -Is 1.1 | sed -n 's/^Date://p')"
 }
 
 _check_network(){
   local waninf=${JB_WANINF}
   local rip
   rip=$(_get_ip_of_inf "${waninf}")
-  
+
   # dns fix
   if ! dig +short cloudflare.com @"${rip}" | grep -qE '^[0-9.]+$'; then
     log_warning "DNS resolution failed using interface ${waninf}(${rip}). Checking /etc/resolv.conf..."
@@ -758,4 +848,3 @@ run_ok_with_reason() {
 
   return ${result}
 }
-

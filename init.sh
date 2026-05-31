@@ -30,7 +30,7 @@ usage() {
   echo
 }
 # setup log
-BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, 
+BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace,
 BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
 
 if _check_config_reload; then
@@ -40,10 +40,6 @@ else
     log_fatal "JB_DEPLOY_PATH configure is not set. please make .config file."
     return 1
 fi
-
-# blocker - before firstrun
-[[ $(which ipcalc-ng|wc -l) -lt 1 ]] && \
-    log_info "ipcacl-ng command does not exist. please install it." && exit 1
 
 POSITIONAL_ARGS=()
 SYNC_AND_BREAK=0
@@ -106,56 +102,87 @@ set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 [[ ! -d ./imgs ]] && mkdir -p ./imgs
 [[ ! -d ./enabled ]] && mkdir -p ./enabled
 
-# install extrepo if not exists
-durl="https://ftp.debian.org/debian/pool/main/libc/libcryptx-perl/libcryptx-perl_0.077-1+b1_$(dpkg --print-architecture).deb"
-[[ $(dpkg -l|awk '{print $2}'|grep libcryptx-perl|wc -l) -lt 1 ]] && \
-    wget --directory-prefix=./pkgs "${durl}" && \
-    apt install -qy ./pkgs/libcryptx-perl_*.deb
-durl="http://ftp.debian.org/debian/pool/main/e/extrepo/extrepo_0.11_all.deb"
-[[ $(dpkg -l|awk '{print $2}'|grep extrepo|wc -l) -lt 1 ]] && \
-    wget --directory-prefix=./pkgs "${durl}" && \
-    apt install -qy ./pkgs/extrepo_*.deb && \
-    mv /etc/apt/sources.list /etc/apt/sources.list_$(date +"%Y%m%d").bak && \
-    echo "" > /etc/apt/sources.list && \
-    extrepo enable debian_official && \
-    apt update -qy
-
 # install required packages
-required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "jq" "git")
-notinstalled_pkgs=()
+required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo")
+missing_pkgs=()
 for pkg in "${required_pkgs[@]}"; do
-    [[ $(dpkg -l|awk '{print $2}'|grep ${pkg}|wc -l) -lt 1 ]] && notinstalled_pkgs+=(${pkg})
+    if ! dpkg -l "${pkg}" 2>/dev/null | grep -q "^ii"; then
+        missing_pkgs+=("${pkg}")
+    fi
 done
-[[ ${#notinstalled_pkgs[@]} -gt 0 ]] && apt install -qy "${notinstalled_pkgs[@]}"
+if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
+    log_debug "Installing missing packages: ${missing_pkgs[*]}"
+    apt install -qy "${missing_pkgs[@]}" > /dev/null 2>&1
+else
+    log_debug "All required packages are already installed."
+fi
+# remove debian official repository for security reason
+rm -rf /etc/apt/sources.list.d/extrepo_debian_official.sources
+
+# install jq binary
+if [[ -x /usr/sbin/jq ]]; then
+    log_debug "jq binary already exists at /usr/sbin/jq. Skipping download."
+else
+    log_debug "jq binary not found. Downloading..."
+    arch1_=$(dpkg --print-architecture)
+    arch1=${3:-${arch1_}}
+    [[ ${arch1} == "amd64" ]] && comparch="-64-"
+    [[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
+
+    # Try to download jq
+    if _download_github_pkgs jqlang/jq jq-linux-* "${arch1}" > /dev/null 2>&1; then
+        # Find the downloaded jq file and copy it
+        jq_file=$(find ${JANGBI_IT}/pkgs -name "jq-linux-*${arch1}*" -type f 2>/dev/null | head -1)
+        if [[ -n "${jq_file}" ]]; then
+            cp "${jq_file}" /usr/sbin/jq
+            chmod +x /usr/sbin/jq
+            log_debug "jq binary installed successfully."
+        else
+            log_error "jq binary file not found after download."
+        fi
+    else
+        # Download failed - try installing from package manager as fallback
+        log_warning "jq download from GitHub failed (possibly rate limited). Trying apt install..."
+        if apt install -qy jq > /dev/null 2>&1; then
+            log_debug "jq installed from apt repository."
+        else
+            log_error "Failed to install jq from both GitHub and apt. Some features may not work."
+        fi
+    fi
+fi
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
-log_debug "Printing Loaded Configs..."
-# Keep list of current enabled plugins to remove later (prevents race condition)
-current_enabled=($(find ./enabled -type l -name "*.plugin.bash" 2>/dev/null))
+# Save config to .config.last instead of printing to log
+rm ./enabled/* 2>/dev/null # remove all enabled plugins
 prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=() processed=()
-ln -sf "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
-# Remove from current_enabled list
-current_enabled=("${current_enabled[@]//*os-systemd.plugin.bash/}")
-source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
+ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash" 2>/dev/null
+plugin_file=$(find ./enabled -type l -name "*os-systemd.plugin.bash" 2>/dev/null | head -1)
+[[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown" "net-iptables")
-    ln -sf "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
-    current_enabled=("${current_enabled[@]//*net-ifupdown.plugin.bash/}")
-    source $(find ./enabled|grep bash|grep "net-ifupdown") # load plugin
+    ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash" 2>/dev/null
+    plugin_file=$(find ./enabled -type l -name "*net-ifupdown.plugin.bash" 2>/dev/null | head -1)
+    [[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 else # case 1 full systemd
     postnet+=("net-netplan" "net-iptables")
-    ln -sf "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
-    current_enabled=("${current_enabled[@]//*net-netplan.plugin.bash/}")
-    source $(find ./enabled|grep bash|grep "net-netplan") # load plugin
+    ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash" 2>/dev/null
+    plugin_file=$(find ./enabled -type l -name "*net-netplan.plugin.bash" 2>/dev/null | head -1)
+    [[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 fi
-ln -sf "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptables.plugin.bash"
-current_enabled=("${current_enabled[@]//*net-iptables.plugin.bash/}")
-source $(find ./enabled|grep bash|grep "net-iptables") # load plugin
+ln -s "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptables.plugin.bash" 2>/dev/null
+plugin_file=$(find ./enabled -type l -name "*net-iptables.plugin.bash" 2>/dev/null | head -1)
+[[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 predefined=("os-systemd" "net-ifupdown" "net-netplan" "net-iptables")
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 # shellcheck disable=SC1102
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
 IFS=$'\n' read -d "" -ra lvars <<< "${loaded_vars}" # split
+
+# Initialize .config.last file
+echo "# Complete rendered configuration with parent hierarchy" > .config.last
+echo "# Generated at: $(date)" >> .config.last
+echo "" >> .config.last
+
 for((j=0;j<${#JB_VARS[@]};j++)){
     for((k=0;k<${#lvars[@]};k++)){
         if [[ ${lvars[k]} == *"${JB_VARS[j]}"* ]]; then
@@ -166,10 +193,15 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 load_plugin=${load_plugin//_/-}
                 case "${predefined[@]}" in  *"${load_plugin}"*) continue ;; esac
                 [[ $(find ./enabled|grep -c ${load_plugin}) -lt 1 ]] && \
-                    ln -sf "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
-                # Remove from current_enabled list
-                current_enabled=("${current_enabled[@]//*${load_plugin}.plugin.bash/}")
-                source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
+                    ln -s "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
+
+                plugin_file=$(find ./enabled -type l -name "*${load_plugin}.plugin.bash" 2>/dev/null | head -1)
+                if [[ -n "${plugin_file}" && -f "${plugin_file}" ]]; then
+                    source "${plugin_file}" # load plugin
+                else
+                    log_error "Plugin file not found for ${load_plugin}"
+                    continue
+                fi
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
                 deps_txt=$(typeset -f -- "${load_plugin}"|metafor deps)
                 [[ ${group_txt// /} == "postnet" && ${#deps_txt[@]} -eq 0 ]] && postnet+=(${load_plugin})
@@ -177,7 +209,7 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -eq 0 ]] && prenet+=(${load_plugin})
                 [[ ${group_txt// /} == "prenet" && ${#deps_txt[@]} -gt 0 ]] && prenetdeps+=(${load_plugin})
 
-                # skip if processed array has ${load_plugin} 
+                # skip if processed array has ${load_plugin}
                 case "${processed[@]}" in  *"${load_plugin}"*) continue ;; esac
 
                 # --check
@@ -189,17 +221,19 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 # --install
                 [[ ${IN_OPTION} = "enabled" ]] || [[ ${IN_OPTION} = "${load_plugin}" ]] && ${load_plugin} install && processed+=(${load_plugin})
             fi
-            log_debug "${lvars[k]} $group_txt" # log loaded vars
+            # Save to .config.last instead of logging
+            echo "${lvars[k]} $group_txt" >> .config.last
             unset group_txt
             break
         fi
     }
 }
 
-# Remove remaining plugins that were not re-linked (cleanup old/disabled plugins)
-for old_plugin in "${current_enabled[@]}"; do
-    [[ -n "${old_plugin}" ]] && rm -f "${old_plugin}" 2>/dev/null
-done
+# Log that config was saved to file
+log_debug "Configuration saved to .config.last ($(wc -l < .config.last) lines)"
+
+# Validate interface names against system interfaces
+_validate_interfaces
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
 # exit on check, run, download, install
@@ -210,7 +244,7 @@ if [[ ${CH_OPTION} = "enabled" || ${RN_OPTION} = "enabled" || ${DN_OPTION} = "en
 fi
 
 # append deps array to orig array
-prenet+=("${prenetdeps[@]}") 
+prenet+=("${prenetdeps[@]}")
 postnet+=("${postnetdeps[@]}")
 
 # add to rclocal
@@ -286,11 +320,16 @@ process_each_step() {
             ;;
         15)
             run_ok_with_reason "${command} download" "${command}(${step}) Downloading..." "Downloading"
+            local download_result=$?
             log_debug "$!"
-            run_ok_with_reason "${command} install" "${command}(${step}) Installing..." "Installing"
-            log_debug "$!"
-            run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
-            log_debug "$!"
+            if [[ ${download_result} -ne 0 ]]; then
+                log_error "${command}(${step}) Download failed. Skipping install and run."
+            else
+                run_ok_with_reason "${command} install" "${command}(${step}) Installing..." "Installing"
+                log_debug "$!"
+                run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
+                log_debug "$!"
+            fi
             ;; # package file does not exist, download and install it
         20)
             log_info "${command}(${step}) Skiped..."

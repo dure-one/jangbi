@@ -106,7 +106,7 @@ function __os-aide_install {
     else
         local filepat="./pkgs/aide*.deb"
         local pkglist="./pkgs/aide.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && log_error "${DMNNAME} pkg file not found."
+        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-aide_download
         pkgslist_down=()
         while read -r pkg; do
             [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
@@ -131,7 +131,7 @@ function __os-aide_uninstall {
 
 function __os-aide_download {
     log_debug "Downloading ${DMNNAME}..."
-    _download_apt_pkgs aide || log_error "${DMNNAME} download failed."
+    _download_apt_pkgs "aide" || log_error "${DMNNAME} download failed."
     return 0
 }
 

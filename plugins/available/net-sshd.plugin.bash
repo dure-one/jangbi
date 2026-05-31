@@ -120,10 +120,14 @@ function __net-sshd_install {
     fi
 }
 
-function __net-sshd_uninstall { 
+function __net-sshd_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
-    systemctl stop ssh
-    systemctl disable ssh
+    if command -v systemctl &>/dev/null; then
+        systemctl stop ssh
+        systemctl disable ssh
+    else
+        pgrep -x sshd | xargs -r kill -9
+    fi
 }
 
 function __net-sshd_download {
@@ -132,9 +136,13 @@ function __net-sshd_download {
     return 0
 }
 
-function __net-sshd_disable { 
-    systemctl stop ssh
-    systemctl disable ssh
+function __net-sshd_disable {
+    if command -v systemctl &>/dev/null; then
+        systemctl stop ssh
+        systemctl disable ssh
+    else
+        pgrep -x sshd | xargs -r kill -9
+    fi
     return 0
 }
 
@@ -212,11 +220,13 @@ function __net-sshd_check { # running_status: 0 running, 1 installed, running_st
 }
 
 function __net-sshd_run {
-    systemctl restart ssh
-    if [[ ${RUN_NET_IPTABLES} -gt 0 ]]; then
-        __net-iptables_nat_ext_both_allowedportinf "${SSHD_PORTS}" || \
-            log_error "failed to set iptables rules for ${SSHD_PORTS}."
+    if command -v systemctl &>/dev/null; then
+        systemctl restart ssh
+    else
+        /etc/init.d/ssh restart
     fi
+    [[ ${RUN_NET_IPTABLES} -gt 0 ]] && \
+        __net-iptables_nat_ext_both_allowedportinf "${SSHD_PORTS}" || log_debug "failed to set iptables rules for ${SSHD_PORTS}."
     pidof sshd && return 0 || \
         log_error "sshd failed to run." && return 0
 }

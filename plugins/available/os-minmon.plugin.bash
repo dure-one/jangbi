@@ -178,8 +178,10 @@ function __os-minmon_run {
     pidof minmon | xargs kill -9 2>/dev/null
 
     # Remove any existing systemd unit
-    systemctl stop minmon.service 2>/dev/null || true
-    systemctl reset-failed minmon.service 2>/dev/null || true
+    if command -v systemctl &>/dev/null; then
+        systemctl stop minmon.service 2>/dev/null || true
+        systemctl reset-failed minmon.service 2>/dev/null || true
+    fi
 
     # Run minmon directly in the background
     minmon /etc/minmon/minmon.toml 1>>/var/log/minmon.log 2>&1 &
