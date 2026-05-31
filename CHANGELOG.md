@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([0edc347](https://github.com/dure-one/jangbi/commit/0edc347f2f7e70b34530c87764640bef811cb5e5) by nikescar).
+- Add changelog automatically ([d799a23](https://github.com/dure-one/jangbi/commit/d799a2347ce0ec81426129dbfcdc24f25dd6eaf4) by nikescar).
 
 ### Fixed
 
+- fix. cmd fail when systemctl cmd not exist. ([15fe1e0](https://github.com/dure-one/jangbi/commit/15fe1e03de9aec213a7bd8aa6c14958c628e2321) by Woojae, Park).
+- fix. add github token for github api. ([2604779](https://github.com/dure-one/jangbi/commit/2604779924e3b81ea52c51f4aed8f04cc77cabe9) by Woojae, Park).
 - fix. iptables rules for each app and change enabled app refresh method. ([bb9c839](https://github.com/dure-one/jangbi/commit/bb9c839abd306b21a47684b044db618fffaf92df) by Woojae, Park).
 - fix. shoes pkg download link. ([05217c5](https://github.com/dure-one/jangbi/commit/05217c5225ddd18004233dc643d351cdc49f355c) by Woojae, Park).
 - fix. partial load on source jangbi_it. ([02fa81d](https://github.com/dure-one/jangbi/commit/02fa81d4fa37f31b6c23de7aec0bdedffafb7935) by Woojae, Park).
