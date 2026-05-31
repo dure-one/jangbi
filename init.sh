@@ -104,16 +104,41 @@ set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 # install required packages
 required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo")
-apt install -qy "${required_pkgs[@]}"
+missing_pkgs=()
+for pkg in "${required_pkgs[@]}"; do
+    if ! dpkg -l "${pkg}" 2>/dev/null | grep -q "^ii"; then
+        missing_pkgs+=("${pkg}")
+    fi
+done
+if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
+    log_debug "Installing missing packages: ${missing_pkgs[*]}"
+    apt install -qy "${missing_pkgs[@]}" > /dev/null 2>&1
+else
+    log_debug "All required packages are already installed."
+fi
+# remove debian official repository for security reason
+rm -rf /etc/apt/sources.list.d/extrepo_debian_official.sources
 
 # install jq binary
-arch1_=$(dpkg --print-architecture)
-arch1=${3:-${arch1_}}
-[[ ${arch1} == "amd64" ]] && comparch="-64-"
-[[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
-_download_github_pkgs jqlang/jq jq-linux-* "${arch1}" || log_error "${DMNNAME} download failed."
-cp jq-linux-${arch1} /usr/sbin/jq
-chmod +x /usr/sbin/jq
+if [[ -x /usr/sbin/jq ]]; then
+    log_debug "jq binary already exists at /usr/sbin/jq. Skipping download."
+else
+    log_debug "jq binary not found. Downloading..."
+    arch1_=$(dpkg --print-architecture)
+    arch1=${3:-${arch1_}}
+    [[ ${arch1} == "amd64" ]] && comparch="-64-"
+    [[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
+    _download_github_pkgs jqlang/jq jq-linux-* "${arch1}" > /dev/null 2>&1 || log_error "jq download failed."
+    # Find the downloaded jq file and copy it
+    jq_file=$(find ${JANGBI_IT}/pkgs -name "jq-linux-*${arch1}*" -type f 2>/dev/null | head -1)
+    if [[ -n "${jq_file}" ]]; then
+        cp "${jq_file}" /usr/sbin/jq
+        chmod +x /usr/sbin/jq
+        log_debug "jq binary installed successfully."
+    else
+        log_error "jq binary file not found after download."
+    fi
+fi
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
 log_debug "Printing Loaded Configs..."
@@ -261,11 +286,16 @@ process_each_step() {
             ;;
         15)
             run_ok_with_reason "${command} download" "${command}(${step}) Downloading..." "Downloading"
+            local download_result=$?
             log_debug "$!"
-            run_ok_with_reason "${command} install" "${command}(${step}) Installing..." "Installing"
-            log_debug "$!"
-            run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
-            log_debug "$!"
+            if [[ ${download_result} -ne 0 ]]; then
+                log_error "${command}(${step}) Download failed. Skipping install and run."
+            else
+                run_ok_with_reason "${command} install" "${command}(${step}) Installing..." "Installing"
+                log_debug "$!"
+                run_ok_with_reason "${command} run" "${command}(${step}) Running..." "Running"
+                log_debug "$!"
+            fi
             ;; # package file does not exist, download and install it
         20)
             log_info "${command}(${step}) Skiped..."
