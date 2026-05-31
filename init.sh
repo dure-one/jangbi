@@ -128,15 +128,26 @@ else
     arch1=${3:-${arch1_}}
     [[ ${arch1} == "amd64" ]] && comparch="-64-"
     [[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
-    _download_github_pkgs jqlang/jq jq-linux-* "${arch1}" > /dev/null 2>&1 || log_error "jq download failed."
-    # Find the downloaded jq file and copy it
-    jq_file=$(find ${JANGBI_IT}/pkgs -name "jq-linux-*${arch1}*" -type f 2>/dev/null | head -1)
-    if [[ -n "${jq_file}" ]]; then
-        cp "${jq_file}" /usr/sbin/jq
-        chmod +x /usr/sbin/jq
-        log_debug "jq binary installed successfully."
+
+    # Try to download jq
+    if _download_github_pkgs jqlang/jq jq-linux-* "${arch1}" > /dev/null 2>&1; then
+        # Find the downloaded jq file and copy it
+        jq_file=$(find ${JANGBI_IT}/pkgs -name "jq-linux-*${arch1}*" -type f 2>/dev/null | head -1)
+        if [[ -n "${jq_file}" ]]; then
+            cp "${jq_file}" /usr/sbin/jq
+            chmod +x /usr/sbin/jq
+            log_debug "jq binary installed successfully."
+        else
+            log_error "jq binary file not found after download."
+        fi
     else
-        log_error "jq binary file not found after download."
+        # Download failed - try installing from package manager as fallback
+        log_warning "jq download from GitHub failed (possibly rate limited). Trying apt install..."
+        if apt install -qy jq > /dev/null 2>&1; then
+            log_debug "jq installed from apt repository."
+        else
+            log_error "Failed to install jq from both GitHub and apt. Some features may not work."
+        fi
     fi
 fi
 
@@ -144,19 +155,23 @@ fi
 log_debug "Printing Loaded Configs..."
 rm ./enabled/* 2>/dev/null # remove all enabled plugins
 prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=() processed=()
-ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash"
-source $(find ./enabled|grep bash|grep "os-systemd") # load plugin
+ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash" 2>/dev/null
+plugin_file=$(find ./enabled -type l -name "*os-systemd.plugin.bash" 2>/dev/null | head -1)
+[[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 if [[ ${RUN_OS_SYSTEMD} == 0 || ${RUN_OS_SYSTEMD} == 2 ]]; then # case 0 - disable completely, 2 - only journald
     postnet+=("net-ifupdown" "net-iptables")
-    ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash"
-    source $(find ./enabled|grep bash|grep "net-ifupdown") # load plugin
+    ln -s "../plugins/available/net-ifupdown.plugin.bash" "./enabled/250---net-ifupdown.plugin.bash" 2>/dev/null
+    plugin_file=$(find ./enabled -type l -name "*net-ifupdown.plugin.bash" 2>/dev/null | head -1)
+    [[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 else # case 1 full systemd
     postnet+=("net-netplan" "net-iptables")
-    ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash"
-    source $(find ./enabled|grep bash|grep "net-netplan") # load plugin
+    ln -s "../plugins/available/net-netplan.plugin.bash" "./enabled/250---net-netplan.plugin.bash" 2>/dev/null
+    plugin_file=$(find ./enabled -type l -name "*net-netplan.plugin.bash" 2>/dev/null | head -1)
+    [[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 fi
-ln -s "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptables.plugin.bash"
-source $(find ./enabled|grep bash|grep "net-iptables") # load plugin
+ln -s "../plugins/available/net-iptables.plugin.bash" "./enabled/250---net-iptables.plugin.bash" 2>/dev/null
+plugin_file=$(find ./enabled -type l -name "*net-iptables.plugin.bash" 2>/dev/null | head -1)
+[[ -n "${plugin_file}" && -f "${plugin_file}" ]] && source "${plugin_file}" # load plugin
 predefined=("os-systemd" "net-ifupdown" "net-netplan" "net-iptables")
 JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 # shellcheck disable=SC1102
@@ -174,7 +189,13 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 [[ $(find ./enabled|grep -c ${load_plugin}) -lt 1 ]] && \
                     ln -s "../plugins/available/${load_plugin}.plugin.bash" "./enabled/250---${load_plugin}.plugin.bash"
 
-                source $(find ./enabled|grep bash|grep "${load_plugin}") # load plugin
+                plugin_file=$(find ./enabled -type l -name "*${load_plugin}.plugin.bash" 2>/dev/null | head -1)
+                if [[ -n "${plugin_file}" && -f "${plugin_file}" ]]; then
+                    source "${plugin_file}" # load plugin
+                else
+                    log_error "Plugin file not found for ${load_plugin}"
+                    continue
+                fi
                 group_txt=$(typeset -f -- "${load_plugin}"|metafor group)
                 deps_txt=$(typeset -f -- "${load_plugin}"|metafor deps)
                 [[ ${group_txt// /} == "postnet" && ${#deps_txt[@]} -eq 0 ]] && postnet+=(${load_plugin})
