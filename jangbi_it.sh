@@ -483,7 +483,7 @@ _download_apt_pkgs() { # _download_apt_pkgs darkstat
 }
 
 _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscrypt-proxy-linux*.tar.gz
-  local arch1 arch2 
+  local arch1 arch2
   arch1=$(dpkg --print-architecture)
   arch2=$(arch)
   [[ -n ${3} ]] && arch1=${3}
@@ -495,7 +495,15 @@ _download_github_pkgs(){ # _download_github_pkgs DNSCrypt/dnscrypt-proxy dnscryp
   [[ $(find ${JANGBI_IT}/pkgs/$2 2>/dev/null|wc -l) -gt 0 ]] && rm ${JANGBI_IT}/pkgs/$2
   pkgfileprefix=$(_trim_string ${pkgfilefix[0],,})
   pkgfilepostfix=$(_trim_string ${pkgfilefix[1],,})
-  local possible_list=$(curl -sSL "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
+
+  # Use GitHub token if available to avoid rate limiting
+  local curl_cmd="curl -sSL"
+  if [[ -n "${GITHUB_TOKEN}" ]]; then
+    curl_cmd="curl -sSL -H \"Authorization: Bearer ${GITHUB_TOKEN}\""
+    log_trace "Using GitHub token for API request"
+  fi
+
+  local possible_list=$(eval ${curl_cmd} "${pkgurl}" | jq -r '.assets[] | select(.name | contains("'${arch1}'") or contains("'${arch2}'")) | .browser_download_url')
   # log_debug "List : ${possible_list}"
   IFS=$'\n' read -rd '' -a durls <<<"$possible_list"
 

@@ -152,7 +152,7 @@ else
 fi
 
 # printing loaded config && sync .config value to jangbi-it plugin enable
-log_debug "Printing Loaded Configs..."
+# Save config to .config.last instead of printing to log
 rm ./enabled/* 2>/dev/null # remove all enabled plugins
 prenet=("os-systemd") prenetdeps=() postnet=() postnetdeps=() processed=()
 ln -s "../plugins/available/os-systemd.plugin.bash" "./enabled/250---os-systemd.plugin.bash" 2>/dev/null
@@ -177,6 +177,12 @@ JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 # shellcheck disable=SC1102
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
 IFS=$'\n' read -d "" -ra lvars <<< "${loaded_vars}" # split
+
+# Initialize .config.last file
+echo "# Complete rendered configuration with parent hierarchy" > .config.last
+echo "# Generated at: $(date)" >> .config.last
+echo "" >> .config.last
+
 for((j=0;j<${#JB_VARS[@]};j++)){
     for((k=0;k<${#lvars[@]};k++)){
         if [[ ${lvars[k]} == *"${JB_VARS[j]}"* ]]; then
@@ -215,12 +221,16 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 # --install
                 [[ ${IN_OPTION} = "enabled" ]] || [[ ${IN_OPTION} = "${load_plugin}" ]] && ${load_plugin} install && processed+=(${load_plugin})
             fi
-            log_debug "${lvars[k]} $group_txt" # log loaded vars
+            # Save to .config.last instead of logging
+            echo "${lvars[k]} $group_txt" >> .config.last
             unset group_txt
             break
         fi
     }
 }
+
+# Log that config was saved to file
+log_debug "Configuration saved to .config.last ($(wc -l < .config.last) lines)"
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
 # exit on check, run, download, install
