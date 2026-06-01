@@ -60,3 +60,4 @@ pyvenv.cfg
 
 Dockerfile*
 .dockerignore
+wget-log*
