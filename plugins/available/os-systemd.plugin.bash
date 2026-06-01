@@ -1,10 +1,10 @@
 ## \brief systemd service management configurations. <div style="text-align: right"> group:**prenet** | runtype:**none** | deps: **-** | port: **-**</div><br/>
-## \desc 
+## \desc
 ## This tool helps install, configure, and manage systemd service management for modern Linux system initialization and service control.
 # It provides automated installation, configuration management, and systemd optimization capabilities.
 # The tool manages systemd services, timers, targets, and system initialization components while
 # providing options for minimal systemd deployments and service customization.
-## 
+##
 ## # Jangbi Configs
 ## ```bash title="/opt/jangbi/.config"
 ## RUN_OS_SYSTEMD=1 # enable systemd configurations (0=disable, 1=full, 2=journald only)
@@ -182,11 +182,11 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
     log_debug "Checking ${DMNNAME}..."
 
     # check package file exists
-    
+
     # check global variable
     [[ -z ${RUN_OS_SYSTEMD} ]] && \
         log_error "RUN_OS_SYSTEMD variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
-    
+
     # check disabled systemd components installed
     # 0 - disable completely, 1 - full systemd, 2 - only journald
     case "${RUN_OS_SYSTEMD}" in
@@ -196,22 +196,22 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
                 log_info "systemd-networkd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
             [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-journald") -lt 1 ]] && \
                 log_info "systemd-journald is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-            
+
             # check if disable completely. if systemd-journald is not running, force run install
             [[ $(systemctl status systemd-journald 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -gt 0 ]] && \
                 log_info "systemd-journald is not running." && running_status=5
-            ;; 
+            ;;
         2)
             # 2 - only journald
             [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && \
                 log_info "isc-dhcp-client is not installed." && [[ $running_status -lt 5 ]] && running_status=5
             [[ $(dpkg -l|awk '{print $2}'|grep -c "systemd-journald") -lt 1 ]] && \
                 log_info "systemd-journald is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-            
+
             # check if not full systemd. if systemd-networkd is running, force run install
             [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
                 log_info "systemd-networkd is running." && running_status=5
-            
+
             # check if disable completely. if systemd-journald is not running, force run install
             [[ $(systemctl status systemd-journald 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -gt 0 ]] && \
                 log_info "systemd-journald is not running." && running_status=5
@@ -220,7 +220,7 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
             # 0 - disable completely
             [[ $(dpkg -l|awk '{print $2}'|grep -c "isc-dhcp-client") -lt 1 ]] && \
                 log_info "isc-dhcp-client is not installed." && [[ $running_status -lt 5 ]] && running_status=5
-            
+
             # check if not full systemd. if systemd-networkd is running, force run install
             [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
                 log_info "systemd-networkd is running." && running_status=5
@@ -251,12 +251,45 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     if ! command -v systemctl &>/dev/null; then
         return 0
     fi
+
+    # STEP 1: Install replacement networking packages FIRST (while network still works)
+    log_debug "Installing replacement networking packages before disabling systemd-networkd"
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+
+    # Install networking packages while systemd-networkd is still active
+    if ! apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger; then
+        log_error "Failed to install networking packages. Network transition aborted."
+        return 1
+    fi
+
+    # Verify critical packages are installed before proceeding
+    if ! command -v ifup &>/dev/null || ! command -v dhclient &>/dev/null; then
+        log_error "ifupdown or isc-dhcp-client not properly installed. Aborting to prevent network loss."
+        return 1
+    fi
+
+    # STEP 2: Configure ifupdown networking (prepare the replacement)
+    log_debug "Configuring ifupdown networking before transition"
+    # Note: The net-ifupdown plugin should handle /etc/network/interfaces generation
+    # This is just ensuring the service is ready
+    if command -v systemctl &>/dev/null; then
+        systemctl enable networking.service 2>/dev/null || log_warning "Could not enable networking.service yet"
+    fi
+
+    # STEP 3: Now safe to remove rare packages
     if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utils v4l-utils v4l2loopback-dkms v4l2loopback-utils
-        apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
+        apt purge -yq modemmanager network-manager ntpsec polkitd xsane cups avahi-daemon avahi-autoipd
     fi
-    # disable systemd services
+
+    # STEP 4: Remove systemd services (but NOT wpasupplicant, we just installed it)
     apt purge -yq systemd-timesyncd systemd-resolved rsyslog
+
+    # STEP 5: Disable and mask systemd networking services
+    # At this point ifupdown is installed and can take over
+    log_debug "Disabling systemd-networkd (replacement networking is installed)"
     if command -v systemctl &>/dev/null; then
         systemctl stop \
             systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket systemd-journal-flush.service \
@@ -270,12 +303,7 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
         systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
     fi
 
-    export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger
-
-    # disable journald storage
+    # STEP 6: Configure journald storage
     sed -i 's/#Storage=auto/Storage=none # JB/' /etc/systemd/journald.conf
     sed -i 's/Storage=.*/Storage=none # JB/' /etc/systemd/journald.conf
     sed -i 's/#MaxLevelStore=debug/MaxLevelStore=warning # JB/' /etc/systemd/journald.conf
@@ -289,23 +317,60 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
     sed -i 's/#MaxLevelWall=emerg/MaxLevelWall=crit # JB/' /etc/systemd/journald.conf
     sed -i 's/MaxLevelWall=.*/MaxLevelWall=crit # JB/' /etc/systemd/journald.conf
 
-    # disable fsck and show details on boot
-    sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="fsck.mode=skip" # JB/' /etc/default/grub
-    update-grub
-
-    if command -v systemctl &>/dev/null; then
-        systemctl enable networking.service
+    # STEP 7: Configure GRUB (if it exists)
+    if [[ -f /etc/default/grub ]]; then
+        sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT=.*/GRUB_CMDLINE_LINUX_DEFAULT="fsck.mode=skip" # JB/' /etc/default/grub
+        command -v update-grub &>/dev/null && update-grub || log_warning "update-grub not available, skipping"
+    else
+        log_debug "GRUB not installed, skipping grub configuration"
     fi
+
+    # STEP 8: Final verification - ensure networking.service is enabled
+    if command -v systemctl &>/dev/null; then
+        systemctl enable networking.service || log_error "Failed to enable networking.service"
+    fi
+
+    log_debug "Network transition complete: systemd-networkd -> ifupdown"
 }
 
 function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd, 2 - only journald
     log_debug "Starting os-systemd only journald(RUN_OS_SYSTEMD=${RUN_OS_SYSTEMD})"
+
+    # STEP 1: Install replacement packages FIRST (while network still works)
+    log_debug "Installing replacement networking packages before disabling systemd-networkd"
+    export DEBIAN_FRONTEND=noninteractive
+    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+
+    # Install networking packages while systemd-networkd is still active
+    if ! apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger; then
+        log_error "Failed to install networking packages. Network transition aborted."
+        return 1
+    fi
+
+    # Verify critical packages are installed before proceeding
+    if ! command -v ifup &>/dev/null || ! command -v dhclient &>/dev/null; then
+        log_error "ifupdown or isc-dhcp-client not properly installed. Aborting to prevent network loss."
+        return 1
+    fi
+
+    # STEP 2: Enable networking.service before disabling systemd-networkd
+    log_debug "Enabling networking.service before transition"
+    if command -v systemctl &>/dev/null; then
+        systemctl enable networking.service 2>/dev/null || log_warning "Could not enable networking.service yet"
+    fi
+
+    # STEP 3: Remove rare packages
     if [[ ${SYSTEMD_REMOVERAREPKGS} -gt 0 ]]; then
         apt purge -yq alsa-utilsv v4l-utils v4l2loopback-dkms v4l2loopback-utils
-        apt purge -yq modemmanager network-manager ntpsec polkitd wpasupplicant xsane cups avahi-daemon avahi-autoipd
+        apt purge -yq modemmanager network-manager ntpsec polkitd xsane cups avahi-daemon avahi-autoipd
     fi
-    # disable systemd services
+
+    # STEP 4: Remove systemd services
     apt purge -yq systemd-timesyncd systemd-resolved
+
+    # STEP 5: NOW safe to disable systemd-networkd (replacement is ready)
+    log_debug "Disabling systemd-networkd (replacement networking is installed)"
     if command -v systemctl &>/dev/null; then
         systemctl stop \
             systemd-logind.service \
@@ -317,13 +382,7 @@ function __os-systemd_only_journald { # 0 - disable completely, 1 - full systemd
         systemctl mask systemd-journald systemd-journald-dev-log.socket systemd-journald-audit.socket systemd-journald.socket
     fi
 
-    export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-    apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger
-    if command -v systemctl &>/dev/null; then
-        systemctl enable networking.service
-    fi
+    log_debug "Network transition complete: systemd-networkd -> ifupdown"
 }
 
 function __os-systemd_full_systemd { # 0 - disable completely, 1 - full systemd, 2 - only journald
