@@ -84,6 +84,12 @@ function __os-kparams_help {
     echo "   run       Run tasks"
 }
 
+function __os-kparams_download {
+    log_debug "Downloading ${DMNNAME}..."
+    # No downloads needed for kernel parameters configuration
+    return 0
+}
+
 function __os-kparams_install {
     log_debug "Installing ${DMNNAME}..."
 }
