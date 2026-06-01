@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([d799a23](https://github.com/dure-one/jangbi/commit/d799a2347ce0ec81426129dbfcdc24f25dd6eaf4) by nikescar).
+- Add changelog automatically ([cc81a6b](https://github.com/dure-one/jangbi/commit/cc81a6b3e7e6cfc861a8e4aa95de800d38c9198f) by nikescar).
 
 ### Fixed
 
+- fix. kparam download error. ([6988b80](https://github.com/dure-one/jangbi/commit/6988b8039711e94145eb70005e616a7afa00c66b) by Woojae, Park).
 - fix. cmd fail when systemctl cmd not exist. ([15fe1e0](https://github.com/dure-one/jangbi/commit/15fe1e03de9aec213a7bd8aa6c14958c628e2321) by Woojae, Park).
 - fix. add github token for github api. ([2604779](https://github.com/dure-one/jangbi/commit/2604779924e3b81ea52c51f4aed8f04cc77cabe9) by Woojae, Park).
 - fix. iptables rules for each app and change enabled app refresh method. ([bb9c839](https://github.com/dure-one/jangbi/commit/bb9c839abd306b21a47684b044db618fffaf92df) by Woojae, Park).
