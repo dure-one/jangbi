@@ -252,12 +252,26 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
         return 0
     fi
 
+    # STEP 0: Fix APT sources conflict before attempting installation
+    log_debug "Checking APT sources configuration"
+    export DEBIAN_FRONTEND=noninteractive
+    
+    # Remove conflicting extrepo debian_official if it exists
+    if [[ -f /etc/apt/sources.list.d/extrepo_debian_official.sources ]]; then
+        log_debug "Removing conflicting extrepo debian_official configuration"
+        extrepo disable debian_official 2>/dev/null || rm -f /etc/apt/sources.list.d/extrepo_debian_official.sources
+    fi
+    
+    # Update package lists
+    log_debug "Updating package lists"
+    apt update -qy || {
+        log_error "Failed to update package lists"
+        return 1
+    }
+
     # STEP 1: Install replacement networking packages FIRST (while network still works)
     log_debug "Installing replacement networking packages before disabling systemd-networkd"
-    export DEBIAN_FRONTEND=noninteractive
-    [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
-    [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-
+    
     # Install networking packages while systemd-networkd is still active
     if ! apt install -qy isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger; then
         log_error "Failed to install networking packages. Network transition aborted."
@@ -269,6 +283,8 @@ function __os-systemd_disable_completely { # 0 - disable completely(ifupdown), 1
         log_error "ifupdown or isc-dhcp-client not properly installed. Aborting to prevent network loss."
         return 1
     fi
+    
+    log_debug "Network packages installed successfully: ifupdown, isc-dhcp-client, wpasupplicant"
 
     # STEP 2: Configure ifupdown networking (prepare the replacement)
     log_debug "Configuring ifupdown networking before transition"
