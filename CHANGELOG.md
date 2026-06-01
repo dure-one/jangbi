@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([cc81a6b](https://github.com/dure-one/jangbi/commit/cc81a6b3e7e6cfc861a8e4aa95de800d38c9198f) by nikescar).
+- Add changelog automatically ([d5d9ae1](https://github.com/dure-one/jangbi/commit/d5d9ae1fcaad936bba65a575ef03d35a17e8195c) by nikescar).
 
 ### Fixed
 
+- fix. reorder systemd reset prevent connection droping. ([090c673](https://github.com/dure-one/jangbi/commit/090c673961fab042d655cbe2e33c8041f96b203c) by Woojae, Park).
 - fix. kparam download error. ([6988b80](https://github.com/dure-one/jangbi/commit/6988b8039711e94145eb70005e616a7afa00c66b) by Woojae, Park).
 - fix. cmd fail when systemctl cmd not exist. ([15fe1e0](https://github.com/dure-one/jangbi/commit/15fe1e03de9aec213a7bd8aa6c14958c628e2321) by Woojae, Park).
 - fix. add github token for github api. ([2604779](https://github.com/dure-one/jangbi/commit/2604779924e3b81ea52c51f4aed8f04cc77cabe9) by Woojae, Park).
