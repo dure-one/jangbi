@@ -160,9 +160,19 @@ function __net-bandwhich_run {
 
     log_debug "Starting bandwhich monitoring on interface ${NETWORK_INTERFACE}"
 
-    # nohup bandwhich -r -s -i "${NETWORK_INTERFACE}" 2>&1 | grep --line-buffered -v Refreshing | grep --line-buffered -v "NO TRAFFIC" | sed '/^$/d' | perl -pe 's/connection: <(\d+)> <([^>]+)>:(\d+) => ([^ ]+) \((\w+)\) up\/down Bps: (\d+)\/(\d+) process: "([^"]+)".*$/\1|\2:\3 => \4|\5|\6|\7|\8/' | awk -F'|' 'NF == 6 { ts = $1; conn = $2; proto = $3; up = $4; down = $5; proc = $6; if (proc == "<UNKNOWN>") { proc_display = "?" } else { proc_display = proc }; printf "\033[36m%s\033[0m \033[35m%-15s\033[0m \033[90m[%s]\033[0m \033[32m↑%-6s\033[0m \033[31m↓%-6s\033[0m %-55s\n", ts, proc_display, proto, up, down, conn; fflush() }' >> /var/log/bandwhich/bandwhich.log &
-
-    nohup bandwhich -r -s -i "${NETWORK_INTERFACE}" 2>&1 | grep --line-buffered -v Refreshing | grep --line-buffered -v "NO TRAFFIC" | sed '/^$/d' | perl -pe 's/connection: <(\d+)> <([^>]+)>:(\d+) => ([^ ]+) \((\w+)\) up\/down Bps: (\d+)\/(\d+) process: "([^"]+)".*$/\1|\2:\3 => \4|\5|\6|\7|\8/' | awk -F'|' 'NF == 6 { ts = $1; conn = $2; proto = $3; up = $4; down = $5; proc = $6; if (proc == "<UNKNOWN>") { proc_display = "?" } else { proc_display = proc }; printf "%s %-15s [%s] ↑%-6s ↓%-6s %-55s\n", ts, proc_display, proto, up, down, conn; fflush() }' >> /var/log/bandwhich/bandwhich.log &
+    # Run bandwhich with output pipeline in a subshell to ensure proper backgrounding
+    ( bandwhich -r -s -i "${NETWORK_INTERFACE}" 2>&1 | \
+      grep --line-buffered -v Refreshing | \
+      grep --line-buffered -v "NO TRAFFIC" | \
+      sed '/^$/d' | \
+      perl -pe 's/connection: <(\d+)> <([^>]+)>:(\d+) => ([^ ]+) \((\w+)\) up\/down Bps: (\d+)\/(\d+) process: "([^"]+)".*$/\1|\2:\3 => \4|\5|\6|\7|\8/' | \
+      awk -F'|' 'NF == 6 {
+        ts = $1; conn = $2; proto = $3; up = $4; down = $5; proc = $6;
+        if (proc == "<UNKNOWN>") { proc_display = "?" } else { proc_display = proc };
+        printf "%s %-15s [%s] ↑%-6s ↓%-6s %-55s\n", ts, proc_display, proto, up, down, conn;
+        fflush()
+      }' >> /var/log/bandwhich/bandwhich.log \
+    ) &
 
     sleep 1
     pidof bandwhich && return 0 || \
