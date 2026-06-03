@@ -7,12 +7,12 @@
 ## # Jangbi Configs
 ## ```bash title="/opt/jangbi/.config"
 ## RUN_NET_BANDWHICH=1 # enable bandwhich monitoring
-## BANDWHICH_TARGET="1.1.1.1" # target IP for monitoring
+## NETWORK_INTERFACE="eth0" # network interface to monitor (default: auto-detect)
 ## ```
 ## # Check if running
 ## ```bash title="bash command"
 ## $ ps aux|grep bandwhich
-## root     12345  0.0  0.0 123456 12345 ?        S    00:00   0:00 bandwhich -r -s -d 1.1.1.1 -c
+## root     12345  0.0  0.0 123456 12345 ?        S    00:00   0:00 bandwhich -r -s -i eth0
 ## $ pidof bandwhich
 ## 12345
 ## ```
@@ -34,7 +34,6 @@ function net-bandwhich {
     local PKGNAME="bandwhich"
     local DMNNAME="net-bandwhich"
     BASH_IT_LOG_PREFIX="net-bandwhich: "
-    BANDWHICH_TARGET="${BANDWHICH_TARGET:-"1.1.1.1"}"
     if _check_config_reload; then
         _root_only || exit 1
         _distname_check || exit 1
@@ -144,7 +143,7 @@ function __net-bandwhich_check { # running_status 0 installed, running_status 5 
     [[ $(which bandwhich 2>/dev/null|wc -l) -lt 1 ]] && \
         log_info "bandwhich is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
-    [[ $(pidof bandwhich) -gt 0 ]] && \
+    [[ -n $(pidof bandwhich) ]] && \
         log_info "bandwhich is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
@@ -155,9 +154,17 @@ function __net-bandwhich_run {
 
     pidof bandwhich | xargs kill &>/dev/null
 
-    log_debug "Starting bandwhich monitoring for ${BANDWHICH_TARGET}"
-    bandwhich -r -s -d "${BANDWHICH_TARGET}" -c 2>&1 | grep -v Refreshing | grep -v "NO TRAFFIC" >> /var/log/bandwhich/bandwhich.log &
+    # Determine network interface
+    local NETWORK_INTERFACE=${NETWORK_INTERFACE:-$(ip route | grep default | awk '{print $5}' | head -1)}
+    [[ -z ${NETWORK_INTERFACE} ]] && NETWORK_INTERFACE="eth0"
 
+    log_debug "Starting bandwhich monitoring on interface ${NETWORK_INTERFACE}"
+
+    # nohup bandwhich -r -s -i "${NETWORK_INTERFACE}" 2>&1 | grep --line-buffered -v Refreshing | grep --line-buffered -v "NO TRAFFIC" | sed '/^$/d' | perl -pe 's/connection: <(\d+)> <([^>]+)>:(\d+) => ([^ ]+) \((\w+)\) up\/down Bps: (\d+)\/(\d+) process: "([^"]+)".*$/\1|\2:\3 => \4|\5|\6|\7|\8/' | awk -F'|' 'NF == 6 { ts = $1; conn = $2; proto = $3; up = $4; down = $5; proc = $6; if (proc == "<UNKNOWN>") { proc_display = "?" } else { proc_display = proc }; printf "\033[36m%s\033[0m \033[35m%-15s\033[0m \033[90m[%s]\033[0m \033[32m↑%-6s\033[0m \033[31m↓%-6s\033[0m %-55s\n", ts, proc_display, proto, up, down, conn; fflush() }' >> /var/log/bandwhich/bandwhich.log &
+
+    nohup bandwhich -r -s -i "${NETWORK_INTERFACE}" 2>&1 | grep --line-buffered -v Refreshing | grep --line-buffered -v "NO TRAFFIC" | sed '/^$/d' | perl -pe 's/connection: <(\d+)> <([^>]+)>:(\d+) => ([^ ]+) \((\w+)\) up\/down Bps: (\d+)\/(\d+) process: "([^"]+)".*$/\1|\2:\3 => \4|\5|\6|\7|\8/' | awk -F'|' 'NF == 6 { ts = $1; conn = $2; proto = $3; up = $4; down = $5; proc = $6; if (proc == "<UNKNOWN>") { proc_display = "?" } else { proc_display = proc }; printf "%s %-15s [%s] ↑%-6s ↓%-6s %-55s\n", ts, proc_display, proto, up, down, conn; fflush() }' >> /var/log/bandwhich/bandwhich.log &
+
+    sleep 1
     pidof bandwhich && return 0 || \
         log_error "bandwhich failed to run." && return 0
 }
