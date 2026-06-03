@@ -152,7 +152,7 @@ function __net-bandwhich_check { # running_status 0 installed, running_status 5 
 function __net-bandwhich_run {
     log_debug "Running ${DMNNAME}..."
 
-    pidof bandwhich | xargs kill &>/dev/null
+    pidof bandwhich | xargs kill -9 &>/dev/null
 
     # Determine network interface
     local NETWORK_INTERFACE=${NETWORK_INTERFACE:-$(ip route | grep default | awk '{print $5}' | head -1)}
