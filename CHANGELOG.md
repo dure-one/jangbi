@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([8cce58b](https://github.com/dure-one/jangbi/commit/8cce58b764d51fee7661a6ce5241812baa583e08) by nikescar).
+- Add changelog automatically ([c0c32dc](https://github.com/dure-one/jangbi/commit/c0c32dc9f00c99ec62b0a1f6e068d323b82e7d25) by nikescar).
 
 ### Fixed
 
+- fix. change bandwhich process termination to force. ([577a794](https://github.com/dure-one/jangbi/commit/577a794473207dfc09c943520a2b039b718917e5) by Woojae, Park).
 - fix. change bandwhich log output more efficient way. ([f0fd267](https://github.com/dure-one/jangbi/commit/f0fd2675ca3e1c206adb28490b69476fa75259ea) by Woojae, Park).
 - fix. reorder systemd reset prevent connection droping. ([090c673](https://github.com/dure-one/jangbi/commit/090c673961fab042d655cbe2e33c8041f96b203c) by Woojae, Park).
 - fix. solve extrepo problem. ([6a3c54d](https://github.com/dure-one/jangbi/commit/6a3c54d1135a13a553c46987f49d1e80560217ee) by Woojae, Park).
