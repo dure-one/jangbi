@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Ensure system utilities in /sbin and /usr/sbin are available
+export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Variables.html
 # BASH_IT_LOG_LEVEL=6
 BASH_IT_LOG_PREFIX="core: main: "

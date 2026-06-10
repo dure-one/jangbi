@@ -118,9 +118,17 @@ function __os-conf_install {
     if [[ -n ${CONF_SWAPSIZE} && $(awk '{ print $3 }' < "/proc/swaps"|grep -v Size) -lt 1000000 ]]; then
         if [[ ! -f ${SWAP_PATH}/swapfile ]]; then # https://askubuntu.com/a/1162472
             log_debug "Trying to do os-conf, set swap size to ${CONF_SWAPSIZE} at ${SWAP_PATH}."
-            truncate -s "${CONF_SWAPSIZE}" "${SWAP_PATH}/swapfile"
-            # fallocate -x -l "${CONF_SWAPSIZE}" "${SWAP_PATH}/swapfile" 1>/dev/null 2>&1
-            dd if=/dev/zero "of=${SWAP_PATH}/swapfile" bs=1M count=4096 status=progress
+            # Convert CONF_SWAPSIZE to MB for dd (e.g., 8G -> 8192)
+            local size_mb
+            if [[ ${CONF_SWAPSIZE} =~ ^([0-9]+)G$ ]]; then
+                size_mb=$((${BASH_REMATCH[1]} * 1024))
+            elif [[ ${CONF_SWAPSIZE} =~ ^([0-9]+)M$ ]]; then
+                size_mb=${BASH_REMATCH[1]}
+            else
+                log_error "Invalid CONF_SWAPSIZE format: ${CONF_SWAPSIZE}. Use format like 8G or 8192M"
+                return 1
+            fi
+            dd if=/dev/zero "of=${SWAP_PATH}/swapfile" bs=1M count=${size_mb} status=progress
             chown root:root "${SWAP_PATH}/swapfile"
             chmod 0600 "${SWAP_PATH}/swapfile"
             mkswap "${SWAP_PATH}/swapfile"
