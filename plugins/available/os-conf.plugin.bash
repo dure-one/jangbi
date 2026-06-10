@@ -113,19 +113,20 @@ function __os-conf_install {
     ln -s "/usr/share/zoneinfo/${CONF_TIMEZONE}" "/etc/localtime"
 
     # C. swap enable
-    # * dure_deploy_path should have more space than swap size
+    # * swap path should have more space than swap size
+    local SWAP_PATH="${CONF_SWAPPATH:-${JB_DEPLOY_PATH}}"
     if [[ -n ${CONF_SWAPSIZE} && $(awk '{ print $3 }' < "/proc/swaps"|grep -v Size) -lt 1000000 ]]; then
-        if [[ ! -f ${JB_DEPLOY_PATH}/swapfile ]]; then # https://askubuntu.com/a/1162472
-            log_debug "Trying to do os-conf, set swap size to ${CONF_SWAPSIZE}."
-            truncate -s "${CONF_SWAPSIZE}" "${JB_DEPLOY_PATH}/swapfile"
-            # fallocate -x -l "${CONF_SWAPSIZE}" "${JB_DEPLOY_PATH}/swapfile" 1>/dev/null 2>&1
-            dd if=/dev/zero "of=${JB_DEPLOY_PATH}/swapfile" bs=1M count=4096 status=progress
-            chown root:root "${JB_DEPLOY_PATH}/swapfile"
-            chmod 0600 "${JB_DEPLOY_PATH}/swapfile"
-            mkswap "${JB_DEPLOY_PATH}/swapfile"
+        if [[ ! -f ${SWAP_PATH}/swapfile ]]; then # https://askubuntu.com/a/1162472
+            log_debug "Trying to do os-conf, set swap size to ${CONF_SWAPSIZE} at ${SWAP_PATH}."
+            truncate -s "${CONF_SWAPSIZE}" "${SWAP_PATH}/swapfile"
+            # fallocate -x -l "${CONF_SWAPSIZE}" "${SWAP_PATH}/swapfile" 1>/dev/null 2>&1
+            dd if=/dev/zero "of=${SWAP_PATH}/swapfile" bs=1M count=4096 status=progress
+            chown root:root "${SWAP_PATH}/swapfile"
+            chmod 0600 "${SWAP_PATH}/swapfile"
+            mkswap "${SWAP_PATH}/swapfile"
         fi
         swapoff -a
-        swapon "${JB_DEPLOY_PATH}/swapfile"
+        swapon "${SWAP_PATH}/swapfile"
         swapon -s
     fi
 
@@ -260,11 +261,12 @@ function __os-conf_download {
     return 0
 }
 
-function __os-conf_uninstall { 
+function __os-conf_uninstall {
     log_debug "Uninstalling ${DMNNAME}..."
     # remove swapfile
+    local SWAP_PATH="${CONF_SWAPPATH:-${JB_DEPLOY_PATH}}"
     swapoff -a
-    rm -rf "${JB_DEPLOY_PATH}/swapfile"
+    rm -rf "${SWAP_PATH}/swapfile"
 
     # remove sudoers username lines
     sed -i "s|^${JB_USERID}.*||g" /etc/sudoers

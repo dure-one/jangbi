@@ -15,7 +15,8 @@ DIST_NAME="armbian_bookworm_aarch64"
 RUN_OS_CONF=1
 CONF_TIMEZONE="Asia/Seoul"
 ## if os system existing swap size is bigger than 1Gb, not replace existing one
-CONF_SWAPSIZE="1G"
+CONF_SWAPSIZE="8G"
+CONF_SWAPPATH="/media/mmcblk0p1"
 CONF_TIMESYNC="http" # ntp or http
 DNS_UPSTREAM="1.1.1.1"
 
