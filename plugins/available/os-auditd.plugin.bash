@@ -97,20 +97,95 @@ function __os-auditd_help {
 function __os-auditd_install {
     log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
-    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+
+    # Default to offline install if INTERNET_AVAIL is not set
+    local internet_avail="${INTERNET_AVAIL:-0}"
+
+    if [[ ${internet_avail} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
         apt install -qy auditd
     else
         local filepat="./pkgs/auditd*.deb"
         local pkglist="./pkgs/auditd.pkgs"
-        [[ $(find ${filepat}|wc -l) -lt 1 ]] && apt update -qy && __os-auditd_download
+        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-auditd_download
+
+        # Get system's primary architecture
+        local sys_arch=$(dpkg --print-architecture)
+
         pkgslist_down=()
+        # Package list is space-separated on one line, convert to array
+        # Remove duplicates by using associative array
+        declare -A seen_pkgs
         while read -r pkg; do
-            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
-        done < ${pkglist}
+            if [[ -n "$pkg" ]]; then
+                # Handle architecture-specific packages (e.g., mawk:i386)
+                local pkgname="${pkg%%:*}"  # Remove :arch suffix
+                local pkgarch="${pkg#*:}"   # Extract arch if present
+
+                if [[ "$pkgarch" != "$pkg" ]] && [[ -n "$pkgarch" ]]; then
+                    # Package has architecture suffix
+                    # Only include if it matches system architecture
+                    if [[ "$pkgarch" == "$sys_arch" ]]; then
+                        for file in ./pkgs/${pkgname}_*_${pkgarch}.deb; do
+                            if [[ -f "$file" ]] && [[ -z "${seen_pkgs[$file]}" ]]; then
+                                pkgslist_down+=("$file")
+                                seen_pkgs[$file]=1
+                            fi
+                        done
+                    else
+                        log_debug "Skipping foreign architecture package: ${pkg} (system is ${sys_arch})"
+                    fi
+                else
+                    # No architecture suffix, find packages matching system arch
+                    for file in ./pkgs/${pkgname}_*_${sys_arch}.deb; do
+                        if [[ -f "$file" ]] && [[ -z "${seen_pkgs[$file]}" ]]; then
+                            pkgslist_down+=("$file")
+                            seen_pkgs[$file]=1
+                        fi
+                    done
+                    # If no arch-specific package found, try all-architecture package
+                    if [[ -z "${seen_pkgs[*]}" ]]; then
+                        for file in ./pkgs/${pkgname}_*_all.deb; do
+                            if [[ -f "$file" ]] && [[ -z "${seen_pkgs[$file]}" ]]; then
+                                pkgslist_down+=("$file")
+                                seen_pkgs[$file]=1
+                            fi
+                        done
+                    fi
+                fi
+            fi
+        done < <(tr ' ' '\n' < ${pkglist})
+
+        if [[ ${#pkgslist_down[@]} -eq 0 ]]; then
+            log_error "No package files found to install."
+            return 1
+        fi
+
+        log_debug "Installing ${#pkgslist_down[@]} package(s): ${pkgslist_down[*]}"
+
         # shellcheck disable=SC2068
-        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
+        apt install -qy ${pkgslist_down[@]}
+        local apt_exit=$?
+
+        # Verify auditd and auditctl are available after installation
+        # Check both PATH and common sbin locations
+        if ! command -v auditd &>/dev/null && ! test -x /sbin/auditd && ! test -x /usr/sbin/auditd; then
+            log_error "auditd command not found after installation (apt exit code: ${apt_exit})."
+            log_error "Try running: apt install -y ${pkgslist_down[*]}"
+            return 1
+        fi
+        if ! command -v auditctl &>/dev/null && ! test -x /sbin/auditctl && ! test -x /usr/sbin/auditctl; then
+            log_error "auditctl command not found after installation (apt exit code: ${apt_exit})."
+            return 1
+        fi
+
+        log_info "Successfully installed ${DMNNAME}."
+    fi
+
+    # Create runit service if using runit init system
+    if command -v sv &>/dev/null && ! command -v systemctl &>/dev/null; then
+        __os-auditd_create_runit_service
     fi
 
     if ! __os-auditd_configgen; then # if gen config is different do apply
@@ -125,6 +200,11 @@ function __os-auditd_uninstall {
     if command -v systemctl &>/dev/null; then
         systemctl stop auditd
         systemctl disable auditd
+    elif command -v sv &>/dev/null; then
+        sv stop auditd
+        sv down auditd
+        # Remove runit service symlink
+        rm -f /etc/service/auditd /var/service/auditd /service/auditd 2>/dev/null || true
     else
         pgrep -x auditd | xargs -r kill -9
     fi
@@ -141,6 +221,11 @@ function __os-auditd_disable {
     if command -v systemctl &>/dev/null; then
         systemctl stop auditd
         systemctl disable auditd
+    elif command -v sv &>/dev/null; then
+        sv stop auditd
+        sv down auditd
+        # Remove runit service symlink to disable
+        rm -f /etc/service/auditd /var/service/auditd /service/auditd 2>/dev/null || true
     else
         pgrep -x auditd | xargs -r kill -9
     fi
@@ -197,32 +282,111 @@ function __os-auditd_run {
         systemctl restart auditd
         systemctl status auditd && return 0 || \
             log_error "auditd failed to run." && return 1
-    else
+    elif command -v sv &>/dev/null; then
+        # runit-based system (AntiX, Void Linux, etc.)
+        # Stop auditd first (kills any existing instances)
+        sv stop auditd 2>/dev/null || true
+        pkill -9 auditd 2>/dev/null || true
+        sleep 1
+
+        # Start auditd under runit supervision
+        sv start auditd
+        sleep 2
+
+        # Verify it's running
+        if sv status auditd | grep -q "^run:"; then
+            log_info "auditd started successfully under runit supervision"
+            return 0
+        else
+            log_error "auditd failed to run."
+            sv status auditd
+            return 1
+        fi
+    elif [[ -f /etc/init.d/auditd ]]; then
         /etc/init.d/auditd restart && return 0 || \
             log_error "auditd failed to run." && return 1
+    else
+        log_error "No supported init system found (systemd/runit/sysvinit)." && return 1
     fi
     return 0
 }
 
 complete -F _blank os-auditd
 
+function __os-auditd_create_runit_service {
+    log_debug "Creating runit service for ${DMNNAME}..."
+    local sv_dir="/etc/sv/auditd"
+
+    # Create service directory
+    mkdir -p "${sv_dir}"
+
+    # Create run script
+    cat > "${sv_dir}/run" << 'EOFRUN'
+#!/bin/sh
+exec 2>&1
+exec /sbin/auditd -n
+EOFRUN
+    chmod +x "${sv_dir}/run"
+
+    # Create finish script
+    cat > "${sv_dir}/finish" << 'EOFFINISH'
+#!/bin/sh
+exec 2>&1
+/sbin/auditctl -D
+EOFFINISH
+    chmod +x "${sv_dir}/finish"
+
+    # Enable service by linking to the runit service directory
+    # Try common runit service directory locations
+    local service_dir=""
+    if [[ -d /etc/service ]]; then
+        service_dir="/etc/service"
+    elif [[ -d /var/service ]]; then
+        service_dir="/var/service"
+    elif [[ -d /service ]]; then
+        service_dir="/service"
+    else
+        log_error "Cannot find runit service directory"
+        return 1
+    fi
+
+    ln -sf /etc/sv/auditd "${service_dir}/auditd" 2>/dev/null || true
+
+    log_info "Runit service created for auditd at ${service_dir}/auditd"
+    return 0
+}
+
 function __os-auditd_generate_config {
     mkdir -p /tmp/auditd
     cp -rf ./configs/auditd/audit.rules  /tmp/auditd/audit.rules
+
+    # Find auditctl command (may not be in PATH)
+    local auditctl_cmd=""
+    if command -v auditctl &>/dev/null; then
+        auditctl_cmd="auditctl"
+    elif test -x /sbin/auditctl; then
+        auditctl_cmd="/sbin/auditctl"
+    elif test -x /usr/sbin/auditctl; then
+        auditctl_cmd="/usr/sbin/auditctl"
+    else
+        log_debug "auditctl not available, skipping rule generation"
+        return 1  # Return 1 to indicate config needs to be applied
+    fi
+
     # auditctl -R /tmp/auditd/audit.rules
     # add rules by force
     local string_with_newlines=$(cat /tmp/auditd/audit.rules|grep -v "#"|grep -v -e '^[[:space:]]*$')
     while IFS= read -r line; do
-        auditctl ${line} &>/dev/null
+        ${auditctl_cmd} ${line} &>/dev/null
     done <<< "$string_with_newlines"
     # check unserted lines
     echo "# generated on $(date +%s)" > /tmp/auditd/audit.rules.rejected
     while IFS= read -r line; do
-        found=$(auditctl -l|grep "\\$line"|wc -l)
+        found=$(${auditctl_cmd} -l|grep "\\$line"|wc -l)
         [[ ${found} == 0 ]] && echo "${line}" >> /tmp/auditd/audit.rules.rejected
     done <<< "$string_with_newlines"
     # backup accepted lines
     echo "# generated on $(date +%s)" > /tmp/auditd/audit.rules
-    auditctl -l >> /tmp/auditd/audit.rules
+    ${auditctl_cmd} -l >> /tmp/auditd/audit.rules
     return 0
 }

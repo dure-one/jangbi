@@ -99,20 +99,91 @@ function __os-aide_install {
     log_debug "Installing ${DMNNAME}..."
     export DEBIAN_FRONTEND=noninteractive
     mkdir -p /etc/aide /var/lib/aide /var/log/aide
-    if [[ ${INTERNET_AVAIL} -gt 0 ]]; then
+
+    # Default to offline install if INTERNET_AVAIL is not set
+    local internet_avail="${INTERNET_AVAIL:-0}"
+
+    if [[ ${internet_avail} -gt 0 ]]; then
         [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
         [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
-        apt install -qy aide || log_error "${DMNNAME} online install failed."
+        if ! apt install -qy aide; then
+            log_error "${DMNNAME} online install failed."
+            return 1
+        fi
     else
         local filepat="./pkgs/aide*.deb"
         local pkglist="./pkgs/aide.pkgs"
         [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-aide_download
+
+        # Get system's primary architecture
+        local sys_arch=$(dpkg --print-architecture)
+
         pkgslist_down=()
+        # Package list is space-separated on one line, convert to array
+        # Remove duplicates by using associative array
+        declare -A seen_pkgs
         while read -r pkg; do
-            [[ $pkg ]] && pkgslist_down+=("./pkgs/${pkg}*.deb")
-        done < ${pkglist}
+            if [[ -n "$pkg" ]]; then
+                # Handle architecture-specific packages (e.g., pkg:i386)
+                local pkgname="${pkg%%:*}"  # Remove :arch suffix
+                local pkgarch="${pkg#*:}"   # Extract arch if present
+
+                if [[ "$pkgarch" != "$pkg" ]] && [[ -n "$pkgarch" ]]; then
+                    # Package has architecture suffix
+                    # Only include if it matches system architecture
+                    if [[ "$pkgarch" == "$sys_arch" ]]; then
+                        for file in ./pkgs/${pkgname}_*_${pkgarch}.deb; do
+                            if [[ -f "$file" ]] && [[ -z "${seen_pkgs[$file]}" ]]; then
+                                pkgslist_down+=("$file")
+                                seen_pkgs[$file]=1
+                            fi
+                        done
+                    else
+                        log_debug "Skipping foreign architecture package: ${pkg} (system is ${sys_arch})"
+                    fi
+                else
+                    # No architecture suffix, find packages matching system arch
+                    for file in ./pkgs/${pkgname}_*_${sys_arch}.deb; do
+                        if [[ -f "$file" ]] && [[ -z "${seen_pkgs[$file]}" ]]; then
+                            pkgslist_down+=("$file")
+                            seen_pkgs[$file]=1
+                        fi
+                    done
+                    # If no arch-specific package found, try all-architecture package
+                    if [[ -z "${seen_pkgs[*]}" ]]; then
+                        for file in ./pkgs/${pkgname}_*_all.deb; do
+                            if [[ -f "$file" ]] && [[ -z "${seen_pkgs[$file]}" ]]; then
+                                pkgslist_down+=("$file")
+                                seen_pkgs[$file]=1
+                            fi
+                        done
+                    fi
+                fi
+            fi
+        done < <(tr ' ' '\n' < ${pkglist})
+
+        if [[ ${#pkgslist_down[@]} -eq 0 ]]; then
+            log_error "No package files found to install."
+            return 1
+        fi
+
+        log_debug "Installing ${#pkgslist_down[@]} package(s): ${pkgslist_down[*]}"
+
+        # Install dependencies first if needed, then install aide
         # shellcheck disable=SC2068
-        apt install -qy ${pkgslist_down[@]} || log_error "${DMNNAME} offline install failed."
+        apt install -qy ${pkgslist_down[@]}
+        local apt_exit=$?
+
+        if [[ $apt_exit -ne 0 ]]; then
+            log_error "${DMNNAME} offline install failed (apt exit code: ${apt_exit}). Packages: ${pkgslist_down[*]}"
+            return 1
+        fi
+    fi
+
+    # Verify installation
+    if ! command -v aide &>/dev/null; then
+        log_error "aide command not found after installation."
+        return 1
     fi
 
     if ! __os-aide_configgen; then # if gen config is different do apply
@@ -120,8 +191,16 @@ function __os-aide_install {
         rm -rf /tmp/${PKGNAME}
     fi
 
-    aide --init --config=/etc/aide/aide.minimal.conf 2>/dev/null && \
+    # Initialize AIDE database
+    log_debug "Initializing AIDE database..."
+    if aide --init --config=/etc/aide/aide.minimal.conf 2>/dev/null; then
         cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
+        log_info "AIDE database initialized successfully."
+    else
+        log_error "Failed to initialize AIDE database."
+        return 1
+    fi
+    return 0
 }
 
 function __os-aide_uninstall { 
@@ -185,20 +264,60 @@ function __os-aide_check { # running_status: 0 running, 1 installed, running_sta
 
 function __os-aide_run {
     # aide minimal check for first run
+    if ! command -v aide &>/dev/null; then
+        log_error "aide command not found. Please install aide first."
+        return 1
+    fi
+
     local dtnow=$(date +%Y%m%d_%H%M%S)
-    aide --check --config=/etc/aide/aide.minimal.conf 2>&1 1>"/var/log/aide/log_${dtnow}.log" &
+    mkdir -p /var/log/aide
+
+    # Run in background and capture all output
+    # Note: AIDE exit codes: 0=no changes, 1=changes detected, 2+=errors
+    aide --check --config=/etc/aide/aide.minimal.conf >"/var/log/aide/log_${dtnow}.log" 2>&1 &
+    local aide_pid=$!
+
+    log_info "AIDE check started in background (PID: ${aide_pid}), log: /var/log/aide/log_${dtnow}.log"
+    log_info "Note: AIDE exit code 1 means changes detected (expected), not an error."
     return 0
 }
 
 complete -F _blank os-aide
 
 function __os-aide_checkpoint {
+    if ! command -v aide &>/dev/null; then
+        log_error "aide command not found. Please install aide first."
+        return 1
+    fi
+
     log_debug "Make new checkpoint for os-aide."
     local dtnow=$(date +%Y%m%d_%H%M%S)
-    mkdir -p /tmp/aidecp
-    if ! aide --check --config=/etc/aide/aide.minimal.conf 2>&1 1>/tmp/aidecp/aide_${dtnow}.log; then
-        mkdir -p /var/log/aide/checkpoints
-        mv /tmp/aidecp/aide_${dtnow}.log /var/log/aide/checkpoints
-        cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
+    mkdir -p /tmp/aidecp /var/log/aide/checkpoints
+
+    # Run AIDE check, capturing exit code
+    # Exit codes: 0=no changes, 1=changes detected, 2+=errors
+    aide --check --config=/etc/aide/aide.minimal.conf >/tmp/aidecp/aide_${dtnow}.log 2>&1
+    local aide_exit=$?
+
+    # Save the check log
+    cp /tmp/aidecp/aide_${dtnow}.log /var/log/aide/checkpoints/
+
+    # Update database if check completed (exit 0 or 1)
+    if [[ ${aide_exit} -le 1 ]]; then
+        if [[ -f /var/lib/aide/aide.minimal.db.new.gz ]]; then
+            cp /var/lib/aide/aide.minimal.db.new.gz /var/lib/aide/aide.minimal.db.gz
+            log_info "AIDE checkpoint created: /var/log/aide/checkpoints/aide_${dtnow}.log"
+            [[ ${aide_exit} -eq 1 ]] && log_info "Changes detected and database updated."
+            [[ ${aide_exit} -eq 0 ]] && log_info "No changes detected."
+        else
+            log_error "AIDE database file not found: /var/lib/aide/aide.minimal.db.new.gz"
+            return 1
+        fi
+    else
+        log_error "AIDE check failed with exit code ${aide_exit}. Check log: /var/log/aide/checkpoints/aide_${dtnow}.log"
+        return 1
     fi
+
+    rm -rf /tmp/aidecp
+    return 0
 }
