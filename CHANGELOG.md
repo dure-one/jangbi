@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([f875161](https://github.com/dure-one/jangbi/commit/f875161ca5490edff9cb8cebddef3758e480060f) by nikescar).
+- Add changelog automatically ([18c1084](https://github.com/dure-one/jangbi/commit/18c1084c7ed53bc86e90217d6ea54b2dd004e2bc) by nikescar).
 
 ### Fixed
 
+- fix. required pkgs for arm64. ([1580094](https://github.com/dure-one/jangbi/commit/15800948f7b1a33cf51f1d3910d8e21b6a748312) by Woojae, Park).
 - fix. omniedge, wactws plugin error. ([2f1243d](https://github.com/dure-one/jangbi/commit/2f1243dd336f26aa5422e866e6a78c8e29b45232) by Woojae, Park).
 - fix. swap size error. ([560490d](https://github.com/dure-one/jangbi/commit/560490dad2d76416238cd4301acb6649b4d5ad83) by Woojae, Park).
 - fix. errors on auditd, aide plugin. ([468a92b](https://github.com/dure-one/jangbi/commit/468a92b3b711f35f60f8e66c86fd4c2ec43e1ef7) by Woojae, Park).
