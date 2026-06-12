@@ -160,3 +160,16 @@ RUN_NET_V2RAY=1
 OMNIP_PORTS="LO:53"
 RUN_NET_SHOES=1
 RUN_NET_WACTWS=1
+
+# OmniEdge mesh VPN
+RUN_NET_OMNIEDGE=0
+# edge (default), nucleus, or dual
+OMNIEDGE_MODE="edge"
+# network ID for edge/dual mode
+OMNIEDGE_NETWORK_ID=""
+# port for nucleus/dual mode
+OMNIEDGE_PORT="51821"
+# secret for nucleus/dual mode
+OMNIEDGE_SECRET=""
+# enable relay fallback (0=off, 1=on)
+OMNIEDGE_ENABLE_RELAY=0
