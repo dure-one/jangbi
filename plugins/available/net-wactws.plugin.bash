@@ -118,7 +118,28 @@ function __net-wactws_download {
 
 function __net-wactws_disable {
     log_debug "Disabling ${DMNNAME}..."
-    pidof wactws | xargs kill -9 2>/dev/null
+
+    local PIDFILE="/var/run/wactws-monitor.pid"
+
+    # Kill the monitoring loop by its unique process name
+    pkill -9 -f "wactws-monitor-loop" &>/dev/null || true
+
+    # Find and kill all bash subshells running the wactws monitoring loop
+    for timeout_pid in $(pgrep -f "timeout.*wactws -m by-company"); do
+        parent_pid=$(ps -o ppid= -p ${timeout_pid} 2>/dev/null | tr -d ' ')
+        if [ -n "${parent_pid}" ] && [ "${parent_pid}" != "1" ]; then
+            kill -9 ${parent_pid} &>/dev/null || true
+        fi
+    done
+
+    # Kill all wactws and timeout processes
+    pkill -9 -f "timeout.*wactws" &>/dev/null || true
+    pkill -9 -f "wactws -m by-company" &>/dev/null || true
+    pkill -9 wactws &>/dev/null || true
+
+    # Clean up PID file
+    rm -f "${PIDFILE}"
+
     return 0
 }
 
@@ -153,31 +174,56 @@ function __net-wactws_check { # running_status 0 installed, running_status 5 can
 function __net-wactws_run {
     log_debug "Running ${DMNNAME}..."
 
-    pidof wactws | xargs kill -9 &>/dev/null
+    local PIDFILE="/var/run/wactws-monitor.pid"
+
+    # Step 1: Find and kill all bash subshells running the wactws monitoring loop
+    # These are the parent processes of "timeout...wactws" commands
+    for timeout_pid in $(pgrep -f "timeout.*wactws -m by-company"); do
+        parent_pid=$(ps -o ppid= -p ${timeout_pid} 2>/dev/null | tr -d ' ')
+        if [ -n "${parent_pid}" ] && [ "${parent_pid}" != "1" ]; then
+            kill -9 ${parent_pid} &>/dev/null || true
+        fi
+    done
+
+    # Step 2: Kill all wactws and timeout processes
+    pkill -9 -f "timeout.*wactws" &>/dev/null || true
+    pkill -9 -f "wactws -m by-company" &>/dev/null || true
+    pkill -9 wactws &>/dev/null || true
+
+    # Step 3: Clean up PID file
+    rm -f "${PIDFILE}"
+
+    # Wait to ensure all processes are fully terminated
+    sleep 1
 
     log_debug "Starting wactws monitoring with by-company mode"
 
-    # Run wactws with hourly log rotation
+    # Run wactws with hourly log rotation in a subshell
     (
-        while true; do
-            # Generate hourly log filename: YYYYMMDDHH.log
-            LOGFILE="/var/log/wactws/$(date +%Y%m%d%H).log"
+        # Mark this process with a unique identifier
+        exec -a "wactws-monitor-loop" bash -c '
+            echo $$ > /var/run/wactws-monitor.pid
 
-            # Calculate seconds until next hour
-            CURRENT_MIN=$(date +%M)
-            CURRENT_SEC=$(date +%S)
-            SECONDS_TO_NEXT_HOUR=$((3600 - CURRENT_MIN * 60 - CURRENT_SEC))
+            while true; do
+                # Generate hourly log filename: YYYYMMDDHH.log
+                LOGFILE="/var/log/wactws/$(date +%Y%m%d%H).log"
 
-            # Run wactws with timeout for this hour, redirect to hourly log
-            timeout ${SECONDS_TO_NEXT_HOUR}s wactws -m by-company --log-mode >> "${LOGFILE}" 2>&1
+                # Calculate seconds until next hour
+                CURRENT_MIN=$(date +%M)
+                CURRENT_SEC=$(date +%S)
+                SECONDS_TO_NEXT_HOUR=$((3600 - CURRENT_MIN * 60 - CURRENT_SEC))
 
-            # If wactws exits with non-timeout error, restart after 1 second
-            EXIT_CODE=$?
-            if [ ${EXIT_CODE} -ne 0 ] && [ ${EXIT_CODE} -ne 124 ]; then
-                log_error "wactws exited unexpectedly with code ${EXIT_CODE}, restarting..."
-                sleep 1
-            fi
-        done
+                # Run wactws with timeout for this hour, redirect to hourly log
+                timeout ${SECONDS_TO_NEXT_HOUR}s wactws -m by-company --log-mode >> "${LOGFILE}" 2>&1
+
+                # If wactws exits with non-timeout error, restart after 1 second
+                EXIT_CODE=$?
+                if [ ${EXIT_CODE} -ne 0 ] && [ ${EXIT_CODE} -ne 124 ]; then
+                    echo "ERROR: wactws exited unexpectedly with code ${EXIT_CODE}, restarting..." >&2
+                    sleep 1
+                fi
+            done
+        '
     ) &
 
     sleep 1

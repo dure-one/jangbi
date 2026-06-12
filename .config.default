@@ -163,13 +163,17 @@ RUN_NET_WACTWS=1
 
 # OmniEdge mesh VPN
 RUN_NET_OMNIEDGE=0
-# edge (default), nucleus, or dual
-OMNIEDGE_MODE="edge"
-# network ID for edge/dual mode
+# Operation mode: edge (client), nucleus (self-hosted server), or dual (hub+client)
+# edge mode: requires OMNIEDGE_NETWORK_ID
+# nucleus mode: requires OMNIEDGE_PORT and OMNIEDGE_SECRET (good for self-hosted)
+# dual mode: requires OMNIEDGE_NETWORK_ID and OMNIEDGE_SECRET
+OMNIEDGE_MODE="nucleus"
+# network ID for edge/dual mode (required for edge/dual, not used for nucleus)
+# Get from OmniEdge dashboard or set when connecting to existing network
 OMNIEDGE_NETWORK_ID=""
-# port for nucleus/dual mode
+# port for nucleus/dual mode (default: 51821)
 OMNIEDGE_PORT="51821"
-# secret for nucleus/dual mode
-OMNIEDGE_SECRET=""
+# secret for nucleus/dual mode (set a strong password for nucleus mode)
+OMNIEDGE_SECRET="ChangeMeToStrongSecret123"
 # enable relay fallback (0=off, 1=on)
 OMNIEDGE_ENABLE_RELAY=0

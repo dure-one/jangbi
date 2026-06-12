@@ -107,7 +107,8 @@ function __net-omniedge_install {
     tar -zxf ${filepat} -C ${tmpdir} 2>/dev/null
 
     # Find the omniedge binary in extracted files
-    local omniedge_bin=$(find ${tmpdir} -name "omniedge" -type f | head -1)
+    # The tarball contains a single binary file named omniedge-cli-*-linux-*
+    local omniedge_bin=$(find ${tmpdir} -type f -name "omniedge-cli-*-linux-*" | head -1)
     if [[ ! -f "${omniedge_bin}" ]]; then
         log_error "omniedge binary not found in package."
         return 1
@@ -133,10 +134,11 @@ function __net-omniedge_download {
     log_debug "Downloading ${DMNNAME}..."
     arch1_=$(dpkg --print-architecture)
     arch1=${3:-${arch1_}}
-    [[ ${arch1} == "amd64" ]] && comparch="amd64"
+    # OmniEdge uses 'x64' for amd64/x86_64 and 'arm64' for arm64
+    [[ ${arch1} == "amd64" ]] && comparch="x64"
     [[ ${arch1} == "arm64" ]] && comparch="arm64"
 
-    _download_github_pkgs omniedgeio/omniedge omniedge-*-linux-${comparch}.tar.gz "${comparch}" || log_error "${DMNNAME} download failed."
+    _download_github_pkgs omniedgeio/omniedge omniedge-cli-*-linux-${comparch}.tar.gz "${comparch}" || log_error "${DMNNAME} download failed."
     return 0
 }
 
