@@ -230,6 +230,12 @@ function __net-ifupdown_run {
         change_mac "${JB_WANINF}" "${JB_WANMAC}"
     fi
 
+    # Flush IP addresses from all interfaces except lo to prevent "Address already assigned" errors
+    local infs=$(ip -o link show | awk -F': ' '{print $2}' | grep -v "^lo$")
+    for inf in $infs; do
+        ip addr flush dev "$inf" 2>/dev/null || true
+    done
+
     # remove dhcp from interfaces not connected for preventing systemd networking from hanging
     # local infs=$(cat /proc/net/dev|awk '{ print $1 };'|grep :|grep -v lo:)
     # IFS=$'\n' read -rd '' -a dure_infs <<< "${infs//:}"
