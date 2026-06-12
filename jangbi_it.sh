@@ -54,6 +54,8 @@ log_trace()  { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] 
 # libraries, but skip appearance (themes) for now
 source "${BASH_IT}/lib/command_duration.bash"
 source "${BASH_IT}/lib/helpers.bash"
+source "${BASH_IT}/lib/preexec.bash"
+source "${BASH_IT}/lib/utilities.bash"
 
 # Load base utilities plugin (core functions used by other plugins)
 source "${JANGBI_IT}/plugins/available/base.plugin.bash"
@@ -168,9 +170,6 @@ function jangbi-it() {
   # recover bash_it var
   [[ ${BASH_IT_} ]] && BASH_IT=${BASH_IT_}
 }
-
-source "${BASH_IT}/lib/preexec.bash"
-source "${BASH_IT}/lib/utilities.bash"
 
 # Override _bash-it-component-item-is-enabled to check JANGBI_IT enabled directory
 # This must come BEFORE plugin loading to ensure plugins are found correctly

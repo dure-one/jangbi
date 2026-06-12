@@ -93,13 +93,16 @@ function __os-disablebins_help {
 
 function __os-disablebins_blankrep() { # binary file replacement
     local TBIN="${1}"
-    local TDIR=$(dirname $(which "${TBIN}"))
+    local TBIN_PATH
+    TBIN_PATH=$(which "${TBIN}" 2>/dev/null) || return 0  # Return success if binary doesn't exist
+    local TDIR=$(dirname "${TBIN_PATH}")
     # echo "${TDIR}/${TBIN}"
     if [[ ${RUN_OS_DISABLEBINS} -gt 0 ]]; then # RUN_OS_DISABLEBINS=1
-        [[ ! -f ${TDIR}/${TBIN}___ ]] && pushd "${TDIR}" && mv "${TBIN}" "${TBIN}___" && cp /usr/bin/true "${TBIN}" && popd
+        [[ ! -f ${TDIR}/${TBIN}___ ]] && pushd "${TDIR}" 1>/dev/null && mv "${TBIN}" "${TBIN}___" && cp /usr/bin/true "${TBIN}" && popd 1>/dev/null
     else # RUN_OS_DISABLEBINS=0
-        [[ -f ${TDIR}/${TBIN}___ ]] && pushd "${TDIR}" && rm -rf "${TBIN}" && mv "${TBIN}___" "${TBIN}" && popd
+        [[ -f ${TDIR}/${TBIN}___ ]] && pushd "${TDIR}" 1>/dev/null && rm -rf "${TBIN}" && mv "${TBIN}___" "${TBIN}" && popd 1>/dev/null
     fi
+    return 0  # Always return success
 }
 
 function __os-disablebins_install {
