@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([d7f52dd](https://github.com/dure-one/jangbi/commit/d7f52ddea40d62d42e48529f206fb2276186c6c4) by nikescar).
+- Add changelog automatically ([717dbdb](https://github.com/dure-one/jangbi/commit/717dbdba4c717b1eda7e8b11a0d32bd72c011ca9) by nikescar).
 
 ### Fixed
 
+- fix. swap size error. ([560490d](https://github.com/dure-one/jangbi/commit/560490dad2d76416238cd4301acb6649b4d5ad83) by Woojae, Park).
+- fix. errors on auditd, aide plugin. ([468a92b](https://github.com/dure-one/jangbi/commit/468a92b3b711f35f60f8e66c86fd4c2ec43e1ef7) by Woojae, Park).
+- fix. apply new config swap path. ([1137a2e](https://github.com/dure-one/jangbi/commit/1137a2eabe9b6253b513fc754797bdbeff8713b9) by Woojae, Park).
 - fix. bandwhich run command error. ([5be1537](https://github.com/dure-one/jangbi/commit/5be15376660e6cea0b551d1f2790347757cf2aae) by Woojae, Park).
 - fix. change bandwhich process termination to force. ([577a794](https://github.com/dure-one/jangbi/commit/577a794473207dfc09c943520a2b039b718917e5) by Woojae, Park).
 - fix. change bandwhich log output more efficient way. ([f0fd267](https://github.com/dure-one/jangbi/commit/f0fd2675ca3e1c206adb28490b69476fa75259ea) by Woojae, Park).
