@@ -108,10 +108,12 @@ function __os-auditd_install {
     else
         local filepat="./pkgs/auditd*.deb"
         local pkglist="./pkgs/auditd.pkgs"
-        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-auditd_download
 
         # Get system's primary architecture
         local sys_arch=$(dpkg --print-architecture)
+
+        # Check if any auditd packages exist, if not download them
+        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-auditd_download
 
         pkgslist_down=()
         # Package list is space-separated on one line, convert to array
@@ -158,15 +160,25 @@ function __os-auditd_install {
         done < <(tr ' ' '\n' < ${pkglist})
 
         if [[ ${#pkgslist_down[@]} -eq 0 ]]; then
-            log_error "No package files found to install."
-            return 1
+            log_warning "No package files found for architecture ${sys_arch}. Falling back to online installation."
+            [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+            [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+            if ! apt install -qy auditd; then
+                log_error "${DMNNAME} online install failed."
+                return 1
+            fi
+            # Skip the offline install path below
+            pkgslist_down=()
         fi
 
-        log_debug "Installing ${#pkgslist_down[@]} package(s): ${pkgslist_down[*]}"
+        # Only attempt offline install if we have packages
+        if [[ ${#pkgslist_down[@]} -gt 0 ]]; then
+            log_debug "Installing ${#pkgslist_down[@]} package(s): ${pkgslist_down[*]}"
 
-        # shellcheck disable=SC2068
-        apt install -qy ${pkgslist_down[@]}
-        local apt_exit=$?
+            # shellcheck disable=SC2068
+            apt install -qy ${pkgslist_down[@]}
+            local apt_exit=$?
+        fi
 
         # Verify auditd and auditctl are available after installation
         # Check both PATH and common sbin locations

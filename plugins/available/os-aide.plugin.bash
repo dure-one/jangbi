@@ -113,10 +113,12 @@ function __os-aide_install {
     else
         local filepat="./pkgs/aide*.deb"
         local pkglist="./pkgs/aide.pkgs"
-        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-aide_download
 
         # Get system's primary architecture
         local sys_arch=$(dpkg --print-architecture)
+
+        # Check if any aide packages exist, if not download them
+        [[ $(find ${filepat} 2>/dev/null|wc -l) -lt 1 ]] && apt update -qy && __os-aide_download
 
         pkgslist_down=()
         # Package list is space-separated on one line, convert to array
@@ -163,20 +165,30 @@ function __os-aide_install {
         done < <(tr ' ' '\n' < ${pkglist})
 
         if [[ ${#pkgslist_down[@]} -eq 0 ]]; then
-            log_error "No package files found to install."
-            return 1
+            log_warning "No package files found for architecture ${sys_arch}. Falling back to online installation."
+            [[ $(find /etc/apt/sources.list.d|grep -c "extrepo_debian_official") -lt 1 ]] && extrepo enable debian_official
+            [[ $(stat /var/lib/apt/lists -c "%X") -lt $(date -d "1 day ago" +%s) ]] && apt update -qy
+            if ! apt install -qy aide; then
+                log_error "${DMNNAME} online install failed."
+                return 1
+            fi
+            # Skip the offline install path below
+            pkgslist_down=()
         fi
 
-        log_debug "Installing ${#pkgslist_down[@]} package(s): ${pkgslist_down[*]}"
+        # Only attempt offline install if we have packages
+        if [[ ${#pkgslist_down[@]} -gt 0 ]]; then
+            log_debug "Installing ${#pkgslist_down[@]} package(s): ${pkgslist_down[*]}"
 
-        # Install dependencies first if needed, then install aide
-        # shellcheck disable=SC2068
-        apt install -qy ${pkgslist_down[@]}
-        local apt_exit=$?
+            # Install dependencies first if needed, then install aide
+            # shellcheck disable=SC2068
+            apt install -qy ${pkgslist_down[@]}
+            local apt_exit=$?
 
-        if [[ $apt_exit -ne 0 ]]; then
-            log_error "${DMNNAME} offline install failed (apt exit code: ${apt_exit}). Packages: ${pkgslist_down[*]}"
-            return 1
+            if [[ $apt_exit -ne 0 ]]; then
+                log_error "${DMNNAME} offline install failed (apt exit code: ${apt_exit}). Packages: ${pkgslist_down[*]}"
+                return 1
+            fi
         fi
     fi
 
