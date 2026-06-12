@@ -103,7 +103,7 @@ set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 [[ ! -d ./enabled ]] && mkdir -p ./enabled
 
 # install required packages
-required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo")
+required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo" "ipset" "iproute2")
 missing_pkgs=()
 for pkg in "${required_pkgs[@]}"; do
     if ! dpkg -l "${pkg}" 2>/dev/null | grep -q "^ii"; then
