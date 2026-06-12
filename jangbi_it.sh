@@ -55,6 +55,9 @@ log_trace()  { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] 
 source "${BASH_IT}/lib/command_duration.bash"
 source "${BASH_IT}/lib/helpers.bash"
 
+# Load base utilities plugin (core functions used by other plugins)
+source "${JANGBI_IT}/plugins/available/base.plugin.bash"
+
 function _help-plugins() {
 	_about 'summarize all functions defined by enabled jangbi-it plugins'
 	_group 'lib'
