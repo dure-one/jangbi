@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
+export HOME=${HOME:-/root} # ensure HOME is set when invoked from rc.local (systemd SetLoginEnvironment=no)
 cd $(dirname $0)
 source jangbi_it.sh
 echo -e "${ORANGE}" # https://patorjk.com/software/taag/#p=display&f=3D-ASCII&t=JANGBI
