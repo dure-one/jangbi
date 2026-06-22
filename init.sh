@@ -2,6 +2,11 @@
 export PATH=$PATH:/sbin:/usr/sbin:/usr/local/sbin
 export HOME=${HOME:-/root} # ensure HOME is set when invoked from rc.local (systemd SetLoginEnvironment=no)
 cd $(dirname $0)
+
+# Lock file paths
+LOCKFILE="/tmp/jangbi_base_operation.lock"
+LOCKFILE_PID="/tmp/jangbi_base_operation.pid"
+
 source jangbi_it.sh
 echo -e "${ORANGE}" # https://patorjk.com/software/taag/#p=display&f=3D-ASCII&t=JANGBI
 echo '    ___  ________  ________   ________  ________  ___     ';
@@ -30,6 +35,54 @@ usage() {
   printf "%s\\n" "  ${YELLOW}--doctor                        |-t${NORMAL}   doctor network issues"
   echo
 }
+
+# Acquire lock for base operations (install, launch, full init)
+_acquire_lock() {
+    local max_wait=0
+    local wait_interval=1
+    local waited=0
+
+    while [[ -f "${LOCKFILE}" ]]; do
+        # Check if the process holding the lock is still alive
+        if [[ -f "${LOCKFILE_PID}" ]]; then
+            local lock_pid=$(cat "${LOCKFILE_PID}")
+            if ! kill -0 "${lock_pid}" 2>/dev/null; then
+                # Stale lock - remove it
+                log_warning "Removing stale lock from dead process ${lock_pid}"
+                rm -f "${LOCKFILE}" "${LOCKFILE_PID}"
+                break
+            fi
+        fi
+
+        # For check operations, don't wait - exit immediately
+        if [[ -n "${CH_OPTION}" ]]; then
+            log_debug "Base operation in progress, skipping check (PID: $(cat ${LOCKFILE_PID} 2>/dev/null || echo 'unknown'))"
+            return 1
+        fi
+
+        # For base operations, wait briefly then fail
+        if [[ ${waited} -ge ${max_wait} ]]; then
+            log_error "Another jangbi operation is in progress. Try again later."
+            return 1
+        fi
+
+        sleep ${wait_interval}
+        waited=$((waited + wait_interval))
+    done
+
+    # Create lock
+    touch "${LOCKFILE}"
+    echo $$ > "${LOCKFILE_PID}"
+    return 0
+}
+
+# Release lock
+_release_lock() {
+    rm -f "${LOCKFILE}" "${LOCKFILE_PID}"
+}
+
+# Trap to ensure lock is released on exit
+trap _release_lock EXIT INT TERM
 # setup log
 BASH_IT_LOG_LEVEL=5 # 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace,
 BASH_IT_LOG_FILE="${BASH_IT_LOG_FILE:-${JANGBI_IT}/output.log}"
@@ -97,6 +150,35 @@ while [[ $# -gt 0 ]]; do
 done
 
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+# Determine if this is a check-only operation
+IS_CHECK_ONLY=0
+[[ -n "${CH_OPTION}" ]] && IS_CHECK_ONLY=1
+
+# Acquire lock for base operations (skip for check-only operations unless blocked)
+if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
+    # Base operation (install/launch/full init) - acquire lock
+    if ! _acquire_lock; then
+        log_error "Failed to acquire lock. Another operation is in progress."
+        exit 1
+    fi
+    log_debug "Lock acquired (PID: $$)"
+else
+    # Check operation - exit immediately if lock is held
+    if [[ -f "${LOCKFILE}" ]]; then
+        if [[ -f "${LOCKFILE_PID}" ]]; then
+            lock_pid=$(cat "${LOCKFILE_PID}")
+            if kill -0 "${lock_pid}" 2>/dev/null; then
+                log_debug "Base operation in progress (PID: ${lock_pid}), skipping check"
+                exit 0
+            else
+                # Stale lock - remove it and continue
+                log_warning "Removing stale lock from dead process ${lock_pid}"
+                rm -f "${LOCKFILE}" "${LOCKFILE_PID}"
+            fi
+        fi
+    fi
+fi
 
 # pkgs imgs preparations
 [[ ! -d ./pkgs ]] && mkdir -p ./pkgs
