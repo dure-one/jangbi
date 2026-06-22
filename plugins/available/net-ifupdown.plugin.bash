@@ -330,10 +330,20 @@ EOT
 
     # Get active interfaces
     local dure_infs=($(cat /proc/net/dev | awk '{ print $1 }' | grep : | grep -v lo: | sed 's/:$//'))
-    
+
     for inf in "${dure_infs[@]}"; do
         local operstate=$(cat /sys/class/net/${inf}/operstate 2>/dev/null || echo "down")
-        [[ ${operstate} == "down" ]] && continue
+
+        # Check if this is a configured interface (should always be added regardless of operstate)
+        local is_configured=0
+        [[ ${inf} == ${waninf} || ${inf} == ${laninf} || ${inf} == ${wlaninf} ]] && is_configured=1
+        for i in {0..9}; do
+            local lan_inf_var="JB_LAN${i}INF"
+            [[ ${inf} == ${!lan_inf_var} ]] && is_configured=1
+        done
+
+        # Skip only if interface is down AND not explicitly configured
+        [[ ${operstate} == "down" && ${is_configured} -eq 0 ]] && continue
 
         case ${inf} in
             ${waninf})
@@ -357,7 +367,7 @@ EOT
                 done
                 ;;
             *)
-                # Default DHCP for unmatched interfaces
+                # Default DHCP for unmatched interfaces only if they're up
                 tee -a /tmp/${PKGNAME}/interfaces > /dev/null <<EOT
 auto ${inf}
 iface ${inf} inet dhcp
