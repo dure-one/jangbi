@@ -38,7 +38,7 @@ if _check_config_reload; then
     _distname_check || exit 1
 else
     log_fatal "JB_DEPLOY_PATH configure is not set. please make .config file."
-    return 1
+    exit 1
 fi
 
 POSITIONAL_ARGS=()

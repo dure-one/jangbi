@@ -107,10 +107,10 @@ function __os-systemd_install { # 0 - disable completely, 1 - full systemd, 2 - 
         ;;
     esac
 
-    log_debug "Reduce network timeout 5Min to 15Sec"
+    log_debug "Reduce network timeout 5Min to 60Sec"
     mkdir -p /etc/systemd/system/networking.service.d/
     echo "[Service]" > /etc/systemd/system/networking.service.d/override.conf
-    echo "TimeoutStartSec=15" >> /etc/systemd/system/networking.service.d/override.conf
+    echo "TimeoutStartSec=60" >> /etc/systemd/system/networking.service.d/override.conf
     if command -v systemctl &>/dev/null; then
         systemctl daemon-reload
     fi
