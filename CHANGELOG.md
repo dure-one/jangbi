@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
+- fix. ifupdown plugin error. ([b8e33a4](https://github.com/dure-one/jangbi/commit/b8e33a46d38bed3cc3825e8e7a6e9ac9a4ab2ec6) by Woojae, Park).
 - fix. not initiating from rc.local. ([f5dc037](https://github.com/dure-one/jangbi/commit/f5dc03775d0885b29a73de512986c7a17eeec4c6) by Woojae, Park).
 - fix. ifupdown error. ([125fc82](https://github.com/dure-one/jangbi/commit/125fc828d32606c540ecca1725fa5e65f9cc1b06) by Woojae, Park).
 - fix. pkg not found error. ([92fd169](https://github.com/dure-one/jangbi/commit/92fd1699ed3cac310a4f53ec9b498f4107ea0a1c) by Woojae, Park).
