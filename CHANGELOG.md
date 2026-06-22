@@ -12,11 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([0d276cd](https://github.com/dure-one/jangbi/commit/0d276cdda2cd4111eba46a5a61e99c7b657cca78) by nikescar).
-- Add lock mechanism to prevent check operations during base operations (2026-06-22 by Claude Code).
-  - Prevents minmon checks from running during install/launch/init operations
-  - Handles stale locks from dead processes
-  - Check operations exit immediately when base operation is in progress
+- add locking for unnecessary process. ([68b6cef](https://github.com/dure-one/jangbi/commit/68b6cef38ac7e27154a664ddbaa9481fe095beb0) by Woojae, Park).
+- Add changelog automatically ([389dd8a](https://github.com/dure-one/jangbi/commit/389dd8a8bd63d2a999533774ea501cb712e61485) by nikescar).
 
 ### Fixed
 
