@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([dea322e](https://github.com/dure-one/jangbi/commit/dea322eeb467d817de3e6115727c4f1f3a25ddec) by nikescar).
+- Add changelog automatically ([38ab706](https://github.com/dure-one/jangbi/commit/38ab7061380b8d119e32a1cba3a79e6a75d694e1) by nikescar).
 
 ### Fixed
 
@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - fix. autoload base plugin. ([62b2306](https://github.com/dure-one/jangbi/commit/62b23066a4b47f45b341608e2587cd343d5b30e9) by Woojae, Park).
 - fix. required pkgs for arm64. ([1580094](https://github.com/dure-one/jangbi/commit/15800948f7b1a33cf51f1d3910d8e21b6a748312) by Woojae, Park).
 - fix. omniedge, wactws plugin error. ([2f1243d](https://github.com/dure-one/jangbi/commit/2f1243dd336f26aa5422e866e6a78c8e29b45232) by Woojae, Park).
+- fix. ifupdown connection error by expanding waiting time. ([2b6cfd8](https://github.com/dure-one/jangbi/commit/2b6cfd83faa7040f125c22e4b2f9e689db309a32) by Woojae, Park).
 - fix. disablebin error. ([778a4df](https://github.com/dure-one/jangbi/commit/778a4dff9e96a6bd75943206a1c50d8de4fb3c67) by Woojae, Park).
 - fix. swap size error. ([560490d](https://github.com/dure-one/jangbi/commit/560490dad2d76416238cd4301acb6649b4d5ad83) by Woojae, Park).
 - fix. errors on auditd, aide plugin. ([468a92b](https://github.com/dure-one/jangbi/commit/468a92b3b711f35f60f8e66c86fd4c2ec43e1ef7) by Woojae, Park).
