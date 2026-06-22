@@ -355,7 +355,8 @@ process_each_step() {
     local step="$2"
     local running_status=0
     run_ok "${command} check" "${command}(${step}) Checking..."
-    [[ ${FORCE_INSTALL} == 1 ]] && log_info "FORCE_INSTALL enabled, Override to install." && running_status=5
+    # FORCE_INSTALL should not override disabled plugins (status 20)
+    [[ ${FORCE_INSTALL} == 1 ]] && [[ ${running_status} != 20 ]] && log_info "FORCE_INSTALL enabled, Override to install." && running_status=5
 
     # Get the config variable name (e.g., net-sshd -> RUN_NET_SSHD)
     local plugin_name="${command}"

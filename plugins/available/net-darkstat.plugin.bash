@@ -131,7 +131,7 @@ function __net-darkstat_install {
         return 1
     fi
     cp ${tmpdir}/html-table-csv-converter /usr/sbin/html-table-csv-converter
-    chmod 755 /sbin/html-table-csv-converter
+    chmod 755 /usr/sbin/html-table-csv-converter
     rm -rf ${tmpdir} 1>/dev/null 2>&1
 
     # cdn-lookup installation
@@ -147,7 +147,7 @@ function __net-darkstat_install {
         return 1
     fi
     cp ${tmpdir}/cdn-lookup /usr/sbin/cdn-lookup
-    chmod 755 /sbin/cdn-lookup
+    chmod 755 /usr/sbin/cdn-lookup
 
     # generate config
     if ! __net-darkstat_configgen; then # if gen config is different do apply
