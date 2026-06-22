@@ -12,10 +12,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([750a6c3](https://github.com/dure-one/jangbi/commit/750a6c3eb4b2e29b4efe9b85d68629ef1842aa6c) by nikescar).
+- Add changelog automatically ([0d276cd](https://github.com/dure-one/jangbi/commit/0d276cdda2cd4111eba46a5a61e99c7b657cca78) by nikescar).
 
 ### Fixed
 
+- fix. not initiating from rc.local. ([f5dc037](https://github.com/dure-one/jangbi/commit/f5dc03775d0885b29a73de512986c7a17eeec4c6) by Woojae, Park).
 - fix. ifupdown error. ([125fc82](https://github.com/dure-one/jangbi/commit/125fc828d32606c540ecca1725fa5e65f9cc1b06) by Woojae, Park).
 - fix. pkg not found error. ([92fd169](https://github.com/dure-one/jangbi/commit/92fd1699ed3cac310a4f53ec9b498f4107ea0a1c) by Woojae, Park).
 - fix. autoload base plugin. ([62b2306](https://github.com/dure-one/jangbi/commit/62b23066a4b47f45b341608e2587cd343d5b30e9) by Woojae, Park).
