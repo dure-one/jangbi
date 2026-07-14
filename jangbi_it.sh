@@ -51,6 +51,26 @@ log_warning(){ _log_warning "$@" && log_and_tee "$@"; } # 4 - warning
 log_debug()  { _log_debug "$@" && log_and_tee "$@"; } # 5 - debug
 log_trace()  { [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_INFO?}" ]] && printf '%b%s%b\n' "${echo_white:-}" "$@" "${echo_normal:-}" && log_and_tee "$@"; } # 7 - trace
 
+# Conditional logging for check operations - only logs on errors or status changes
+log_check() {
+    if [[ "${JANGBI_OPERATION_MODE}" == "check" ]]; then
+        # In check mode, only log if there's an error context
+        # Plugins should call this with error messages only
+        [[ "${BASH_IT_LOG_LEVEL:-0}" -ge "${BASH_IT_LOG_LEVEL_ERROR?}" ]] && log_warning "$@"
+    else
+        # In other modes, treat as debug
+        log_debug "$@"
+    fi
+}
+
+# Success messages for checks - only shown in verbose modes
+log_check_ok() {
+    if [[ "${JANGBI_OPERATION_MODE}" != "check" ]]; then
+        log_debug "$@"
+    fi
+    # Silent in check mode when everything is OK
+}
+
 # libraries, but skip appearance (themes) for now
 source "${BASH_IT}/lib/command_duration.bash"
 source "${BASH_IT}/lib/helpers.bash"
