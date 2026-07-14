@@ -28,6 +28,7 @@ error_action = "Log error"
 [[actions]]
 name = "__PLUGINNAME__ run"
 type = "Process"
+timeout = 60
 path = "/opt/jangbi/init.sh"
 arguments = ["--launch","__PLUGINNAME__"]
 ### __PLUGINNAME__ end ###

@@ -296,7 +296,11 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 case "${processed[@]}" in  *"${load_plugin}"*) continue ;; esac
 
                 # --check
-                [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]] && ${load_plugin} check && processed+=(${load_plugin})
+                if [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]]; then
+                    ${load_plugin} check
+                    check_exit_code=$running_status
+                    processed+=(${load_plugin})
+                fi
                 # --launch
                 [[ ${RN_OPTION} = "enabled" ]] || [[ ${RN_OPTION} = "${load_plugin}" ]] && ${load_plugin} run && processed+=(${load_plugin})
                 # --download
@@ -323,6 +327,10 @@ _validate_interfaces
 if [[ ${CH_OPTION} = "enabled" || ${RN_OPTION} = "enabled" || ${DN_OPTION} = "enabled" || ${IN_OPTION} = "enabled" || \
     $(echo "${CH_OPTION}"|grep -o "-"|wc -l) = 1 || $(echo "${RN_OPTION}"|grep -o "-"|wc -l) = 1 || \
     $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 || $(echo "${IN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    # For check operations, exit with the running_status code
+    if [[ -n "${CH_OPTION}" ]] && [[ -n "${check_exit_code}" ]]; then
+        exit ${check_exit_code}
+    fi
     exit 0
 fi
 

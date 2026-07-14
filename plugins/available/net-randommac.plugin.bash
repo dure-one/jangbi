@@ -168,7 +168,7 @@ function __net-randommac_check {
 
     # Verify internet connectivity and get external IP in one request
     local ext_ip
-    ext_ip=$(curl -s --max-time 10 https://icanhazip.com 2>/dev/null | tr -d '[:space:]')
+    ext_ip=$(curl -s --max-time 10 -4 https://icanhazip.com 2>/dev/null | xargs)
 
     if [[ -z "$ext_ip" ]]; then
         log_warning "Internet not reachable or icanhazip.com unavailable — will trigger MAC rotation."
@@ -209,8 +209,8 @@ function __net-randommac_run {
         return 1
     fi
 
-    # Bring WAN interface down before MAC change
-    ip link set "${JB_WANINF}" down
+    # Bring WAN interface down
+    ifdown "${JB_WANINF}" 2>/dev/null || ip link set "${JB_WANINF}" down
 
     # Randomize MAC address
     change_mac "${JB_WANINF}" "random"
@@ -218,13 +218,13 @@ function __net-randommac_run {
     # Clear last-check timestamp so the next cycle re-verifies the new IP
     rm -f /var/run/net-randommac.lastcheck
 
-    # Restart networking to acquire a new DHCP lease with the new MAC
-    if command -v systemctl &>/dev/null; then
-        systemctl restart networking && return 0 || \
-            { log_error "networking restart failed after MAC change."; return 1; }
+    # Bring WAN interface back up to acquire a new DHCP lease with the new MAC
+    if ifup "${JB_WANINF}" 2>&1 | tee -a "${BASH_IT_LOG_FILE}"; then
+        log_info "WAN interface ${JB_WANINF} restarted with new MAC address."
+        return 0
     else
-        /etc/init.d/networking restart && return 0 || \
-            { log_error "networking restart failed after MAC change."; return 1; }
+        log_error "Failed to bring up ${JB_WANINF} after MAC change."
+        return 1
     fi
 }
 
