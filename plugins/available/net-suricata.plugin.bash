@@ -189,11 +189,11 @@ function __net-suricata_configapply {
 
 function __net-suricata_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Checking ${DMNNAME}..."
+    log_check_ok "Checking ${DMNNAME}..."
 
     # check package file exists
     [[ $(find ./pkgs/${PKGNAME}*.pkgs 2>/dev/null|wc -l) -lt 1 ]] && \
-        log_info "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
+        log_check "${PKGNAME} package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_SURICATA} ]] && \
         log_error "RUN_NET_SURICATA variable is not set." && [[ $running_status -lt 10 ]] && running_status=10
@@ -201,10 +201,10 @@ function __net-suricata_check { # running_status: 0 running, 1 installed, runnin
         log_error "RUN_NET_SURICATA is not enabled." && __net-suricata_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "suricata") -lt 1 ]] && \
-        log_info "suricata is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+        log_check "suricata is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof suricata) -gt 0 ]] && \
-        log_info "suricata is running." && [[ $running_status -lt 1 ]] && running_status=1
+        log_check_ok "suricata is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }
