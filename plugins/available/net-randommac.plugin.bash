@@ -219,8 +219,18 @@ function __net-randommac_run {
         # Bring WAN interface down
         ifdown "${JB_WANINF}" 2>/dev/null || ip link set "${JB_WANINF}" down
 
+        # Wait for interface to fully go down
+        sleep 1
+
         # Randomize MAC address
-        change_mac "${JB_WANINF}" "random"
+        if ! change_mac "${JB_WANINF}" "random"; then
+            log_warning "MAC change failed (attempt $((retry_count + 1))). Retrying..."
+            ((retry_count++))
+            # Try to bring interface back up before next attempt
+            ifup "${JB_WANINF}" 2>&1 | tee -a "${BASH_IT_LOG_FILE}" || true
+            sleep 2
+            continue
+        fi
 
         # Clear last-check timestamp so the next cycle re-verifies the new IP
         rm -f /var/run/net-randommac.lastcheck
@@ -228,7 +238,8 @@ function __net-randommac_run {
         # Bring WAN interface back up to acquire a new DHCP lease with the new MAC
         if ! ifup "${JB_WANINF}" 2>&1 | tee -a "${BASH_IT_LOG_FILE}"; then
             log_error "Failed to bring up ${JB_WANINF} after MAC change."
-            return 1
+            ((retry_count++))
+            continue
         fi
 
         # Wait for DHCP lease and network stabilization

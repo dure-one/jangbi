@@ -292,7 +292,7 @@ function __os-auditd_run {
     log_debug "Running ${DMNNAME}..."
     if command -v systemctl &>/dev/null; then
         systemctl restart auditd
-        systemctl status auditd && return 0 || \
+        systemctl status auditd --no-block --no-pager && return 0 || \
             log_error "auditd failed to run." && return 1
     elif command -v sv &>/dev/null; then
         # runit-based system (AntiX, Void Linux, etc.)

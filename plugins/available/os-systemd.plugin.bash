@@ -198,7 +198,7 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
                 log_info "systemd-journald is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
             # check if disable completely. if systemd-journald is not running, force run install
-            [[ $(systemctl status systemd-journald 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -gt 0 ]] && \
+            [[ $(systemctl status systemd-journald --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -gt 0 ]] && \
                 log_info "systemd-journald is not running." && running_status=5
             ;;
         2)
@@ -209,11 +209,11 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
                 log_info "systemd-journald is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
             # check if not full systemd. if systemd-networkd is running, force run install
-            [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+            [[ $(systemctl status systemd-networkd --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
                 log_info "systemd-networkd is running." && running_status=5
 
             # check if disable completely. if systemd-journald is not running, force run install
-            [[ $(systemctl status systemd-journald 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -gt 0 ]] && \
+            [[ $(systemctl status systemd-journald --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -gt 0 ]] && \
                 log_info "systemd-journald is not running." && running_status=5
             ;;
         0)
@@ -222,11 +222,11 @@ function __os-systemd_check { # running_status: 0 running, 1 installed, running_
                 log_info "isc-dhcp-client is not installed." && [[ $running_status -lt 5 ]] && running_status=5
 
             # check if not full systemd. if systemd-networkd is running, force run install
-            [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+            [[ $(systemctl status systemd-networkd --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
                 log_info "systemd-networkd is running." && running_status=5
 
             # check if not only journald. if systemd-networkd is running, force run install
-            [[ $(systemctl status systemd-journald 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+            [[ $(systemctl status systemd-journald --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
                 log_info "systemd-journald is running." && running_status=5
             ;;
     esac
@@ -240,7 +240,7 @@ function __os-systemd_run {
     if ! command -v systemctl &>/dev/null; then
         return 0
     fi
-    systemctl status systemd-udevd && return 0 || \
+    systemctl status systemd-udevd --no-block --no-pager && return 0 || \
         log_error "os-systemd failed to run." && return 1
 }
 

@@ -246,13 +246,21 @@ function change_mac() {
 
     log_info "Changing MAC address for interface ${interface}"
 
+    local result=0
     if [[ "$mac_mode" == "random" ]]; then
-        macchanger -r "$interface" 1>/dev/null 2>&1 && \
-            log_info "MAC address randomized for ${interface}" || \
+        if macchanger -r "$interface" 1>/dev/null 2>&1; then
+            log_info "MAC address randomized for ${interface}"
+        else
+            result=$?
             log_error "Failed to randomize MAC address for ${interface}"
+        fi
     else
-        macchanger -m "$mac_mode" "$interface" 1>/dev/null 2>&1 && \
-            log_info "MAC address set to ${mac_mode} for ${interface}" || \
+        if macchanger -m "$mac_mode" "$interface" 1>/dev/null 2>&1; then
+            log_info "MAC address set to ${mac_mode} for ${interface}"
+        else
+            result=$?
             log_error "Failed to set MAC address to ${mac_mode} for ${interface}"
+        fi
     fi
+    return $result
 }
