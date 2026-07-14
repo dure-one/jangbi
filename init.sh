@@ -149,6 +149,25 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Detect operation mode and set log level accordingly
+if [[ -n "${IN_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="install"
+    BASH_IT_LOG_LEVEL=6  # Verbose: info + debug
+elif [[ -n "${CH_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="check"
+    BASH_IT_LOG_LEVEL=4  # Quiet: warning + error only
+elif [[ -n "${RN_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="launch"
+    BASH_IT_LOG_LEVEL=5  # Medium: debug to file, info to stdout
+elif [[ -z "${IN_OPTION}" && -z "${CH_OPTION}" && -z "${RN_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="boot"
+    BASH_IT_LOG_LEVEL=6  # Verbose: first boot needs full logs
+else
+    JANGBI_OPERATION_MODE="default"
+    BASH_IT_LOG_LEVEL=5
+fi
+export JANGBI_OPERATION_MODE
+
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 # Determine if this is a check-only operation
