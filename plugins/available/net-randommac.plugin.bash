@@ -209,23 +209,69 @@ function __net-randommac_run {
         return 1
     fi
 
-    # Bring WAN interface down
-    ifdown "${JB_WANINF}" 2>/dev/null || ip link set "${JB_WANINF}" down
+    local max_retries=5
+    local retry_count=0
+    local ext_ip
 
-    # Randomize MAC address
-    change_mac "${JB_WANINF}" "random"
+    while [[ $retry_count -lt $max_retries ]]; do
+        log_info "MAC change attempt $((retry_count + 1))/${max_retries}..."
 
-    # Clear last-check timestamp so the next cycle re-verifies the new IP
-    rm -f /var/run/net-randommac.lastcheck
+        # Bring WAN interface down
+        ifdown "${JB_WANINF}" 2>/dev/null || ip link set "${JB_WANINF}" down
 
-    # Bring WAN interface back up to acquire a new DHCP lease with the new MAC
-    if ifup "${JB_WANINF}" 2>&1 | tee -a "${BASH_IT_LOG_FILE}"; then
-        log_info "WAN interface ${JB_WANINF} restarted with new MAC address."
-        return 0
-    else
-        log_error "Failed to bring up ${JB_WANINF} after MAC change."
-        return 1
-    fi
+        # Randomize MAC address
+        change_mac "${JB_WANINF}" "random"
+
+        # Clear last-check timestamp so the next cycle re-verifies the new IP
+        rm -f /var/run/net-randommac.lastcheck
+
+        # Bring WAN interface back up to acquire a new DHCP lease with the new MAC
+        if ! ifup "${JB_WANINF}" 2>&1 | tee -a "${BASH_IT_LOG_FILE}"; then
+            log_error "Failed to bring up ${JB_WANINF} after MAC change."
+            return 1
+        fi
+
+        # Wait for DHCP lease and network stabilization
+        sleep 5
+
+        # Get the newly acquired external IP
+        ext_ip=$(curl -s --max-time 10 -4 https://icanhazip.com 2>/dev/null | xargs)
+
+        if [[ -z "$ext_ip" ]]; then
+            log_warning "Could not retrieve external IP after MAC change (attempt $((retry_count + 1)))."
+            ((retry_count++))
+            continue
+        fi
+
+        log_info "New external IP after MAC change: ${ext_ip}"
+
+        # Check if the new IP is in the avoided list
+        local ip_is_avoided=0
+        if [[ -n "${RANDOMMAC_AVOIDED_IPS}" ]]; then
+            local avoided_list avoided
+            IFS=',' read -ra avoided_list <<< "${RANDOMMAC_AVOIDED_IPS}"
+            for avoided in "${avoided_list[@]}"; do
+                avoided="${avoided// /}"  # strip whitespace
+                if __net-randommac_ip_in_range "$ext_ip" "$avoided"; then
+                    log_warning "New IP ${ext_ip} is in avoided list (matches '${avoided}'). Retrying..."
+                    ip_is_avoided=1
+                    break
+                fi
+            done
+        fi
+
+        # If IP is not avoided, we're done
+        if [[ $ip_is_avoided -eq 0 ]]; then
+            log_info "WAN interface ${JB_WANINF} restarted with new MAC address. IP ${ext_ip} is clean."
+            return 0
+        fi
+
+        # IP is avoided, increment counter and try again
+        ((retry_count++))
+    done
+
+    log_error "Failed to obtain a non-avoided IP after ${max_retries} attempts. Last IP: ${ext_ip:-none}"
+    return 1
 }
 
 complete -F _blank net-randommac
