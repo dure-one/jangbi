@@ -159,22 +159,22 @@ function __net-dnscryptproxy_configapply {
 
 function __net-dnscryptproxy_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Checking ${DMNNAME}..."
+    log_check_ok "Checking ${DMNNAME}..."
 
     # check package file exists
     [[ $(find ./pkgs/dnscrypt-proxy-linux*|wc -l) -lt 1 ]] && \
-        log_info "dnscryptproxy package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
+        log_check "dnscryptproxy package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_DNSCRYPTPROXY} ]] && \
-        log_info "RUN_NET_DNSCRYPTPROXY variable is not set." && __net-dnscryptproxy_disable && [[ $running_status -lt 10 ]] && running_status=10
+        log_check "RUN_NET_DNSCRYPTPROXY variable is not set." && __net-dnscryptproxy_disable && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_DNSCRYPTPROXY} != 1 ]] && \
-        log_info "RUN_NET_DNSCRYPTPROXY is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+        log_check "RUN_NET_DNSCRYPTPROXY is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(which dnscrypt-proxy|wc -l) -lt 1 ]] && \
-        log_info "dnscryptproxy is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+        log_check "dnscryptproxy is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof dnscrypt-proxy) -gt 0 ]] && \
-        log_info "dnscryptproxy is running." && [[ $running_status -lt 0 ]] && running_status=0
+        log_check_ok "dnscryptproxy is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }
