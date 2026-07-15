@@ -151,22 +151,22 @@ function __net-wactws_uninstall {
 
 function __net-wactws_check { # running_status 0 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Checking ${DMNNAME}..."
+    log_check_ok "Checking ${DMNNAME}..."
 
     # check package file exists
     [[ $(find ./pkgs/wactws-*-unknown-linux-musl.tar.gz 2>/dev/null|wc -l) -lt 1 ]] && \
-        log_info "wactws package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
+        log_check "wactws package file does not exist." && [[ $running_status -lt 15 ]] && running_status=15
     # check global variable
     [[ -z ${RUN_NET_WACTWS} ]] && \
-        log_info "RUN_NET_WACTWS variable is not set." && __net-wactws_disable && [[ $running_status -lt 10 ]] && running_status=10
+        log_check "RUN_NET_WACTWS variable is not set." && __net-wactws_disable && [[ $running_status -lt 10 ]] && running_status=10
     [[ ${RUN_NET_WACTWS} != 1 ]] && \
-        log_info "RUN_NET_WACTWS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
+        log_check "RUN_NET_WACTWS is not enabled." && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(which wactws 2>/dev/null|wc -l) -lt 1 ]] && \
-        log_info "wactws is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+        log_check "wactws is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ -n $(pidof wactws) ]] && \
-        log_info "wactws is running." && [[ $running_status -lt 0 ]] && running_status=0
+        log_check_ok "wactws is running." && [[ $running_status -lt 0 ]] && running_status=0
 
     return 0
 }

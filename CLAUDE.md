@@ -243,6 +243,63 @@ This instance runs on a **NanoPi R5S** (`DIST_DEVICE=nr5s`) with Debian Trixie a
 
 ---
 
+## Logging system
+
+Jangbi uses operation-aware logging to reduce log volume while maintaining visibility during install/troubleshooting:
+
+### Operation modes
+
+- **install** (`--install`): Verbose logging (level 6) - all debug + info messages
+- **boot** (no flags): Verbose logging (level 6) - full visibility during first boot
+- **launch** (`--launch`): Info logging (level 5) - info to stdout, debug to file
+- **check** (`--check`): Error-only logging (level 4) - silent when OK, loud on errors
+
+### Log location
+
+All logs append to `/opt/jangbi/output.log` with automatic rotation:
+- Daily rotation via logrotate
+- 7-day retention
+- Compressed archives (gzip)
+
+### Plugin logging
+
+Plugins use conditional logging functions:
+- `log_check_ok("message")` - silent in check mode, debug in other modes
+- `log_check("message")` - warning in check mode, debug in other modes
+- `log_error("message")` - always logged regardless of mode
+
+### Viewing logs
+
+```bash
+# Recent logs
+tail -100 /opt/jangbi/output.log
+
+# Follow logs live
+tail -f /opt/jangbi/output.log
+
+# Search for errors
+grep -i error /opt/jangbi/output.log
+
+# Check archived logs
+zcat /opt/jangbi/output.log.1.gz | grep "pattern"
+```
+
+### Troubleshooting
+
+If logs seem too quiet:
+```bash
+# Force verbose logging for one run
+BASH_IT_LOG_LEVEL=6 ./init.sh
+```
+
+If logs grow too fast despite rotation:
+```bash
+# Check which plugins are logging heavily
+tail -500 output.log | cut -d' ' -f4 | sort | uniq -c | sort -rn
+```
+
+---
+
 ## Common tasks
 
 ### Check what's running after boot

@@ -171,7 +171,7 @@ function __os-redis_disable {
 
 function __os-redis_check { # running_status: 0 running, 1 installed, running_status 5 can install, running_status 10 can't install, 20 skip
     running_status=0
-    log_debug "Checking ${DMNNAME}..."
+    log_check_ok "Checking ${DMNNAME}..."
 
     # check global variable
     [[ -z ${RUN_OS_REDIS} ]] && \
@@ -180,10 +180,10 @@ function __os-redis_check { # running_status: 0 running, 1 installed, running_st
         log_error "RUN_OS_REDIS is not enabled." && __os-redis_disable && [[ $running_status -lt 20 ]] && running_status=20
     # check package installed
     [[ $(dpkg -l|awk '{print $2}'|grep -c "redis-server") -lt 1 ]] && \
-        log_info "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
+        log_check "redis-server is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     [[ $(pidof redis-server) -gt 0 ]] && \
-        log_info "redis-server is running." && [[ $running_status -lt 1 ]] && running_status=1
+        log_check_ok "redis-server is running." && [[ $running_status -lt 1 ]] && running_status=1
 
     return 0
 }

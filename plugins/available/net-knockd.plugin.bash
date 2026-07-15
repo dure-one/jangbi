@@ -210,7 +210,7 @@ function __net-knockd_check { # running_status: 0 running, 1 installed, running_
         log_info "knockd is not installed." && [[ $running_status -lt 5 ]] && running_status=5
     # check if running
     if command -v systemctl &>/dev/null; then
-        [[ $(systemctl status knockd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+        [[ $(systemctl status knockd --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
             log_info "knockd is running." && [[ $running_status -lt 1 ]] && running_status=1
     else
         [[ $(pgrep -x knockd|wc -l) -gt 0 ]] && \
@@ -227,7 +227,7 @@ function __net-knockd_run {
 
     if command -v systemctl &>/dev/null; then
         systemctl restart knockd
-        systemctl status knockd && return 0 || \
+        systemctl status knockd --no-block --no-pager && return 0 || \
             log_error "knockd failed to run." && return 0
     else
         /etc/init.d/knockd restart && return 0 || \

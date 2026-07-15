@@ -8,6 +8,10 @@ LOCKFILE="/tmp/jangbi_base_operation.lock"
 LOCKFILE_PID="/tmp/jangbi_base_operation.pid"
 
 source jangbi_it.sh
+
+# Save original command line for forensic logging
+INIT_CMDLINE="$0 $*"
+
 echo -e "${ORANGE}" # https://patorjk.com/software/taag/#p=display&f=3D-ASCII&t=JANGBI
 echo '    ___  ________  ________   ________  ________  ___     ';
 echo '   |\  \|\   __  \|\   ___  \|\   ____\|\   __  \|\  \    ';
@@ -149,6 +153,25 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+# Detect operation mode and set log level accordingly
+if [[ -n "${IN_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="install"
+    BASH_IT_LOG_LEVEL=6  # Verbose: info + debug
+elif [[ -n "${CH_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="check"
+    BASH_IT_LOG_LEVEL=4  # Quiet: warning + error only
+elif [[ -n "${RN_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="launch"
+    BASH_IT_LOG_LEVEL=5  # Medium: debug to file, info to stdout
+elif [[ -z "${IN_OPTION}" && -z "${CH_OPTION}" && -z "${RN_OPTION}" ]]; then
+    JANGBI_OPERATION_MODE="boot"
+    BASH_IT_LOG_LEVEL=6  # Verbose: first boot needs full logs
+else
+    JANGBI_OPERATION_MODE="default"
+    BASH_IT_LOG_LEVEL=5
+fi
+export JANGBI_OPERATION_MODE
+
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 # Determine if this is a check-only operation
@@ -162,6 +185,20 @@ if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
         log_error "Failed to acquire lock. Another operation is in progress."
         exit 1
     fi
+    # Enhanced forensic logging for troubleshooting
+    parent_cmd=$(ps -o comm= -p $PPID 2>/dev/null || echo 'unknown')
+    effective_user="${SUDO_USER:-$USER}"
+    log_info "=== Init started: PID=$$ PPID=$PPID USER=${effective_user} ==="
+    log_info "Command: ${INIT_CMDLINE}"
+    log_info "Parent: ${parent_cmd}"
+    log_info "Session: SSH_CLIENT=${SSH_CLIENT:-none} SSH_TTY=${SSH_TTY:-none}"
+    # Determine and log operation mode
+    operation_mode="FULL_INIT"
+    [[ -n "${CH_OPTION}" ]] && operation_mode="CHECK"
+    [[ -n "${RN_OPTION}" ]] && operation_mode="LAUNCH"
+    [[ -n "${IN_OPTION}" ]] && operation_mode="INSTALL"
+    [[ -n "${DN_OPTION}" ]] && operation_mode="DOWNLOAD"
+    log_info "Operation mode: ${operation_mode}"
     log_debug "Lock acquired (PID: $$)"
 else
     # Check operation - exit immediately if lock is held
@@ -296,7 +333,11 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 case "${processed[@]}" in  *"${load_plugin}"*) continue ;; esac
 
                 # --check
-                [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]] && ${load_plugin} check && processed+=(${load_plugin})
+                if [[ ${CH_OPTION} = "enabled" ]] || [[ ${CH_OPTION} = "${load_plugin}" ]]; then
+                    ${load_plugin} check
+                    check_exit_code=$running_status
+                    processed+=(${load_plugin})
+                fi
                 # --launch
                 [[ ${RN_OPTION} = "enabled" ]] || [[ ${RN_OPTION} = "${load_plugin}" ]] && ${load_plugin} run && processed+=(${load_plugin})
                 # --download
@@ -323,6 +364,10 @@ _validate_interfaces
 if [[ ${CH_OPTION} = "enabled" || ${RN_OPTION} = "enabled" || ${DN_OPTION} = "enabled" || ${IN_OPTION} = "enabled" || \
     $(echo "${CH_OPTION}"|grep -o "-"|wc -l) = 1 || $(echo "${RN_OPTION}"|grep -o "-"|wc -l) = 1 || \
     $(echo "${DN_OPTION}"|grep -o "-"|wc -l) = 1 || $(echo "${IN_OPTION}"|grep -o "-"|wc -l) = 1 ]]; then
+    # For check operations, exit with the running_status code
+    if [[ -n "${CH_OPTION}" ]] && [[ -n "${check_exit_code}" ]]; then
+        exit ${check_exit_code}
+    fi
     exit 0
 fi
 

@@ -336,7 +336,7 @@ function __net-netplan_check { # running_status: 0 running, 1 installed, running
   #    log_info "netplan is configured." && [[ $running_status -lt 0 ]] && running_status=0
   # check if running
   if command -v systemctl &>/dev/null; then
-      [[ $(systemctl status systemd-networkd 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
+      [[ $(systemctl status systemd-networkd --no-block --no-pager 2>/dev/null|awk '{ print $2 }'|grep -c inactive) -lt 1 ]] && \
           log_info "systemd-networkd is running." && [[ $running_status -lt 1 ]] && running_status=1
   else
       [[ $(pgrep -x systemd-networkd|wc -l) -gt 0 ]] && \
@@ -359,7 +359,7 @@ function __net-netplan_run {
   # Cannot call openvswitch: ovsdb-server.service is not running. msg is not relevant.
   netplan apply
   if command -v systemctl &>/dev/null; then
-      systemctl status systemd-networkd && return 0 || \
+      systemctl status systemd-networkd --no-block --no-pager && return 0 || \
             log_error "net-netplan failed to run." && return 1
   else
       pgrep -x systemd-networkd >/dev/null && return 0 || \
