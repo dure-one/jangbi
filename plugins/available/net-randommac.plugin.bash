@@ -171,6 +171,7 @@ function __net-randommac_check {
     ext_ip=$(curl -s --max-time 10 -4 https://icanhazip.com 2>/dev/null | xargs)
 
     if [[ -z "$ext_ip" ]]; then
+        export RANDOMMAC_TRIGGER_REASON="internet connectivity check failed"
         log_warning "Internet not reachable or icanhazip.com unavailable — will trigger MAC rotation."
         running_status=0
         return 0
@@ -187,6 +188,7 @@ function __net-randommac_check {
         for avoided in "${avoided_list[@]}"; do
             avoided="${avoided// /}"  # strip whitespace
             if __net-randommac_ip_in_range "$ext_ip" "$avoided"; then
+                export RANDOMMAC_TRIGGER_REASON="IP ${ext_ip} matches avoided range ${avoided}"
                 log_warning "External IP ${ext_ip} matches avoided entry '${avoided}' — will rotate MAC."
                 # Clear timestamp so next check re-verifies after rotation
                 rm -f "$lockfile"
@@ -202,7 +204,9 @@ function __net-randommac_check {
 }
 
 function __net-randommac_run {
-    log_debug "Running ${DMNNAME}..."
+    local trigger_reason="${RANDOMMAC_TRIGGER_REASON:-manual execution}"
+    log_info "Running ${DMNNAME} (reason: ${trigger_reason})..."
+    unset RANDOMMAC_TRIGGER_REASON  # Clear for next invocation
 
     if [[ -z "${JB_WANINF}" ]]; then
         log_error "JB_WANINF is not set, cannot change MAC."
