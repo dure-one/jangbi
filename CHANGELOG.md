@@ -12,11 +12,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- Add changelog automatically ([e282c27](https://github.com/dure-one/jangbi/commit/e282c2712749e5f4ed95bc915305e8d78ad2f7ef) by nikescar).
 - add locking for unnecessary process. ([68b6cef](https://github.com/dure-one/jangbi/commit/68b6cef38ac7e27154a664ddbaa9481fe095beb0) by Woojae, Park).
-- Add changelog automatically ([389dd8a](https://github.com/dure-one/jangbi/commit/389dd8a8bd63d2a999533774ea501cb712e61485) by nikescar).
 
 ### Fixed
 
+- fix. darkstat plugin error. ([4dcba98](https://github.com/dure-one/jangbi/commit/4dcba9811edbf45de68075269282973642def653) by Woojae, Park).
 - fix. ifupdown plugin error. ([b8e33a4](https://github.com/dure-one/jangbi/commit/b8e33a46d38bed3cc3825e8e7a6e9ac9a4ab2ec6) by Woojae, Park).
 - fix. not initiating from rc.local. ([f5dc037](https://github.com/dure-one/jangbi/commit/f5dc03775d0885b29a73de512986c7a17eeec4c6) by Woojae, Park).
 - fix. ifupdown error. ([125fc82](https://github.com/dure-one/jangbi/commit/125fc828d32606c540ecca1725fa5e65f9cc1b06) by Woojae, Park).
