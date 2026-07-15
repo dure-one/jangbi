@@ -156,14 +156,22 @@ function __net-randommac_check {
     local lockfile="/var/run/net-randommac.lastcheck"
     local interval="${RANDOMMAC_CHECK_INTERVAL:-300}"
     if [[ -f "$lockfile" ]]; then
-        local last_check now
+        local last_check now elapsed remaining
         last_check=$(cat "$lockfile" 2>/dev/null)
         now=$(date +%s)
-        if [[ -n "$last_check" ]] && [[ $(( now - last_check )) -lt $interval ]]; then
-            log_info "Last check was less than ${interval}s ago, IP assumed clean."
+        elapsed=$(( now - last_check ))
+        remaining=$(( interval - elapsed ))
+
+        if [[ -n "$last_check" ]] && [[ $elapsed -lt $interval ]]; then
+            log_info "Rate-limit active: checked ${elapsed}s ago, next check in ${remaining}s (interval=${interval}s)"
+            log_debug "Last check timestamp: $(date -d @${last_check} '+%Y-%m-%d %H:%M:%S' 2>/dev/null || echo 'invalid')"
             running_status=1
             return 0
+        else
+            log_debug "Rate-limit expired: last check was ${elapsed}s ago (>${interval}s), performing external IP check"
         fi
+    else
+        log_debug "No previous check found, performing external IP check"
     fi
 
     # Verify internet connectivity and get external IP in one request
