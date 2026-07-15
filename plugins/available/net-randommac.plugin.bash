@@ -213,6 +213,11 @@ function __net-randommac_run {
         return 1
     fi
 
+    # Record pre-change state for audit trail
+    local old_mac=$(ip link show "${JB_WANINF}" 2>/dev/null | grep -oP 'link/ether \K[^ ]+' || echo 'unknown')
+    local old_ip=$(ip -4 addr show "${JB_WANINF}" 2>/dev/null | grep -oP 'inet \K[0-9.]+' || echo 'none')
+    log_info "Pre-change state: MAC=${old_mac} IP=${old_ip} Interface=${JB_WANINF}"
+
     local max_retries=5
     local retry_count=0
     local ext_ip
@@ -277,6 +282,9 @@ function __net-randommac_run {
 
         # If IP is not avoided, we're done
         if [[ $ip_is_avoided -eq 0 ]]; then
+            local new_mac=$(ip link show "${JB_WANINF}" 2>/dev/null | grep -oP 'link/ether \K[^ ]+' || echo 'unknown')
+            log_info "Post-change state: MAC=${new_mac} IP=${ext_ip} Interface=${JB_WANINF}"
+            log_info "MAC rotation completed successfully in $((retry_count + 1)) attempt(s)"
             log_info "WAN interface ${JB_WANINF} restarted with new MAC address. IP ${ext_ip} is clean."
             return 0
         fi
