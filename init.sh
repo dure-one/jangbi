@@ -192,6 +192,13 @@ if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
     log_info "Command: ${INIT_CMDLINE}"
     log_info "Parent: ${parent_cmd}"
     log_info "Session: SSH_CLIENT=${SSH_CLIENT:-none} SSH_TTY=${SSH_TTY:-none}"
+    # Determine and log operation mode
+    operation_mode="FULL_INIT"
+    [[ -n "${CH_OPTION}" ]] && operation_mode="CHECK"
+    [[ -n "${RN_OPTION}" ]] && operation_mode="LAUNCH"
+    [[ -n "${IN_OPTION}" ]] && operation_mode="INSTALL"
+    [[ -n "${DN_OPTION}" ]] && operation_mode="DOWNLOAD"
+    log_info "Operation mode: ${operation_mode}"
     log_debug "Lock acquired (PID: $$)"
 else
     # Check operation - exit immediately if lock is held
