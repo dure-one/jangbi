@@ -8,6 +8,10 @@ LOCKFILE="/tmp/jangbi_base_operation.lock"
 LOCKFILE_PID="/tmp/jangbi_base_operation.pid"
 
 source jangbi_it.sh
+
+# Save original command line for forensic logging
+INIT_CMDLINE="$0 $*"
+
 echo -e "${ORANGE}" # https://patorjk.com/software/taag/#p=display&f=3D-ASCII&t=JANGBI
 echo '    ___  ________  ________   ________  ________  ___     ';
 echo '   |\  \|\   __  \|\   ___  \|\   ____\|\   __  \|\  \    ';
@@ -181,6 +185,13 @@ if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
         log_error "Failed to acquire lock. Another operation is in progress."
         exit 1
     fi
+    # Enhanced forensic logging for troubleshooting
+    parent_cmd=$(ps -o comm= -p $PPID 2>/dev/null || echo 'unknown')
+    effective_user="${SUDO_USER:-$USER}"
+    log_info "=== Init started: PID=$$ PPID=$PPID USER=${effective_user} ==="
+    log_info "Command: ${INIT_CMDLINE}"
+    log_info "Parent: ${parent_cmd}"
+    log_info "Session: SSH_CLIENT=${SSH_CLIENT:-none} SSH_TTY=${SSH_TTY:-none}"
     log_debug "Lock acquired (PID: $$)"
 else
     # Check operation - exit immediately if lock is held
