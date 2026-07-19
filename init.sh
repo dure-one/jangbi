@@ -222,51 +222,52 @@ fi
 [[ ! -d ./imgs ]] && mkdir -p ./imgs
 [[ ! -d ./enabled ]] && mkdir -p ./enabled
 
-# install required packages
-required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo" "ipset" "iproute2")
-missing_pkgs=()
-for pkg in "${required_pkgs[@]}"; do
-    if ! dpkg -l "${pkg}" 2>/dev/null | grep -q "^ii"; then
-        missing_pkgs+=("${pkg}")
+# install required packages (skip in check mode — minmon calls this every 30s)
+if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
+    required_pkgs=("curl" "wget" "unzip" "patch" "ipcalc-ng" "git" "extrepo" "ipset" "iproute2")
+    missing_pkgs=()
+    for pkg in "${required_pkgs[@]}"; do
+        if ! dpkg -l "${pkg}" 2>/dev/null | grep -q "^ii"; then
+            missing_pkgs+=("${pkg}")
+        fi
+    done
+    if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
+        log_debug "Installing missing packages: ${missing_pkgs[*]}"
+        apt install -qy "${missing_pkgs[@]}" > /dev/null 2>&1
+    else
+        log_debug "All required packages are already installed."
     fi
-done
-if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
-    log_debug "Installing missing packages: ${missing_pkgs[*]}"
-    apt install -qy "${missing_pkgs[@]}" > /dev/null 2>&1
-else
-    log_debug "All required packages are already installed."
 fi
 # remove debian official repository for security reason
 rm -rf /etc/apt/sources.list.d/extrepo_debian_official.sources
 
-# install jq binary
-if [[ -x /usr/sbin/jq ]]; then
-    log_debug "jq binary already exists at /usr/sbin/jq. Skipping download."
-else
-    log_debug "jq binary not found. Downloading..."
-    arch1_=$(dpkg --print-architecture)
-    arch1=${3:-${arch1_}}
-    [[ ${arch1} == "amd64" ]] && comparch="-64-"
-    [[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
-
-    # Try to download jq
-    if _download_github_pkgs jqlang/jq jq-linux-* "${arch1}" > /dev/null 2>&1; then
-        # Find the downloaded jq file and copy it
-        jq_file=$(find ${JANGBI_IT}/pkgs -name "jq-linux-*${arch1}*" -type f 2>/dev/null | head -1)
-        if [[ -n "${jq_file}" ]]; then
-            cp "${jq_file}" /usr/sbin/jq
-            chmod +x /usr/sbin/jq
-            log_debug "jq binary installed successfully."
-        else
-            log_error "jq binary file not found after download."
-        fi
+# install jq binary (skip in check mode — minmon calls this every 30s)
+if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
+    if [[ -x /usr/sbin/jq ]]; then
+        log_debug "jq binary already exists at /usr/sbin/jq. Skipping download."
     else
-        # Download failed - try installing from package manager as fallback
-        log_warning "jq download from GitHub failed (possibly rate limited). Trying apt install..."
-        if apt install -qy jq > /dev/null 2>&1; then
-            log_debug "jq installed from apt repository."
+        log_debug "jq binary not found. Downloading..."
+        arch1_=$(dpkg --print-architecture)
+        arch1=${3:-${arch1_}}
+        [[ ${arch1} == "amd64" ]] && comparch="-64-"
+        [[ ${arch1} == "arm64" ]] && comparch="-arm64-v8a-"
+
+        if _download_github_pkgs jqlang/jq jq-linux-* "${arch1}" > /dev/null 2>&1; then
+            jq_file=$(find ${JANGBI_IT}/pkgs -name "jq-linux-*${arch1}*" -type f 2>/dev/null | head -1)
+            if [[ -n "${jq_file}" ]]; then
+                cp "${jq_file}" /usr/sbin/jq
+                chmod +x /usr/sbin/jq
+                log_debug "jq binary installed successfully."
+            else
+                log_error "jq binary file not found after download."
+            fi
         else
-            log_error "Failed to install jq from both GitHub and apt. Some features may not work."
+            log_warning "jq download from GitHub failed (possibly rate limited). Trying apt install..."
+            if apt install -qy jq > /dev/null 2>&1; then
+                log_debug "jq installed from apt repository."
+            else
+                log_error "Failed to install jq from both GitHub and apt. Some features may not work."
+            fi
         fi
     fi
 fi
@@ -298,10 +299,12 @@ JB_VARS=($(printf "%s\n" "${JB_VARS[@]}" | sort -u))
 loaded_vars=$(( set -o posix ; set )|grep -v "^JB_VARS")
 IFS=$'\n' read -d "" -ra lvars <<< "${loaded_vars}" # split
 
-# Initialize .config.last file
-echo "# Complete rendered configuration with parent hierarchy" > .config.last
-echo "# Generated at: $(date)" >> .config.last
-echo "" >> .config.last
+# Initialize .config.last file (skip in check mode)
+if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
+    echo "# Complete rendered configuration with parent hierarchy" > .config.last
+    echo "# Generated at: $(date)" >> .config.last
+    echo "" >> .config.last
+fi
 
 for((j=0;j<${#JB_VARS[@]};j++)){
     for((k=0;k<${#lvars[@]};k++)){
@@ -345,19 +348,18 @@ for((j=0;j<${#JB_VARS[@]};j++)){
                 # --install
                 [[ ${IN_OPTION} = "enabled" ]] || [[ ${IN_OPTION} = "${load_plugin}" ]] && ${load_plugin} install && processed+=(${load_plugin})
             fi
-            # Save to .config.last instead of logging
-            echo "${lvars[k]} $group_txt" >> .config.last
+            # Save to .config.last instead of logging (skip in check mode)
+            [[ ${IS_CHECK_ONLY} -eq 0 ]] && echo "${lvars[k]} $group_txt" >> .config.last
             unset group_txt
             break
         fi
     }
 }
 
-# Log that config was saved to file
-log_debug "Configuration saved to .config.last ($(wc -l < .config.last) lines)"
-
-# Validate interface names against system interfaces
-_validate_interfaces
+if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
+    log_debug "Configuration saved to .config.last ($(wc -l < .config.last) lines)"
+    _validate_interfaces
+fi
 
 [[ ${SYNC_AND_BREAK} == 1 ]] && exit 0
 # exit on check, run, download, install
