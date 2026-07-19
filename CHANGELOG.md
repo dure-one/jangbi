@@ -12,12 +12,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([03cec67](https://github.com/dure-one/jangbi/commit/03cec671c830ba7d9b03a14a7795526a34c5c89a) by nikescar).
+- Add changelog automatically ([42e9c94](https://github.com/dure-one/jangbi/commit/42e9c948bd6a7f48c8547f06a789c6196d50601d) by nikescar).
 - Add logging system enhancement design spec ([926399e](https://github.com/dure-one/jangbi/commit/926399e947636d927c59b05ed1e183e2e9a65054) by Woojae, Park).
 - add locking for unnecessary process. ([68b6cef](https://github.com/dure-one/jangbi/commit/68b6cef38ac7e27154a664ddbaa9481fe095beb0) by Woojae, Park).
 
 ### Fixed
 
+- fix(init): call __plugin_pkglist directly to avoid help-text pollution ([57defbe](https://github.com/dure-one/jangbi/commit/57defbe3d178c7e7525f623d910f4e5f2b8260fd) by Woojae, Park).
+- fix(net-randommac): use local WAN IP check, eliminate death loop ([1299ab7](https://github.com/dure-one/jangbi/commit/1299ab72cd7a03877dd5a0a59931ad5f7d97b3ac) by Woojae, Park).
+- fix(net-randommac): guard run against no-IP state during boot ([58db71c](https://github.com/dure-one/jangbi/commit/58db71cddd641b1f8b429f5bef42653ff01f62c6) by Woojae, Park).
 - fix. macchanger bug and systemctl propmpt ignore. ([c3da2ae](https://github.com/dure-one/jangbi/commit/c3da2aeb77ab878930b2d36d24e9943e3ef6fcd0) by Woojae, Park).
 - fix. randommac plugin retry on new ips in avoided ip. ([401adbc](https://github.com/dure-one/jangbi/commit/401adbc6546f619f7a9f41d4b0048ea8fdeb50c3) by Woojae, Park).
 - fix. randommac error. ([3f27d42](https://github.com/dure-one/jangbi/commit/3f27d427135349557223283217887bfdbfaa5908) by Woojae, Park).
