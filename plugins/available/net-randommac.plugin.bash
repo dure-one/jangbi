@@ -154,9 +154,16 @@ function __net-randommac_check {
     wan_ip=$(ip -4 addr show "${JB_WANINF}" 2>/dev/null | grep -oP 'inet \K[0-9.]+')
 
     if [[ -z "$wan_ip" ]]; then
-        log_debug "WAN interface ${JB_WANINF} has no IP assigned yet — skipping"
-        running_status=1
-        return 0
+        log_warning "WAN interface ${JB_WANINF} has no IP — killing dhclient and re-acquiring lease"
+        pkill -f "dhclient.*${JB_WANINF}" 2>/dev/null || true
+        dhclient "${JB_WANINF}" 2>&1 | tee -a "${BASH_IT_LOG_FILE}" || true
+        wan_ip=$(ip -4 addr show "${JB_WANINF}" 2>/dev/null | grep -oP 'inet \K[0-9.]+')
+        if [[ -z "$wan_ip" ]]; then
+            log_error "WAN interface ${JB_WANINF} still has no IP after dhclient retry"
+            running_status=1
+            return 0
+        fi
+        log_info "WAN IP acquired after dhclient retry: ${wan_ip}"
     fi
 
     log_info "WAN IP: ${wan_ip}"
