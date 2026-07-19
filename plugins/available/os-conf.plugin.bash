@@ -61,6 +61,8 @@ function os-conf {
         __os-conf_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-conf_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __os-conf_pkglist
     else
         __os-conf_help
     fi
@@ -267,6 +269,10 @@ function __os-conf_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs cron || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __os-conf_pkglist {
+    echo "cron"
 }
 
 function __os-conf_uninstall {

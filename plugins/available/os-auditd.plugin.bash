@@ -64,6 +64,8 @@ function os-auditd {
         __os-auditd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-auditd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __os-auditd_pkglist
     else
         __os-auditd_help
     fi
@@ -226,6 +228,10 @@ function __os-auditd_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs "auditd libauparse0t64" || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __os-auditd_pkglist {
+    echo "auditd"
 }
 
 function __os-auditd_disable {

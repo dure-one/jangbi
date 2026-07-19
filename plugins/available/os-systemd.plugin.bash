@@ -64,6 +64,8 @@ function os-systemd {
         __os-systemd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-systemd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __os-systemd_pkglist
     else
         __os-systemd_help
     fi
@@ -156,6 +158,10 @@ function __os-systemd_download {
             ;;
     esac
     return 0
+}
+
+function __os-systemd_pkglist {
+    echo "rsyslog netplan.io iproute2 wpasupplicant macchanger"
 }
 
 function __os-systemd_disable {

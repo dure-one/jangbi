@@ -65,6 +65,8 @@ function net-dnsmasq {
         __net-dnsmasq_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "updateblist" ]]; then
         __net-dnsmasq_update_blacklist "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-dnsmasq_pkglist
     else
         __net-dnsmasq_help
     fi
@@ -133,6 +135,10 @@ function __net-dnsmasq_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs dnsmasq-base
     return 0
+}
+
+function __net-dnsmasq_pkglist {
+    echo "dnsmasq-base"
 }
 
 function __net-dnsmasq_disable {

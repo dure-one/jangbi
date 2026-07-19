@@ -64,6 +64,8 @@ function net-netplan {
     __net-netplan_check "$2"
   elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
     __net-netplan_run "$2"
+  elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+    __net-netplan_pkglist
   else
     __net-netplan_help
   fi
@@ -144,6 +146,10 @@ function __net-netplan_download {
   log_debug "Downloading ${DMNNAME}..."
   _download_apt_pkgs "netplan.io iproute2" || log_error "${DMNNAME} download failed."
   return 0
+}
+
+function __net-netplan_pkglist {
+    echo "netplan.io iproute2 macchanger"
 }
 
 function __net-netplan_build { 

@@ -1,4 +1,4 @@
-## \brief ifupdown network configurations. <div style="text-align: right"> group:**net** | runtype:**systemd** | deps: **os-systemd** | port: **-**</div><br/>
+# \brief ifupdown network configurations. <div style="text-align: right"> group:**net** | runtype:**systemd** | deps: **os-systemd** | port: **-**</div><br/>
 ## \desc 
 ## [Ifupdown](https://manpages.debian.org/buster/ifupdown/interfaces.5.en.html){:target="_blank"} provides network interface configuration for Debian/Ubuntu systems.
 # This plugin provides a collection of miscellaneous utility functions for network diagnostics,
@@ -80,6 +80,8 @@ function net-ifupdown {
         __net-ifupdown_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-ifupdown_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-ifupdown_pkglist
     else
         __net-ifupdown_help
     fi
@@ -169,6 +171,10 @@ function __net-ifupdown_download {
     return 0
 }
 
+function __net-ifupdown_pkglist {
+    echo "ifupdown iproute2 macchanger"
+}
+
 function __net-ifupdown_disable {
     log_debug "Disabling ${DMNNAME}..."
     if command -v systemctl &>/dev/null; then
@@ -225,7 +231,7 @@ function __net-ifupdown_run {
     if [[ -n "${JB_WANMAC}" ]] && [[ -n "${JB_WANINF}" ]]; then
         # Bring interface down first
         ip link set "${JB_WANINF}" down
-
+        killall dhclient
         # Apply MAC change
         change_mac "${JB_WANINF}" "${JB_WANMAC}"
     fi

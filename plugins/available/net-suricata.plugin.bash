@@ -64,6 +64,8 @@ function net-suricata {
         __net-suricata_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "updaterules" ]]; then
         __net-suricata_update_rules "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-suricata_pkglist
     else
         __net-suricata_help
     fi
@@ -143,6 +145,10 @@ function __net-suricata_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs "suricata" || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __net-suricata_pkglist {
+    echo "suricata"
 }
 
 function __net-suricata_disable {

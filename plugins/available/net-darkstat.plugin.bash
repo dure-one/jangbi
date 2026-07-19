@@ -66,6 +66,8 @@ function net-darkstat {
         __net-darkstat_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "cronjob" ]]; then
         __net-darkstat_cronjob "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-darkstat_pkglist
     else
         __net-darkstat_help
     fi
@@ -180,6 +182,10 @@ function __net-darkstat_download {
     _download_github_pkgs nikescar/html-table-csv-converter html-table-csv-converter-*-linux-musl.tar.gz || log_error "${DMNNAME} download failed."
     _download_github_pkgs nikescar/cdn-lookup cdn-lookup-*-linux-musl.tar.gz || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __net-darkstat_pkglist {
+    echo "darkstat"
 }
 
 function __net-darkstat_disable {

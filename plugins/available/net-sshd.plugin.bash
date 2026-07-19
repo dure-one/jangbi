@@ -64,6 +64,8 @@ function net-sshd {
         __net-sshd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-sshd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-sshd_pkglist
     else
         __net-sshd_help
     fi
@@ -134,6 +136,10 @@ function __net-sshd_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs openssh-server || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __net-sshd_pkglist {
+    echo "openssh-server"
 }
 
 function __net-sshd_disable {

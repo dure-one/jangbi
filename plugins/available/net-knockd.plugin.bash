@@ -62,6 +62,8 @@ function net-knockd {
         __net-knockd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-knockd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-knockd_pkglist
     else
         __net-knockd_help
     fi
@@ -167,6 +169,10 @@ function __net-knockd_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs knockd
     return 0
+}
+
+function __net-knockd_pkglist {
+    echo "knockd"
 }
 
 function __net-knockd_uninstall {

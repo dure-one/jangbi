@@ -54,6 +54,8 @@ function net-randommac {
         __net-randommac_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-randommac_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-randommac_pkglist
     else
         __net-randommac_help
     fi
@@ -93,6 +95,10 @@ function __net-randommac_download {
     log_debug "Downloading ${DMNNAME}..."
     # macchanger is an apt package; no pre-downloaded binary needed
     return 0
+}
+
+function __net-randommac_pkglist {
+    echo "macchanger"
 }
 
 function __net-randommac_disable {

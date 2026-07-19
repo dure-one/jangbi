@@ -133,6 +133,8 @@ function net-iptables {
         __net-iptables_build "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "watch" ]]; then
         __net-iptables_watch "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-iptables_pkglist
     else
         __net-iptables_help
     fi
@@ -217,6 +219,10 @@ function __net-iptables_configapply {
 function __net-iptables_download {
     _download_apt_pkgs "nftables iptables arptables net-tools ipset iprange" || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __net-iptables_pkglist {
+    echo "nftables iptables arptables net-tools ipset iprange"
 }
 
 function __net-iptables_uninstall {

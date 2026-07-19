@@ -377,6 +377,43 @@ fi
 prenet+=("${prenetdeps[@]}")
 postnet+=("${postnetdeps[@]}")
 
+# Batch APT pre-pass: collect packages from all plugins, install once (skip in check mode)
+if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
+    log_debug "Collecting packages from enabled plugins..."
+    _batch_pkgs=()
+    for _plugin in "${prenet[@]}" "${postnet[@]}"; do
+        if declare -f "${_plugin}" > /dev/null 2>&1; then
+            _pkgs=$(${_plugin} pkglist 2>/dev/null)
+            [[ -n "$_pkgs" ]] && _batch_pkgs+=($_pkgs)
+        fi
+    done
+
+    _missing_batch=()
+    for _pkg in $(printf '%s\n' "${_batch_pkgs[@]}" | sort -u); do
+        dpkg -l "$_pkg" 2>/dev/null | grep -q "^ii" || _missing_batch+=("$_pkg")
+    done
+
+    if [[ ${#_missing_batch[@]} -gt 0 ]]; then
+        log_info "Batch installing packages: ${_missing_batch[*]}"
+        if printf '%s\n' "${_missing_batch[@]}" | grep -q "^suricata$"; then
+            [[ $(find /etc/apt/sources.list.d | grep -c "extrepo_debian_official") -lt 1 ]] && \
+                extrepo enable debian_official
+        fi
+        apt update -qy
+        apt install -qy "${_missing_batch[@]}"
+        rm -rf /etc/apt/sources.list.d/extrepo_debian_official.sources
+        for _pkg in "${_missing_batch[@]}"; do
+            if ! dpkg -l "$_pkg" 2>/dev/null | grep -q "^ii"; then
+                log_error "Package failed to install: ${_pkg}"
+            fi
+        done
+        log_info "Batch install complete: ${#_missing_batch[@]} packages installed"
+    else
+        log_debug "All plugin packages already installed — skipping batch apt"
+    fi
+    unset _batch_pkgs _missing_batch _plugin _pkgs _pkg
+fi
+
 # add to rclocal
 if [[ ${ADDTO_RCLOCAL} -gt 0 ]]; then
     [ ! -f "/etc/rc.local" ] && cp ./configs/rc.local /etc/rc.local

@@ -67,6 +67,8 @@ function net-xtables {
         __net-xtables_build "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "watch" ]]; then
         __net-xtables_watch "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-xtables_pkglist
     else
         __net-xtables_help
     fi
@@ -157,6 +159,10 @@ function __net-xtables_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs "xtables-addons-common" || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __net-xtables_pkglist {
+    echo "xtables-addons-common"
 }
 
 function __net-xtables_uninstall { 

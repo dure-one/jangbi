@@ -62,6 +62,8 @@ function os-redis {
         __os-redis_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __os-redis_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __os-redis_pkglist
     else
         __os-redis_help
     fi
@@ -146,6 +148,10 @@ function __os-redis_download {
     [[ $(find /etc/apt/sources.list.d|grep -c "redis") -lt 1 ]] && extrepo enable redis && apt update -qy
     _download_apt_pkgs redis-server || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __os-redis_pkglist {
+    echo "redis-server"
 }
 
 function __os-redis_uninstall {

@@ -63,6 +63,8 @@ function os-aide {
         __os-aide_run "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "checkpoint" ]]; then
         __os-aide_checkpoint "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __os-aide_pkglist
     else
         __os-aide_help
     fi
@@ -224,6 +226,10 @@ function __os-aide_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs "aide" || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __os-aide_pkglist {
+    echo "aide"
 }
 
 function __os-aide_disable {

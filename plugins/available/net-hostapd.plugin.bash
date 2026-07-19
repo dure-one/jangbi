@@ -64,6 +64,8 @@ function net-hostapd {
         __net-hostapd_check "$2"
     elif [[ $# -eq 1 ]] && [[ "$1" = "run" ]]; then
         __net-hostapd_run "$2"
+    elif [[ $# -eq 1 ]] && [[ "$1" = "pkglist" ]]; then
+        __net-hostapd_pkglist
     else
         __net-hostapd_help
     fi
@@ -136,6 +138,10 @@ function __net-hostapd_download {
     log_debug "Downloading ${DMNNAME}..."
     _download_apt_pkgs hostapd || log_error "${DMNNAME} download failed."
     return 0
+}
+
+function __net-hostapd_pkglist {
+    echo "isc-dhcp-client ifupdown iproute2 wpasupplicant macchanger"
 }
 
 function __net-hostapd_disable { 
