@@ -37,8 +37,15 @@ done
 # Phase 3: Single batch install + verification
 if [[ ${#missing_pkgs[@]} -gt 0 ]]; then
     log_info "Batch installing packages: ${missing_pkgs[*]}"
+    # suricata requires debian_official extrepo (removed at line 240 for security)
+    if printf '%s\n' "${missing_pkgs[@]}" | grep -q "^suricata$"; then
+        [[ $(find /etc/apt/sources.list.d | grep -c "extrepo_debian_official") -lt 1 ]] && \
+            extrepo enable debian_official
+    fi
     apt update -qy
     apt install -qy "${missing_pkgs[@]}"
+    # Remove extrepo_debian_official again (security policy — same as line 240)
+    rm -rf /etc/apt/sources.list.d/extrepo_debian_official.sources
     # Verify each package
     for pkg in "${missing_pkgs[@]}"; do
         if ! dpkg -l "$pkg" 2>/dev/null | grep -q "^ii"; then
@@ -74,7 +81,7 @@ function __net-dnsmasq_pkglist {
 | net-darkstat | darkstat |
 | net-sshd | openssh-server |
 | net-iptables | nftables iptables arptables net-tools ipset iprange |
-| net-suricata | *(empty — uses extrepo setup in its own install function)* |
+| net-suricata | suricata *(requires extrepo_debian_official enabled before install)* |
 | net-xtables | xtables-addons-common |
 | os-conf | cron |
 | os-aide | aide |
