@@ -190,6 +190,16 @@ function __net-randommac_run {
         return 1
     fi
 
+    # Guard: don't rotate if WAN has no IP yet — DHCP hasn't completed.
+    # FORCE_INSTALL=1 can trigger run even when check said skip; this prevents
+    # ifdown/pkill-dhclient from killing an interface that's still acquiring its lease.
+    local _current_ip
+    _current_ip=$(ip -4 addr show "${JB_WANINF}" 2>/dev/null | grep -oP 'inet \K[0-9.]+')
+    if [[ -z "$_current_ip" ]]; then
+        log_info "WAN ${JB_WANINF} has no IP assigned yet — skipping MAC rotation"
+        return 0
+    fi
+
     local old_mac
     old_mac=$(ip link show "${JB_WANINF}" 2>/dev/null | grep -oP 'link/ether \K[^ ]+' || echo 'unknown')
     local old_ip

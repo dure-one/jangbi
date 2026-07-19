@@ -79,6 +79,18 @@ else
 fi
 rm -f "$_CURL_SENTINEL"
 
+# Test 6: run guard — no IP → skip without touching interface (FORCE_INSTALL safety)
+ifdown() { echo "IFDOWN_CALLED"; }
+pkill() { echo "PKILL_CALLED"; }
+ip() { echo "2: wan1: <BROADCAST,MULTICAST,UP,LOWER_UP>"; }  # no inet line = no IP
+JB_WANINF="wan1"; RANDOMMAC_AVOIDED_IPS=""
+_run_output=$(net-randommac run 2>&1)
+if [[ "$_run_output" != *"IFDOWN_CALLED"* ]] && [[ "$_run_output" != *"PKILL_CALLED"* ]]; then
+    echo "PASS: run with no WAN IP exits cleanly without touching interface"
+else
+    echo "FAIL: run called ifdown/pkill when WAN had no IP — would kill dhclient during boot"; FAILED=1
+fi
+
 echo ""
-echo "Results: $((5 - FAILED)) passed, $FAILED failed"
+echo "Results: $((6 - FAILED)) passed, $FAILED failed"
 [[ $FAILED -eq 0 ]]
