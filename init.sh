@@ -382,8 +382,11 @@ if [[ ${IS_CHECK_ONLY} -eq 0 ]]; then
     log_debug "Collecting packages from enabled plugins..."
     _batch_pkgs=()
     for _plugin in "${prenet[@]}" "${postnet[@]}"; do
-        if declare -f "${_plugin}" > /dev/null 2>&1; then
-            _pkgs=$(${_plugin} pkglist 2>/dev/null)
+        # Call __plugin_pkglist directly — avoids dispatcher fallback to help text
+        # and avoids triggering _check_config_reload on every plugin call
+        _pkglist_fn="__${_plugin}_pkglist"
+        if declare -f "${_pkglist_fn}" > /dev/null 2>&1; then
+            _pkgs=$(${_pkglist_fn})
             [[ -n "$_pkgs" ]] && _batch_pkgs+=($_pkgs)
         fi
     done

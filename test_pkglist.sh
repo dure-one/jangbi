@@ -62,6 +62,13 @@ else
     echo "FAIL: batch pre-pass not gated by IS_CHECK_ONLY"; FAILED=1
 fi
 
+# Test: pre-pass calls __plugin_pkglist directly (no dispatcher fallback to help text)
+if grep -A10 "Collecting packages" init.sh | grep -q "__\${_plugin}_pkglist\|_pkglist_fn"; then
+    echo "PASS: pre-pass calls __plugin_pkglist directly (no dispatcher fallback)"
+else
+    echo "FAIL: pre-pass uses dispatcher — plugins without pkglist will emit help text as packages"; FAILED=1
+fi
+
 echo ""
 total=$((${#EXPECTED[@]} + 2))
 echo "Results: $((total - FAILED)) passed, $FAILED failed"
