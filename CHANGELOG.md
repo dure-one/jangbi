@@ -12,11 +12,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Add changelog automatically ([e282c27](https://github.com/dure-one/jangbi/commit/e282c2712749e5f4ed95bc915305e8d78ad2f7ef) by nikescar).
+- Add changelog automatically ([03cec67](https://github.com/dure-one/jangbi/commit/03cec671c830ba7d9b03a14a7795526a34c5c89a) by nikescar).
+- Add logging system enhancement design spec ([926399e](https://github.com/dure-one/jangbi/commit/926399e947636d927c59b05ed1e183e2e9a65054) by Woojae, Park).
 - add locking for unnecessary process. ([68b6cef](https://github.com/dure-one/jangbi/commit/68b6cef38ac7e27154a664ddbaa9481fe095beb0) by Woojae, Park).
 
 ### Fixed
 
+- fix. macchanger bug and systemctl propmpt ignore. ([c3da2ae](https://github.com/dure-one/jangbi/commit/c3da2aeb77ab878930b2d36d24e9943e3ef6fcd0) by Woojae, Park).
+- fix. randommac plugin retry on new ips in avoided ip. ([401adbc](https://github.com/dure-one/jangbi/commit/401adbc6546f619f7a9f41d4b0048ea8fdeb50c3) by Woojae, Park).
+- fix. randommac error. ([3f27d42](https://github.com/dure-one/jangbi/commit/3f27d427135349557223283217887bfdbfaa5908) by Woojae, Park).
 - fix. darkstat plugin error. ([4dcba98](https://github.com/dure-one/jangbi/commit/4dcba9811edbf45de68075269282973642def653) by Woojae, Park).
 - fix. ifupdown plugin error. ([b8e33a4](https://github.com/dure-one/jangbi/commit/b8e33a46d38bed3cc3825e8e7a6e9ac9a4ab2ec6) by Woojae, Park).
 - fix. not initiating from rc.local. ([f5dc037](https://github.com/dure-one/jangbi/commit/f5dc03775d0885b29a73de512986c7a17eeec4c6) by Woojae, Park).
