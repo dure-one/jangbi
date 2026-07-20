@@ -16,7 +16,7 @@ source "${BASH_IT}/vendor/github.com/erichs/composure/composure.sh"
 # regenerate composure keywords
 _composure_keywords ()
 {
-  echo "about author example group param version deps runtype"
+  echo "about author example group param version deps runtype action_timeout check_timeout alarm_status_codes"
 }
 _bootstrap_composure() {
   _generate_metadata_functions

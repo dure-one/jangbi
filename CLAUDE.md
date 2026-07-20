@@ -74,7 +74,22 @@ Jangbi is a security-focused network appliance framework for ARM SBCs (NanoPi, O
 Each plugin is a single `.bash` file in `plugins/available/`. A plugin defines:
 - A main dispatcher function named after the plugin (e.g., `net-dnsmasq`)
 - Private helpers prefixed `__pluginname_` (e.g., `__net-dnsmasq_check`)
-- Metadata via composure: `group`, `runtype`, `deps`
+- Metadata via composure: `group`, `runtype`, `deps`, and optional minmon tuning metadata
+
+### Plugin composure metadata
+
+Declared inside the main dispatcher function body. All keywords are no-ops at runtime; `metafor <keyword>` extracts the value from the function text.
+
+| Keyword | Required | Default | Purpose |
+|---------|----------|---------|---------|
+| `group` | yes | — | Execution group (`prenet`, `postnet`, etc.) |
+| `runtype` | yes | — | How the plugin is managed (`minmon`, `systemd`, `cron`, `none`) |
+| `deps` | no | — | Plugin dependencies (space-separated names) |
+| `action_timeout` | no | `60` | Seconds minmon waits for `--launch` before killing it |
+| `check_timeout` | no | `15` | Seconds minmon waits for `--check` before killing it |
+| `alarm_status_codes` | no | `[0]` | The minmon "healthy" exit code list (see Monitoring section) |
+
+The keywords `action_timeout`, `check_timeout`, and `alarm_status_codes` are Jangbi extensions registered in `jangbi_it.sh:_composure_keywords()`. The `os-minmon configgen` reads them when generating `/etc/minmon/minmon.toml`.
 
 ### Plugin groups (execution order)
 
@@ -87,7 +102,7 @@ Each plugin is a single `.bash` file in `plugins/available/`. A plugin defines:
 
 ### Plugin runtypes
 
-- `minmon` — managed by the `minmon` process-monitor (checks every 30s, restarts on failure)
+- `minmon` — managed by the `minmon` process-monitor (checks every 30s, calls `--launch` when alarm fires after 2 bad cycles)
 - `systemd` — managed by systemd unit files
 - `cron` — managed via crontab entries
 - `none` / `manual` — one-time install, no persistent runner
@@ -195,9 +210,63 @@ log_fatal "msg"   # always prints + always writes to file (no level check)
 
 `os-minmon` installs the `minmon` binary and configures `/etc/minmon/minmon.toml`. For every plugin with `runtype=minmon`, minmon runs:
 - `init.sh --check <plugin>` every 30 seconds
-- `init.sh --launch <plugin>` when the check detects the process is down (after 2 cycles)
+- `init.sh --launch <plugin>` when the check signals a problem (after 2 consecutive bad cycles)
 
-This is how dnsmasq, suricata, wactws, etc. recover from crashes without systemd.
+Minmon logs to `/var/log/minmon.log` (stdout of the minmon process).
+
+### How minmon interprets `--check` exit codes
+
+**`status_codes = [X]`** in the minmon TOML alarm means: exit code X is **healthy** (no alarm). Any other exit code triggers the alarm.
+
+This is counterintuitive. `status_codes = [0]` does **not** mean "alarm when exit code is 0" — it means "exit code 0 = all good, anything else = alarm fires."
+
+For standard service plugins (`status_codes = [0]` default):
+
+| `running_status` | Meaning | init.sh exit code | Minmon reaction |
+|-----------------|---------|-------------------|-----------------|
+| 0 | Service needs to be started | 0 | Healthy — no alarm (minmon does nothing) |
+| 1 | Service is running | 1 | Alarm fires → calls `--launch` → `run` (idempotent keepalive) |
+| 5, 10, 15, 20 | Other states | 5/10/15/20 | Alarm fires |
+
+**Implication:** Minmon does **not** restart a crashed service. When a service is down (exit 0), minmon sees healthy state. Minmon's launch action (called when service IS running, exit 1) is an idempotent heartbeat — it calls `run` which is a no-op if already running. Recovery from crashes relies on the boot sequence or manual intervention.
+
+### Plugins that invert the convention (`alarm_status_codes '[1]'`)
+
+For `net-randommac`, the "needs action" state (IP in avoided list) maps to `running_status=0` (exit 0). Using `status_codes = [0]` would mean "IP is avoided = healthy", which is wrong. Setting `alarm_status_codes '[1]'` in the plugin metadata generates `status_codes = [1]` in the TOML, so:
+
+| `running_status` | Meaning | Exit code | Minmon reaction |
+|-----------------|---------|-----------|-----------------|
+| 0 | IP is in avoided list | 0 | Alarm fires → `--launch` → MAC rotation |
+| 1 | IP is OK | 1 | Healthy — no alarm |
+
+Use `alarm_status_codes '[1]'` for any plugin where `running_status=0` means "needs action" AND the action should be minmon-triggered.
+
+### `--launch` bypasses `process_each_step`
+
+When minmon calls `init.sh --launch <plugin>`, init.sh calls `<plugin> run` **directly** — it does not call check first and does not route through `process_each_step`. The `run` subcommand must be safe to call unconditionally (guard internally if needed).
+
+### Concurrent check load
+
+Six enabled plugins each run `init.sh --check` every 30 seconds. Under concurrent load all six processes run simultaneously. Each `init.sh --check` takes 3–9 seconds (framework load + config parse + plugin sources). The default `check_timeout = 15` in `configs/minmon/template.toml` gives headroom; plugins needing more time can set `check_timeout '<N>'` in their metadata.
+
+### minmon.toml generation
+
+`os-minmon configgen` generates `/etc/minmon/minmon.toml` from `configs/minmon/minmon.toml` (header) + one `configs/minmon/template.toml` block per `runtype=minmon` plugin. Template placeholders:
+- `__PLUGINNAME__` → plugin name
+- `__ACTION_TIMEOUT__` → from `action_timeout` metadata (default `60`)
+- `__CHECK_TIMEOUT__` → from `check_timeout` metadata (default `15`)
+- `__ALARM_STATUS_CODES__` → from `alarm_status_codes` metadata (default `[0]`)
+
+After changing minmon.toml or plugin metadata, restart minmon:
+```bash
+pidof minmon | xargs kill -9 2>/dev/null
+minmon /etc/minmon/minmon.toml 1>>/var/log/minmon.log 2>&1 &
+```
+
+Or reinstall the plugin to regenerate and apply:
+```bash
+./init.sh --install os-minmon
+```
 
 ---
 
@@ -228,6 +297,18 @@ The system RTC may be 1+ hours behind real time at first boot (before NTP sync).
 ### Multiple concurrent init.sh instances
 
 `minmon` calls `init.sh --check <plugin>` every 30 seconds for each enabled plugin. These run concurrently with each other and with any manual invocations. All share the same `output.log`. The JB_VARS config-reload logic uses timestamps to avoid redundant reloads across instances.
+
+### minmon `status_codes` is the healthy-code list, not the alarm-code list
+
+`status_codes = [0]` means exit code 0 is **healthy** (no alarm fires). Any exit code **not** in the list triggers the alarm. This is the opposite of what the name suggests. When diagnosing "why doesn't minmon react to this plugin", always verify which exit code the check returns and whether it matches `status_codes`.
+
+### minmon action timeout kills `--launch` if networking is slow
+
+The default action timeout is 60 seconds. `net-randommac run` calls `ifdown`/`ifup` (dhclient), which can take 20–60 seconds per attempt. With 5 retry attempts the run can exceed 300 seconds. When minmon kills the action due to timeout, the alarm enters `error_repeat_cycles` suppression (100 minutes by default) and silently stops retrying. Set `action_timeout '<N>'` in the plugin metadata for long-running launch actions.
+
+### `log_info` is suppressed in `--launch` mode
+
+`BASH_IT_LOG_LEVEL=5` during `--launch`. `log_info` requires level ≥ 6 to write to file. Routine launch actions (MAC rotation, service restarts) leave no trace in `output.log` by design. Use `log_warning` or `log_error` for anything that must persist.
 
 ---
 

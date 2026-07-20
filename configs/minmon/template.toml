@@ -6,7 +6,7 @@ name = "__PLUGINNAME__ check"
 type = "ProcessExitStatus"
 # check optional
 interval = 30
-timeout = 5
+timeout = __CHECK_TIMEOUT__
 # ProcessExitStatus
 #path = "/usr/bin/pidof"
 #arguments = ["dnsmasq"]
@@ -15,7 +15,7 @@ path = "/opt/jangbi/init.sh"
 arguments = ["--check","__PLUGINNAME__"]
 
 [[checks.alarms]]
-status_codes = [0]
+status_codes = __ALARM_STATUS_CODES__
 disable = false
 name = "__PLUGINNAME__ alarm"
 action = "__PLUGINNAME__ run"
@@ -28,7 +28,7 @@ error_action = "Log error"
 [[actions]]
 name = "__PLUGINNAME__ run"
 type = "Process"
-timeout = 60
+timeout = __ACTION_TIMEOUT__
 path = "/opt/jangbi/init.sh"
 arguments = ["--launch","__PLUGINNAME__"]
 ### __PLUGINNAME__ end ###

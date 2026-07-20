@@ -206,6 +206,16 @@ function __os-minmon_generate_config {
         if [[ ${runtype} == "minmon" ]]; then
             cp ./configs/minmon/template.toml /tmp/minmon/template.toml
             sed -i "s|__PLUGINNAME__|${lvars[j]}|g" "/tmp/minmon/template.toml"
+            local action_timeout_val check_timeout_val alarm_status_codes_val
+            action_timeout_val=$(typeset -f -- "${lvars[j]}" | metafor action_timeout)
+            [[ -z "$action_timeout_val" ]] && action_timeout_val=60
+            check_timeout_val=$(typeset -f -- "${lvars[j]}" | metafor check_timeout)
+            [[ -z "$check_timeout_val" ]] && check_timeout_val=15
+            alarm_status_codes_val=$(typeset -f -- "${lvars[j]}" | metafor alarm_status_codes)
+            [[ -z "$alarm_status_codes_val" ]] && alarm_status_codes_val='[0]'
+            sed -i "s|__ACTION_TIMEOUT__|${action_timeout_val}|g" "/tmp/minmon/template.toml"
+            sed -i "s|__CHECK_TIMEOUT__|${check_timeout_val}|g" "/tmp/minmon/template.toml"
+            sed -i "s|__ALARM_STATUS_CODES__|${alarm_status_codes_val}|g" "/tmp/minmon/template.toml"
             cat /tmp/minmon/template.toml >> /tmp/minmon/minmon.toml
         fi
     }
