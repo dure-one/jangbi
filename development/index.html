@@ -405,10 +405,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -644,29 +640,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../plugins/net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -999,29 +972,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../plugins/os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1282,7 +1232,6 @@ os-minmon<span class="w">            </span><span class="o">[</span>x<span class
 os-redis<span class="w">             </span><span class="o">[</span>x<span class="o">]</span><span class="w">        </span>redis<span class="w"> </span>install<span class="w"> </span>configurations.
 os-sysctl<span class="w">            </span><span class="o">[</span>x<span class="o">]</span><span class="w">        </span>sysctl<span class="w"> </span>install<span class="w"> </span>configurations.
 os-systemd<span class="w">           </span><span class="o">[</span>x<span class="o">]</span><span class="w">        </span>setup<span class="w"> </span>systemd.
-os-vector<span class="w">            </span><span class="o">[</span>x<span class="o">]</span><span class="w">        </span>vector<span class="w"> </span>install<span class="w"> </span>configurations.
 
 <span class="c1"># restart jangbi-it to reload src changes</span>
 $<span class="w"> </span>jangbi-it<span class="w"> </span>restart
@@ -1320,19 +1269,19 @@ $<span class="w"> </span>janbi-it<span class="w"> </span><span class="nb">enable
 </ul>
 <h2 id="composure-notations">composure notations<a class="headerlink" href="#composure-notations" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><pre><span></span><code>cite<span class="w"> </span>about-plugin
-about-plugin<span class="w"> </span><span class="s1">&#39;darkstat install configurations.&#39;</span>
+about-plugin<span class="w"> </span><span class="s1">'darkstat install configurations.'</span>
 
 <span class="k">function</span><span class="w"> </span>net-darkstat<span class="w"> </span><span class="o">{</span>
-<span class="w">    </span>about<span class="w"> </span><span class="s1">&#39;darkstat install configurations&#39;</span>
-<span class="w">    </span>group<span class="w"> </span><span class="s1">&#39;postnet&#39;</span>
-<span class="w">    </span>runtype<span class="w"> </span><span class="s1">&#39;minmon&#39;</span>
-<span class="w">    </span>deps<span class="w">  </span><span class="s1">&#39;&#39;</span>
-<span class="w">    </span>param<span class="w"> </span><span class="s1">&#39;1: command&#39;</span>
-<span class="w">    </span>param<span class="w"> </span><span class="s1">&#39;2: params&#39;</span>
-<span class="w">    </span>example<span class="w"> </span><span class="s1">&#39;$ net-darkstat subcommand&#39;</span>
-<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">PKGNAME</span><span class="o">=</span><span class="s2">&quot;darkstat&quot;</span>
-<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">DMNNAME</span><span class="o">=</span><span class="s2">&quot;net-darkstat&quot;</span>
-<span class="w">    </span><span class="nv">BASH_IT_LOG_PREFIX</span><span class="o">=</span><span class="s2">&quot;net-darkstat: &quot;</span>
+<span class="w">    </span>about<span class="w"> </span><span class="s1">'darkstat install configurations'</span>
+<span class="w">    </span>group<span class="w"> </span><span class="s1">'postnet'</span>
+<span class="w">    </span>runtype<span class="w"> </span><span class="s1">'minmon'</span>
+<span class="w">    </span>deps<span class="w">  </span><span class="s1">''</span>
+<span class="w">    </span>param<span class="w"> </span><span class="s1">'1: command'</span>
+<span class="w">    </span>param<span class="w"> </span><span class="s1">'2: params'</span>
+<span class="w">    </span>example<span class="w"> </span><span class="s1">'$ net-darkstat subcommand'</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">PKGNAME</span><span class="o">=</span><span class="s2">"darkstat"</span>
+<span class="w">    </span><span class="nb">local</span><span class="w"> </span><span class="nv">DMNNAME</span><span class="o">=</span><span class="s2">"net-darkstat"</span>
+<span class="w">    </span><span class="nv">BASH_IT_LOG_PREFIX</span><span class="o">=</span><span class="s2">"net-darkstat: "</span>
 ...
 <span class="o">}</span>
 </code></pre></div>

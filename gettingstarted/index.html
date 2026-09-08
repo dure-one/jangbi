@@ -582,10 +582,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -821,29 +817,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../plugins/net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -1176,29 +1149,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../plugins/os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1457,11 +1407,11 @@ ip<span class="w"> </span>a
 nano<span class="w"> </span>.config
 <span class="c1"># Example interface assignments for gateway mode:</span>
 <span class="nv">JB_WANINF</span><span class="o">=</span>eth0<span class="w">      </span><span class="c1"># WAN interface (internet connection)</span>
-<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
+<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">"dhcp"</span>
 <span class="nv">JB_LANINF</span><span class="o">=</span>eth1<span class="w">      </span><span class="c1"># LAN interface (local network)</span>
-<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">&quot;192.168.79.1/24&quot;</span>
+<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">"192.168.79.1/24"</span>
 <span class="nv">JB_WLANINF</span><span class="o">=</span>wlan0<span class="w">    </span><span class="c1"># WLAN interface (WiFi AP)</span>
-<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">&quot;192.168.89.1/24&quot;</span>
+<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">"192.168.89.1/24"</span>
 </code></pre></div>
 <h3 id="4-configure-plugins-to-run">4. Configure Plugins to run<a class="headerlink" href="#4-configure-plugins-to-run" title="Permanent link">¤</a></h3>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># Edit configuration file</span>
@@ -1469,7 +1419,7 @@ $<span class="w"> </span>nano<span class="w"> </span>.config
 <span class="c1"># gateway apps</span>
 <span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts&quot;</span>
+<span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">"https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"</span>
 <span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span>
@@ -1513,7 +1463,6 @@ $<span class="w"> </span>net-darkstat<span class="w"> </span>run<span class="w">
 <li><a href="../plugins/net-ifupdown/"><code>net-ifupdown</code></a> - Network Interface Management</li>
 <li><a href="../plugins/net-iptables/"><code>net-iptables</code></a> - Firewall management</li>
 <li><a href="../plugins/net-knockd/"><code>net-knockd</code></a> - Port knocking daemon</li>
-<li><a href="../plugins/net-omnip/"><code>net-omnip</code></a> - Omnip all-in-one QUIC proxy</li>
 <li><a href="../plugins/net-shoes/"><code>net-shoes</code></a> - Shoes multi-protocol proxy server</li>
 <li><a href="../plugins/net-sshd/"><code>net-sshd</code></a> - SSH daemon hardening</li>
 <li><a href="../plugins/net-v2ray/"><code>net-v2ray</code></a> - V2Ray comprehensive proxy platform</li>
@@ -1528,7 +1477,6 @@ $<span class="w"> </span>net-darkstat<span class="w"> </span>run<span class="w">
 <li><a href="../plugins/os-redis/"><code>os-redis</code></a> - Redis in-memory data store</li>
 <li><a href="../plugins/os-sysctl/"><code>os-sysctl</code></a> - Kernel parameter tuning</li>
 <li><a href="../plugins/os-systemd/"><code>os-systemd</code></a> - Systemd service management</li>
-<li><a href="../plugins/os-vector/"><code>os-vector</code></a> - Log management</li>
 </ul>
 <p>All plugins follow a consistent command structure:</p>
 <div class="language-bash highlight"><pre><span></span><code>&lt;plugin-name&gt;<span class="w"> </span>&lt;command&gt;
@@ -1549,26 +1497,31 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">FORCE_INSTALL</span><span class="o">=</span><span class="m">0</span>
 
 <span class="c1">## bash-it log settings</span>
-<span class="nv">BASH_IT_LOG_FILE</span><span class="o">=</span><span class="s2">&quot;output.log&quot;</span>
+<span class="nv">BASH_IT_LOG_FILE</span><span class="o">=</span><span class="s2">"output.log"</span>
 <span class="c1"># 0 - no log, 1 - fatal, 3 - error, 4 - warning, 5 - debug, 6 - info, 6 - all, 7 - trace, </span>
 <span class="nv">BASH_IT_LOG_LEVEL</span><span class="o">=</span><span class="m">6</span>
 
 <span class="c1">## device config</span>
-<span class="nv">DIST_DEVICE</span><span class="o">=</span><span class="s2">&quot;orangepi5-plus&quot;</span>
-<span class="nv">DIST_NAME</span><span class="o">=</span><span class="s2">&quot;armbian_bookworm_aarch64&quot;</span>
+<span class="nv">DIST_DEVICE</span><span class="o">=</span><span class="s2">"orangepi5-plus"</span>
+<span class="nv">DIST_NAME</span><span class="o">=</span><span class="s2">"armbian_bookworm_aarch64"</span>
 
 <span class="c1">##  os config</span>
 <span class="nv">RUN_OS_CONF</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">CONF_TIMEZONE</span><span class="o">=</span><span class="s2">&quot;Asia/Seoul&quot;</span>
+<span class="nv">CONF_TIMEZONE</span><span class="o">=</span><span class="s2">"Asia/Seoul"</span>
 <span class="c1">## if os system existing swap size is bigger than 1Gb, not replace existing one</span>
-<span class="nv">CONF_SWAPSIZE</span><span class="o">=</span><span class="s2">&quot;1G&quot;</span>
-<span class="nv">CONF_TIMESYNC</span><span class="o">=</span><span class="s2">&quot;http&quot;</span><span class="w"> </span><span class="c1"># ntp or http</span>
-<span class="nv">DNS_UPSTREAM</span><span class="o">=</span><span class="s2">&quot;1.1.1.1&quot;</span>
+<span class="nv">CONF_SWAPSIZE</span><span class="o">=</span><span class="s2">"8G"</span>
+<span class="nv">CONF_SWAPPATH</span><span class="o">=</span><span class="s2">"/media/mmcblk0p1"</span>
+<span class="nv">CONF_TIMESYNC</span><span class="o">=</span><span class="s2">"http"</span><span class="w"> </span><span class="c1"># ntp or http</span>
+<span class="nv">DNS_UPSTREAM</span><span class="o">=</span><span class="s2">"1.1.1.1"</span>
+
+<span class="c1">## GitHub API token for avoiding rate limits (optional)</span>
+<span class="c1">## Get token at: https://github.com/settings/tokens (no special scopes needed for public repos)</span>
+<span class="nv">GITHUB_TOKEN</span><span class="o">=</span><span class="s2">""</span>
 
 <span class="c1">## host specific configurations</span>
-<span class="nv">JB_DEPLOY_PATH</span><span class="o">=</span><span class="s2">&quot;/opt/jangbi&quot;</span>
+<span class="nv">JB_DEPLOY_PATH</span><span class="o">=</span><span class="s2">"/opt/jangbi"</span>
 <span class="nv">JB_USERID</span><span class="o">=</span><span class="nb">test</span>
-<span class="nv">JB_SSHPUBKEY</span><span class="o">=</span><span class="s2">&quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXueL1iMLhGA8N5Fv1va1sUFfcC+U+6pl8uxI8kQr/m/Du9sMZD/bU1hmcy10sQmMx12vdyImJC8BEwwf/1HxZ/o/qD5N6ggiGji+t8sHE9rZX6OBYQnNUJdRmCpBNXaUyFMZdyJi8iKtuVuALLzRospczw93qed7a2nk1Fe8sLHwrOhmIqwebpQQg0sd1V8et/OvTlUoXlA26F2/+dfgsXqbp48jECJOxog1WlRkgViYB1oGRvpV5MWDXbKd9Ny2L+cRbD1H83XsawOvMz9RqT06zhQ2DwF+raCHWRJBDXWqyGL7rc7kBalMNIESc9b/5HdENG4kTUpF/3AUpNaUHHDk8TABcK9PxnOUsV17gT9+uMN8/8HLxzDfpfRzzX/HXv2crF41WNO1Dra9EOgn2q5CvalscwJK/5lKeKeyY06LNZwOn2HdlJDemTOut+6jPe4fr8Pej2107vzTWYmAEa2kQT1PBEetLqGhVJ9Us= root@com&quot;</span>
+<span class="nv">JB_SSHPUBKEY</span><span class="o">=</span><span class="s2">"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+2j9surZtCoLqrUeFmTijdlXueL1iMLhGA8N5Fv1va1sUFfcC+U+6pl8uxI8kQr/m/Du9sMZD/bU1hmcy10sQmMx12vdyImJC8BEwwf/1HxZ/o/qD5N6ggiGji+t8sHE9rZX6OBYQnNUJdRmCpBNXaUyFMZdyJi8iKtuVuALLzRospczw93qed7a2nk1Fe8sLHwrOhmIqwebpQQg0sd1V8et/OvTlUoXlA26F2/+dfgsXqbp48jECJOxog1WlRkgViYB1oGRvpV5MWDXbKd9Ny2L+cRbD1H83XsawOvMz9RqT06zhQ2DwF+raCHWRJBDXWqyGL7rc7kBalMNIESc9b/5HdENG4kTUpF/3AUpNaUHHDk8TABcK9PxnOUsV17gT9+uMN8/8HLxzDfpfRzzX/HXv2crF41WNO1Dra9EOgn2q5CvalscwJK/5lKeKeyY06LNZwOn2HdlJDemTOut+6jPe4fr8Pej2107vzTWYmAEa2kQT1PBEetLqGhVJ9Us= root@com"</span>
 
 <span class="c1">## 1 - enable systemd+netplan / 0 - disable completely(no syslog)+ifupdown / 2 - disable systemd except journald+ifupdown</span>
 <span class="c1">## 0 - none+ifupdown</span>
@@ -1583,27 +1536,29 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="c1">#JB_NETPLAN=</span>
 
 <span class="c1">## network interfaces</span>
-<span class="nv">JB_WANINF</span><span class="o">=</span><span class="s2">&quot;enP3p49s0&quot;</span>
+<span class="nv">JB_WANINF</span><span class="o">=</span><span class="s2">"enP3p49s0"</span>
+<span class="c1">## random, aa:bb:cc:dd:ee:ff</span>
+<span class="nv">JB_WANMAC</span><span class="o">=</span><span class="s2">"random"</span>
 <span class="c1">## dhcp, 192.168.5.1/24(first ip of subnet become gw ip, 192.168.5.1)</span>
-<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
+<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">"dhcp"</span>
 <span class="nv">JB_WANGW</span><span class="o">=</span>
 
 <span class="nv">JB_LANINF</span><span class="o">=</span>
-<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">&quot;192.168.79.1/24&quot;</span>
+<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">"192.168.79.1/24"</span>
 
 <span class="c1">## LAN0-LAN9 : </span>
 <span class="nv">JB_LAN1INF</span><span class="o">=</span>
-<span class="nv">JB_LAN1</span><span class="o">=</span><span class="s2">&quot;192.168.89.1/24&quot;</span>
+<span class="nv">JB_LAN1</span><span class="o">=</span><span class="s2">"192.168.89.1/24"</span>
 
 <span class="nv">JB_WLANINF</span><span class="o">=</span>
-<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">&quot;192.168.100.1/24&quot;</span>
+<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">"192.168.100.1/24"</span>
 <span class="c1">## 1 - ap, 2 - client </span>
 <span class="nv">JB_WLAN_APMODE</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">&quot;durejangbi&quot;</span>
-<span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">&quot;durejangbi&quot;</span>
+<span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">"durejangbi"</span>
+<span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">"durejangbi"</span>
 
 <span class="c1"># gateway/ client/  tunnelonly</span>
-<span class="nv">JB_ROLE</span><span class="o">=</span><span class="s2">&quot;gateway&quot;</span>
+<span class="nv">JB_ROLE</span><span class="o">=</span><span class="s2">"gateway"</span>
 
 <span class="c1"># os security</span>
 <span class="nv">RUN_OS_SYSCTL</span><span class="o">=</span><span class="m">1</span>
@@ -1612,7 +1567,7 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">ADDTO_RCLOCAL</span><span class="o">=</span><span class="m">1</span>
 <span class="c1"># only kernel firmware tar.gz link allowed</span>
 <span class="nv">RUN_OS_FIRMWARE</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">FIRMWARE_URL</span><span class="o">=</span><span class="s2">&quot;https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz&quot;</span>
+<span class="nv">FIRMWARE_URL</span><span class="o">=</span><span class="s2">"https://kernel.googlesource.com/pub/scm/linux/kernel/git/firmware/linux-firmware.git/+archive/refs/heads/main.tar.gz"</span>
 <span class="nv">SYSTEMD_REMOVERAREPKGS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_OS_DISABLEBINS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">OSLOCAL_SETTING</span><span class="o">=</span><span class="m">1</span>
@@ -1622,25 +1577,26 @@ download<span class="w">     </span><span class="c1"># Download required package
 
 <span class="c1"># network apps</span>
 <span class="nv">RUN_NET_KNOCKD</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">KNOCKD_STATIC_SSH</span><span class="o">=</span><span class="s2">&quot;12345,54321,24680,13579&quot;</span>
+<span class="nv">KNOCKD_STATIC_SSH</span><span class="o">=</span><span class="s2">"12345,54321,24680,13579"</span>
 
 <span class="nv">RUN_NET_SSHD</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">SSHD_PORT</span><span class="o">=</span><span class="s2">&quot;22&quot;</span>
-<span class="nv">SSHD_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:22&quot;</span>
-<span class="nv">SSHD_INFS</span><span class="o">=</span><span class="s2">&quot;LAN,WLAN&quot;</span>
+<span class="nv">SSHD_PORT</span><span class="o">=</span><span class="s2">"22"</span>
+<span class="nv">SSHD_PORTS</span><span class="o">=</span><span class="s2">"LO:22"</span>
+<span class="nv">SSHD_INFS</span><span class="o">=</span><span class="s2">"LAN,WLAN"</span>
+<span class="nv">SSHD_CUSTOMOPTIONS</span><span class="o">=</span><span class="s2">"PasswordAuthentication=yes\nPermitRootLogin=yes"</span>
 
 <span class="c1"># iptables</span>
 <span class="nv">RUN_NET_IPTABLES</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">IPTABLES_OVERRIDE</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+<span class="nv">IPTABLES_OVERRIDE</span><span class="o">=</span><span class="s2">""</span>
 <span class="c1"># arp rules</span>
-<span class="nv">IPTABLES_IPTABLES_WHMACADDR</span><span class="o">=</span><span class="s2">&quot;LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1&quot;</span>
+<span class="nv">IPTABLES_IPTABLES_WHMACADDR</span><span class="o">=</span><span class="s2">"LAN-aa:bb:cc:dd:ee,WAN-ab:cd:be:c0:a1"</span>
 <span class="nv">IPTABLES_GWMAC</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_ARPALLINFS</span><span class="o">=</span><span class="m">1</span>
 <span class="c1"># base rules</span>
 <span class="nv">IPTABLES_ANTISPOOFING</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROPCASTS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROPICMP</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">IPTABLES_ALLOWED_PORTS</span><span class="o">=</span><span class="s2">&quot;10897,10898&quot;</span>
+<span class="nv">IPTABLES_ALLOWED_PORTS</span><span class="o">=</span><span class="s2">"10897,10898"</span>
 <span class="nv">IPTABLES_NOISE_REDUCTION</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_UPNP</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_REJECT_AUTH</span><span class="o">=</span><span class="m">1</span>
@@ -1648,53 +1604,74 @@ download<span class="w">     </span><span class="c1"># Download required package
 <span class="nv">IPTABLES_DROP_ICMP</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_NON_SYN</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_DROP_SPOOFING</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">IPTABLES_DROP_SPOOFING_TARINF</span><span class="o">=</span><span class="s2">&quot;WAN&quot;</span>
-<span class="nv">IPTABLES_DROP_SPOOFING_NET</span><span class="o">=</span><span class="s2">&quot;224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8&quot;</span>
+<span class="nv">IPTABLES_DROP_SPOOFING_TARINF</span><span class="o">=</span><span class="s2">"WAN"</span>
+<span class="nv">IPTABLES_DROP_SPOOFING_NET</span><span class="o">=</span><span class="s2">"224.0.0.0/3,169.254.0.0/16,172.16.0.0/12,192.0.2.0/24,192.168.0.0/16,10.0.0.0/8,0.0.0.0/8,240.0.0.0/5,127.0.0.0/8"</span>
 <span class="nv">IPTABLES_LIMIT_MSS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">IPTABLES_INVALID_TCPFLAG</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">IPTABLES_BLACK_NAMELIST</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt&quot;</span>
+<span class="nv">IPTABLES_BLACK_NAMELIST</span><span class="o">=</span><span class="s2">"https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt"</span>
 
 <span class="c1"># host rules</span>
 <span class="c1"># masquerade inside to outside ex) LAN&lt;WAN|WLAN&lt;WAN</span>
-<span class="nv">IPTABLES_MASQ</span><span class="o">=</span><span class="s2">&quot;LAN&lt;WAN,LAN1&lt;WAN&quot;</span>
-<span class="nv">IPTABLES_PORTFORWARD</span><span class="o">=</span><span class="s2">&quot;8090:192.168.79.11:8090,8010:192.168.79.12:8010&quot;</span>
-<span class="nv">IPTABLES_DMZ</span><span class="o">=</span><span class="s2">&quot;192.168.79.10&quot;</span>
+<span class="nv">IPTABLES_MASQ</span><span class="o">=</span><span class="s2">"LAN&lt;WAN,LAN1&lt;WAN"</span>
+<span class="nv">IPTABLES_PORTFORWARD</span><span class="o">=</span><span class="s2">"8090:192.168.79.11:8090,8010:192.168.79.12:8010"</span>
+<span class="nv">IPTABLES_DMZ</span><span class="o">=</span><span class="s2">"192.168.79.10"</span>
 <span class="nv">IPTABLES_SUPERDMZ</span><span class="o">=</span><span class="m">1</span>
 
 <span class="c1"># xtables</span>
 <span class="nv">RUN_NET_XTABLES</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">XTABLES_OVERRIDE</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
-<span class="nv">XTABLES_CONNLIMIT_PER_IP</span><span class="o">=</span><span class="s2">&quot;100&quot;</span>
+<span class="nv">XTABLES_OVERRIDE</span><span class="o">=</span><span class="s2">""</span>
+<span class="nv">XTABLES_CONNLIMIT_PER_IP</span><span class="o">=</span><span class="s2">"100"</span>
 <span class="nv">XTABLES_DROP_INVALID_STATE</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_DROP_NON_SYN</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_LIMIT_MSS</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_GUARD_OVERLOAD</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_INVALID_TCPFLAG</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">XTABLES_GUARD_PORT_SCANNER</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">XTABLES_CHAOS_PORTS</span><span class="o">=</span><span class="s2">&quot;22,23,80,443&quot;</span>
-<span class="nv">XTABLES_DELUDE_PORTS</span><span class="o">=</span><span class="s2">&quot;21,25,53,110,143,993,995&quot;</span>
-<span class="nv">XTABLES_PKNOCK_PORTS</span><span class="o">=</span><span class="s2">&quot;3001,3002,3003&quot;</span>
-<span class="nv">XTABLES_PKNOCK_RULENAME</span><span class="o">=</span><span class="s2">&quot;example&quot;</span>
-<span class="nv">XTABLES_PKNOCK_OPENSECRET</span><span class="o">=</span><span class="s2">&quot;foo&quot;</span>
-<span class="nv">XTABLES_PKNOCK_CLOSESECRET</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span>
-<span class="nv">XTABLES_PKNOCK_TARGET_PORTS</span><span class="o">=</span><span class="s2">&quot;22,80,443&quot;</span>
+<span class="nv">XTABLES_CHAOS_PORTS</span><span class="o">=</span><span class="s2">"22,23,80,443"</span>
+<span class="nv">XTABLES_DELUDE_PORTS</span><span class="o">=</span><span class="s2">"21,25,53,110,143,993,995"</span>
+<span class="nv">XTABLES_PKNOCK_PORTS</span><span class="o">=</span><span class="s2">"3001,3002,3003"</span>
+<span class="nv">XTABLES_PKNOCK_RULENAME</span><span class="o">=</span><span class="s2">"example"</span>
+<span class="nv">XTABLES_PKNOCK_OPENSECRET</span><span class="o">=</span><span class="s2">"foo"</span>
+<span class="nv">XTABLES_PKNOCK_CLOSESECRET</span><span class="o">=</span><span class="s2">"bar"</span>
+<span class="nv">XTABLES_PKNOCK_TARGET_PORTS</span><span class="o">=</span><span class="s2">"22,80,443"</span>
 
 <span class="c1"># gateway apps</span>
 <span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_NET_DNSMASQ</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">&quot;https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts&quot;</span>
+<span class="nv">DNSMASQ_BLACKLIST_URLS</span><span class="o">=</span><span class="s2">"https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"</span>
 <span class="nv">RUN_NET_DNSCRYPTPROXY</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">DNSCRYPTPROXY_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span>
+<span class="nv">DNSCRYPTPROXY_PORTS</span><span class="o">=</span><span class="s2">"LO:53"</span>
 <span class="nv">RUN_NET_DARKSTAT</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">DARKSTAT_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:19283&quot;</span>
+<span class="nv">DARKSTAT_PORTS</span><span class="o">=</span><span class="s2">"LO:19283"</span>
+<span class="nv">RUN_NET_SURICATA</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">SURICATA_MODE</span><span class="o">=</span><span class="s2">"IDS"</span>
 <span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">0</span>
-<span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:6379&quot;</span>
+<span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">"LO:6379"</span>
 <span class="nv">RUN_OS_MINMON</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_NET_HYSTERIA</span><span class="o">=</span><span class="m">1</span>
 <span class="nv">RUN_NET_V2RAY</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">RUN_NET_OMNIP</span><span class="o">=</span><span class="m">1</span>
-<span class="nv">OMNIP_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:53&quot;</span>
 <span class="nv">RUN_NET_SHOES</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_WACTWS</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">RUN_NET_RANDOMMAC</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">RANDOMMAC_AVOIDED_IPS</span><span class="o">=</span><span class="s2">""</span>
+<span class="nv">RANDOMMAC_CHECK_INTERVAL</span><span class="o">=</span><span class="m">300</span>
+
+<span class="c1"># OmniEdge mesh VPN</span>
+<span class="nv">RUN_NET_OMNIEDGE</span><span class="o">=</span><span class="m">0</span>
+<span class="c1"># Operation mode: edge (client), nucleus (self-hosted server), or dual (hub+client)</span>
+<span class="c1"># edge mode: requires OMNIEDGE_NETWORK_ID</span>
+<span class="c1"># nucleus mode: requires OMNIEDGE_PORT and OMNIEDGE_SECRET (good for self-hosted)</span>
+<span class="c1"># dual mode: requires OMNIEDGE_NETWORK_ID and OMNIEDGE_SECRET</span>
+<span class="nv">OMNIEDGE_MODE</span><span class="o">=</span><span class="s2">"nucleus"</span>
+<span class="c1"># network ID for edge/dual mode (required for edge/dual, not used for nucleus)</span>
+<span class="c1"># Get from OmniEdge dashboard or set when connecting to existing network</span>
+<span class="nv">OMNIEDGE_NETWORK_ID</span><span class="o">=</span><span class="s2">""</span>
+<span class="c1"># port for nucleus/dual mode (default: 51821)</span>
+<span class="nv">OMNIEDGE_PORT</span><span class="o">=</span><span class="s2">"51821"</span>
+<span class="c1"># secret for nucleus/dual mode (set a strong password for nucleus mode)</span>
+<span class="nv">OMNIEDGE_SECRET</span><span class="o">=</span><span class="s2">"ChangeMeToStrongSecret123"</span>
+<span class="c1"># enable relay fallback (0=off, 1=on)</span>
+<span class="nv">OMNIEDGE_ENABLE_RELAY</span><span class="o">=</span><span class="m">0</span>
 </code></pre></div>
 <hr />
 <p><strong>Warning</strong>: This software is still in development. Use with caution in production environments and always test in a lab environment first.</p>

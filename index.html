@@ -609,10 +609,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -848,29 +844,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="plugins/net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -1203,29 +1176,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="plugins/os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1513,7 +1463,7 @@ similar projects: <a href="https://pi-hole.net/">pi-hole</a>, <a href="https://t
 <li>(todo) remote gateway management app : buha app</li>
 </ul>
 <h4 id="tunnel-only-modewhitelist-mode">Tunnel Only Mode(Whitelist Mode)<a class="headerlink" href="#tunnel-only-modewhitelist-mode" title="Permanent link">¤</a></h4>
-<p>without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray) to outside. no route. only through tunnel app.</p>
+<p>without nat routing, client only connect to tunnel(hysteria, shoes, v2ray) to outside. no route. only through tunnel app.</p>
 <ul>
 <li>dns/dhcp : dnsmasq(no masquerade)</li>
 <li>block ip : iptables</li>
@@ -1559,11 +1509,11 @@ $<span class="w"> </span>ip<span class="w"> </span>a
 $<span class="w"> </span>nano<span class="w"> </span>.config
 <span class="c1"># Example interface assignments for gateway mode:</span>
 <span class="nv">JB_WANINF</span><span class="o">=</span>eth0<span class="w">      </span><span class="c1"># WAN interface (internet connection)</span>
-<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">&quot;dhcp&quot;</span>
+<span class="nv">JB_WAN</span><span class="o">=</span><span class="s2">"dhcp"</span>
 <span class="nv">JB_LANINF</span><span class="o">=</span>eth1<span class="w">      </span><span class="c1"># LAN interface (local network)</span>
-<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">&quot;192.168.79.1/24&quot;</span>
+<span class="nv">JB_LAN</span><span class="o">=</span><span class="s2">"192.168.79.1/24"</span>
 <span class="nv">JB_WLANINF</span><span class="o">=</span>wlan0<span class="w">    </span><span class="c1"># WLAN interface (WiFi AP)</span>
-<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">&quot;192.168.89.1/24&quot;</span>
+<span class="nv">JB_WLAN</span><span class="o">=</span><span class="s2">"192.168.89.1/24"</span>
 
 <span class="c1"># run configurator</span>
 $<span class="w"> </span>./init.sh
@@ -1630,7 +1580,7 @@ $<span class="w"> </span>./init.sh
 <li>system monitor data collect with rsyslog</li>
 <li>link status connection monitoring tui</li>
 <li>Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)</li>
-<li>replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip</li>
+<li>replace wstunnel to v2fly, hysteria, cfal/shoes</li>
 <li>hysteria server configurations with/without domain name?</li>
 <li>last configs saved in /etc/jangbi</li>
 <li>

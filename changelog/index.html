@@ -405,10 +405,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -644,29 +640,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../plugins/net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -999,29 +972,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../plugins/os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1324,10 +1274,50 @@ and this project adheres to <a href="http://semver.org/spec/v2.0.0.html">Semanti
 <p><small><a href="https://github.com/dure-one/jangbi/compare/cf31888b598023227446512a34039c2c9ac6e620...HEAD">Compare with latest</a></small></p>
 <h3 id="added">Added<a class="headerlink" href="#added" title="Permanent link">¤</a></h3>
 <ul>
-<li>Add changelog automatically (<a href="https://github.com/dure-one/jangbi/commit/d2a925b1d45c088f384761c5d032ab99db4a4af3">d2a925b</a> by nikescar).</li>
+<li>Add changelog automatically (<a href="https://github.com/dure-one/jangbi/commit/c8501c959fcce43fa16ff8548d4f68d5470a4fda">c8501c9</a> by nikescar).</li>
+<li>Add logging system enhancement design spec (<a href="https://github.com/dure-one/jangbi/commit/926399e947636d927c59b05ed1e183e2e9a65054">926399e</a> by Woojae, Park).</li>
+<li>add locking for unnecessary process. (<a href="https://github.com/dure-one/jangbi/commit/68b6cef38ac7e27154a664ddbaa9481fe095beb0">68b6cef</a> by Woojae, Park).</li>
 </ul>
 <h3 id="fixed">Fixed<a class="headerlink" href="#fixed" title="Permanent link">¤</a></h3>
 <ul>
+<li>fix(net-randommac): correct minmon alarm_status_codes and add per-plugin minmon metadata (<a href="https://github.com/dure-one/jangbi/commit/e89e0c75984f49610e9040494bad97ca929f3dfa">e89e0c7</a> by Woojae, Park).</li>
+<li>fix(init): call __plugin_pkglist directly to avoid help-text pollution (<a href="https://github.com/dure-one/jangbi/commit/57defbe3d178c7e7525f623d910f4e5f2b8260fd">57defbe</a> by Woojae, Park).</li>
+<li>fix(net-randommac): use local WAN IP check, eliminate death loop (<a href="https://github.com/dure-one/jangbi/commit/1299ab72cd7a03877dd5a0a59931ad5f7d97b3ac">1299ab7</a> by Woojae, Park).</li>
+<li>fix(net-randommac): guard run against no-IP state during boot (<a href="https://github.com/dure-one/jangbi/commit/58db71cddd641b1f8b429f5bef42653ff01f62c6">58db71c</a> by Woojae, Park).</li>
+<li>fix(ci): stop committing changelog back to repo to avoid push conflicts (<a href="https://github.com/dure-one/jangbi/commit/b6e6b4707e0f5455ea878b32179bda511055c6f1">b6e6b47</a> by Woojae, Park).</li>
+<li>fix. macchanger bug and systemctl propmpt ignore. (<a href="https://github.com/dure-one/jangbi/commit/c3da2aeb77ab878930b2d36d24e9943e3ef6fcd0">c3da2ae</a> by Woojae, Park).</li>
+<li>fix. randommac plugin retry on new ips in avoided ip. (<a href="https://github.com/dure-one/jangbi/commit/401adbc6546f619f7a9f41d4b0048ea8fdeb50c3">401adbc</a> by Woojae, Park).</li>
+<li>fix. randommac error. (<a href="https://github.com/dure-one/jangbi/commit/3f27d427135349557223283217887bfdbfaa5908">3f27d42</a> by Woojae, Park).</li>
+<li>fix. darkstat plugin error. (<a href="https://github.com/dure-one/jangbi/commit/4dcba9811edbf45de68075269282973642def653">4dcba98</a> by Woojae, Park).</li>
+<li>fix. ifupdown plugin error. (<a href="https://github.com/dure-one/jangbi/commit/b8e33a46d38bed3cc3825e8e7a6e9ac9a4ab2ec6">b8e33a4</a> by Woojae, Park).</li>
+<li>fix. not initiating from rc.local. (<a href="https://github.com/dure-one/jangbi/commit/f5dc03775d0885b29a73de512986c7a17eeec4c6">f5dc037</a> by Woojae, Park).</li>
+<li>fix. ifupdown error. (<a href="https://github.com/dure-one/jangbi/commit/125fc828d32606c540ecca1725fa5e65f9cc1b06">125fc82</a> by Woojae, Park).</li>
+<li>fix. pkg not found error. (<a href="https://github.com/dure-one/jangbi/commit/92fd1699ed3cac310a4f53ec9b498f4107ea0a1c">92fd169</a> by Woojae, Park).</li>
+<li>fix. autoload base plugin. (<a href="https://github.com/dure-one/jangbi/commit/62b23066a4b47f45b341608e2587cd343d5b30e9">62b2306</a> by Woojae, Park).</li>
+<li>fix. required pkgs for arm64. (<a href="https://github.com/dure-one/jangbi/commit/15800948f7b1a33cf51f1d3910d8e21b6a748312">1580094</a> by Woojae, Park).</li>
+<li>fix. omniedge, wactws plugin error. (<a href="https://github.com/dure-one/jangbi/commit/2f1243dd336f26aa5422e866e6a78c8e29b45232">2f1243d</a> by Woojae, Park).</li>
+<li>fix. ifupdown connection error by expanding waiting time. (<a href="https://github.com/dure-one/jangbi/commit/2b6cfd83faa7040f125c22e4b2f9e689db309a32">2b6cfd8</a> by Woojae, Park).</li>
+<li>fix. disablebin error. (<a href="https://github.com/dure-one/jangbi/commit/778a4dff9e96a6bd75943206a1c50d8de4fb3c67">778a4df</a> by Woojae, Park).</li>
+<li>fix. swap size error. (<a href="https://github.com/dure-one/jangbi/commit/560490dad2d76416238cd4301acb6649b4d5ad83">560490d</a> by Woojae, Park).</li>
+<li>fix. errors on auditd, aide plugin. (<a href="https://github.com/dure-one/jangbi/commit/468a92b3b711f35f60f8e66c86fd4c2ec43e1ef7">468a92b</a> by Woojae, Park).</li>
+<li>fix. apply new config swap path. (<a href="https://github.com/dure-one/jangbi/commit/1137a2eabe9b6253b513fc754797bdbeff8713b9">1137a2e</a> by Woojae, Park).</li>
+<li>fix. bandwhich run command error. (<a href="https://github.com/dure-one/jangbi/commit/5be15376660e6cea0b551d1f2790347757cf2aae">5be1537</a> by Woojae, Park).</li>
+<li>fix. change bandwhich process termination to force. (<a href="https://github.com/dure-one/jangbi/commit/577a794473207dfc09c943520a2b039b718917e5">577a794</a> by Woojae, Park).</li>
+<li>fix. change bandwhich log output more efficient way. (<a href="https://github.com/dure-one/jangbi/commit/f0fd2675ca3e1c206adb28490b69476fa75259ea">f0fd267</a> by Woojae, Park).</li>
+<li>fix. reorder systemd reset prevent connection droping. (<a href="https://github.com/dure-one/jangbi/commit/090c673961fab042d655cbe2e33c8041f96b203c">090c673</a> by Woojae, Park).</li>
+<li>fix. solve extrepo problem. (<a href="https://github.com/dure-one/jangbi/commit/6a3c54d1135a13a553c46987f49d1e80560217ee">6a3c54d</a> by Woojae, Park).</li>
+<li>fix. kparam download error. (<a href="https://github.com/dure-one/jangbi/commit/6988b8039711e94145eb70005e616a7afa00c66b">6988b80</a> by Woojae, Park).</li>
+<li>fix. cmd fail when systemctl cmd not exist. (<a href="https://github.com/dure-one/jangbi/commit/15fe1e03de9aec213a7bd8aa6c14958c628e2321">15fe1e0</a> by Woojae, Park).</li>
+<li>fix. add github token for github api. (<a href="https://github.com/dure-one/jangbi/commit/2604779924e3b81ea52c51f4aed8f04cc77cabe9">2604779</a> by Woojae, Park).</li>
+<li>fix. iptables rules for each app and change enabled app refresh method. (<a href="https://github.com/dure-one/jangbi/commit/bb9c839abd306b21a47684b044db618fffaf92df">bb9c839</a> by Woojae, Park).</li>
+<li>fix. shoes pkg download link. (<a href="https://github.com/dure-one/jangbi/commit/05217c5225ddd18004233dc643d351cdc49f355c">05217c5</a> by Woojae, Park).</li>
+<li>fix. partial load on source jangbi_it. (<a href="https://github.com/dure-one/jangbi/commit/02fa81d4fa37f31b6c23de7aec0bdedffafb7935">02fa81d</a> by Woojae, Park).</li>
+<li>fix. remove omnip plugin, hostapd install issue, shoes pugin issue. (<a href="https://github.com/dure-one/jangbi/commit/c4f600dc73752381bff98f8d7517097cef23e22f">c4f600d</a> by Woojae, Park).</li>
+<li>fix. minmon download error. (<a href="https://github.com/dure-one/jangbi/commit/4d821592619df6b24806ac86057a8729f75e371d">4d82159</a> by Woojae, Park).</li>
+<li>fix. missing plugins on showing plugin list. (<a href="https://github.com/dure-one/jangbi/commit/f10b574ac758b34975ec0405c1de885f72956b84">f10b574</a> by Woojae, Park).</li>
+<li>fix. show digests reason of running, installing results on init.sh. (<a href="https://github.com/dure-one/jangbi/commit/0b3ab54d0dc4fc0945774e1b1479499e0bdbe18c">0b3ab54</a> by Woojae, Park).</li>
+<li>fix. rc.local init command addition. (<a href="https://github.com/dure-one/jangbi/commit/2dd3a1a6700a8275df6db0c1d2b9b4092a0261df">2dd3a1a</a> by Woojae, Park).</li>
+<li>fix. ifupdown config error. (<a href="https://github.com/dure-one/jangbi/commit/eb50d4551880cdaa9cf87f9c5da00747ea5e55fd">eb50d45</a> by Woojae, Park).</li>
 <li>fix. generate config, running error. (<a href="https://github.com/dure-one/jangbi/commit/6877404fd5527cda8d0ec2d020fa0e5cd71a2f95">6877404</a> by Woojae, Park).</li>
 <li>fix. install bug. (<a href="https://github.com/dure-one/jangbi/commit/13c187cf1966255f76ec10dc3d8c218675e6758c">13c187c</a> by Woojae, Park).</li>
 <li>fix. log file to output.log (<a href="https://github.com/dure-one/jangbi/commit/d97cf83fd6af74f44f0e82b873c86dafb91b45be">d97cf83</a> by Woojae, Park).</li>

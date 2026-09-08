@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://dure.one/jangbi/plugins/net-shoes/">
       
       
-        <link rel="prev" href="../net-omnip/">
+        <link rel="prev" href="../net-netplan/">
       
       
         <link rel="next" href="../net-sshd/">
@@ -407,10 +407,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -646,29 +642,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -1070,29 +1043,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1333,11 +1283,11 @@ $ net-shoes help - show this help message</code></pre>
       <p><a href="https://github.com/phuslu/goproxy" target="_blank">Shoes</a> is a multi-protocol proxy server that supports HTTP, HTTPS, and SOCKS protocols.</p>
 <h2 id="net-shoes.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-shoes.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_SHOES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable shoes proxy</span>
-<span class="nv">SHOES_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:8080&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 8080 - HTTP proxy port</span>
+<span class="nv">SHOES_PORTS</span><span class="o">=</span><span class="s2">"LO:8080"</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 8080 - HTTP proxy port</span>
 </code></pre></div>
 <h2 id="net-shoes.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-shoes.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>shoes
-tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:8080<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;shoes&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">3</span><span class="o">))</span>
+tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:8080<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">"shoes"</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">3</span><span class="o">))</span>
 $<span class="w"> </span>pidof<span class="w"> </span>shoes
 <span class="m">12345</span>
 </code></pre></div>
@@ -1346,7 +1296,7 @@ $<span class="w"> </span>pidof<span class="w"> </span>shoes
 You can edit it manually and not run install or configapply commands to keep current configurations.
 <div class="language-bash highlight"><span class="filename">/etc/shoes/config.json</span><pre><span></span><code><span class="c1"># https://github.com/cfal/shoes/blob/master/CONFIG.md</span>
 <span class="c1"># Listen on all IPv4 interfaces, port 443 (HTTPS)</span>
-<span class="c1"># openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out some.crt -keyout some.key -subj &quot;/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost&quot;</span>
+<span class="c1"># openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out some.crt -keyout some.key -subj "/C=US/ST=State/L=City/O=Organization/OU=OrgUnit/CN=localhost"</span>
 -<span class="w"> </span>address:<span class="w"> </span><span class="m">127</span>.0.0.1:443
 <span class="w">  </span>transport:<span class="w"> </span>quic
 <span class="w">  </span>quic_settings:
@@ -1505,7 +1455,7 @@ You can edit it manually and not run install or configapply commands to keep cur
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../net-omnip/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Net omnip">
+          <a href="../net-netplan/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Net netplan">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1515,7 +1465,7 @@ You can edit it manually and not run install or configapply commands to keep cur
                 Previous
               </span>
               <div class="md-ellipsis">
-                Net omnip
+                Net netplan
               </div>
             </div>
           </a>

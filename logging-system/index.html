@@ -10,28 +10,24 @@
       
       
       
-        <link rel="canonical" href="https://dure.one/jangbi/plugins/os-vector/">
+        <link rel="canonical" href="https://dure.one/jangbi/logging-system/">
       
       
-        <link rel="prev" href="../os-systemd/">
       
       
-        <link rel="next" href="../../troubleshooting/">
-      
-      
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
     
     
       
-        <title>Os vector - jangbi</title>
+        <title>Logging system - jangbi</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.342714a4.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,13 +46,13 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_markdown_exec_pyodide.css">
+      <link rel="stylesheet" href="../assets/_markdown_exec_pyodide.css">
     
-      <link rel="stylesheet" href="../../assets/_markdown_exec_ansi.css">
+      <link rel="stylesheet" href="../assets/_markdown_exec_ansi.css">
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -65,7 +61,7 @@
     
     
     
-   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -74,7 +70,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -93,7 +89,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#os-vector.plugin.bash" class="md-skip">
+        <a href="#jangbi-logging-system" class="md-skip">
           Skip to content
         </a>
       
@@ -109,9 +105,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="jangbi" class="md-header__button md-logo" aria-label="jangbi" data-md-component="logo">
+    <a href=".." title="jangbi" class="md-header__button md-logo" aria-label="jangbi" data-md-component="logo">
       
-  <img src="../../images/logo.png" alt="logo">
+  <img src="../images/logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -128,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Os vector
+              Logging system
             
           </span>
         </div>
@@ -191,7 +187,7 @@
           </li>
         
           <li class="md-select__item">
-            <a href="../../index.ko/" hreflang="ko" class="md-select__link">
+            <a href="../index.ko/" hreflang="ko" class="md-select__link">
               Korean
             </a>
           </li>
@@ -284,9 +280,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="jangbi" class="md-nav__button md-logo" aria-label="jangbi" data-md-component="logo">
+    <a href=".." title="jangbi" class="md-nav__button md-logo" aria-label="jangbi" data-md-component="logo">
       
-  <img src="../../images/logo.png" alt="logo">
+  <img src="../images/logo.png" alt="logo">
 
     </a>
     jangbi
@@ -313,7 +309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -335,7 +331,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../gettingstarted/" class="md-nav__link">
+      <a href="../gettingstarted/" class="md-nav__link">
         
   
   
@@ -354,16 +350,10 @@
       
   
   
-    
   
   
-  
     
     
-      
-        
-      
-        
       
         
       
@@ -415,15 +405,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../plugins/" class="md-nav__link ">
               
   
   
@@ -442,7 +432,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Plugins
@@ -456,7 +446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-darkstat/" class="md-nav__link">
+      <a href="../plugins/net-darkstat/" class="md-nav__link">
         
   
   
@@ -479,7 +469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-dnscryptproxy/" class="md-nav__link">
+      <a href="../plugins/net-dnscryptproxy/" class="md-nav__link">
         
   
   
@@ -502,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-dnsmasq/" class="md-nav__link">
+      <a href="../plugins/net-dnsmasq/" class="md-nav__link">
         
   
   
@@ -525,7 +515,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-hostapd/" class="md-nav__link">
+      <a href="../plugins/net-hostapd/" class="md-nav__link">
         
   
   
@@ -548,7 +538,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-hysteria/" class="md-nav__link">
+      <a href="../plugins/net-hysteria/" class="md-nav__link">
         
   
   
@@ -571,7 +561,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-ifupdown/" class="md-nav__link">
+      <a href="../plugins/net-ifupdown/" class="md-nav__link">
         
   
   
@@ -594,7 +584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-iptables/" class="md-nav__link">
+      <a href="../plugins/net-iptables/" class="md-nav__link">
         
   
   
@@ -617,7 +607,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-knockd/" class="md-nav__link">
+      <a href="../plugins/net-knockd/" class="md-nav__link">
         
   
   
@@ -640,7 +630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-netplan/" class="md-nav__link">
+      <a href="../plugins/net-netplan/" class="md-nav__link">
         
   
   
@@ -663,30 +653,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../net-shoes/" class="md-nav__link">
+      <a href="../plugins/net-shoes/" class="md-nav__link">
         
   
   
@@ -709,7 +676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-sshd/" class="md-nav__link">
+      <a href="../plugins/net-sshd/" class="md-nav__link">
         
   
   
@@ -732,7 +699,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-v2ray/" class="md-nav__link">
+      <a href="../plugins/net-v2ray/" class="md-nav__link">
         
   
   
@@ -755,7 +722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../net-xtables/" class="md-nav__link">
+      <a href="../plugins/net-xtables/" class="md-nav__link">
         
   
   
@@ -778,7 +745,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-aide/" class="md-nav__link">
+      <a href="../plugins/os-aide/" class="md-nav__link">
         
   
   
@@ -801,7 +768,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-auditd/" class="md-nav__link">
+      <a href="../plugins/os-auditd/" class="md-nav__link">
         
   
   
@@ -824,7 +791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-conf/" class="md-nav__link">
+      <a href="../plugins/os-conf/" class="md-nav__link">
         
   
   
@@ -847,7 +814,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-disablebins/" class="md-nav__link">
+      <a href="../plugins/os-disablebins/" class="md-nav__link">
         
   
   
@@ -870,7 +837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-firmware/" class="md-nav__link">
+      <a href="../plugins/os-firmware/" class="md-nav__link">
         
   
   
@@ -893,7 +860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-kparams/" class="md-nav__link">
+      <a href="../plugins/os-kparams/" class="md-nav__link">
         
   
   
@@ -916,7 +883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-minmon/" class="md-nav__link">
+      <a href="../plugins/os-minmon/" class="md-nav__link">
         
   
   
@@ -939,7 +906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-redis/" class="md-nav__link">
+      <a href="../plugins/os-redis/" class="md-nav__link">
         
   
   
@@ -962,7 +929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-sysctl/" class="md-nav__link">
+      <a href="../plugins/os-sysctl/" class="md-nav__link">
         
   
   
@@ -985,7 +952,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../os-systemd/" class="md-nav__link">
+      <a href="../plugins/os-systemd/" class="md-nav__link">
         
   
   
@@ -996,98 +963,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#os-vector.plugin.bash--jangbi-configs" class="md-nav__link">
-    <span class="md-ellipsis">
-      Jangbi Configs
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#os-vector.plugin.bash--check-if-running" class="md-nav__link">
-    <span class="md-ellipsis">
-      Check if running
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#os-vector.plugin.bash--current-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      Current Configuration
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1107,7 +982,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshooting/" class="md-nav__link">
+      <a href="../troubleshooting/" class="md-nav__link">
         
   
   
@@ -1129,7 +1004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../development/" class="md-nav__link">
+      <a href="../development/" class="md-nav__link">
         
   
   
@@ -1151,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../changelog/" class="md-nav__link">
+      <a href="../changelog/" class="md-nav__link">
         
   
   
@@ -1173,7 +1048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../code_of_conduct/" class="md-nav__link">
+      <a href="../code_of_conduct/" class="md-nav__link">
         
   
   
@@ -1195,7 +1070,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+      <a href="../contributing/" class="md-nav__link">
         
   
   
@@ -1217,7 +1092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../license/" class="md-nav__link">
+      <a href="../license/" class="md-nav__link">
         
   
   
@@ -1239,7 +1114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../credits/" class="md-nav__link">
+      <a href="../credits/" class="md-nav__link">
         
   
   
@@ -1292,7 +1167,7 @@
 
 
   
-    <a href="https://github.com/dure-one/jangbi/edit/main/docs/plugins/os-vector.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/dure-one/jangbi/edit/main/docs/logging-system.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
     </a>
@@ -1301,7 +1176,7 @@
     
       
     
-    <a href="https://github.com/dure-one/jangbi/raw/main/docs/plugins/os-vector.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/dure-one/jangbi/raw/main/docs/logging-system.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -1311,76 +1186,196 @@
 <ul>
 <li class="i18n-link i18n-link-not-found i18n-link-ko">Korean: 이 페이지는 아직 한글로 번역되지 않았습니다.</li>
 </ul>
+<h1 id="jangbi-logging-system">Jangbi Logging System<a class="headerlink" href="#jangbi-logging-system" title="Permanent link">¤</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¤</a></h2>
+<p>The Jangbi logging system provides operation-aware verbosity control and automatic log rotation to balance visibility during troubleshooting with production log volume management.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¤</a></h2>
+<h3 id="three-layers">Three Layers<a class="headerlink" href="#three-layers" title="Permanent link">¤</a></h3>
+<ol>
+<li><strong>Operation Mode Detection</strong> (init.sh)</li>
+<li>Detects operation type from command-line flags</li>
+<li>Sets <code>JANGBI_OPERATION_MODE</code> and <code>BASH_IT_LOG_LEVEL</code></li>
+<li>
+<p>Exported for plugin access</p>
+</li>
+<li>
+<p><strong>Conditional Logging Functions</strong> (jangbi_it.sh)</p>
+</li>
+<li><code>log_check()</code> - logs only in non-check modes or on errors</li>
+<li><code>log_check_ok()</code> - silent in check mode</li>
+<li>
+<p>Backward compatible with existing <code>log_debug()</code>, <code>log_info()</code>, etc.</p>
+</li>
+<li>
+<p><strong>Log Rotation</strong> (logrotate)</p>
+</li>
+<li>Daily rotation at midnight</li>
+<li>7-day retention</li>
+<li>Gzip compression (saves ~80% space)</li>
+</ol>
+<h2 id="operation-modes">Operation Modes<a class="headerlink" href="#operation-modes" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Trigger</th>
+<th>Log Level</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>install</code></td>
+<td><code>--install</code> flag</td>
+<td>6 (verbose)</td>
+<td>Package installation, first-time setup</td>
+</tr>
+<tr>
+<td><code>boot</code></td>
+<td>No flags</td>
+<td>6 (verbose)</td>
+<td>Full system initialization</td>
+</tr>
+<tr>
+<td><code>launch</code></td>
+<td><code>--launch</code> flag</td>
+<td>5 (info)</td>
+<td>Routine service starts</td>
+</tr>
+<tr>
+<td><code>check</code></td>
+<td><code>--check</code> flag</td>
+<td>4 (error-only)</td>
+<td>Health checks (minmon)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plugin-development">Plugin Development<a class="headerlink" href="#plugin-development" title="Permanent link">¤</a></h2>
+<h3 id="using-conditional-logging">Using Conditional Logging<a class="headerlink" href="#using-conditional-logging" title="Permanent link">¤</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span class="k">function</span><span class="w"> </span>__myplugin_check<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="c1"># Silent in check mode, debug in others</span>
+<span class="w">    </span>log_check_ok<span class="w"> </span><span class="s2">"Checking </span><span class="si">${</span><span class="nv">DMNNAME</span><span class="si">}</span><span class="s2">..."</span>
 
+<span class="w">    </span><span class="c1"># Always logged (errors)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">RUN_MYPLUGIN</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span>log_error<span class="w"> </span><span class="s2">"RUN_MYPLUGIN not set"</span>
+<span class="w">        </span><span class="nv">running_status</span><span class="o">=</span><span class="m">10</span>
+<span class="w">        </span><span class="k">return</span>
+<span class="w">    </span><span class="k">fi</span>
 
-
-<h1 id="os-vector.plugin.bash">os-vector.plugin.bash<a href="#os-vector.plugin.bash" class="headerlink" title="Permanent link">¤</a></h1>
-  <p>vector log management configurations. <div style="text-align: right"> group:<strong>postnet</strong> | runtype:<strong>minmon</strong> | deps: <strong>-</strong> | port: <strong>-</strong></div><br/></p>
-
-  <strong>Usage</strong>
-    <pre><code>os-vector help|install|uninstall|download|disable|configgen|configapply|check|run
-$ os-vector install - install Vector log management
-$ os-vector uninstall - uninstall Vector
-$ os-vector download - download Vector package files to pkg dir
-$ os-vector disable - disable Vector plugin
-$ os-vector configgen - generate Vector configuration files
-$ os-vector configapply - apply Vector configuration files
-$ os-vector check - check Vector plugin status
-$ os-vector run - run Vector service
-$ os-vector help - show this help message</code></pre>
-
-  <strong>Description</strong>
-      <p><a href="https://vector.dev/" target="_blank">Vector</a> is a high-performance log collection, transformation, and routing system.</p>
-<h2 id="os-vector.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-vector.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
-<div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_VECTOR</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable vector log management</span>
+<span class="w">    </span><span class="c1"># Check if service running</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="k">$(</span>pidof<span class="w"> </span>myservice<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-w<span class="k">)</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="c1"># Silent in check mode - success state</span>
+<span class="w">        </span>log_check_ok<span class="w"> </span><span class="s2">"myservice is running"</span>
+<span class="w">        </span><span class="nv">running_status</span><span class="o">=</span><span class="m">1</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="c1"># Warning in check mode - needs attention</span>
+<span class="w">        </span>log_check<span class="w"> </span><span class="s2">"myservice is not running"</span>
+<span class="w">        </span><span class="nv">running_status</span><span class="o">=</span><span class="m">0</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="o">}</span>
 </code></pre></div>
-<h2 id="os-vector.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-vector.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
-<div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ps<span class="w"> </span>aux<span class="p">|</span>grep<span class="w"> </span>vector
-root<span class="w">      </span><span class="m">12345</span><span class="w">  </span><span class="m">0</span>.0<span class="w">  </span><span class="m">0</span>.1<span class="w">  </span><span class="m">12345</span><span class="w">  </span><span class="m">1234</span><span class="w"> </span>?<span class="w">        </span>S<span class="w">    </span><span class="m">12</span>:34<span class="w">   </span><span class="m">0</span>:00<span class="w"> </span>vector<span class="w"> </span>--config<span class="w"> </span>/etc/vector/vector.toml
-$<span class="w"> </span>ls<span class="w"> </span>-la<span class="w"> </span>/var/log/vector/
--rw-r--r--<span class="w"> </span><span class="m">1</span><span class="w"> </span>vector<span class="w"> </span>vector<span class="w"> </span>contacted_ips.log
+<h3 id="migration-checklist">Migration Checklist<a class="headerlink" href="#migration-checklist" title="Permanent link">¤</a></h3>
+<p>When migrating an existing plugin:</p>
+<ol>
+<li>Replace <code>log_debug "Checking..."</code> → <code>log_check_ok "Checking..."</code></li>
+<li>Replace success <code>log_info</code> → <code>log_check_ok</code></li>
+<li>Replace failure <code>log_info</code> → <code>log_check</code></li>
+<li>Keep <code>log_error</code> unchanged (always visible)</li>
+<li>Test in both check mode and install mode</li>
+</ol>
+<h2 id="log-rotation">Log Rotation<a class="headerlink" href="#log-rotation" title="Permanent link">¤</a></h2>
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">¤</a></h3>
+<p>Location: <code>/etc/logrotate.d/jangbi</code></p>
+<div class="language-text highlight"><pre><span></span><code>/opt/jangbi/output.log {
+    daily           # Rotate daily at midnight
+    rotate 7        # Keep 7 days of archives
+    compress        # Gzip old logs
+    delaycompress   # Don't compress most recent
+    missingok       # OK if log missing
+    notifempty      # Skip empty logs
+    create 0644 root root  # New log permissions
+}
 </code></pre></div>
-<h2 id="os-vector.plugin.bash--current-configuration">Current Configuration<a class="headerlink" href="#os-vector.plugin.bash--current-configuration" title="Permanent link">¤</a></h2>
-<p>Current configuration is stored in <code>/etc/vector/</code>. it is generated by <code>os-vector configgen</code> command on install.
-You can edit it manually and not run install or configapply commands to keep current configurations.
-<div class="language-bash highlight"><span class="filename">/etc/vector/vector.toml</span><pre><span></span><code><span class="c1">#                                    __   __  __</span>
-<span class="c1">#                                    \ \ / / / /</span>
-<span class="c1">#                                     \ V / / /</span>
-<span class="c1">#                                      \_/  \/</span>
-<span class="c1">#</span>
-<span class="c1">#                                    V E C T O R</span>
-<span class="c1">#                                   Configuration</span>
-<span class="c1">#</span>
-<span class="c1"># ------------------------------------------------------------------------------</span>
-<span class="c1"># Website: https://vector.dev</span>
-<span class="c1"># Docs: https://vector.dev/docs</span>
-<span class="c1"># Chat: https://chat.vector.dev</span>
-<span class="c1"># https://docs.sysdig.com/en/sysdig-secure/rule-fields-library/</span>
-<span class="c1"># ------------------------------------------------------------------------------</span>
-<span class="c1"># </span>
+<h3 id="manual-rotation">Manual Rotation<a class="headerlink" href="#manual-rotation" title="Permanent link">¤</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Force rotation now</span>
+logrotate<span class="w"> </span>-f<span class="w"> </span>/etc/logrotate.d/jangbi
 
-<span class="c1"># Change this to use a non-default directory for Vector data storage:</span>
-<span class="nv">data_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/log/vector&quot;</span>
+<span class="c1"># Test rotation (dry run)</span>
+logrotate<span class="w"> </span>-d<span class="w"> </span>/etc/logrotate.d/jangbi
+</code></pre></div>
+<h3 id="archive-access">Archive Access<a class="headerlink" href="#archive-access" title="Permanent link">¤</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># List archives</span>
+ls<span class="w"> </span>-lh<span class="w"> </span>/opt/jangbi/output.log*
 
-<span class="c1"># Execute sysdig command to capture network connections</span>
-<span class="o">[</span>sources.sysdig_network<span class="o">]</span>
-<span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;exec&quot;</span>
-<span class="nb">command</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;sysdig&quot;</span>,<span class="w"> </span><span class="s2">&quot;evt.type in (connect,accept)&quot;</span>,<span class="w"> </span><span class="s2">&quot;-p&quot;</span>,<span class="w"> </span><span class="s2">&quot;%evt.datetime.s %user.name %proc.exepath pid=%proc.pid ppid=%proc.ppid %fd.cip:%fd.cport %fd.sip:%fd.sport %fd.lip:%fd.lport %fd.rip:%fd.rport&quot;</span><span class="o">]</span>
-<span class="nv">mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;streaming&quot;</span>
+<span class="c1"># View compressed archive</span>
+zcat<span class="w"> </span>/opt/jangbi/output.log.2.gz<span class="w"> </span><span class="p">|</span><span class="w"> </span>less
 
-<span class="c1"># Backup sink - save individual parsed events immediately (no buffering)</span>
-<span class="o">[</span>sinks.backup_file<span class="o">]</span>
-<span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;file&quot;</span>
-<span class="nv">inputs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;sysdig_network&quot;</span><span class="o">]</span>
-<span class="nv">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;/var/log/vector/raw_connections_%Y%m%d_%H.log&quot;</span>
-encoding.codec<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;text&quot;</span>
+<span class="c1"># Search compressed archives</span>
+zgrep<span class="w"> </span><span class="s2">"error"</span><span class="w"> </span>/opt/jangbi/output.log.*.gz
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">¤</a></h2>
+<h3 id="logs-too-quiet">Logs Too Quiet<a class="headerlink" href="#logs-too-quiet" title="Permanent link">¤</a></h3>
+<p>If important messages are missing:</p>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Check current operation mode</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$JANGBI_OPERATION_MODE</span>
 
-<span class="c1"># Minimal buffering for backup file</span>
-<span class="o">[</span>sinks.backup_file.buffer<span class="o">]</span>
-<span class="nb">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;memory&quot;</span>
-<span class="nv">max_events</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
-<span class="nv">when_full</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;block&quot;</span>
-</code></pre></div></p>
+<span class="c1"># Force verbose logging for one command</span>
+<span class="nv">BASH_IT_LOG_LEVEL</span><span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="nv">JANGBI_OPERATION_MODE</span><span class="o">=</span>boot<span class="w"> </span>./init.sh
+
+<span class="c1"># Check log level</span>
+<span class="nb">echo</span><span class="w"> </span><span class="nv">$BASH_IT_LOG_LEVEL</span>
+</code></pre></div>
+<h3 id="logs-too-verbose">Logs Too Verbose<a class="headerlink" href="#logs-too-verbose" title="Permanent link">¤</a></h3>
+<p>If check operations still spam logs:</p>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Identify noisy plugins</span>
+tail<span class="w"> </span>-500<span class="w"> </span>output.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>cut<span class="w"> </span>-d<span class="s1">':'</span><span class="w"> </span>-f1-2<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq<span class="w"> </span>-c<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-rn
+
+<span class="c1"># Check if plugin migrated to conditional logging</span>
+grep<span class="w"> </span><span class="s2">"log_check_ok\|log_check"</span><span class="w"> </span>plugins/available/noisy-plugin.plugin.bash
+</code></pre></div>
+<h3 id="rotation-not-working">Rotation Not Working<a class="headerlink" href="#rotation-not-working" title="Permanent link">¤</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Verify logrotate installed</span>
+dpkg<span class="w"> </span>-l<span class="w"> </span>logrotate
+
+<span class="c1"># Check rotation configuration</span>
+logrotate<span class="w"> </span>-d<span class="w"> </span>/etc/logrotate.d/jangbi
+
+<span class="c1"># Check cron is running</span>
+systemctl<span class="w"> </span>status<span class="w"> </span>cron
+
+<span class="c1"># Check logrotate logs</span>
+grep<span class="w"> </span>logrotate<span class="w"> </span>/var/log/syslog
+</code></pre></div>
+<h2 id="performance-impact">Performance Impact<a class="headerlink" href="#performance-impact" title="Permanent link">¤</a></h2>
+<h3 id="before-enhancement">Before Enhancement<a class="headerlink" href="#before-enhancement" title="Permanent link">¤</a></h3>
+<ul>
+<li>468KB log file with 6,455 entries</li>
+<li>~10-15 lines per minute during normal operation</li>
+<li>95% check-related spam</li>
+<li>No automatic cleanup</li>
+</ul>
+<h3 id="after-enhancement">After Enhancement<a class="headerlink" href="#after-enhancement" title="Permanent link">¤</a></h3>
+<ul>
+<li>~2-3 lines per minute during normal operation</li>
+<li>70-90% reduction in log volume</li>
+<li>Automatic 7-day cleanup</li>
+<li>Errors remain fully visible</li>
+</ul>
+<h2 id="testing">Testing<a class="headerlink" href="#testing" title="Permanent link">¤</a></h2>
+<p>Three test scripts available:</p>
+<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Test operation mode detection</span>
+./test_operation_mode.sh
+
+<span class="c1"># Test conditional logging functions</span>
+./test_log_functions.sh
+
+<span class="c1"># Test log volume reduction (2 min)</span>
+./test_log_reduction.sh
+
+<span class="c1"># Test log rotation</span>
+./test_log_rotation.sh
+</code></pre></div>
 
 
 
@@ -1522,44 +1517,6 @@ encoding.codec<span class="w"> </span><span class="o">=</span><span class="w"> <
         <footer class="md-footer">
   
     
-      
-      <nav class="md-footer__inner md-grid" aria-label="Footer" >
-        
-          
-          <a href="../os-systemd/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Os systemd">
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
-            </div>
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              <div class="md-ellipsis">
-                Os systemd
-              </div>
-            </div>
-          </a>
-        
-        
-          
-          <a href="../../troubleshooting/" class="md-footer__link md-footer__link--next" aria-label="Next: Troubleshooting">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Troubleshooting
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
-        
-      </nav>
-    
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
@@ -1599,12 +1556,12 @@ encoding.codec<span class="w"> </span><span class="o">=</span><span class="w"> <
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["toc.integrate", "toc.follow", "navigation.top", "navigation.footer", "navigation.indexes", "content.tabs.link", "announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "search.highlight", "search.suggest"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "..", "features": ["toc.integrate", "toc.follow", "navigation.top", "navigation.footer", "navigation.indexes", "content.tabs.link", "announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      <script src="../assets/javascripts/bundle.13a4f30d.min.js"></script>
       
-        <script src="../../assets/_markdown_exec_pyodide.js"></script>
+        <script src="../assets/_markdown_exec_pyodide.js"></script>
       
     
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});

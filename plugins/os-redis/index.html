@@ -407,10 +407,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -646,29 +642,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -1070,29 +1043,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1333,11 +1283,11 @@ $ os-redis help - show this help message</code></pre>
       <p><a href="https://redis.io/" target="_blank">Redis</a> is an in-memory data structure store used as a database, cache, and message broker.</p>
 <h2 id="os-redis.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#os-redis.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_OS_REDIS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable redis server</span>
-<span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">&quot;LO:6379&quot;</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 6379 - Redis port</span>
+<span class="nv">REDIS_PORTS</span><span class="o">=</span><span class="s2">"LO:6379"</span><span class="w"> </span><span class="c1"># ports to listen, LO - localhost, 6379 - Redis port</span>
 </code></pre></div>
 <h2 id="os-redis.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#os-redis.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ss<span class="w"> </span>-nltup<span class="p">|</span>grep<span class="w"> </span>redis
-tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:6379<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">&quot;redis-server&quot;</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">6</span><span class="o">))</span>
+tcp<span class="w">   </span>LISTEN<span class="w"> </span><span class="m">0</span><span class="w">      </span><span class="m">128</span><span class="w">        </span><span class="m">127</span>.0.0.1:6379<span class="w">       </span><span class="m">0</span>.0.0.0:*<span class="w">    </span>users:<span class="o">((</span><span class="s2">"redis-server"</span>,pid<span class="o">=</span><span class="m">12345</span>,fd<span class="o">=</span><span class="m">6</span><span class="o">))</span>
 $<span class="w"> </span>redis-cli<span class="w"> </span>ping
 PONG
 </code></pre></div>

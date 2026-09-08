@@ -407,10 +407,6 @@
       
         
       
-        
-      
-        
-      
     
     
     
@@ -715,29 +711,6 @@
   
   <span class="md-ellipsis">
     Net netplan
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../net-omnip/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Net omnip
     
   </span>
   
@@ -1070,29 +1043,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../os-vector/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Os vector
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -1333,9 +1283,9 @@ $ net-hostapd help - show this help message</code></pre>
       <p><a href="https://w1.fi/hostapd/" target="_blank">Hostapd</a> (Host Access Point Daemon) turns a wireless network interface into an access point.</p>
 <h2 id="net-hostapd.plugin.bash--jangbi-configs">Jangbi Configs<a class="headerlink" href="#net-hostapd.plugin.bash--jangbi-configs" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">/opt/jangbi/.config</span><pre><span></span><code><span class="nv">RUN_NET_HOSTAPD</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># enable hostapd</span>
-<span class="nv">JB_WLANINF</span><span class="o">=</span><span class="s2">&quot;wlan0&quot;</span><span class="w"> </span><span class="c1"># wireless interface name</span>
-<span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">&quot;MyAccessPoint&quot;</span><span class="w"> </span><span class="c1"># WiFi network name</span>
-<span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">&quot;password123&quot;</span><span class="w"> </span><span class="c1"># WiFi password</span>
+<span class="nv">JB_WLANINF</span><span class="o">=</span><span class="s2">"wlan0"</span><span class="w"> </span><span class="c1"># wireless interface name</span>
+<span class="nv">JB_WLAN_SSID</span><span class="o">=</span><span class="s2">"MyAccessPoint"</span><span class="w"> </span><span class="c1"># WiFi network name</span>
+<span class="nv">JB_WLAN_PASS</span><span class="o">=</span><span class="s2">"password123"</span><span class="w"> </span><span class="c1"># WiFi password</span>
 </code></pre></div>
 <h2 id="net-hostapd.plugin.bash--check-if-running">Check if running<a class="headerlink" href="#net-hostapd.plugin.bash--check-if-running" title="Permanent link">¤</a></h2>
 <div class="language-bash highlight"><span class="filename">bash command</span><pre><span></span><code>$<span class="w"> </span>ps<span class="w"> </span>aux<span class="p">|</span>grep<span class="w"> </span>hostapd
