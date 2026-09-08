@@ -201,7 +201,6 @@ nav:
     - plugins/net-iptables.md
     - plugins/net-knockd.md
     - plugins/net-netplan.md
-    - plugins/net-omnip.md
     - plugins/net-shoes.md
     - plugins/net-sshd.md
     - plugins/net-v2ray.md

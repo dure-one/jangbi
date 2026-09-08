@@ -120,7 +120,6 @@ $ net-darkstat run  # Web interface at http://device-ip:666
 - [`net-ifupdown`](plugins/net-ifupdown.md) - Network Interface Management
 - [`net-iptables`](plugins/net-iptables.md) - Firewall management
 - [`net-knockd`](plugins/net-knockd.md) - Port knocking daemon
-- [`net-omnip`](plugins/net-omnip.md) - Omnip all-in-one QUIC proxy
 - [`net-shoes`](plugins/net-shoes.md) - Shoes multi-protocol proxy server
 - [`net-sshd`](plugins/net-sshd.md) - SSH daemon hardening
 - [`net-v2ray`](plugins/net-v2ray.md) - V2Ray comprehensive proxy platform

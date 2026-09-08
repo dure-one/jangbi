@@ -72,4 +72,3 @@
 | [hysteria](https://github.com/apernet/hysteria) | Feature-packed proxy & relay tool | v2.6.2 | v2.6.2 | MIT |
 | [v2ray-core](https://github.com/v2fly/v2ray-core) | Platform for building proxies | v5.37.0 | v5.37.0 | MIT |
 | [shoes](https://github.com/cfal/shoes) | Multi-protocol proxy server | v0.1.7 | v0.1.7 | MIT |
-| [omnip](https://github.com/neevek/omnip) | IP address management tool | v0.7.3 | v0.7.3 | MPL2.0 |

@@ -120,7 +120,6 @@ $ net-darkstat run  # 웹 인터페이스: http://device-ip:666
 - `net-hysteria` - Hysteria 고성능 QUIC 프록시
 - `net-iptables` - 방화벽 관리
 - `net-knockd` - 포트 노킹 데몬
-- `net-omnip` - Omnip 올인원 QUIC 프록시
 - `net-shoes` - Shoes 멀티 프로토콜 프록시 서버
 - `net-sshd` - SSH 데몬 강화
 - `net-v2ray` - V2Ray 종합 프록시 플랫폼

@@ -70,7 +70,9 @@ iptables(nft)를 사용한 전통적인 nat 게이트웨이입니다.
 * (할 일) 원격 게이트웨이 관리 앱 : buha 앱
 
 #### TunnelOnly 모드(화이트리스트 모드)
-nat 라우팅 없이, 클라이언트는 오직 tunnel app을 통해서만 외부에 연결됩니다. 라우트 없음. 오직 tunnel앱을 통해서만.
+NAT 라우팅 없는 보안 프록시 모드:
+- 클라이언트는 tunnel(hysteria, shoes, v2ray) 프록시를 통해서만 연결
+- 직접 인터넷 라우팅 없음
 
 * dns/dhcp : dnsmasq(마스커레이드 없음)
 * ip 차단 : iptables

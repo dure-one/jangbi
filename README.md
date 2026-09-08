@@ -70,7 +70,7 @@ traditional nat gateway with iptables(nft).
 * (todo) remote gateway management app : buha app
 
 #### Tunnel Only Mode(Whitelist Mode)
-without nat routing, client only connect to tunnel(hysteria, omnip, shoes, v2ray) to outside. no route. only through tunnel app.
+without nat routing, client only connect to tunnel(hysteria, shoes, v2ray) to outside. no route. only through tunnel app.
 
 * dns/dhcp : dnsmasq(no masquerade)
 * block ip : iptables
@@ -190,7 +190,7 @@ $ ./init.sh
 - system monitor data collect with rsyslog
 - link status connection monitoring tui
 - Basic Buha Application for installation of jangbi sdcard(eflasher, imgwrite)
-- replace wstunnel to v2fly, hysteria, cfal/shoes, neevek/omnip
+- replace wstunnel to v2fly, hysteria, cfal/shoes
 - hysteria server configurations with/without domain name?
 - last configs saved in /etc/jangbi
 - setup wizard to edit write .config file
