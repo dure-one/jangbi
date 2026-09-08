@@ -215,7 +215,6 @@ nav:
     - plugins/os-redis.md
     - plugins/os-sysctl.md
     - plugins/os-systemd.md
-    - plugins/os-vector.md
   # - recipes.md
   - troubleshooting.md
   - development.md

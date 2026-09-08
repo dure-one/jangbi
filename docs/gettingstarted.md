@@ -133,7 +133,6 @@ $ net-darkstat run  # Web interface at http://device-ip:666
 - [`os-redis`](plugins/os-redis.md) - Redis in-memory data store
 - [`os-sysctl`](plugins/os-sysctl.md) - Kernel parameter tuning
 - [`os-systemd`](plugins/os-systemd.md) - Systemd service management
-- [`os-vector`](plugins/os-vector.md) - Log management
 
 All plugins follow a consistent command structure:
 

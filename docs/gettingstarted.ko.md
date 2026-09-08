@@ -130,7 +130,6 @@ $ net-darkstat run  # 웹 인터페이스: http://device-ip:666
 - `os-sysctl` - 커널 매개변수 조정
 - `os-conf` - 시스템 구성
 - `os-minmon` - 최소 모니터링
-- `os-vector` - 로그 관리
 
 ### 플러그인 사용 패턴
 

@@ -37,7 +37,6 @@ os-minmon            [x]        minmon install configurations.
 os-redis             [x]        redis install configurations.
 os-sysctl            [x]        sysctl install configurations.
 os-systemd           [x]        setup systemd.
-os-vector            [x]        vector install configurations.
 
 # restart jangbi-it to reload src changes
 $ jangbi-it restart
