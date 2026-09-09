@@ -137,10 +137,10 @@ check_dependencies() {
     fi
 }
 
-# Get Armbian releases (filter "trunk" releases)
-get_armbian_releases() {
+# Get Armbian official releases (filter "trunk" releases from armbian/os)
+get_armbian_official_releases() {
     # All log output to stderr to avoid polluting return value
-    log_info "Fetching Armbian releases from GitHub..." >&2
+    log_info "Fetching Armbian official releases from GitHub..." >&2
 
     local api_url="https://api.github.com/repos/armbian/os/releases"
     local curl_cmd="curl -sSL"
@@ -164,65 +164,119 @@ get_armbian_releases() {
     echo "$releases"
 }
 
-# Get DietPi images
+# Get Armbian community releases (filter "trunk" releases from armbian/community)
+get_armbian_community_releases() {
+    # All log output to stderr to avoid polluting return value
+    log_info "Fetching Armbian community releases from GitHub..." >&2
+
+    local api_url="https://api.github.com/repos/armbian/community/releases"
+    local curl_cmd="curl -sSL"
+
+    # Use GitHub token if available to avoid rate limiting
+    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+        curl_cmd="curl -sSL -H \"Authorization: Bearer ${GITHUB_TOKEN}\""
+        log_info "Using GitHub token for API request" >&2
+    fi
+
+    # Get all releases and filter for "trunk" in the name
+    local releases=$(eval ${curl_cmd} "${api_url}" | jq -c '.[] | select(.name | contains("trunk")) | {name: .name, assets: [.assets[] | {name: .name, url: .browser_download_url, size: .size}]}')
+
+    if [[ -z "$releases" ]]; then
+        log_error "No trunk releases found in community repo" >&2
+        return 1
+    fi
+
+    # Return only the JSON data to stdout
+    echo "$releases"
+}
+
+# Get DietPi images - scrape from downloads page
 get_dietpi_images() {
     # Log to stderr to avoid polluting return value
-    log_info "Fetching DietPi images list..." >&2
+    log_info "Fetching DietPi images from downloads page..." >&2
 
-    # DietPi maintains a downloads page, we'll parse it
-    local downloads_page="https://dietpi.com/downloads/images"
-    local page_content=$(curl -sSL "${downloads_page}")
+    local downloads_page="https://dietpi.com/downloads/images/"
 
-    # This is a simplified version - DietPi might need web scraping
-    # For now, we'll list common device images
-    cat > "${TEMP_DIR}/dietpi_images.json" <<'EOF'
-[
-    {
-        "device": "NanoPi R5S/R5C",
-        "url": "https://dietpi.com/downloads/images/DietPi_NanoPiR5-ARMv8-Bookworm.img.xz",
-        "name": "DietPi_NanoPiR5-ARMv8-Bookworm.img.xz"
-    },
-    {
-        "device": "NanoPi R6S/R6C",
-        "url": "https://dietpi.com/downloads/images/DietPi_NanoPiR6-ARMv8-Bookworm.img.xz",
-        "name": "DietPi_NanoPiR6-ARMv8-Bookworm.img.xz"
-    },
-    {
-        "device": "OrangePi 5",
-        "url": "https://dietpi.com/downloads/images/DietPi_OrangePi5-ARMv8-Bookworm.img.xz",
-        "name": "DietPi_OrangePi5-ARMv8-Bookworm.img.xz"
-    },
-    {
-        "device": "Raspberry Pi 4/5",
-        "url": "https://dietpi.com/downloads/images/DietPi_RPi-ARMv8-Bookworm.img.xz",
-        "name": "DietPi_RPi-ARMv8-Bookworm.img.xz"
-    }
-]
-EOF
+    # Fetch page and extract .img.xz links
+    local images=$(curl -sSL "${downloads_page}" | \
+        grep -o 'DietPi_[^"]*\.img\.xz' | \
+        sort -u)
 
-    cat "${TEMP_DIR}/dietpi_images.json"
+    if [[ -z "$images" ]]; then
+        log_error "Failed to fetch DietPi images from downloads page" >&2
+        return 1
+    fi
+
+    # Convert to JSON array
+    local json_array="["
+    local first=1
+    while IFS= read -r img; do
+        if [[ -n "$img" ]]; then
+            [[ $first -eq 0 ]] && json_array+=","
+            first=0
+            json_array+="{\"name\":\"$img\",\"url\":\"${downloads_page}${img}\"}"
+        fi
+    done <<< "$images"
+    json_array+="]"
+
+    echo "$json_array" | jq '.'
+}
+
+# Parse DietPi filename - Format: DietPi_DEVICE-ARCH-VERSION.img.xz
+parse_dietpi_name() {
+    local name="$1"
+    # Remove DietPi_ prefix and .img.xz suffix
+    local core=$(echo "$name" | sed 's/^DietPi_//; s/\.img\.xz$//')
+
+    # Split by last two hyphens: DEVICE-ARCH-VERSION
+    # Example: NanoPiR5-ARMv8-Bookworm
+    local device=$(echo "$core" | rev | cut -d'-' -f3- | rev)
+    local arch=$(echo "$core" | rev | cut -d'-' -f2 | rev)
+    local version=$(echo "$core" | rev | cut -d'-' -f1 | rev)
+
+    echo "${device}|${arch}|${version}"
 }
 
 # Parse Armbian assets and show device list
-# Parse Armbian filename - adapts to any format dynamically
-# Format: Armbian_VERSION_DEVICE_DISTRO_KERNEL_TYPE.img.xz
+# Parse Armbian filename - handles both official and community formats
+# Official format: Armbian_VERSION_DEVICE_DISTRO_KERNEL_TYPE.img.xz
+# Community format: Armbian-community_VERSION_DEVICE_DISTRO_KERNEL_TYPE.img.xz (or similar)
 parse_armbian_name() {
     local name="$1"
-    # Extract device (second underscore-separated field)
-    local device=$(echo "$name" | cut -d'_' -f3)
-    # Extract kernel info (4th and 5th fields combined)
-    local kernel=$(echo "$name" | cut -d'_' -f4-5)
-    # Extract type (everything after 5th underscore, before .img)
-    local type=$(echo "$name" | sed 's/.*_\([^_]*\)\.img.*/\1/')
+
+    # Detect format by checking prefix
+    if [[ "$name" =~ ^Armbian-community_ ]] || [[ "$name" =~ ^Armbian_community_ ]]; then
+        # Community format: prefix is "Armbian-community" or "Armbian_community"
+        # Remove prefix to normalize: Armbian-community_VERSION_DEVICE... -> VERSION_DEVICE...
+        local normalized=$(echo "$name" | sed 's/^Armbian-community_//; s/^Armbian_community_//')
+
+        # Now split by underscore
+        # Field 1: VERSION (skip)
+        # Field 2: DEVICE
+        # Field 3+: DISTRO, KERNEL, TYPE
+        local device=$(echo "$normalized" | cut -d'_' -f2)
+        local kernel=$(echo "$normalized" | cut -d'_' -f3-4)
+        local type=$(echo "$normalized" | sed 's/.*_\([^_]*\)\.img.*/\1/')
+    else
+        # Official format: Armbian_VERSION_DEVICE_DISTRO_KERNEL_TYPE.img.xz
+        # Field 1: Armbian (prefix)
+        # Field 2: VERSION (skip)
+        # Field 3: DEVICE
+        # Field 4+: DISTRO, KERNEL, TYPE
+        local device=$(echo "$name" | cut -d'_' -f3)
+        local kernel=$(echo "$name" | cut -d'_' -f4-5)
+        local type=$(echo "$name" | sed 's/.*_\([^_]*\)\.img.*/\1/')
+    fi
 
     echo "${device}|${kernel}|${type}"
 }
 
 show_armbian_devices() {
     local releases="$1"
+    local source="${2:-Official}"  # Default to "Official" if not specified
     local release_count=$(($(echo "$releases" | wc -l)))
 
-    log_info "Found $release_count Armbian trunk release(s)" >&2
+    log_info "Found $release_count Armbian $source trunk release(s)" >&2
     echo "" >&2
 
     # Create combined list of all assets
@@ -237,7 +291,7 @@ show_armbian_devices() {
 
     log_info "Total: $asset_count images available" >&2
 
-    # STEP 1: Extract unique devices
+    # STEP 2: Extract unique devices (Step 1 is now release type selection)
     declare -A device_counts
     for ((i=0; i<asset_count; i++)); do
         local name=$(jq -r ".[$i].name" "$all_assets")
@@ -255,7 +309,7 @@ show_armbian_devices() {
 
     echo "" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "  STEP 1: Select Device (${#devices[@]} available)" >&2
+    echo "  STEP 2: Select Device (${#devices[@]} available in $source)" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 
     for ((i=0; i<${#devices[@]}; i++)); do
@@ -263,11 +317,12 @@ show_armbian_devices() {
     done
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    local dev_sel=$(get_user_selection "${#devices[@]}")
+    local dev_sel=0
+    get_user_selection "${#devices[@]}" dev_sel
     local selected_device="${devices[$dev_sel]}"
     log_info "Selected: $selected_device" >&2
 
-    # STEP 2: Extract unique kernels for selected device
+    # STEP 3: Extract unique kernels for selected device
     declare -A kernel_counts
     for ((i=0; i<asset_count; i++)); do
         local name=$(jq -r ".[$i].name" "$all_assets")
@@ -287,7 +342,7 @@ show_armbian_devices() {
 
     echo "" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "  STEP 2: Select Kernel (${#kernels[@]} available for $selected_device)" >&2
+    echo "  STEP 3: Select Kernel (${#kernels[@]} available for $selected_device)" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 
     for ((i=0; i<${#kernels[@]}; i++)); do
@@ -295,11 +350,12 @@ show_armbian_devices() {
     done
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    local ker_sel=$(get_user_selection "${#kernels[@]}")
+    local ker_sel=0
+    get_user_selection "${#kernels[@]}" ker_sel
     local selected_kernel="${kernels[$ker_sel]}"
     log_info "Selected: $selected_kernel" >&2
 
-    # STEP 3: Extract unique types for device+kernel
+    # STEP 4: Extract unique types for device+kernel
     declare -A type_info
     for ((i=0; i<asset_count; i++)); do
         local name=$(jq -r ".[$i].name" "$all_assets")
@@ -316,7 +372,7 @@ show_armbian_devices() {
 
     echo "" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "  STEP 3: Select Build Type (${#types[@]} available)" >&2
+    echo "  STEP 4: Select Build Type (${#types[@]} available)" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 
     for ((i=0; i<${#types[@]}; i++)); do
@@ -325,7 +381,8 @@ show_armbian_devices() {
     done
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    local type_sel=$(get_user_selection "${#types[@]}")
+    local type_sel=0
+    get_user_selection "${#types[@]}" type_sel
     local selected_type="${types[$type_sel]}"
     local selected_index=$(echo "${type_info[$selected_type]}" | cut -d'|' -f2)
 
@@ -337,31 +394,105 @@ show_armbian_devices() {
     echo "$all_assets"
 }
 
-# Show DietPi device list
+# Show DietPi device list with 2-step selection (device+arch, then version)
 show_dietpi_devices() {
     local images="$1"
     local count=$(echo "$images" | jq length)
 
-    # All display output to stderr
+    log_info "Found $count DietPi images" >&2
     echo "" >&2
-    echo "Available DietPi devices:" >&2
+
+    # STEP 1: Extract unique device+arch combinations
+    declare -A devicearch_counts
+    for ((i=0; i<count; i++)); do
+        local name=$(echo "$images" | jq -r ".[$i].name")
+        local parsed=$(parse_dietpi_name "$name")
+        local device=$(echo "$parsed" | cut -d'|' -f1)
+        local arch=$(echo "$parsed" | cut -d'|' -f2)
+        local devicearch="${device}-${arch}"
+
+        if [[ -z "${devicearch_counts[$devicearch]:-}" ]]; then
+            devicearch_counts[$devicearch]=1
+        else
+            ((devicearch_counts[$devicearch]++))
+        fi
+    done
+
+    local devicearchs=($(printf '%s\n' "${!devicearch_counts[@]}" | sort))
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "  STEP 1: Select Device + Architecture (${#devicearchs[@]} available)" >&2
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
 
-    for ((i=0; i<count; i++)); do
-        local device=$(echo "$images" | jq -r ".[$i].device")
-        local name=$(echo "$images" | jq -r ".[$i].name")
-
-        printf "%3d) %-25s - %s\n" "$((i+1))" "$device" "$name" >&2
+    for ((i=0; i<${#devicearchs[@]}; i++)); do
+        printf "%3d) %-35s (%2d images)\n" "$((i+1))" "${devicearchs[$i]}" "${devicearch_counts[${devicearchs[$i]}]}" >&2
     done
 
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    # Return the JSON data to stdout
-    echo "$images"
+    local dev_sel=0
+    get_user_selection "${#devicearchs[@]}" dev_sel
+    local selected_devicearch="${devicearchs[$dev_sel]}"
+    log_info "Selected: $selected_devicearch" >&2
+
+    # Extract device and arch from selection
+    local selected_device=$(echo "$selected_devicearch" | rev | cut -d'-' -f2- | rev)
+    local selected_arch=$(echo "$selected_devicearch" | rev | cut -d'-' -f1 | rev)
+
+    # STEP 2: Extract unique versions for selected device+arch
+    declare -A version_info
+    for ((i=0; i<count; i++)); do
+        local name=$(echo "$images" | jq -r ".[$i].name")
+        local parsed=$(parse_dietpi_name "$name")
+        local device=$(echo "$parsed" | cut -d'|' -f1)
+        local arch=$(echo "$parsed" | cut -d'|' -f2)
+        local version=$(echo "$parsed" | cut -d'|' -f3)
+
+        if [[ "$device" == "$selected_device" && "$arch" == "$selected_arch" ]]; then
+            local url=$(echo "$images" | jq -r ".[$i].url")
+            version_info[$version]="$url|$name"
+        fi
+    done
+
+    local versions=($(printf '%s\n' "${!version_info[@]}" | sort))
+
+    echo "" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    echo "  STEP 2: Select OS Version (${#versions[@]} available for $selected_devicearch)" >&2
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+
+    for ((i=0; i<${#versions[@]}; i++)); do
+        printf "%3d) %s\n" "$((i+1))" "${versions[$i]}" >&2
+    done
+
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+    local ver_sel=0
+    get_user_selection "${#versions[@]}" ver_sel
+    local selected_version="${versions[$ver_sel]}"
+    log_info "Selected: $selected_version" >&2
+
+    # Extract URL and name from version_info
+    local selected_url=$(echo "${version_info[$selected_version]}" | cut -d'|' -f1)
+    local selected_name=$(echo "${version_info[$selected_version]}" | cut -d'|' -f2)
+
+    # Return JSON with selected image
+    cat <<EOF
+{
+    "url": "$selected_url",
+    "name": "$selected_name",
+    "device": "$selected_device",
+    "arch": "$selected_arch",
+    "version": "$selected_version"
+}
+EOF
 }
 
-# Get user selection
+# Get user selection - stores result in variable passed by name
+# Usage: get_user_selection MAX_NUM RESULT_VAR
+#   get_user_selection 10 my_selection
+#   echo "Selected: $my_selection"
 get_user_selection() {
     local max_selection=$1
+    local result_var=$2
     local selection
 
     while true; do
@@ -373,10 +504,13 @@ get_user_selection() {
         fi
 
         if [[ "$selection" =~ ^[0-9]+$ ]] && [[ $selection -ge 1 ]] && [[ $selection -le $max_selection ]]; then
-            echo $((selection - 1))  # Return 0-based index
+            local zero_based=$((selection - 1))
+            eval "$result_var=$zero_based"  # Store 0-based index
+            # Debug output (can be removed later)
+            # log_info "DEBUG: Set $result_var to $zero_based" >&2
             return 0
         else
-            log_error "Invalid selection. Please enter a number between 1 and ${max_selection}"
+            log_error "Invalid selection. Please enter a number between 1 and ${max_selection}" >&2
         fi
     done
 }
@@ -746,8 +880,8 @@ main_menu() {
     echo "  Armbian/DietPi Image Download and Flash Tool"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "1) Download and flash Armbian (trunk releases)"
-    echo "2) Download and flash DietPi"
+    echo "1) Download and flash Armbian (Official/Community trunk releases)"
+    echo "2) Download and flash DietPi (device+arch, then version)"
     echo "3) Flash existing image"
     echo "q) Quit"
     echo ""
@@ -777,14 +911,35 @@ main_menu() {
 
 # Process Armbian workflow
 process_armbian() {
-    local releases=$(get_armbian_releases)
+    # STEP 1: Select release type
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  STEP 1: Select Armbian Release Type"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  1) Official releases (armbian/os)"
+    echo "  2) Community releases (armbian/community)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    local release_type_sel=0
+    get_user_selection 2 release_type_sel
+
+    local releases
+    local source_name
+    if [[ $release_type_sel -eq 0 ]]; then
+        source_name="Official"
+        releases=$(get_armbian_official_releases)
+    else
+        source_name="Community"
+        releases=$(get_armbian_community_releases)
+    fi
+
     if [[ -z "$releases" ]]; then
-        log_error "Failed to fetch Armbian releases"
+        log_error "Failed to fetch Armbian $source_name releases"
         return 1
     fi
 
-    # show_armbian_devices does 3-step filtering and saves index
-    local assets_file=$(show_armbian_devices "$releases")
+    # show_armbian_devices does 3-step filtering (device, kernel, build type) and saves index
+    local assets_file=$(show_armbian_devices "$releases" "$source_name")
 
     if [[ ! -f "${TEMP_DIR}/selected_index.txt" ]]; then
         log_error "Selection cancelled or failed"
@@ -796,7 +951,7 @@ process_armbian() {
     local name=$(jq -r ".[$selection].name" "$assets_file")
 
     echo ""
-    log_info "Final selection: $name"
+    log_info "Final selection: $name (from $source_name)"
 
     local image_path=$(download_image "$url" "$name")
     if [[ $? -ne 0 ]]; then
@@ -810,18 +965,22 @@ process_armbian() {
 # Process DietPi workflow
 process_dietpi() {
     local images=$(get_dietpi_images)
-    # Show devices (output to stderr, returns JSON to stdout)
-    images=$(show_dietpi_devices "$images")
-    local count=$(echo "$images" | jq length)
+    if [[ -z "$images" ]]; then
+        log_error "Failed to fetch DietPi images"
+        return 1
+    fi
+
+    # show_dietpi_devices does 2-step filtering and returns selected image JSON
+    local selected=$(show_dietpi_devices "$images")
+
+    local url=$(echo "$selected" | jq -r ".url")
+    local name=$(echo "$selected" | jq -r ".name")
+    local device=$(echo "$selected" | jq -r ".device")
+    local arch=$(echo "$selected" | jq -r ".arch")
+    local version=$(echo "$selected" | jq -r ".version")
 
     echo ""
-    local selection=$(get_user_selection "$count")
-
-    local url=$(echo "$images" | jq -r ".[$selection].url")
-    local name=$(echo "$images" | jq -r ".[$selection].name")
-    local device=$(echo "$images" | jq -r ".[$selection].device")
-
-    log_info "Selected: $device - $name"
+    log_info "Final selection: $device-$arch-$version ($name)"
 
     local image_path=$(download_image "$url" "$name")
     if [[ $? -ne 0 ]]; then
@@ -853,7 +1012,8 @@ process_existing_image() {
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
     echo ""
-    local selection=$(get_user_selection "${#images[@]}")
+    local selection=0
+    get_user_selection "${#images[@]}" selection
     local image_path="${images[$selection]}"
 
     log_info "Selected: $(basename "$image_path")"
@@ -865,20 +1025,64 @@ process_existing_image() {
 flash_to_device() {
     local image="$1"
 
-    # Get list of devices
-    local devices=$(get_flash_devices)
-    if [[ -z "$devices" ]]; then
+    # Retry loop for device detection
+    local devices=""
+    while true; do
+        devices=$(get_flash_devices)
+        if [[ -n "$devices" ]]; then
+            break
+        fi
+
+        echo ""
         log_error "No suitable devices found for flashing"
-        return 1
-    fi
+        log_info "Possible issues:"
+        log_info "  - SD card not fully inserted"
+        log_info "  - USB adapter not connected or initialized"
+        log_info "  - Device permissions (try running as root)"
+        echo ""
+        echo "Options:"
+        echo "  r) Retry detection"
+        echo "  q) Quit"
+        echo ""
+        read -p "Select option: " retry_option
+
+        case "$retry_option" in
+            r|R)
+                log_info "Retrying device detection..."
+                continue
+                ;;
+            q|Q)
+                log_info "Exiting..."
+                exit 0
+                ;;
+            *)
+                log_error "Invalid option. Please enter 'r' or 'q'"
+                continue
+                ;;
+        esac
+    done
 
     show_flash_devices "$devices"
 
     local count=$(($(echo "$devices" | wc -l)))
     echo ""
-    local selection=$(get_user_selection "$count")
+    local selection=0
+    get_user_selection "$count" selection
+
+    # Verify selection was set
+    if [[ -z "${selection:-}" ]]; then
+        log_error "Selection failed - variable not set"
+        return 1
+    fi
 
     local device=$(get_device_path "$devices" "$selection")
+
+    # Verify device path was extracted
+    if [[ -z "$device" ]]; then
+        log_error "Failed to extract device path from selection $selection"
+        return 1
+    fi
+
     log_info "Selected device: $device"
 
     # Confirm before flashing
@@ -905,14 +1109,35 @@ flash_to_device() {
 
 # Download only (no root needed)
 download_only_armbian() {
-    local releases=$(get_armbian_releases)
+    # STEP 1: Select release type
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  STEP 1: Select Armbian Release Type"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  1) Official releases (armbian/os)"
+    echo "  2) Community releases (armbian/community)"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+    local release_type_sel=0
+    get_user_selection 2 release_type_sel
+
+    local releases
+    local source_name
+    if [[ $release_type_sel -eq 0 ]]; then
+        source_name="Official"
+        releases=$(get_armbian_official_releases)
+    else
+        source_name="Community"
+        releases=$(get_armbian_community_releases)
+    fi
+
     if [[ -z "$releases" ]]; then
-        log_error "Failed to fetch Armbian releases"
+        log_error "Failed to fetch Armbian $source_name releases"
         return 1
     fi
 
-    # show_armbian_devices does 3-step filtering and saves index
-    local assets_file=$(show_armbian_devices "$releases")
+    # show_armbian_devices does 3-step filtering (device, kernel, build type) and saves index
+    local assets_file=$(show_armbian_devices "$releases" "$source_name")
 
     if [[ ! -f "${TEMP_DIR}/selected_index.txt" ]]; then
         log_error "Selection cancelled or failed"
@@ -924,7 +1149,7 @@ download_only_armbian() {
     local name=$(jq -r ".[$selection].name" "$assets_file")
 
     echo ""
-    log_info "Final selection: $name"
+    log_info "Final selection: $name (from $source_name)"
 
     local image_path=$(download_image "$url" "$name")
     if [[ $? -ne 0 ]]; then
@@ -938,18 +1163,22 @@ download_only_armbian() {
 
 download_only_dietpi() {
     local images=$(get_dietpi_images)
-    # Show devices (output to stderr, returns JSON to stdout)
-    images=$(show_dietpi_devices "$images")
-    local count=$(echo "$images" | jq length)
+    if [[ -z "$images" ]]; then
+        log_error "Failed to fetch DietPi images"
+        return 1
+    fi
+
+    # show_dietpi_devices does 2-step filtering and returns selected image JSON
+    local selected=$(show_dietpi_devices "$images")
+
+    local url=$(echo "$selected" | jq -r ".url")
+    local name=$(echo "$selected" | jq -r ".name")
+    local device=$(echo "$selected" | jq -r ".device")
+    local arch=$(echo "$selected" | jq -r ".arch")
+    local version=$(echo "$selected" | jq -r ".version")
 
     echo ""
-    local selection=$(get_user_selection "$count")
-
-    local url=$(echo "$images" | jq -r ".[$selection].url")
-    local name=$(echo "$images" | jq -r ".[$selection].name")
-    local device=$(echo "$images" | jq -r ".[$selection].device")
-
-    log_info "Selected: $device - $name"
+    log_info "Final selection: $device-$arch-$version ($name)"
 
     local image_path=$(download_image "$url" "$name")
     if [[ $? -ne 0 ]]; then
@@ -979,7 +1208,20 @@ main() {
             ;;
         --test-armbian)
             log_info "Testing Armbian API fetch (no root needed)..."
-            local releases=$(get_armbian_releases)
+            echo "Select source:"
+            echo "1) Official (armbian/os)"
+            echo "2) Community (armbian/community)"
+            read -p "Choice: " test_choice
+
+            local releases
+            if [[ "$test_choice" == "2" ]]; then
+                log_info "Testing Community releases..."
+                releases=$(get_armbian_community_releases)
+            else
+                log_info "Testing Official releases..."
+                releases=$(get_armbian_official_releases)
+            fi
+
             if [[ -z "$releases" ]]; then
                 log_error "Failed to fetch releases"
                 exit 1
@@ -996,8 +1238,20 @@ main() {
             if [[ $asset_count -gt 0 ]]; then
                 log_success "Successfully parsed $asset_count assets"
                 echo ""
-                echo "First 5 assets:"
+                echo "First 10 asset names:"
+                jq -r '.[0:10] | .[] | .name' "$all_assets"
+                echo ""
+                echo "First 5 assets with size:"
                 jq -r '.[0:5] | .[] | "\(.name) (\(.size / 1024 / 1024 | floor)MB)"' "$all_assets"
+                echo ""
+                echo "Testing parse_armbian_name on first asset:"
+                local first_name=$(jq -r '.[0].name' "$all_assets")
+                echo "Filename: $first_name"
+                local parsed=$(parse_armbian_name "$first_name")
+                echo "Parsed: $parsed"
+                echo "Device: $(echo "$parsed" | cut -d'|' -f1)"
+                echo "Kernel: $(echo "$parsed" | cut -d'|' -f2)"
+                echo "Type: $(echo "$parsed" | cut -d'|' -f3)"
             else
                 log_error "No assets found after parsing"
             fi
@@ -1007,13 +1261,17 @@ main() {
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --armbian            Download and flash Armbian trunk release (needs root)"
-            echo "  --dietpi             Download and flash DietPi image (needs root)"
+            echo "  --armbian            Download and flash Armbian (4-step: release type, device, kernel, build)"
+            echo "  --dietpi             Download and flash DietPi (2-step: device+arch, version)"
             echo "  --flash              Flash existing image from imgs/ directory (needs root)"
             echo "  --download-armbian   Download Armbian image only (no root needed)"
             echo "  --download-dietpi    Download DietPi image only (no root needed)"
             echo "  --test-armbian       Test Armbian API fetch (debug, no root needed)"
             echo "  --help               Show this help message"
+            echo ""
+            echo "Armbian sources:"
+            echo "  - Official: github.com/armbian/os (stable releases)"
+            echo "  - Community: github.com/armbian/community (community builds)"
             echo ""
             echo "Without arguments, shows interactive menu (needs root)."
             echo ""
